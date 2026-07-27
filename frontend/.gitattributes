@@ -1,0 +1,14 @@
+# 줄바꿈 정규화 — Windows/Mac 혼재 시 전체 파일 diff 방지
+* text=auto eol=lf
+
+# 바이너리 (변환 금지)
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+
+# 텍스트로 다루되 LF 고정
+*.svg text eol=lf
