@@ -14,11 +14,24 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       // ① admin 경로는 SW의 네비게이션 폴백에서 제외
+      pwaAssets: { config: true },
+      devOptions: { enabled: false, type: 'module' },
       workbox: {
         navigateFallback: 'index.html',
         navigateFallbackDenylist: [/^\/admin/],
         // ② admin 청크와 런타임 설정 파일은 precache 대상에서 제외
         globIgnores: ['**/assets/admin-*', '**/config.js'],
+                runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/.*\.s3\..*\.amazonaws\.com\/.*\.(png|jpg|jpeg|webp)$/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'sign-images',
+              expiration: { maxEntries: 300, maxAgeSeconds: 60 * 60 * 24 * 30 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+        ],
       },
       manifest: {
         name: 'Station Guide',
@@ -28,10 +41,6 @@ export default defineConfig({
         display: 'standalone',
         background_color: '#ffffff',
         theme_color: '#1e6fd9',
-        icons: [
-          { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
-          { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
-        ],
       },
     }),
   ],
