@@ -13,17 +13,21 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      // ① admin 경로는 SW의 네비게이션 폴백에서 제외
+      // 아이콘 생성은 pwa-assets.config.ts 에 위임 (manifest.icons 자동 주입)
       pwaAssets: { config: true },
+      // 개발 중 캐시 혼란 방지 — PWA 동작을 확인할 때만 true 로 변경
       devOptions: { enabled: false, type: 'module' },
       workbox: {
         navigateFallback: 'index.html',
+        // ① admin 경로는 SW 네비게이션 폴백에서 제외
         navigateFallbackDenylist: [/^\/admin/],
         // ② admin 청크와 런타임 설정 파일은 precache 대상에서 제외
         globIgnores: ['**/assets/admin-*', '**/config.js'],
-                runtimeCaching: [
+        // ③ 표지판 이미지는 런타임 캐싱 (지하 약전파 구간 대응)
+        runtimeCaching: [
           {
-            urlPattern: /^https:\/\/.*\.s3\..*\.amazonaws\.com\/.*\.(png|jpg|jpeg|webp)$/,
+            urlPattern:
+              /^https:\/\/.*\.s3\..*\.amazonaws\.com\/.*\.(png|jpg|jpeg|webp)$/,
             handler: 'CacheFirst',
             options: {
               cacheName: 'sign-images',
@@ -34,11 +38,14 @@ export default defineConfig({
         ],
       },
       manifest: {
+        id: '/',
         name: 'Station Guide',
         short_name: 'StationGuide',
+        description: 'Indoor navigation for subway stations',
         start_url: '/',
         scope: '/',
         display: 'standalone',
+        orientation: 'portrait',
         background_color: '#ffffff',
         theme_color: '#1e6fd9',
       },
@@ -47,10 +54,10 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        // ③ admin 코드를 'admin'이라는 이름의 별도 청크로 강제 분리
-        //    → assets/admin-[hash].js 로 떨어지고, 위 globIgnores와 짝을 이룸
+        // ④ admin 코드를 'admin' 청크로 강제 분리 → assets/admin-[hash].js
+        //    위 globIgnores 와 짝을 이룸
         manualChunks(id) {
-          if (id.includes('/src/admin/')) return 'admin'
+          if (id.replace(/\\/g, '/').includes('/src/admin/')) return 'admin'
         },
       },
     },
