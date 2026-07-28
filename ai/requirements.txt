@@ -1,0 +1,10 @@
+# GPU(CUDA 12.8) 환경에서 torch 를 설치할 때는 아래 명령을 먼저 실행한다.
+#   pip install torch torchvision --index-url https://download.pytorch.org/whl/cu128
+# CPU 만 쓰는 서버라면 그냥 pip install torch torchvision 으로 충분하다.
+
+torch>=2.11
+torchvision>=0.26
+ultralytics>=8.4
+pillow>=11.0
+numpy>=2.0
+psutil>=7.0
