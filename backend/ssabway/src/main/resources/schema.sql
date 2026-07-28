@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `password_hash` VARCHAR(255) NULL                    COMMENT '고객 암호화 비밀번호 (소셜 가입 시 NULL)',
   `provider`      VARCHAR(20)  NOT NULL DEFAULT 'LOCAL' COMMENT '가입 경로 (LOCAL/GOOGLE/KAKAO/NAVER)',
   `provider_id`   VARCHAR(100) NULL                    COMMENT '소셜 고유 식별자 (로컬 가입 시 NULL)',
-  `language`      VARCHAR(10)  NOT NULL DEFAULT 'en'   COMMENT '고객 선호 언어 (ISO 639-1)',
+  `language`      VARCHAR(10)  NOT NULL DEFAULT 'EN'   COMMENT '고객 선호 언어 (ISO 639-1)',
   `created_at`    DATETIME(6)  NOT NULL DEFAULT CURRENT_TIMESTAMP(6) COMMENT '고객 가입일자',
   `deleted_at`    DATETIME(6)  NULL                    COMMENT '고객 탈퇴일자',
   PRIMARY KEY (`user_id`),
