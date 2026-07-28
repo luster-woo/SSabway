@@ -1,0 +1,26 @@
+import type { ConsultationStatus } from '@/shared/types'
+
+export const queryKeys = {
+  station: {
+    all: ['station'] as const,
+    list: () => [...queryKeys.station.all, 'list'] as const,
+    detail: (id: number) => [...queryKeys.station.all, id] as const,
+    points: (id: number) => [...queryKeys.station.all, id, 'points'] as const,
+  },
+  consultation: {
+    all: ['consultation'] as const,
+    detail: (id: number) => [...queryKeys.consultation.all, id] as const,
+    /** 역무원 대기 목록 (3초 폴링) */
+    waiting: (page: number) =>
+      [...queryKeys.consultation.all, 'waiting', page] as const,
+    /** 민원 기록 */
+    history: (page: number) =>
+      [...queryKeys.consultation.all, 'history', page] as const,
+    byStatus: (status: ConsultationStatus) =>
+      [...queryKeys.consultation.all, 'status', status] as const,
+  },
+  blacklist: {
+    all: ['blacklist'] as const,
+    list: (page: number) => [...queryKeys.blacklist.all, 'list', page] as const,
+  },
+} as const
