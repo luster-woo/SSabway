@@ -29,41 +29,92 @@
 
 ---
 
-## 2. 빠르게 시작하기
+## 2. 테스트만 해보기 (5분)
 
-### 설치
+**학습은 필요 없습니다.** 모델과 사진만 내려받아 스크립트 하나 돌리면 결과를 볼 수 있습니다.
+
+### 준비물
+
+| 받을 것 | 크기 | 링크 |
+|---|---|---|
+| 모델 2개 | 49MB | [weights 폴더](https://drive.google.com/drive/folders/10bZmrgDxFnklpmjvPO6m0KfXT2Em8Yv6?usp=drive_link) |
+| 테스트 사진 `test_combined` | 138MB | [data 폴더](https://drive.google.com/drive/folders/12NkPnLQtZ5DR99Y-i7LzoV1_IkNwsIjJ?usp=drive_link) |
+
+정답지는 저장소에 이미 들어 있습니다 (`data/answers/`).
+
+### 순서
+
+**1) 저장소 받고 패키지 설치**
 
 ```bash
 git clone https://lab.ssafy.com/s15-webmobile1-sub1/S15P11D104.git
 cd S15P11D104/ai
-pip install torch torchvision --index-url https://download.pytorch.org/whl/cu128   # GPU
 pip install -r requirements.txt
 ```
 
-### 모델 내려받기
+GPU가 있으면 torch를 CUDA 버전으로 먼저 설치하세요. 없어도 됩니다 (CPU로 사진당 0.3~0.4초).
 
-가중치는 용량 때문에 저장소에 넣지 않았습니다. 팀 공유 위치에서 받아 `ai/models/` 에 두세요.
+```bash
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cu128
+```
 
-> 모델 배포 위치: _(TODO: 링크 추가)_
+**2) 모델을 `ai/models/` 에 넣기**
 
 ```
-models/
+ai/models/
 ├── detector_yolov8n.pt      # 표지판 검출기 (6MB)
-└── classifier_resnet18.pt   # 표지판 분류기 (45MB)
+└── classifier_resnet18.pt   # 표지판 분류기 (43MB)
 ```
 
-### 사진 인식해보기
+**3) 실행**
 
 ```bash
 python src/05_two_stage_eval.py \
     --det models/detector_yolov8n.pt \
     --cls models/classifier_resnet18.pt \
-    --data <사진이 든 폴더> \
+    --data <test_combined 경로> \
+    --answers data/answers/test_all.csv \
     --out report.html
 ```
 
-`report.html` 에 사진별 예측·확신도·검출 박스가 그려진 리포트가 생성됩니다.
-정답 CSV를 `--answers` 로 같이 주면 자동 채점됩니다.
+Windows CMD 에서는 줄 끝 `\` 를 `^` 로 바꾸거나 한 줄로 이어 쓰세요.
+
+**4) 결과 확인**
+
+터미널에 이렇게 나오면 성공입니다.
+
+```
+70장 2단계 추론
+2단계 정확도: 52/56 = 92.9%
+리포트: .../report.html
+```
+
+`report.html` 을 브라우저로 열면 사진마다 **검출된 표지판 박스 · 정답 · 예측 · 확신도**가 보입니다.
+오답이 맨 앞에 오도록 정렬돼 있습니다.
+
+### 다른 사진으로 해보고 싶다면
+
+정답지 없이 아무 사진 폴더나 넣어도 됩니다. 채점은 안 되지만 예측 결과는 다 나옵니다.
+
+```bash
+python src/05_two_stage_eval.py \
+    --det models/detector_yolov8n.pt \
+    --cls models/classifier_resnet18.pt \
+    --data <내 사진 폴더> \
+    --out report.html
+```
+
+### 테스트셋을 나눠서 보려면
+
+`test_combined` 는 아래 두 세트를 합친 것입니다. 따로 돌려볼 수도 있습니다.
+
+| 정답지 | 사진 | 결과 |
+|---|---|---|
+| `data/answers/test_all.csv` | test_combined 70장 | 52/56 = 92.9% |
+| `data/answers/test_seokjin.csv` | 폰 촬영 30장 | 20/22 = 90.9% |
+| `data/answers/test_video.csv` | 영상 프레임 40장 | 31/34 = 91.2% |
+
+> 채점 대상이 사진 수보다 적은 것은, 41개 클래스에 없는 표지판이 찍힌 사진을 제외하기 때문입니다.
 
 ---
 
@@ -93,8 +144,9 @@ python src/05_two_stage_eval.py \
 
 ## 4. 처음부터 다시 학습하려면
 
-학습 데이터(원본 사진)는 용량이 커서 저장소에 없습니다. 공유 드라이브에서 받아
-아래 구조로 두고, **데이터 루트 폴더에서** 스크립트를 실행하세요.
+학습 데이터(원본 사진)는 용량이 커서 저장소에 없습니다.
+[data 폴더](https://drive.google.com/drive/folders/12NkPnLQtZ5DR99Y-i7LzoV1_IkNwsIjJ?usp=drive_link)
+에서 받아 아래 구조로 두고, **데이터 루트 폴더에서** 스크립트를 실행하세요.
 
 ```
 <데이터 루트>/
@@ -246,10 +298,17 @@ ai/
 │       ├── test_seokjin.csv    # 실전 사진 답지 (폰 촬영 30장)
 │       ├── test_video.csv      # 실전 사진 답지 (영상 프레임 40장)
 │       └── test_all.csv        # 위 둘 통합 (70장, 채점 대상 56장)
-└── models/                     # git 에 없음 — 팀 공유 위치에서 받으세요
+└── models/                     # git 에 없음 — 구글 드라이브에서 받으세요
     ├── detector_yolov8n.pt     # 6MB
-    └── classifier_resnet18.pt  # 45MB
+    └── classifier_resnet18.pt  # 43MB
 ```
+
+### 공유 드라이브
+
+| 폴더 | 내용 |
+|---|---|
+| [weights](https://drive.google.com/drive/folders/10bZmrgDxFnklpmjvPO6m0KfXT2Em8Yv6?usp=drive_link) | 학습된 모델 2개 (49MB) |
+| [data](https://drive.google.com/drive/folders/12NkPnLQtZ5DR99Y-i7LzoV1_IkNwsIjJ?usp=drive_link) | 테스트 사진, 학습 데이터 |
 
 ### git 에 올리지 않는 것
 
