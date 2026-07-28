@@ -20,9 +20,15 @@ export default defineConfig({
       workbox: {
         navigateFallback: 'index.html',
         // ① admin 경로는 SW 네비게이션 폴백에서 제외
-        navigateFallbackDenylist: [/^\/admin/],
+        navigateFallbackDenylist: [/^\/admin/, /^\/agent/],
         // ② admin 청크와 런타임 설정 파일은 precache 대상에서 제외
-        globIgnores: ['**/assets/admin-*', '**/config.js'],
+        globIgnores: [
+          '**/assets/admin-*',
+          '**/assets/agent-*',
+          '**/config.js',
+          '**/mediapipe/**',
+          '**/models/**',
+        ],
         // ③ 표지판 이미지는 런타임 캐싱 (지하 약전파 구간 대응)
         runtimeCaching: [
           {
@@ -54,10 +60,12 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        // ④ admin 코드를 'admin' 청크로 강제 분리 → assets/admin-[hash].js
+        // ④ admin, agent 코드를 각각 별도 청크로 분리
         //    위 globIgnores 와 짝을 이룸
         manualChunks(id) {
-          if (id.replace(/\\/g, '/').includes('/src/admin/')) return 'admin'
+          const p = id.replace(/\\/g, '/')
+          if (p.includes('/src/admin/')) return 'admin'
+          if (p.includes('/src/agent/')) return 'agent'
         },
       },
     },
