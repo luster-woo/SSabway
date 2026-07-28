@@ -24,7 +24,7 @@ public class ApiResponse<T> {
     private final String message;
     private final T data;
 
-    public ApiResponse(boolean success, String message, T data) {
+    private ApiResponse(boolean success, String message, T data) {
         this.success = success;
         this.message = message;
         this.data = data;
