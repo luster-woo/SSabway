@@ -1,0 +1,41 @@
+spring:
+  application:
+    name: ssabway
+
+  config:
+    import: optional:application-secret.yml
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/ssabway_db
+    username: ssafy
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  sql:
+    init:
+      mode: always
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: true
+    open-in-view: false
+
+  mail:
+    host: smtp.gmail.com
+    port:  587
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.orm.jdbc.bind: trace
