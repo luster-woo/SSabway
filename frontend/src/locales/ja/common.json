@@ -1,0 +1,28 @@
+{
+  "language": {
+    "select": "言語を選択してください"
+  },
+  "location": {
+    "captureSign": "案内標識を撮影する",
+    "useGps": "現在位置を使う",
+    "selectStation": "駅を手動で選択する"
+  },
+  "route": {
+    "next": "次へ",
+    "prev": "戻る",
+    "arrived": "到着しました"
+  },
+  "consultation": {
+    "request": "ヘルプを依頼する",
+    "connecting": "駅員に接続しています...",
+    "queuePosition": "あなたの前に{{position}}人待っています",
+    "unavailable": "現在対応できる駅員がいません",
+    "micOnly": "駅員が音声で案内します。カメラはオフです。",
+    "end": "通話を終了する"
+  },
+  "common": {
+    "retry": "再試行",
+    "cancel": "キャンセル",
+    "confirm": "確認"
+  }
+}
