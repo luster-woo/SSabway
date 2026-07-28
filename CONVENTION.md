@@ -19,7 +19,7 @@
 | hotfix   | 🚑      | 긴급 수정                                |
 
 ## Scope (선택)
-- fe / be / infra / docs
+- fe / be / ai / infra / docs
 
 ## 규칙
 - gitmoji는 맨 앞에 하나만, 뒤에 공백 한 칸
