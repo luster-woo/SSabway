@@ -1,8 +1,8 @@
 import { lazy, Suspense } from 'react'
 import { createBrowserRouter } from 'react-router-dom'
 
-// 이 dynamic import가 manualChunks와 짝을 이룹니다
 const AdminApp = lazy(() => import('@/admin/AdminApp'))
+const AgentApp = lazy(() => import('@/agent/AgentApp'))
 
 export const router = createBrowserRouter([
   {
@@ -14,6 +14,14 @@ export const router = createBrowserRouter([
     element: (
       <Suspense fallback={<div className="p-8">Loading…</div>}>
         <AdminApp />
+      </Suspense>
+    ),
+  },
+  {
+    path: '/agent',
+    element: (
+      <Suspense fallback={null}>
+        <AgentApp />
       </Suspense>
     ),
   },
