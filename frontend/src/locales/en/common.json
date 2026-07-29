@@ -232,6 +232,20 @@
     "failed": "Could not load the route guide\nPlease try again in a moment",
     "empty": "No guide steps were found\nPlease photograph a sign again"
   },
+  "arrival": {
+    "back": "Back",
+    "title": "You have arrived!",
+    "duration": "Travel time",
+    "origin": "From",
+    "destination": "To",
+    "newDestination": "Guide me to a new destination",
+    "feedback": {
+      "question": "Was the guide helpful?",
+      "helpful": "It helped",
+      "notHelpful": "Not really",
+      "thanks": "Thank you for your feedback"
+    }
+  },
   "consultation": {
     "request": "Ask for help",
     "connecting": "Connecting to staff...",
