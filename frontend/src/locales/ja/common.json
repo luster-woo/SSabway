@@ -13,7 +13,27 @@
     "deleteAccount": "退会",
     "accountMenu": "アカウントメニュー",
     "signedOut": "ログアウトしました",
-    "accountDeleted": "退会処理しました"
+    "accountDeleted": "退会処理しました",
+    "login": {
+      "title": "ログイン",
+      "subtitle": "メールとパスワードでログインしてください。",
+      "google": "Googleで続行",
+      "googlePending": "Googleログインは準備中です",
+      "orEmail": "またはメールで",
+      "email": "メールアドレス",
+      "emailPlaceholder": "you@example.com",
+      "password": "パスワード",
+      "passwordPlaceholder": "パスワードを入力",
+      "forgotPassword": "パスワードをお忘れですか?",
+      "noAccount": "アカウントをお持ちでないですか?",
+      "signUp": "会員登録",
+      "back": "戻る",
+      "success": "ログインしました",
+      "error": {
+        "invalidCredential": "メールアドレスまたはパスワードが正しくありません",
+        "unknown": "ログインに失敗しました・しばらくしてから再試行してください"
+      }
+    }
   },
   "start": {
     "startGuide": "ガイド開始",
