@@ -1,7 +1,6 @@
 package com.ssafy.ssabway_webrtc.domain.service;
 
 import io.openvidu.java.client.*;
-import io.openvidu.java.client.OpenVidu;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -48,10 +47,28 @@ public class OpenViduService {
         Session session = openVidu.getActiveSession(sessionId);
 
         if(session == null){
-            throw new IllegalStateException(
-                "존재하지 않는 상담 세션입니다."
-            );
+            throw new IllegalStateException("존재하지 않는 상담 세션입니다.");
         }
         session.close();
+    }
+
+
+    // 화면 녹화 후 음성데이터 받아오는 메서드
+    public Recording startAudioRecording(String sessionId) throws OpenViduJavaClientException, OpenViduHttpException{
+        openVidu.fetch();
+
+        Session session = openVidu.getActiveSession(sessionId);
+        if(session == null){
+            throw new IllegalStateException("존재하지 않는 상담 세션입니다.");
+        }
+
+        RecordingProperties properties = new RecordingProperties.Builder()
+            .name("audio-" + sessionId)
+            .outputMode(Recording.OutputMode.COMPOSED)
+            .hasAudio(true)
+            .hasVideo(false)
+            .build();
+
+        return openVidu.startRecording(sessionId, properties);
     }
 }
