@@ -5,6 +5,11 @@ spring:
   config:
     import: optional:application-secret.yml
 
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
   datasource:
     url: jdbc:mysql://localhost:3306/ssabway_db
     username: ssafy
