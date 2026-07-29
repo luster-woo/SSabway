@@ -2,7 +2,7 @@ spring:
   application:
     name: ssabway_webrtc
   config:
-    import: application-secret.yaml
+    import: optional:application-secret.yaml
 
   datasource:
     url: jdbc:mysql://localhost:3306/ssabway_db?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Seoul

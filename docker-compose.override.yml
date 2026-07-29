@@ -1,0 +1,9 @@
+services:
+  frontend:
+    ports: ["8080:80"]
+  mysql:
+    ports: ["127.0.0.1:3307:3306"]
+  redis:
+    ports: ["127.0.0.1:6379:6379"]
+  api:
+    ports: ["127.0.0.1:8081:8080"]
