@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
@@ -19,8 +19,9 @@ import { usePlaceSearch } from '@/user/features/destination-search/hooks/usePlac
 /**
  * 3. 목적지 설정 — 지도에서 목적지를 확정하는 화면.
  *
- * 진입 직후에는 지도와 검색창만 보인다. 키워드를 검색해 후보를 고르면
- * 마커가 찍히고 그 위치로 확대 이동하며, 하단에 확인 카드가 올라온다.
+ * 진입 직후에는 지도와 검색창만 보인다. 키워드를 검색하면 후보 목록이 뜨고
+ * 첫 번째 후보가 자동 선택되어 마커가 찍히며 그 위치로 확대 이동한다.
+ * 다른 후보를 고르면 마커와 지도 중심이 그 후보로 옮겨간다.
  */
 export default function DestinationPage() {
   const { t } = useTranslation()
@@ -44,6 +45,17 @@ export default function DestinationPage() {
     selected,
   })
 
+  // 결과가 도착하면 첫 번째 후보를 기본 선택한다.
+  // 이미 목록에 있는 후보를 골라둔 상태라면 그 선택을 유지한다.
+  useEffect(() => {
+    if (results.length === 0) return
+    setSelected((prev) =>
+      prev && results.some((place) => place.placeId === prev.placeId)
+        ? prev
+        : results[0],
+    )
+  }, [results])
+
   const submitSearch = () => {
     const trimmed = keyword.trim()
     if (!trimmed) {
@@ -54,19 +66,12 @@ export default function DestinationPage() {
       showToast(t('destination.mapNotReady'))
       return
     }
-    // 후보를 다시 고르는 흐름이므로 이전 선택은 지운다.
+    // 새 검색이므로 이전 선택은 지운다. 결과가 오면 위 이펙트가 첫 후보를 고른다.
     setSelected(null)
     setSubmittedQuery(trimmed)
   }
 
-  const selectPlace = (place: Place) => {
-    setSelected(place)
-    setKeyword(place.name)
-    // 목록을 닫아 지도와 마커가 보이게 한다.
-    setSubmittedQuery('')
-  }
-
-  const resetSelection = () => {
+  const resetSearch = () => {
     setSelected(null)
     setKeyword('')
     setSubmittedQuery('')
@@ -78,8 +83,7 @@ export default function DestinationPage() {
     void navigate('/user-info')
   }
 
-  // 결과 목록은 검색을 실행했고 아직 목적지를 고르지 않은 동안에만 띄운다.
-  const isResultVisible = selected === null && (isSearching || hasSearched)
+  const isResultVisible = isSearching || hasSearched
 
   return (
     <MobileViewport className="bg-surface">
@@ -114,7 +118,7 @@ export default function DestinationPage() {
             onChange={setKeyword}
             onSubmit={submitSearch}
             onBack={() => void navigate(-1)}
-            onClear={resetSelection}
+            onClear={resetSearch}
           />
         </div>
 
@@ -124,7 +128,8 @@ export default function DestinationPage() {
               results={results}
               isSearching={isSearching}
               errorType={errorType}
-              onSelect={selectPlace}
+              selectedPlaceId={selected?.placeId ?? null}
+              onSelect={setSelected}
             />
           </div>
         ) : null}
@@ -135,7 +140,7 @@ export default function DestinationPage() {
           <SelectedPlaceCard
             place={selected}
             onConfirm={confirmDestination}
-            onReset={resetSelection}
+            onReset={resetSearch}
           />
         </div>
       ) : null}
