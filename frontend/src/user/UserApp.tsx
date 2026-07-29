@@ -10,8 +10,35 @@ import RouteGuidePage from '@/user/pages/RouteGuidePage'
 import PasswordResetPage from '@/user/pages/PasswordResetPage'
 import RoutePage from '@/user/pages/RoutePage'
 import SignCapturePage from '@/user/pages/SignCapturePage'
+import SignUpPage from '@/user/pages/SignUpPage'
 import StartPage from '@/user/pages/StartPage'
 import UserInfoPage from '@/user/pages/UserInfoPage'
+
+/**
+ * 아직 구현되지 않은 화면 자리. 라우트와 화면을 1:1로 유지해
+ * 뒤로가기 동작이 어긋나지 않도록 한다.
+ * TODO: auth / arrival 화면이 붙으면 각 Route를 실제 페이지로 교체
+ */
+function PlaceholderScreen() {
+  const { t } = useTranslation()
+  const { pathname } = useLocation()
+  const navigate = useNavigate()
+
+  return (
+    <MobileScreen
+      footer={
+        <Button size="lg" fullWidth onClick={() => void navigate('/')}>
+          {t('common.goHome')}
+        </Button>
+      }
+    >
+      <div className="flex flex-1 flex-col items-center justify-center gap-2 text-center">
+        <p className="text-ink text-base font-bold">{t('common.notReady')}</p>
+        <p className="text-ink-muted text-[13px]">{pathname}</p>
+      </div>
+    </MobileScreen>
+  )
+}
 
 /** user(PWA) 앱의 라우트 루트. 시작 페이지가 진입점이다. */
 export default function UserApp() {
@@ -29,6 +56,7 @@ export default function UserApp() {
         {/* 도움 요청(버튼 클릭형 도우미). 경로 안내의 도움 요청에서 진입한다. */}
         <Route path="help" element={<HelpChatPage />} />
         <Route path="login" element={<LoginPage />} />
+        <Route path="signup" element={<SignUpPage />} />
         <Route path="password-reset" element={<PasswordResetPage />} />
         <Route path="consultation" element={<ConsultationPage />} />
         {/* 도착 완료. 안내 종료·통화 종료 후 돌아올 자리다. */}
