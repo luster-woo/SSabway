@@ -1,20 +1,13 @@
 package com.ssafy.ssabway_webrtc.domain.controller;
 
 import com.ssafy.ssabway_webrtc.common.response.ApiResponse;
-import com.ssafy.ssabway_webrtc.domain.dto.ConnectionCreateRequest;
-import com.ssafy.ssabway_webrtc.domain.dto.ConnectionCreateResponse;
-import com.ssafy.ssabway_webrtc.domain.dto.SessionCreateRequest;
-import com.ssafy.ssabway_webrtc.domain.dto.SessionCreateResponse;
+import com.ssafy.ssabway_webrtc.domain.dto.*;
 import com.ssafy.ssabway_webrtc.domain.service.OpenViduService;
 import io.openvidu.java.client.OpenViduHttpException;
 import io.openvidu.java.client.OpenViduJavaClientException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/openvidu")
@@ -38,6 +31,7 @@ public class OpenViduController {
         );
     }
 
+
     @PostMapping("/sessions/{sessionId}/connections")
     public ApiResponse<ConnectionCreateResponse> createConnection(
         @PathVariable String sessionId,
@@ -55,6 +49,20 @@ public class OpenViduController {
             new ConnectionCreateResponse(
                 sessionId,
                 token
+            )
+        );
+    }
+
+    @DeleteMapping("/sessions/{sessionId}")
+    public ApiResponse<SessionCloseResponse> closeSession(
+        @PathVariable String sessionId
+    ) throws OpenViduJavaClientException, OpenViduHttpException{
+        openViduService.closeSession(sessionId);
+
+        return ApiResponse.ok(
+            new SessionCloseResponse(
+                sessionId,
+                true
             )
         );
     }

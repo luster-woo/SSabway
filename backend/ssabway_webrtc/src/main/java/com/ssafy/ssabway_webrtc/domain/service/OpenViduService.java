@@ -2,7 +2,6 @@ package com.ssafy.ssabway_webrtc.domain.service;
 
 import io.openvidu.java.client.*;
 import io.openvidu.java.client.OpenVidu;
->>>>>>> backend/ssabway_webrtc/src/main/java/com/ssafy/ssabway_webrtc/domain/service/OpenViduService.java
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -41,5 +40,18 @@ public class OpenViduService {
         Connection connection = session.createConnection(properties);
 
         return connection.getToken();
+    }
+
+    public void closeSession(String sessionId) throws OpenViduJavaClientException, OpenViduHttpException{
+        openVidu.fetch();
+
+        Session session = openVidu.getActiveSession(sessionId);
+
+        if(session == null){
+            throw new IllegalStateException(
+                "존재하지 않는 상담 세션입니다."
+            );
+        }
+        session.close();
     }
 }
