@@ -13,6 +13,7 @@
   --color-line: #e2e8f0;
   --color-surface: #ffffff;
   --color-surface-muted: #f1f5f9;
+  --color-surface-soft: #f8fafc;
 
   /* 역 안내 표지판 팔레트 — 실제 표지판 색을 그대로 쓴다 */
   --color-sign: #001b4b; /* 표지판 바탕(감청) */

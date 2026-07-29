@@ -232,6 +232,20 @@
     "failed": "无法加载路线导航\n请稍后再试",
     "empty": "未找到可导航的步骤\n请重新拍摄指示牌"
   },
+  "arrival": {
+    "back": "返回",
+    "title": "已到达目的地！",
+    "duration": "用时",
+    "origin": "出发地",
+    "destination": "目的地",
+    "newDestination": "导航到新目的地",
+    "feedback": {
+      "question": "本次导航对您有帮助吗？",
+      "helpful": "有帮助",
+      "notHelpful": "不太满意",
+      "thanks": "感谢您的反馈"
+    }
+  },
   "consultation": {
     "request": "请求帮助",
     "connecting": "正在连接站务人员...",

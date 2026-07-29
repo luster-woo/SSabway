@@ -232,6 +232,20 @@
     "failed": "ルート案内を読み込めませんでした\nしばらくしてからもう一度お試しください",
     "empty": "案内するステップが見つかりませんでした\n案内標識をもう一度撮影してください"
   },
+  "arrival": {
+    "back": "戻る",
+    "title": "目的地に到着しました！",
+    "duration": "所要時間",
+    "origin": "出発地",
+    "destination": "到着地",
+    "newDestination": "新しい目的地の案内を受ける",
+    "feedback": {
+      "question": "案内は役に立ちましたか？",
+      "helpful": "役に立った",
+      "notHelpful": "いまいち",
+      "thanks": "ご意見ありがとうございます"
+    }
+  },
   "consultation": {
     "request": "ヘルプを依頼する",
     "connecting": "駅員に接続しています...",
