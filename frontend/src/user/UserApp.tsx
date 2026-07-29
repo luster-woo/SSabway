@@ -8,13 +8,14 @@ import {
 } from 'react-router-dom'
 
 import { Button, MobileScreen, ToastProvider } from '@/shared/ui'
+import DestinationPage from '@/user/pages/DestinationPage'
 import SignCapturePage from '@/user/pages/SignCapturePage'
 import StartPage from '@/user/pages/StartPage'
 
 /**
  * 아직 구현되지 않은 화면 자리. 라우트와 화면을 1:1로 유지해
  * 뒤로가기 동작이 어긋나지 않도록 한다.
- * TODO: sign-capture / auth 화면이 붙으면 각 Route를 실제 페이지로 교체
+ * TODO: user-info / auth 화면이 붙으면 각 Route를 실제 페이지로 교체
  */
 function PlaceholderScreen() {
   const { t } = useTranslation()
@@ -44,8 +45,9 @@ export default function UserApp() {
       <Routes>
         <Route index element={<StartPage />} />
         <Route path="scan" element={<SignCapturePage />} />
-        {/* TODO: 목적지 설정 화면으로 교체 */}
-        <Route path="destination" element={<PlaceholderScreen />} />
+        <Route path="destination" element={<DestinationPage />} />
+        {/* TODO: 사용자 정보 입력 화면으로 교체 */}
+        <Route path="user-info" element={<PlaceholderScreen />} />
         {/* TODO: 로그인·회원가입 화면으로 교체 */}
         <Route path="login" element={<PlaceholderScreen />} />
         <Route path="*" element={<Navigate to="/" replace />} />

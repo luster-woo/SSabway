@@ -51,6 +51,26 @@
       "upload": "Upload a photo instead"
     }
   },
+  "destination": {
+    "placeholder": "Where to? (station · place · address)",
+    "search": "Search",
+    "clear": "Clear input",
+    "back": "Back",
+    "searching": "Looking for places…",
+    "noResult": "No results found\nTry searching by address instead of place name",
+    "searchFailed": "Search failed · please try again in a moment",
+    "needKeyword": "Please enter a search term",
+    "mapNotReady": "The map is still loading · please wait a moment",
+    "mapLoading": "Loading the map",
+    "selected": "Destination",
+    "change": "Change",
+    "next": "Next",
+    "error": {
+      "missingKey": "Map key is not configured\nCheck NAVER_MAP_CLIENT_ID in config.js",
+      "authFailed": "Map authentication failed\nCheck the Client ID and the registered Web service URL",
+      "mapFailed": "Could not load the map\nPlease check your network connection"
+    }
+  },
   "location": {
     "captureSign": "Take a photo of a sign",
     "useGps": "Use my location",

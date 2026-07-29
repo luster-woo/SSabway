@@ -1,3 +1,4 @@
+export * from './place'
 export * from './station'
 export * from './user'
 export * from './consultation'

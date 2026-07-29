@@ -51,6 +51,26 @@
       "upload": "사진 업로드로 대신하기"
     }
   },
+  "destination": {
+    "placeholder": "어디로 갈까요? (역 · 장소 · 주소)",
+    "search": "검색",
+    "clear": "입력 지우기",
+    "back": "뒤로가기",
+    "searching": "장소를 찾고 있어요…",
+    "noResult": "검색 결과가 없어요\n장소명 대신 주소로 검색해 보세요",
+    "searchFailed": "검색에 실패했어요 · 잠시 후 다시 시도해 주세요",
+    "needKeyword": "검색어를 입력해 주세요",
+    "mapNotReady": "지도를 불러오는 중이에요 · 잠시만 기다려 주세요",
+    "mapLoading": "지도를 불러오는 중",
+    "selected": "선택한 목적지",
+    "change": "다시 선택",
+    "next": "다음",
+    "error": {
+      "missingKey": "지도 키가 설정되지 않았어요\nconfig.js의 NAVER_MAP_CLIENT_ID를 확인해 주세요",
+      "authFailed": "지도 인증에 실패했어요\nClient ID와 콘솔의 Web 서비스 URL 등록을 확인해 주세요",
+      "mapFailed": "지도를 불러오지 못했어요\n네트워크 상태를 확인해 주세요"
+    }
+  },
   "location": {
     "captureSign": "표지판 촬영하기",
     "useGps": "내 위치 사용하기",

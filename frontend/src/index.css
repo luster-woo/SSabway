@@ -28,6 +28,15 @@
   );
 }
 
+/*
+ * 화면 높이. dvh를 지원하지 않는 브라우저에서 선언이 통째로 버려지면
+ * 자식이 전부 absolute인 화면(지도·카메라)이 높이 0으로 무너지므로 vh로 폴백한다.
+ */
+@utility min-h-viewport {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
 /* 노치·홈바 안전영역 유틸리티 */
 @utility pt-safe {
   padding-top: env(safe-area-inset-top, 0px);
@@ -38,6 +47,16 @@
 @utility px-safe {
   padding-left: env(safe-area-inset-left, 0px);
   padding-right: env(safe-area-inset-right, 0px);
+}
+
+/*
+ * 네이버 지도 내부 DOM은 Tailwind preflight와 충돌한다.
+ * preflight의 `img { max-width: 100%; height: auto }`가 타일 이미지의
+ * 인라인 크기를 덮어써서 타일이 어긋나거나 사라진다. 지도 안쪽만 예외 처리.
+ */
+.naver-map-canvas img {
+  max-width: none;
+  height: auto;
 }
 
 @layer base {
@@ -56,6 +75,7 @@
 
   #root {
     /* dvh: 모바일 주소창 높이 변화에 대응 (vh는 잘림) */
+    min-height: 100vh;
     min-height: 100dvh;
   }
 
