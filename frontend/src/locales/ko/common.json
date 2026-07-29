@@ -13,7 +13,27 @@
     "deleteAccount": "회원탈퇴",
     "accountMenu": "계정 메뉴",
     "signedOut": "로그아웃 되었습니다",
-    "accountDeleted": "탈퇴 처리되었어요"
+    "accountDeleted": "탈퇴 처리되었어요",
+    "login": {
+      "title": "로그인",
+      "subtitle": "이메일과 비밀번호로 로그인하세요.",
+      "google": "Google로 계속하기",
+      "googlePending": "Google 로그인은 준비 중입니다",
+      "orEmail": "또는 이메일로",
+      "email": "이메일",
+      "emailPlaceholder": "you@example.com",
+      "password": "비밀번호",
+      "passwordPlaceholder": "비밀번호 입력",
+      "forgotPassword": "비밀번호를 잊으셨나요?",
+      "noAccount": "아직 계정이 없으세요?",
+      "signUp": "회원가입",
+      "back": "뒤로가기",
+      "success": "로그인 되었습니다",
+      "error": {
+        "invalidCredential": "이메일 또는 비밀번호가 올바르지 않아요",
+        "unknown": "로그인에 실패했어요 · 잠시 후 다시 시도해 주세요"
+      }
+    }
   },
   "start": {
     "startGuide": "안내 시작",
