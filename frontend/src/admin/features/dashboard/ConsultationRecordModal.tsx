@@ -1,5 +1,5 @@
 import { cn } from '@/shared/lib/cn'
-import { Button } from '@/shared/ui'
+import { AdminButton } from '@/admin/ui/AdminButton'
 import { Modal } from '@/admin/ui/Modal'
 
 export interface ConsultationRecordModalProps {
@@ -49,9 +49,9 @@ export function ConsultationRecordModal({
         >
           원본 열기
         </a>
-        <Button className="flex-1" onClick={onClose}>
+        <AdminButton size="lg" className="flex-1" onClick={onClose}>
           닫기
-        </Button>
+        </AdminButton>
       </div>
     </Modal>
   )

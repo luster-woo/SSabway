@@ -1,3 +1,5 @@
+import { useNavigate } from 'react-router-dom'
+
 import { useToast } from '@/shared/ui'
 import {
   ACCEPT_FAILURE,
@@ -16,6 +18,7 @@ export function WaitingPanel() {
   const { data, isPending, isError } = useWaitingConsultations()
   const { accept, pendingId } = useAcceptConsultation()
   const { showToast } = useToast()
+  const navigate = useNavigate()
 
   const acceptConsultation = async (consultation: WaitingConsultation) => {
     const failure = await accept(consultation.consultationId)
@@ -29,8 +32,9 @@ export function WaitingPanel() {
       return
     }
 
-    // TODO: S15P11D104-153 화상 화면이 붙으면 수락 응답의 세션 정보를 넘기며 이동한다.
     showToast(`${consultation.email} 상담을 시작합니다`)
+    // TODO: OpenVidu 연동 시 수락 응답의 세션 정보(sessionId·token)도 함께 넘긴다.
+    void navigate(`/admin/consultation/${String(consultation.consultationId)}`)
   }
 
   return (

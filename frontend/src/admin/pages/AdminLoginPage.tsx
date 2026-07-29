@@ -1,8 +1,9 @@
 import { useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { AppLogo, Button, Card } from '@/shared/ui'
+import { AppLogo, Card } from '@/shared/ui'
 import { useAdminLogin } from '@/admin/features/auth/useAdminLogin'
+import { AdminButton } from '@/admin/ui/AdminButton'
 import { AdminShell } from '@/admin/ui/AdminShell'
 import { TextField } from '@/admin/ui/TextField'
 
@@ -68,7 +69,7 @@ export default function AdminLoginPage() {
               </p>
             ) : null}
 
-            <Button
+            <AdminButton
               type="submit"
               size="lg"
               fullWidth
@@ -76,7 +77,7 @@ export default function AdminLoginPage() {
               className="mt-7"
             >
               {isPending ? '로그인 중…' : '로그인'}
-            </Button>
+            </AdminButton>
           </form>
         </Card>
       </div>
