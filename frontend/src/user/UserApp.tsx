@@ -8,6 +8,7 @@ import {
 } from 'react-router-dom'
 
 import { Button, MobileScreen, ToastProvider } from '@/shared/ui'
+import ConsultationPage from '@/user/pages/ConsultationPage'
 import DestinationPage from '@/user/pages/DestinationPage'
 import RoutePage from '@/user/pages/RoutePage'
 import SignCapturePage from '@/user/pages/SignCapturePage'
@@ -52,6 +53,9 @@ export default function UserApp() {
         <Route path="user-info" element={<PlaceholderScreen />} />
         {/* TODO: 로그인·회원가입 화면으로 교체 */}
         <Route path="login" element={<PlaceholderScreen />} />
+        <Route path="consultation" element={<ConsultationPage />} />
+        {/* TODO: 도착 완료 화면으로 교체. 통화 종료 후 돌아올 자리다. */}
+        <Route path="arrival" element={<PlaceholderScreen />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </ToastProvider>

@@ -105,7 +105,34 @@
     "queuePosition": "あなたの前に{{position}}人待っています",
     "unavailable": "現在対応できる駅員がいません",
     "micOnly": "駅員が音声で案内します。カメラはオフです。",
-    "end": "通話を終了する"
+    "end": "通話を終了する",
+    "video": {
+      "staffConnected": "スタッフ接続中",
+      "faceBlurOn": "背面カメラ・顔モザイクON",
+      "mic": "マイク",
+      "camera": "カメラ",
+      "endShort": "終了",
+      "micOn": "マイクをオンにしました",
+      "micOff": "マイクをオフにしました",
+      "cameraOn": "カメラをオンにしました",
+      "cameraOff": "カメラをオフにしました",
+      "ended": "相談が終了しました",
+      "permission": {
+        "title": "マイクを許可",
+        "description": "スタッフとのビデオ通話には\nマイクの許可が必要です。",
+        "allow": "許可",
+        "deny": "拒否",
+        "allowed": "マイクを許可しました・スタッフと接続しました",
+        "denied": "許可しないとビデオ通話を開始できません",
+        "requesting": "権限を確認しています…"
+      },
+      "endConfirm": {
+        "title": "相談を終了しますか？",
+        "description": "終了後も道案内は続けて利用できます",
+        "confirm": "終了",
+        "keep": "続ける"
+      }
+    }
   },
   "common": {
     "retry": "再試行",
