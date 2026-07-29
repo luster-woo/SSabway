@@ -33,6 +33,43 @@
         "invalidCredential": "Email or password is incorrect",
         "unknown": "Sign-in failed · Please try again in a moment"
       }
+    },
+    "passwordReset": {
+      "title": "Reset password",
+      "subtitle": "Verify your email to set a new password.",
+      "back": "Back",
+      "email": "Email",
+      "emailPlaceholder": "you@example.com",
+      "sendCode": "Send code",
+      "resendCode": "Resend",
+      "sending": "Sending",
+      "codeSent": "We sent a verification email. Please check your inbox",
+      "code": "Verification code (7 characters)",
+      "verifyCode": "Verify",
+      "verifying": "Verifying",
+      "codeVerified": "Email verified",
+      "remainingTime": "Time left {{time}}",
+      "newPassword": "New password",
+      "newPasswordPlaceholder": "At least 8 characters",
+      "confirmPassword": "Confirm new password",
+      "confirmPasswordPlaceholder": "Enter it again",
+      "submit": "Change password",
+      "submitting": "Changing",
+      "success": "Password changed. Please sign in again",
+      "rememberedPassword": "Remembered your password?",
+      "signIn": "Sign in",
+      "error": {
+        "invalidEmail": "That email address isn't valid",
+        "duplicateEmail": "That email is already in use",
+        "tooManyRequests": "Too many requests · Please try again later",
+        "sendFailed": "Couldn't send the verification email · Please try again later",
+        "invalidCode": "That verification code isn't correct",
+        "verifyFailed": "Verification failed · Please try again later",
+        "codeExpired": "The code expired · Please request a new email",
+        "invalidPassword": "That password format isn't valid",
+        "unauthorized": "Your verification expired · Please start over",
+        "resetFailed": "Couldn't change the password · Please try again later"
+      }
     }
   },
   "start": {

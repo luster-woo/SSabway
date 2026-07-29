@@ -1,0 +1,251 @@
+import { useState, type FormEvent } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
+
+import { useLanguage } from '@/shared/lib/useLanguage'
+import { Button, MobileScreen, useToast } from '@/shared/ui'
+import { AuthTextField } from '@/user/features/auth/AuthTextField'
+import { InlineActionField } from '@/user/features/auth/InlineActionField'
+import { formatDuration } from '@/user/features/auth/lib/formatDuration'
+import { NoticeBanner } from '@/user/features/auth/NoticeBanner'
+import {
+  CODE_LENGTH,
+  normalizeCode,
+  toLangCode,
+  useEmailVerification,
+  VERIFY_STEP,
+} from '@/user/features/auth/useEmailVerification'
+import { usePasswordReset } from '@/user/features/auth/usePasswordReset'
+
+/** 뒤로가기 화살표 */
+function BackIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      aria-hidden
+      className="size-6"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M15 5l-7 7 7 7" />
+    </svg>
+  )
+}
+
+/**
+ * 7-2. 비밀번호 재설정 — /password-reset
+ *
+ * 한 화면에서 세 단계를 순서대로 진행한다.
+ *   1) 이메일 인증 발송   2) 인증번호 확인   3) 새 비밀번호 입력
+ *
+ * 인증이 끝나기 전에는 비밀번호 칸을 잠가 순서를 건너뛰지 못하게 한다.
+ * 변경에 성공하면 새 비밀번호로 다시 로그인해야 하므로 로그인 화면으로 보낸다.
+ */
+export default function PasswordResetPage() {
+  const { t } = useTranslation()
+  const { language } = useLanguage()
+  const navigate = useNavigate()
+  const { showToast } = useToast()
+
+  const [email, setEmail] = useState('')
+  const [code, setCode] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+
+  const verification = useEmailVerification()
+  const {
+    reset,
+    isPending: isResetting,
+    errorKey: resetErrorKey,
+  } = usePasswordReset()
+
+  const isVerified = verification.step === VERIFY_STEP.VERIFIED
+  const isCodeSent = verification.step === VERIFY_STEP.SENT
+
+  /** 인증이 끝나기 전에는 이메일을 바꿀 수 없게 잠근다. */
+  const isEmailLocked = isCodeSent || isVerified
+  const canSendCode = email.trim() !== '' && !verification.isSending
+  /** 명세의 7자리를 다 채워야 확인을 누를 수 있다. */
+  const canVerifyCode = code.length === CODE_LENGTH && !verification.isVerifying
+  const canSubmit =
+    isVerified && newPassword !== '' && confirmPassword !== '' && !isResetting
+
+  /**
+   * 인증 발송·인증 실패 문구와 변경 실패 문구를 한 자리에서 보여준다.
+   * 두 훅이 동시에 실패할 수는 없으므로 먼저 있는 쪽을 쓴다.
+   */
+  const errorKey = verification.errorKey ?? resetErrorKey
+
+  const sendCode = () => {
+    void verification.sendCode({
+      email: email.trim(),
+      language: toLangCode(language),
+    })
+  }
+
+  /** 만료 후 다시 누르는 경우는 "재발송"으로 문구를 바꿔준다. */
+  const sendActionLabel = () => {
+    if (verification.isSending) return t('auth.passwordReset.sending')
+    if (verification.hasRequested) return t('auth.passwordReset.resendCode')
+    return t('auth.passwordReset.sendCode')
+  }
+
+  const verifyCode = () => {
+    void verification.verifyCode({ email: email.trim(), code })
+  }
+
+  const submitReset = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    if (!canSubmit) return
+
+    const isChanged = await reset({ email: email.trim(), newPassword })
+    if (!isChanged) return
+
+    showToast(t('auth.passwordReset.success'))
+    void navigate('/login', { replace: true })
+  }
+
+  return (
+    <MobileScreen
+      header={
+        <button
+          type="button"
+          aria-label={t('auth.passwordReset.back')}
+          onClick={() => void navigate(-1)}
+          className="text-ink -ml-1.5 flex size-9 items-center justify-center"
+        >
+          <BackIcon />
+        </button>
+      }
+    >
+      <section className="pt-[clamp(4px,1.5vh,12px)]">
+        <h1 className="text-ink text-[clamp(22px,6.8vw,27px)] leading-tight font-bold">
+          {t('auth.passwordReset.title')}
+        </h1>
+        <p className="text-ink-muted mt-2.5 text-[clamp(12.5px,3.6vw,13.5px)]">
+          {t('auth.passwordReset.subtitle')}
+        </p>
+      </section>
+
+      <form
+        className="mt-[clamp(16px,3.5vh,26px)] flex flex-col gap-[clamp(12px,2.6vh,18px)]"
+        onSubmit={(event) => void submitReset(event)}
+        noValidate
+      >
+        {/* 1단계 — 이메일 인증 발송. 만료되면 문구가 재발송으로 바뀐다. */}
+        <InlineActionField
+          label={t('auth.passwordReset.email')}
+          type="email"
+          inputMode="email"
+          autoComplete="email"
+          placeholder={t('auth.passwordReset.emailPlaceholder')}
+          value={email}
+          readOnly={isEmailLocked}
+          onChange={(event) => setEmail(event.target.value)}
+          actionLabel={sendActionLabel()}
+          onAction={sendCode}
+          actionDisabled={!canSendCode || isEmailLocked}
+        />
+
+        {isCodeSent ? (
+          <NoticeBanner>{t('auth.passwordReset.codeSent')}</NoticeBanner>
+        ) : null}
+
+        {isVerified ? (
+          <NoticeBanner>{t('auth.passwordReset.codeVerified')}</NoticeBanner>
+        ) : null}
+
+        {/*
+          2단계 — 인증번호 확인.
+          명세대로 영문+숫자 7자리만 받는다. 대소문자는 구분하지 않으므로
+          입력한 그대로 두고 서버 비교에 맡긴다.
+        */}
+        {isCodeSent ? (
+          <div className="flex flex-col gap-2">
+            <InlineActionField
+              label={t('auth.passwordReset.code')}
+              type="text"
+              inputMode="text"
+              autoComplete="one-time-code"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
+              maxLength={CODE_LENGTH}
+              value={code}
+              className="font-mono tracking-[0.3em]"
+              onChange={(event) => setCode(normalizeCode(event.target.value))}
+              actionLabel={
+                verification.isVerifying
+                  ? t('auth.passwordReset.verifying')
+                  : t('auth.passwordReset.verifyCode')
+              }
+              onAction={verifyCode}
+              actionDisabled={!canVerifyCode}
+            />
+
+            <p className="text-danger text-[12.5px] font-bold">
+              {t('auth.passwordReset.remainingTime', {
+                time: formatDuration(verification.remainingSec),
+              })}
+            </p>
+          </div>
+        ) : null}
+
+        {/* 3단계 — 새 비밀번호. 인증 전에는 잠가둔다. */}
+        <fieldset
+          disabled={!isVerified}
+          className="flex flex-col gap-[clamp(12px,2.6vh,18px)] border-0 p-0 disabled:opacity-45"
+        >
+          <AuthTextField
+            label={t('auth.passwordReset.newPassword')}
+            type="password"
+            autoComplete="new-password"
+            placeholder={t('auth.passwordReset.newPasswordPlaceholder')}
+            value={newPassword}
+            onChange={(event) => setNewPassword(event.target.value)}
+          />
+          <AuthTextField
+            label={t('auth.passwordReset.confirmPassword')}
+            type="password"
+            autoComplete="new-password"
+            placeholder={t('auth.passwordReset.confirmPasswordPlaceholder')}
+            value={confirmPassword}
+            onChange={(event) => setConfirmPassword(event.target.value)}
+          />
+        </fieldset>
+
+        {errorKey ? (
+          <p role="alert" className="text-danger text-[12.5px]">
+            {t(errorKey)}
+          </p>
+        ) : null}
+
+        <Button
+          type="submit"
+          size="lg"
+          fullWidth
+          disabled={!canSubmit}
+          className="mt-[clamp(4px,1.5vh,10px)]"
+        >
+          {isResetting
+            ? t('auth.passwordReset.submitting')
+            : t('auth.passwordReset.submit')}
+        </Button>
+      </form>
+
+      <p className="text-ink-muted mt-[clamp(14px,3vh,22px)] flex items-center justify-center gap-2 pb-6 text-[13px]">
+        {t('auth.passwordReset.rememberedPassword')}
+        <button
+          type="button"
+          onClick={() => void navigate('/login', { replace: true })}
+          className="text-brand-dark font-bold"
+        >
+          {t('auth.passwordReset.signIn')}
+        </button>
+      </p>
+    </MobileScreen>
+  )
+}

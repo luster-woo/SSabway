@@ -152,10 +152,9 @@ export default function LoginPage() {
       </form>
 
       <div className="mt-[clamp(16px,3.5vh,24px)] flex flex-col items-center gap-[clamp(10px,2vh,16px)] pb-6">
-        {/* TODO: S15P11D104-255 비밀번호 재설정 화면으로 연결 */}
         <button
           type="button"
-          onClick={() => showToast(t('common.notReady'))}
+          onClick={() => void navigate('/password-reset')}
           className="text-ink-muted text-[13px]"
         >
           {t('auth.login.forgotPassword')}
