@@ -1,5 +1,6 @@
 package com.ssafy.ssabway_webrtc.domain.controller;
 
+<<<<<<< backend/ssabway_webrtc/src/main/java/com/ssafy/ssabway_webrtc/domain/controller/OpenViduController.java
 import com.ssafy.ssabway_webrtc.common.response.ApiResponse;
 import com.ssafy.ssabway_webrtc.domain.dto.SessionCreateRequest;
 import com.ssafy.ssabway_webrtc.domain.dto.SessionCreateResponse;
@@ -10,6 +11,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import lombok.RequiredArgsConstructor;
+>>>>>>> backend/ssabway_webrtc/src/main/java/com/ssafy/ssabway_webrtc/domain/controller/OpenViduController.java
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -31,6 +34,5 @@ public class OpenViduController {
             new SessionCreateResponse(sessionId)
         );
     }
-
 
 }

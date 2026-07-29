@@ -1,6 +1,8 @@
 package com.ssafy.ssabway_webrtc.domain.service;
 
 import io.openvidu.java.client.*;
+import io.openvidu.java.client.OpenVidu;
+>>>>>>> backend/ssabway_webrtc/src/main/java/com/ssafy/ssabway_webrtc/domain/service/OpenViduService.java
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
