@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 
 import { ToastProvider } from '@/shared/ui'
 import { RequireAdminAuth } from '@/admin/features/auth/RequireAdminAuth'
+import AdminConsultationPage from '@/admin/pages/AdminConsultationPage'
 import AdminLoginPage from '@/admin/pages/AdminLoginPage'
 import AdminMainPage from '@/admin/pages/AdminMainPage'
 
@@ -16,6 +17,14 @@ export default function AdminApp() {
           element={
             <RequireAdminAuth>
               <AdminMainPage />
+            </RequireAdminAuth>
+          }
+        />
+        <Route
+          path="consultation/:consultationId"
+          element={
+            <RequireAdminAuth>
+              <AdminConsultationPage />
             </RequireAdminAuth>
           }
         />

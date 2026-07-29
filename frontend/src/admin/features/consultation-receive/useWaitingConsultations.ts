@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 
 import { queryKeys } from '@/shared/lib/queryKeys'
 import type { ConsultationStatus } from '@/shared/types'
-import type { Language } from '@/shared/types/user'
+import type { LangCode } from '@/admin/lib/language'
 import {
   FIRST_PAGE,
   toMockPageMeta,
@@ -24,15 +24,6 @@ export interface WaitingConsultation {
 /** 대기 목록은 실시간성이 필요하지만 STOMP 도입 전이라 폴링으로 갱신한다. */
 const POLL_INTERVAL_MS = 3_000
 const MOCK_LATENCY_MS = 300
-
-/**
- * 응답의 langCode 값 도메인. 배지에 그대로 표시한다.
- *
- * shared 의 Language('ko' | 'en' | 'ja' | 'zh')를 대문자로 좁힌 것이라
- * 지원 언어가 추가되면 이 타입도 따라간다.
- * 사용자 앱의 i18next 언어로 쓸 때는 toLowerCase() 가 필요하다.
- */
-export type LangCode = Uppercase<Language>
 
 /** requestedAt 부터 지금까지 경과한 분. 폴링으로 목록이 갱신될 때 다시 계산된다. */
 export function toWaitedMinutes(requestedAt: string): number {

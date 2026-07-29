@@ -1,5 +1,5 @@
-import { Button } from '@/shared/ui'
 import type { ConsultationHistory } from '@/admin/features/dashboard/useConsultationHistory'
+import { AdminButton } from '@/admin/ui/AdminButton'
 
 export interface HistoryCardProps {
   history: ConsultationHistory
@@ -50,7 +50,7 @@ export function HistoryCard({
       </div>
 
       <div className="flex w-[150px] shrink-0 flex-col gap-2">
-        <Button
+        <AdminButton
           variant="secondary"
           size="sm"
           className="rounded-full"
@@ -58,27 +58,28 @@ export function HistoryCard({
           onClick={() => onViewOriginal(consultationId)}
         >
           {isRecordPending ? '불러오는 중…' : '원본 기록 보기'}
-        </Button>
+        </AdminButton>
 
         {isBlack ? (
-          <Button
+          <AdminButton
+            variant="danger"
             size="sm"
-            className="bg-danger rounded-full font-bold text-white"
+            className="rounded-full"
             disabled={isPending}
             onClick={() => onReleaseBlacklist(userEmail)}
           >
             {isPending ? '처리 중…' : '차단됨 · 해제'}
-          </Button>
+          </AdminButton>
         ) : (
-          <Button
-            variant="secondary"
+          <AdminButton
+            variant="dangerOutline"
             size="sm"
-            className="border-danger text-danger rounded-full font-bold"
+            className="rounded-full"
             disabled={isPending}
             onClick={() => onRegisterBlacklist(userEmail)}
           >
             {isPending ? '처리 중…' : '블랙리스트 등록'}
-          </Button>
+          </AdminButton>
         )}
       </div>
     </li>

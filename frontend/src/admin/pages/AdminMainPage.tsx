@@ -1,10 +1,10 @@
 import { useNavigate } from 'react-router-dom'
 
 import { useAuthStore } from '@/shared/lib/store/useAuthStore'
-import { Button } from '@/shared/ui'
 import { useAdminProfileStore } from '@/admin/features/auth/useAdminProfileStore'
 import { WaitingPanel } from '@/admin/features/consultation-receive/WaitingPanel'
 import { HistoryPanel } from '@/admin/features/dashboard/HistoryPanel'
+import { AdminButton } from '@/admin/ui/AdminButton'
 import { AdminShell } from '@/admin/ui/AdminShell'
 
 /**
@@ -29,14 +29,14 @@ export default function AdminMainPage() {
     <AdminShell
       headerRight={
         <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
+          <AdminButton
+            variant="onDark"
             size="sm"
-            className="rounded-full border border-white/40 text-white"
+            className="rounded-full"
             onClick={signOut}
           >
             로그아웃
-          </Button>
+          </AdminButton>
 
           {staffCode ? (
             <span className="text-[13px] text-white/80">{staffCode}</span>
