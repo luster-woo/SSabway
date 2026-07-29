@@ -8,6 +8,7 @@ import {
 } from 'react-router-dom'
 
 import { Button, MobileScreen, ToastProvider } from '@/shared/ui'
+import SignCapturePage from '@/user/pages/SignCapturePage'
 import StartPage from '@/user/pages/StartPage'
 
 /**
@@ -42,8 +43,9 @@ export default function UserApp() {
     <ToastProvider>
       <Routes>
         <Route index element={<StartPage />} />
-        {/* TODO: 표지판 촬영(sign-capture) 화면으로 교체 */}
-        <Route path="scan" element={<PlaceholderScreen />} />
+        <Route path="scan" element={<SignCapturePage />} />
+        {/* TODO: 목적지 설정 화면으로 교체 */}
+        <Route path="destination" element={<PlaceholderScreen />} />
         {/* TODO: 로그인·회원가입 화면으로 교체 */}
         <Route path="login" element={<PlaceholderScreen />} />
         <Route path="*" element={<Navigate to="/" replace />} />

@@ -31,6 +31,26 @@
       "change": "Change"
     }
   },
+  "signCapture": {
+    "hint": "Fit the sign inside the frame and take a photo",
+    "back": "Back",
+    "shoot": "Shoot",
+    "retake": "Retake",
+    "analyze": "AI analysis",
+    "analyzing": "AI is analyzing the sign…",
+    "needCaptureFirst": "Please take a photo of the sign first",
+    "retaken": "Please take the photo again",
+    "captureFailed": "Capture failed · please try again",
+    "capturedAlt": "Captured sign photo",
+    "error": {
+      "insecure": "Camera is only available over a secure (HTTPS) connection",
+      "denied": "Camera permission is required\nPlease allow camera access in your browser settings",
+      "notFound": "No available camera was found",
+      "inUse": "Another app is using the camera\nClose it and try again",
+      "unknown": "Could not start the camera",
+      "upload": "Upload a photo instead"
+    }
+  },
   "location": {
     "captureSign": "Take a photo of a sign",
     "useGps": "Use my location",
