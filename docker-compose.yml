@@ -1,11 +1,13 @@
 services:
   frontend:
+    container_name: ssabway-frontend
     build: ./frontend
     ports:
       - "8080:80"
     restart: unless-stopped
 
   mysql:
+    container_name: ssabway-mysql-db
     image: mysql:8.0.46
     environment:
       MYSQL_ROOT_PASSWORD: localonly
@@ -22,10 +24,42 @@ services:
     restart: unless-stopped
 
   redis:
+    container_name: ssabway-redis
     image: redis:7-alpine
     ports:
       - "127.0.0.1:6379:6379"
     restart: unless-stopped
 
+  api:
+    container_name: ssabway-api
+    build: ./backend/ssabway
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/ssabway
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: localonly
+      SPRING_DATA_REDIS_HOST: redis
+      TZ: Asia/Seoul
+    ports:
+      - "127.0.0.1:8081:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: unless-stopped
+
+  signaling:
+    container_name: ssabway-signaling
+    build: ./backend/ssabway_webrtc
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/ssabway
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: localonly
+      TZ: Asia/Seoul
+    ports:
+      - "127.0.0.1:8082:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: unless-stopped
+    
 volumes:
   mysql-data:
