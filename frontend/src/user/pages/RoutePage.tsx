@@ -50,8 +50,9 @@ export default function RoutePage() {
     const path = paths[index]
     if (!path) return
     setSelectedIndex(index)
-    // TODO: 역 내 안내(경로 상세) 화면이 붙으면 선택한 경로와 함께 이동한다.
     showToast(t('route.select.started', { station: path.lastEndStation }))
+    // TODO: 선택한 경로를 스토어에 담아 안내 정보 확인 화면으로 넘긴다.
+    void navigate('/user-info')
   }
 
   return (

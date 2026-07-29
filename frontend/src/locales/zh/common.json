@@ -99,6 +99,63 @@
       "started": "开始为您导航至{{station}}"
     }
   },
+  "userInfo": {
+    "title": "确认导航信息",
+    "back": "返回",
+    "origin": "出发",
+    "destination": "到达",
+    "change": "更改",
+    "start": "开始路线导航",
+    "loading": "正在加载导航信息…",
+    "failed": "无法加载导航信息\n请稍后再试",
+    "needAnswers": "请回答所有问题",
+    "started": "将按所选条件开始导航",
+    "preference": {
+      "label": "路线所需信息",
+      "back": "上一题",
+      "reset": "重新选择",
+      "progress": "问题 {{current}} / {{total}}",
+      "done": "已回答全部问题",
+      "elevator": {
+        "question": "您希望使用电梯吗？",
+        "yes": "是",
+        "no": "否"
+      },
+      "transitCard": {
+        "question": "您有交通卡吗？",
+        "yes": "有",
+        "no": "没有"
+      },
+      "ticketMethod": {
+        "question": "您打算怎么乘车？",
+        "single": "购买单程票 · 使用现金",
+        "buyCard": "我要购买交通卡"
+      },
+      "cash": {
+        "question": "您带现金了吗？",
+        "yes": "有",
+        "no": "没有"
+      }
+    },
+    "plan": {
+      "direct": {
+        "title": "将直接为您导航至目的地",
+        "description": "用交通卡通过闸机即可"
+      },
+      "ticketMachine": {
+        "title": "将途经售票机",
+        "description": "购买单程票后为您指引乘车路线"
+      },
+      "convenienceStore": {
+        "title": "将途经附近的便利店",
+        "description": "购买交通卡后继续为您导航"
+      },
+      "atm": {
+        "title": "将途经附近的ATM",
+        "description": "取现后为您指引前行路线"
+      }
+    }
+  },
   "consultation": {
     "request": "请求帮助",
     "connecting": "正在连接站务人员...",

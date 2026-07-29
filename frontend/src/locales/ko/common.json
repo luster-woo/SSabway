@@ -99,6 +99,63 @@
       "started": "{{station}}까지 안내를 시작해요"
     }
   },
+  "userInfo": {
+    "title": "안내 정보 확인",
+    "back": "뒤로가기",
+    "origin": "출발",
+    "destination": "도착",
+    "change": "변경",
+    "start": "경로 안내 시작",
+    "loading": "안내 정보를 불러오는 중이에요…",
+    "failed": "안내 정보를 불러오지 못했어요\n잠시 후 다시 시도해 주세요",
+    "needAnswers": "질문에 모두 답해 주세요",
+    "started": "선택하신 조건으로 안내를 시작해요",
+    "preference": {
+      "label": "경로에 필요한 정보",
+      "back": "이전 질문",
+      "reset": "다시 선택하기",
+      "progress": "질문 {{current}} / {{total}}",
+      "done": "질문에 모두 답했어요",
+      "elevator": {
+        "question": "엘리베이터 사용을 희망하나요?",
+        "yes": "네",
+        "no": "아니요"
+      },
+      "transitCard": {
+        "question": "교통카드가 있나요?",
+        "yes": "네, 있어요",
+        "no": "아니요, 없어요"
+      },
+      "ticketMethod": {
+        "question": "어떻게 이동할까요?",
+        "single": "1회권 구매 · 현금으로 이동",
+        "buyCard": "교통카드를 구매할래요"
+      },
+      "cash": {
+        "question": "현금을 보유하고 있나요?",
+        "yes": "네, 있어요",
+        "no": "아니요, 없어요"
+      }
+    },
+    "plan": {
+      "direct": {
+        "title": "목적지까지 바로 안내할게요",
+        "description": "교통카드로 개찰구만 통과하면 돼요"
+      },
+      "ticketMachine": {
+        "title": "승차권 발매기를 경유해요",
+        "description": "1회권 구매 후 탑승 경로를 안내할게요"
+      },
+      "convenienceStore": {
+        "title": "가까운 편의점을 경유해요",
+        "description": "교통카드 구매 후 안내를 이어가요"
+      },
+      "atm": {
+        "title": "가까운 ATM을 경유해요",
+        "description": "현금 인출 후 이동 경로를 안내할게요"
+      }
+    }
+  },
   "consultation": {
     "request": "도움 요청하기",
     "connecting": "역무원과 연결 중이에요...",

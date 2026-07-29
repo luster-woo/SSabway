@@ -1,3 +1,4 @@
+export * from './guide'
 export * from './place'
 export * from './route'
 export * from './station'

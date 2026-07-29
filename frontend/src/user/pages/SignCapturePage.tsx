@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import { LoadingOverlay, MobileViewport, useToast } from '@/shared/ui'
 import { CameraErrorNotice } from '@/user/features/sign-capture/CameraErrorNotice'
@@ -15,10 +15,25 @@ import { captureFrame } from '@/user/features/sign-capture/lib/captureFrame'
 /** 분석 API 연동 전 로딩 연출용 지연 */
 const FAKE_ANALYZE_MS = 1400
 
-/** 2. 카메라 촬영 — 표지판을 찍어 현재 위치를 인식하는 화면 */
+/** 인식 후 기본 이동 경로. 시작 화면에서 바로 들어온 경우다. */
+const DEFAULT_NEXT_PATH = '/destination'
+
+/** 다른 화면이 '출발지 변경'으로 보낼 때 넘겨주는 복귀 경로 */
+interface SignCaptureState {
+  returnTo?: string
+}
+
+/**
+ * 2. 카메라 촬영 — 표지판을 찍어 현재 위치를 인식하는 화면.
+ *
+ * 안내 정보 확인 화면에서 '변경'으로 들어오면 state.returnTo가 실려 온다.
+ * 이 경우 인식이 끝난 뒤 목적지 설정이 아니라 원래 화면으로 되돌아간다.
+ */
 export default function SignCapturePage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const { state } = useLocation()
+  const returnTo = (state as SignCaptureState | null)?.returnTo ?? null
   const { showToast } = useToast()
   const { status, errorType, stream, restart } = useCameraStream()
 
@@ -75,8 +90,13 @@ export default function SignCapturePage() {
     }
     setIsAnalyzing(true)
     // TODO: capturedBlobRef.current 를 표지판 분석 API로 전송하고
-    //       응답의 위치 정보를 가지고 목적지 설정 화면으로 이동
-    window.setTimeout(() => void navigate('/destination'), FAKE_ANALYZE_MS)
+    //       응답의 위치 정보를 스토어에 담은 뒤 다음 화면으로 이동
+    window.setTimeout(() => {
+      // 되돌아갈 때는 replace로 남겨 뒤로가기가 카메라 화면에 다시 걸리지 않게 한다.
+      void navigate(returnTo ?? DEFAULT_NEXT_PATH, {
+        replace: returnTo !== null,
+      })
+    }, FAKE_ANALYZE_MS)
   }
 
   return (
@@ -90,7 +110,7 @@ export default function SignCapturePage() {
       {/* 뒤로가기 */}
       <button
         type="button"
-        onClick={() => void navigate('/')}
+        onClick={() => void navigate(returnTo ?? '/', { replace: true })}
         aria-label={t('signCapture.back')}
         className="absolute top-[calc(env(safe-area-inset-top,0px)+0.75rem)] left-4 z-10 flex size-10 items-center justify-center rounded-full bg-black/35 text-2xl text-white"
       >

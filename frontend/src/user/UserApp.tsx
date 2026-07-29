@@ -13,11 +13,12 @@ import DestinationPage from '@/user/pages/DestinationPage'
 import RoutePage from '@/user/pages/RoutePage'
 import SignCapturePage from '@/user/pages/SignCapturePage'
 import StartPage from '@/user/pages/StartPage'
+import UserInfoPage from '@/user/pages/UserInfoPage'
 
 /**
  * 아직 구현되지 않은 화면 자리. 라우트와 화면을 1:1로 유지해
  * 뒤로가기 동작이 어긋나지 않도록 한다.
- * TODO: user-info / auth 화면이 붙으면 각 Route를 실제 페이지로 교체
+ * TODO: auth / arrival 화면이 붙으면 각 Route를 실제 페이지로 교체
  */
 function PlaceholderScreen() {
   const { t } = useTranslation()
@@ -49,8 +50,8 @@ export default function UserApp() {
         <Route path="scan" element={<SignCapturePage />} />
         <Route path="destination" element={<DestinationPage />} />
         <Route path="route" element={<RoutePage />} />
-        {/* TODO: 사용자 정보 입력(교통카드 여부) 화면. 목적지 → 경로 선택 사이에 끼운다 */}
-        <Route path="user-info" element={<PlaceholderScreen />} />
+        {/* 안내 정보 확인(출발·도착 + 교통카드 여부). 경로 선택 다음 화면이다. */}
+        <Route path="user-info" element={<UserInfoPage />} />
         {/* TODO: 로그인·회원가입 화면으로 교체 */}
         <Route path="login" element={<PlaceholderScreen />} />
         <Route path="consultation" element={<ConsultationPage />} />
