@@ -80,9 +80,7 @@ export default function RouteGuidePage() {
   }
 
   const requestHelp = () => {
-    // TODO: 통화 종료 후 안내로 복귀하려면 ConsultationPage가 state.returnTo를
-    //       받아 처리해야 한다. (현재는 종료 시 /arrival로 고정 이동)
-    void navigate('/consultation')
+    void navigate('/help')
   }
 
   return (

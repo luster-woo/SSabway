@@ -1,8 +1,7 @@
-import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
-import { Button, CheckIcon, MobileScreen, useToast } from '@/shared/ui'
+import { Button, CheckIcon, MobileScreen } from '@/shared/ui'
 import { ArrivalSummaryCard } from '@/user/features/arrival/ArrivalSummaryCard'
 import { MOCK_ARRIVAL_SUMMARY } from '@/user/features/arrival/lib/mockArrivalSummary'
 

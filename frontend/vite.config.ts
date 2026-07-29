@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import basicSsl from '@vitejs/plugin-basic-ssl'
+// 폰 실기기 테스트 시 basicSsl() 주석을 풀 때 import도 함께 살린다.
+// import basicSsl from '@vitejs/plugin-basic-ssl'
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 import path from 'node:path'
