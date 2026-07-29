@@ -15,6 +15,7 @@ import {
   useEmailVerification,
   VERIFY_STEP,
 } from '@/user/features/auth/useEmailVerification'
+import { useGoBack } from '@/user/features/auth/useGoBack'
 import { usePasswordReset } from '@/user/features/auth/usePasswordReset'
 
 /** 뒤로가기 화살표 */
@@ -48,6 +49,7 @@ export default function PasswordResetPage() {
   const { t } = useTranslation()
   const { language } = useLanguage()
   const navigate = useNavigate()
+  const goBack = useGoBack()
   const { showToast } = useToast()
 
   const [email, setEmail] = useState('')
@@ -55,7 +57,7 @@ export default function PasswordResetPage() {
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
 
-  const verification = useEmailVerification()
+  const verification = useEmailVerification('auth.passwordReset')
   const {
     reset,
     isPending: isResetting,
@@ -70,14 +72,29 @@ export default function PasswordResetPage() {
   const canSendCode = email.trim() !== '' && !verification.isSending
   /** 명세의 7자리를 다 채워야 확인을 누를 수 있다. */
   const canVerifyCode = code.length === CODE_LENGTH && !verification.isVerifying
+  /**
+   * 두 비밀번호 칸이 같은지 본다.
+   *
+   * 둘 다 type="password" 라 오타가 점으로 가려져 사용자가 볼 수 없다.
+   * 여기서 막지 않으면 본인이 모르는 비밀번호로 바뀌어 로그인할 수 없게 된다.
+   * 아직 다 입력하지 않은 동안 오류를 띄우지 않도록 확인란이 빈 경우는 제외한다.
+   */
+  const isMismatched = confirmPassword !== '' && newPassword !== confirmPassword
+
   const canSubmit =
-    isVerified && newPassword !== '' && confirmPassword !== '' && !isResetting
+    isVerified &&
+    newPassword !== '' &&
+    confirmPassword !== '' &&
+    !isMismatched &&
+    !isResetting
 
   /**
-   * 인증 발송·인증 실패 문구와 변경 실패 문구를 한 자리에서 보여준다.
-   * 두 훅이 동시에 실패할 수는 없으므로 먼저 있는 쪽을 쓴다.
+   * 실패 문구를 한 자리에서 보여준다.
+   * 불일치는 서버에 보내기 전에 잡는 것이라 가장 앞에 둔다.
    */
-  const errorKey = verification.errorKey ?? resetErrorKey
+  const errorKey = isMismatched
+    ? 'auth.passwordReset.error.passwordMismatch'
+    : (verification.errorKey ?? resetErrorKey)
 
   const sendCode = () => {
     void verification.sendCode({
@@ -114,7 +131,7 @@ export default function PasswordResetPage() {
         <button
           type="button"
           aria-label={t('auth.passwordReset.back')}
-          onClick={() => void navigate(-1)}
+          onClick={goBack}
           className="text-ink -ml-1.5 flex size-9 items-center justify-center"
         >
           <BackIcon />
@@ -154,6 +171,10 @@ export default function PasswordResetPage() {
           <NoticeBanner>{t('auth.passwordReset.codeSent')}</NoticeBanner>
         ) : null}
 
+        {/*
+          인증 완료. 서버가 인증 상태를 30분만 들고 있어 훅이 그 시간을 세지만,
+          화면에는 노출하지 않는다. 만료되면 발송 전 단계로 되돌아가고 안내 문구가 뜬다.
+        */}
         {isVerified ? (
           <NoticeBanner>{t('auth.passwordReset.codeVerified')}</NoticeBanner>
         ) : null}

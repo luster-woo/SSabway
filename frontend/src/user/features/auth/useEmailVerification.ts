@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import type { Language } from '@/shared/types/user'
 import {
@@ -40,7 +40,6 @@ export interface EmailVerifyBody {
 
 /**
  * 인증코드 길이. 명세("인증코드 (알파벳 + 숫자 7자리)", 예시 "A7KM3PQ") 기준이다.
- * 프로토타입에는 6자리로 적혀 있지만 명세를 따랐다.
  */
 export const CODE_LENGTH = 7
 
@@ -48,8 +47,6 @@ export const CODE_LENGTH = 7
  * 영문·숫자만 남기고 길이를 자른다.
  *
  * 서버는 대소문자를 구분하지 않으므로 입력한 대소문자를 그대로 둔다.
- * 화면에서 강제로 대문자로 바꾸면 소문자 코드를 받은 사용자가
- * "내가 받은 것과 다른 값이 찍힌다"고 느끼게 된다.
  * 공백·하이픈은 붙여넣기 사고를 막기 위해 걸러낸다.
  */
 export function normalizeCode(raw: string): string {
@@ -65,19 +62,42 @@ export const VERIFY_STEP = {
 
 export type VerifyStep = (typeof VERIFY_STEP)[keyof typeof VERIFY_STEP]
 
-/** 명세에 적힌 상태코드를 그대로 옮겼다. */
-const SEND_ERROR_KEY: Record<number, string> = {
-  400: 'auth.passwordReset.error.invalidEmail',
-  409: 'auth.passwordReset.error.duplicateEmail',
-  429: 'auth.passwordReset.error.tooManyRequests',
+/**
+ * 실패 문구의 i18n 키 묶음. 상태코드는 명세에 적힌 것을 그대로 옮겼다.
+ *
+ * 같은 인증 API 를 비밀번호 재설정과 회원가입이 함께 쓰는데 화면 문구는 다르다.
+ * 그래서 키를 훅에 박지 않고 접두사를 받아 만든다.
+ * (auth.passwordReset → auth.passwordReset.error.invalidCode)
+ */
+function buildErrorKeys(prefix: string) {
+  return {
+    send: {
+      400: `${prefix}.error.invalidEmail`,
+      409: `${prefix}.error.duplicateEmail`,
+      429: `${prefix}.error.tooManyRequests`,
+    } as Record<number, string>,
+    verify: {
+      400: `${prefix}.error.invalidCode`,
+    } as Record<number, string>,
+    sendFallback: `${prefix}.error.sendFailed`,
+    verifyFallback: `${prefix}.error.verifyFailed`,
+    /** 인증코드 입력 제한 시간이 지났을 때 */
+    expired: `${prefix}.error.codeExpired`,
+    /** 인증은 됐지만 그 상태의 유효 시간이 지났을 때 */
+    verifiedExpired: `${prefix}.error.verifiedExpired`,
+  }
 }
 
-const VERIFY_ERROR_KEY: Record<number, string> = {
-  400: 'auth.passwordReset.error.invalidCode',
-}
-
-const FALLBACK_SEND_ERROR_KEY = 'auth.passwordReset.error.sendFailed'
-const FALLBACK_VERIFY_ERROR_KEY = 'auth.passwordReset.error.verifyFailed'
+/**
+ * 인증 완료 상태의 유효 시간(초). BE 확인값 30분.
+ *
+ * 서버가 "이 이메일은 인증됨"을 들고 있는 시간이다. 이 시간이 지나면
+ * 가입·비밀번호 변경 요청이 거부되므로, 프론트도 같이 만료시켜
+ * 사용자가 폼을 다 채운 뒤에 실패를 알게 되는 일을 막는다.
+ *
+ * TODO: 발송 API 의 timeLimit 처럼 서버가 값을 내려주면 그 값을 쓴다.
+ */
+const VERIFIED_TTL_SEC = 30 * 60
 
 /* ------------------------------------------------------------------ *
  * 목 처리. BE 연동 시 이 블록만 지우고 아래 TODO 의 호출로 교체한다.
@@ -132,7 +152,13 @@ export interface UseEmailVerificationResult {
    * step 이 만료로 IDLE 로 되돌아가도 이 값은 유지된다.
    */
   hasRequested: boolean
-  /** 인증 발송 후 남은 초. 발송 전이거나 만료됐으면 0 */
+  /**
+   * 남은 초. 만료됐거나 발송 전이면 0.
+   *
+   * 단계에 따라 무엇이 남은 시간인지 달라진다.
+   *   SENT     → 인증코드를 입력할 수 있는 시간 (서버 timeLimit)
+   *   VERIFIED → 인증 완료 상태가 유지되는 시간 (30분)
+   */
   remainingSec: number
   isSending: boolean
   isVerifying: boolean
@@ -150,8 +176,20 @@ export interface UseEmailVerificationResult {
  * 프론트를 고치지 않게 하려는 것이다.
  *
  * 0 이 되면 step 을 IDLE 로 되돌려 재발송을 다시 누를 수 있게 한다.
+ *
+ * @param errorKeyPrefix 실패 문구 i18n 키의 앞부분.
+ *   비밀번호 재설정과 회원가입이 같은 인증 API 를 쓰지만 문구가 달라
+ *   기본값을 두지 않고 화면이 명시하도록 했다.
  */
-export function useEmailVerification(): UseEmailVerificationResult {
+export function useEmailVerification(
+  errorKeyPrefix: string,
+): UseEmailVerificationResult {
+  // 매 렌더마다 새 객체를 만들면 아래 useCallback·useEffect 의 의존성이 계속 바뀐다.
+  const errorKeys = useMemo(
+    () => buildErrorKeys(errorKeyPrefix),
+    [errorKeyPrefix],
+  )
+
   const [step, setStep] = useState<VerifyStep>(VERIFY_STEP.IDLE)
   const [hasRequested, setHasRequested] = useState(false)
   const [remainingSec, setRemainingSec] = useState(0)
@@ -162,8 +200,9 @@ export function useEmailVerification(): UseEmailVerificationResult {
   /** 만료 시각(ms). 탭이 백그라운드로 갔다 와도 어긋나지 않게 절대 시각으로 잡는다. */
   const expiresAtRef = useRef<number | null>(null)
 
+  // 인증코드 입력 제한 시간과 인증 완료 상태의 유효 시간을 같은 타이머로 센다.
   useEffect(() => {
-    if (step !== VERIFY_STEP.SENT) return
+    if (step !== VERIFY_STEP.SENT && step !== VERIFY_STEP.VERIFIED) return
 
     const tick = () => {
       const expiresAt = expiresAtRef.current
@@ -172,11 +211,15 @@ export function useEmailVerification(): UseEmailVerificationResult {
       const left = Math.max(0, Math.ceil((expiresAt - Date.now()) / 1000))
       setRemainingSec(left)
 
-      // 만료되면 발송 전으로 되돌려 재발송을 허용한다.
+      // 어느 단계에서 만료됐든 발송 전으로 되돌려 처음부터 다시 인증하게 한다.
       if (left === 0) {
         expiresAtRef.current = null
         setStep(VERIFY_STEP.IDLE)
-        setErrorKey('auth.passwordReset.error.codeExpired')
+        setErrorKey(
+          step === VERIFY_STEP.VERIFIED
+            ? errorKeys.verifiedExpired
+            : errorKeys.expired,
+        )
       }
     }
 
@@ -185,46 +228,53 @@ export function useEmailVerification(): UseEmailVerificationResult {
     return () => {
       window.clearInterval(timerId)
     }
-  }, [step])
+  }, [step, errorKeys])
 
-  const sendCode = useCallback(async (body: EmailRequestBody) => {
-    setIsSending(true)
-    setErrorKey(null)
+  const sendCode = useCallback(
+    async (body: EmailRequestBody) => {
+      setIsSending(true)
+      setErrorKey(null)
 
-    try {
-      const timeLimitSec = await requestEmailCode(body)
-      expiresAtRef.current = Date.now() + timeLimitSec * 1000
-      setRemainingSec(timeLimitSec)
-      setHasRequested(true)
-      setStep(VERIFY_STEP.SENT)
-      return true
-    } catch (error) {
-      setErrorKey(toErrorKey(error, SEND_ERROR_KEY, FALLBACK_SEND_ERROR_KEY))
-      return false
-    } finally {
-      setIsSending(false)
-    }
-  }, [])
+      try {
+        const timeLimitSec = await requestEmailCode(body)
+        expiresAtRef.current = Date.now() + timeLimitSec * 1000
+        setRemainingSec(timeLimitSec)
+        setHasRequested(true)
+        setStep(VERIFY_STEP.SENT)
+        return true
+      } catch (error) {
+        setErrorKey(toErrorKey(error, errorKeys.send, errorKeys.sendFallback))
+        return false
+      } finally {
+        setIsSending(false)
+      }
+    },
+    [errorKeys],
+  )
 
-  const verifyCode = useCallback(async (body: EmailVerifyBody) => {
-    setIsVerifying(true)
-    setErrorKey(null)
+  const verifyCode = useCallback(
+    async (body: EmailVerifyBody) => {
+      setIsVerifying(true)
+      setErrorKey(null)
 
-    try {
-      await verifyEmailCode(body)
-      expiresAtRef.current = null
-      setRemainingSec(0)
-      setStep(VERIFY_STEP.VERIFIED)
-      return true
-    } catch (error) {
-      setErrorKey(
-        toErrorKey(error, VERIFY_ERROR_KEY, FALLBACK_VERIFY_ERROR_KEY),
-      )
-      return false
-    } finally {
-      setIsVerifying(false)
-    }
-  }, [])
+      try {
+        await verifyEmailCode(body)
+        // 코드 입력 시간을 끝내고, 인증 완료 상태의 유효 시간으로 갈아탄다.
+        expiresAtRef.current = Date.now() + VERIFIED_TTL_SEC * 1000
+        setRemainingSec(VERIFIED_TTL_SEC)
+        setStep(VERIFY_STEP.VERIFIED)
+        return true
+      } catch (error) {
+        setErrorKey(
+          toErrorKey(error, errorKeys.verify, errorKeys.verifyFallback),
+        )
+        return false
+      } finally {
+        setIsVerifying(false)
+      }
+    },
+    [errorKeys],
+  )
 
   return {
     step,

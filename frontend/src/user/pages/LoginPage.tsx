@@ -1,10 +1,11 @@
 import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { AppLogo, Button, MobileScreen, useToast } from '@/shared/ui'
 import { AuthTextField } from '@/user/features/auth/AuthTextField'
 import { GoogleLoginButton } from '@/user/features/auth/GoogleLoginButton'
+import { useGoBack } from '@/user/features/auth/useGoBack'
 import { useUserLogin } from '@/user/features/auth/useUserLogin'
 
 /** 뒤로가기 화살표 */
@@ -28,16 +29,12 @@ function BackIcon() {
 /**
  * 7-1. 로그인 — /login
  *
- * 로그인에 성공하거나 뒤로가기를 누르면 온 화면으로 되돌아간다.
- * 시작 페이지에서 왔으면 시작 페이지로, 챗봇 위젯에서 왔으면 위젯으로 돌아가야 하므로
- * 목적지를 고정하지 않고 히스토리를 한 칸 되돌린다.
- *
- * TODO: 회원가입은 S15P11D104-148, 비밀번호 재설정은 -255 에서 붙인다.
+ * 로그인에 성공하거나 뒤로가기를 누르면 진입한 화면으로 되돌아간다. (useGoBack)
  */
 export default function LoginPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const location = useLocation()
+  const goBack = useGoBack()
   const { showToast } = useToast()
 
   const [email, setEmail] = useState('')
@@ -45,20 +42,6 @@ export default function LoginPage() {
   const { login, isPending, errorKey } = useUserLogin()
 
   const isSubmittable = email.trim() !== '' && password !== '' && !isPending
-
-  /**
-   * 온 화면으로 되돌아간다.
-   *
-   * location.key 가 'default' 면 이 화면이 첫 진입(새로고침·주소 직접 입력)이라
-   * 되돌아갈 히스토리가 없다. 그때만 시작 페이지로 보낸다.
-   */
-  const goBack = () => {
-    if (location.key === 'default') {
-      void navigate('/', { replace: true })
-      return
-    }
-    void navigate(-1)
-  }
 
   const submitLogin = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -162,10 +145,9 @@ export default function LoginPage() {
 
         <p className="text-ink-muted flex items-center gap-2 text-[13px]">
           {t('auth.login.noAccount')}
-          {/* TODO: S15P11D104-148 회원가입 화면으로 연결 */}
           <button
             type="button"
-            onClick={() => showToast(t('common.notReady'))}
+            onClick={() => void navigate('/signup')}
             className="text-brand-dark font-bold"
           >
             {t('auth.login.signUp')}
