@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.mail.MailException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -145,6 +146,16 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(ErrorCode.UNSUPPORTED_MEDIA_TYPE.getHttpStatus())
                 .body(ApiResponse.error(ErrorCode.UNSUPPORTED_MEDIA_TYPE));
+    }
+
+    // 메일 발송 실패 (SMTP 연결 실패, 타임아웃, 인증 오류 등)
+    // 서버 버그가 아니라 외부 서버 문제이므로 별도 코드로 구분
+    @ExceptionHandler(MailException.class)
+    public ResponseEntity<ApiResponse<Void>> handleMailException(MailException e) {
+        log.error("메일 발송 실패", e);
+        ErrorCode errorCode = ErrorCode.EMAIL_SEND_FAILED;
+        return ResponseEntity.status(errorCode.getHttpStatus())
+                .body(ApiResponse.error(errorCode));
     }
 
     /*

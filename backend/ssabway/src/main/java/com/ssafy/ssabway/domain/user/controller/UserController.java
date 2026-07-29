@@ -1,16 +1,17 @@
 package com.ssafy.ssabway.domain.user.controller;
 
+import com.ssafy.ssabway.domain.user.dto.request.EmailVerificationSendRequest;
 import com.ssafy.ssabway.domain.user.dto.response.EmailDuplicateResponse;
+import com.ssafy.ssabway.domain.user.dto.response.EmailVerificationSendResponse;
+import com.ssafy.ssabway.domain.user.service.EmailVerificationService;
 import com.ssafy.ssabway.domain.user.service.UserService;
 import com.ssafy.ssabway.global.common.ApiResponse;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
     private final UserService userService;
+    private final EmailVerificationService emailVerificationService;
 
     @GetMapping("/exists")
     public ResponseEntity<ApiResponse<EmailDuplicateResponse>> checkEmailDuplcate(
@@ -29,5 +31,14 @@ public class UserController {
                                                 : "사용 가능한 이메일입니다.";
 
         return ResponseEntity.ok(ApiResponse.ok(message, response));
+    }
+
+    @PostMapping("/email/requests")
+    public ResponseEntity<ApiResponse<EmailVerificationSendResponse>> sendVerificationCode(
+            @Valid @RequestBody EmailVerificationSendRequest request) {
+
+        EmailVerificationSendResponse response = emailVerificationService.sendCode(request);
+
+        return ResponseEntity.ok(ApiResponse.ok("인증 코드가 발송되었습니다.", response));
     }
 }
