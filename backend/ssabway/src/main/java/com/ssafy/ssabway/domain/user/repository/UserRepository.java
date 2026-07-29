@@ -10,4 +10,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
     save, findById, findAll, delete 등 기본 CRUD 메서드 제공
  */
 public interface UserRepository extends JpaRepository<User, Long> {
+
+    boolean existsByEmail(String email);
 }
