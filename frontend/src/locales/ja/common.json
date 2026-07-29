@@ -51,6 +51,26 @@
       "upload": "写真をアップロードする"
     }
   },
+  "destination": {
+    "placeholder": "どこへ行きますか？（駅・スポット・住所）",
+    "search": "検索",
+    "clear": "入力を消す",
+    "back": "戻る",
+    "searching": "場所を検索しています…",
+    "noResult": "検索結果がありません\n施設名ではなく住所で検索してみてください",
+    "searchFailed": "検索に失敗しました・しばらくしてからもう一度お試しください",
+    "needKeyword": "検索語を入力してください",
+    "mapNotReady": "地図を読み込んでいます・少々お待ちください",
+    "mapLoading": "地図を読み込み中",
+    "selected": "選択した目的地",
+    "change": "選び直す",
+    "next": "次へ",
+    "error": {
+      "missingKey": "地図キーが設定されていません\nconfig.js の NAVER_MAP_CLIENT_ID を確認してください",
+      "authFailed": "地図の認証に失敗しました\nClient ID とコンソールの Web サービス URL 登録をご確認ください",
+      "mapFailed": "地図を読み込めませんでした\nネットワーク状態をご確認ください"
+    }
+  },
   "location": {
     "captureSign": "案内標識を撮影する",
     "useGps": "現在位置を使う",

@@ -26,13 +26,13 @@ export function MobileViewport({
   return (
     <div
       className={cn(
-        'flex min-h-[100dvh] justify-center',
+        'flex min-h-viewport justify-center',
         tone === 'dark' ? 'bg-black' : 'bg-surface',
       )}
     >
       <div
         className={cn(
-          'relative min-h-[100dvh] w-full max-w-[430px] overflow-hidden',
+          'relative min-h-viewport w-full max-w-[430px] overflow-hidden',
           className,
         )}
       >

@@ -7,6 +7,12 @@ export const queryKeys = {
     detail: (id: number) => [...queryKeys.station.all, id] as const,
     points: (id: number) => [...queryKeys.station.all, id, 'points'] as const,
   },
+  place: {
+    all: ['place'] as const,
+    /** 목적지 키워드 검색 결과 (언어별로 표기가 달라 언어도 키에 넣는다) */
+    search: (query: string, language: string) =>
+      [...queryKeys.place.all, 'search', language, query] as const,
+  },
   consultation: {
     all: ['consultation'] as const,
     detail: (id: number) => [...queryKeys.consultation.all, id] as const,
