@@ -246,6 +246,19 @@
       "thanks": "ご意見ありがとうございます"
     }
   },
+  "helpChat": {
+    "back": "戻る",
+    "title": "SSabwayサポート",
+    "online": "オンライン",
+    "greeting": "何をお手伝いしましょうか？",
+    "connectStaff": "駅員とビデオ通話",
+    "loginRequired": "ビデオ通話にはログインが必要です。",
+    "loginAndConnect": "ログインして通話する",
+    "ready": "接続の準備ができました。\n下のボタンで接続を開始してください。",
+    "connect": "ビデオ通話",
+    "recordNotice": "通話音声が録音されることがあります",
+    "backToGuide": "ルート案内に戻る"
+  },
   "consultation": {
     "request": "ヘルプを依頼する",
     "connecting": "駅員に接続しています...",

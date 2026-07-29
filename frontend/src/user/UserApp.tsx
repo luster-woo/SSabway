@@ -4,6 +4,7 @@ import { ToastProvider } from '@/shared/ui'
 import ArrivalPage from '@/user/pages/ArrivalPage'
 import ConsultationPage from '@/user/pages/ConsultationPage'
 import DestinationPage from '@/user/pages/DestinationPage'
+import HelpChatPage from '@/user/pages/HelpChatPage'
 import LoginPage from '@/user/pages/LoginPage'
 import RouteGuidePage from '@/user/pages/RouteGuidePage'
 import PasswordResetPage from '@/user/pages/PasswordResetPage'
@@ -25,6 +26,8 @@ export default function UserApp() {
         <Route path="user-info" element={<UserInfoPage />} />
         {/* 경로 상세 안내(역 내 표지판 단계별 안내) */}
         <Route path="guide" element={<RouteGuidePage />} />
+        {/* 도움 요청(버튼 클릭형 도우미). 경로 안내의 도움 요청에서 진입한다. */}
+        <Route path="help" element={<HelpChatPage />} />
         <Route path="login" element={<LoginPage />} />
         <Route path="password-reset" element={<PasswordResetPage />} />
         <Route path="consultation" element={<ConsultationPage />} />

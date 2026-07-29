@@ -246,6 +246,19 @@
       "thanks": "Thank you for your feedback"
     }
   },
+  "helpChat": {
+    "back": "Back",
+    "title": "SSabway Helper",
+    "online": "Online",
+    "greeting": "How can I help you?",
+    "connectStaff": "Video call with staff",
+    "loginRequired": "You need to sign in for a video call.",
+    "loginAndConnect": "Sign in and connect",
+    "ready": "Everything is ready.\nStart the call with the button below.",
+    "connect": "Start video call",
+    "recordNotice": "The call audio may be recorded",
+    "backToGuide": "Back to route guide"
+  },
   "consultation": {
     "request": "Ask for help",
     "connecting": "Connecting to staff...",

@@ -246,6 +246,19 @@
       "thanks": "소중한 의견 감사해요"
     }
   },
+  "helpChat": {
+    "back": "뒤로가기",
+    "title": "SSabway 도우미",
+    "online": "온라인",
+    "greeting": "무엇을 도와드릴까요?",
+    "connectStaff": "역무원과 화상 연결",
+    "loginRequired": "화상 연결은 로그인이 필요해요.",
+    "loginAndConnect": "로그인하고 화상 연결",
+    "ready": "연결 준비가 끝났어요.\n아래 버튼으로 연결을 시작하세요.",
+    "connect": "화상 연결",
+    "recordNotice": "통화 음성이 녹음될 수 있어요",
+    "backToGuide": "경로 다시 안내"
+  },
   "consultation": {
     "request": "도움 요청하기",
     "connecting": "역무원과 연결 중이에요...",

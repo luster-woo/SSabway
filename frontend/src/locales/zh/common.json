@@ -246,6 +246,19 @@
       "thanks": "感谢您的反馈"
     }
   },
+  "helpChat": {
+    "back": "返回",
+    "title": "SSabway 助手",
+    "online": "在线",
+    "greeting": "需要什么帮助？",
+    "connectStaff": "与站务员视频通话",
+    "loginRequired": "视频通话需要登录。",
+    "loginAndConnect": "登录并开始通话",
+    "ready": "已准备就绪。\n请点击下方按钮开始连接。",
+    "connect": "视频通话",
+    "recordNotice": "通话语音可能会被录音",
+    "backToGuide": "返回路线导航"
+  },
   "consultation": {
     "request": "请求帮助",
     "connecting": "正在连接站务人员...",
