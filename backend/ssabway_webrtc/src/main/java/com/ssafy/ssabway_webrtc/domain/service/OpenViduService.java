@@ -20,4 +20,24 @@ public class OpenViduService {
         return session.getSessionId();
     }
 
+    public String createConnection(String sessionId, String participantId, String participantType) throws OpenViduJavaClientException, OpenViduHttpException{
+
+        openVidu.fetch();
+        Session session = openVidu.getActiveSession(sessionId);
+        if(session == null){
+            throw new  IllegalStateException("존재하지 않는 상담 세션");
+        }
+
+        ConnectionProperties properties = new ConnectionProperties.Builder()
+            .type(ConnectionType.WEBRTC)
+            .role(OpenViduRole.PUBLISHER)
+            .data("""
+                {"participantId":"%s", "participantType":"%s"}
+                """.formatted(participantId, participantType))
+            .build();
+
+        Connection connection = session.createConnection(properties);
+
+        return connection.getToken();
+    }
 }
