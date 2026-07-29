@@ -87,7 +87,34 @@
     "queuePosition": "앞에 {{position}}명 대기 중이에요",
     "unavailable": "지금은 연결 가능한 역무원이 없어요",
     "micOnly": "역무원이 음성으로 안내해요. 카메라는 꺼져 있어요.",
-    "end": "통화 종료"
+    "end": "통화 종료",
+    "video": {
+      "staffConnected": "역무원 연결됨",
+      "faceBlurOn": "후면 카메라 · 타인 얼굴 모자이크 ON",
+      "mic": "마이크",
+      "camera": "카메라",
+      "endShort": "종료",
+      "micOn": "마이크를 켰어요",
+      "micOff": "마이크를 껐어요",
+      "cameraOn": "카메라를 켰어요",
+      "cameraOff": "카메라를 껐어요",
+      "ended": "상담이 종료되었습니다",
+      "permission": {
+        "title": "마이크 허용",
+        "description": "역무원과의 화상 연결을 위해\n마이크 권한이 필요해요.",
+        "allow": "허용",
+        "deny": "거부",
+        "allowed": "마이크를 허용했어요 · 역무원과 연결되었어요",
+        "denied": "권한을 허용해야 화상 연결을 시작할 수 있어요",
+        "requesting": "권한을 확인하고 있어요…"
+      },
+      "endConfirm": {
+        "title": "상담을 종료할까요?",
+        "description": "종료 후에도 길안내는 계속 이용할 수 있어요",
+        "confirm": "종료",
+        "keep": "계속하기"
+      }
+    }
   },
   "common": {
     "retry": "다시 시도",
