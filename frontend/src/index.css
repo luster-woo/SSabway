@@ -1,13 +1,31 @@
 @import 'tailwindcss';
 
 @theme {
-  --color-brand: #1e6fd9;
-  --color-brand-dark: #1857ab;
+  /* 프로토타입 팔레트 */
+  --color-brand: #018abe;
+  --color-brand-dark: #02457a;
+  --color-brand-soft: #d6e8ee;
   --color-danger: #dc2626;
+  --color-success: #00a84d;
+
+  --color-ink: #0f172a;
+  --color-ink-muted: #475569;
+  --color-line: #e2e8f0;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f1f5f9;
 
   --font-sans:
-    system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', 'Noto Sans',
-    sans-serif;
+    'Pretendard', system-ui, -apple-system, 'Segoe UI', Roboto,
+    'Helvetica Neue', 'Noto Sans KR', 'Noto Sans', sans-serif;
+}
+
+/* 브랜드 그라디언트(주요 CTA·로고에 공통 사용) */
+@utility bg-brand-gradient {
+  background-image: linear-gradient(
+    135deg,
+    var(--color-brand-dark),
+    var(--color-brand)
+  );
 }
 
 /* 노치·홈바 안전영역 유틸리티 */

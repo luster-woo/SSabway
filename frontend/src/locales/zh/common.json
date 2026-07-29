@@ -1,6 +1,35 @@
 {
+  "app": {
+    "name": "SSabway",
+    "tagline": "面向外国游客的地铁向导"
+  },
   "language": {
-    "select": "请选择语言"
+    "select": "Language · 语言",
+    "changed": "已切换语言"
+  },
+  "auth": {
+    "signIn": "登录",
+    "signOut": "退出登录",
+    "deleteAccount": "注销账号",
+    "accountMenu": "账号菜单",
+    "signedOut": "已退出登录",
+    "accountDeleted": "已注销账号"
+  },
+  "start": {
+    "startGuide": "开始导航",
+    "needConsentFirst": "请先选择位置权限",
+    "consent": {
+      "title": "位置信息权限",
+      "allowHint": "同意后识别最近车站位置",
+      "denyHint": "拒绝时通过拍摄指示牌识别位置",
+      "allow": "同意",
+      "deny": "拒绝",
+      "allowed": "已允许定位 · 可以查找最近车站",
+      "denied": "没关系！可通过拍摄指示牌识别位置",
+      "statusAllowed": "已同意使用位置信息",
+      "statusDenied": "将通过拍摄指示牌识别位置",
+      "change": "重新选择"
+    }
   },
   "location": {
     "captureSign": "拍摄指示牌",
@@ -23,6 +52,9 @@
   "common": {
     "retry": "重试",
     "cancel": "取消",
-    "confirm": "确认"
+    "confirm": "确认",
+    "close": "关闭",
+    "goHome": "返回首页",
+    "notReady": "该页面正在准备中"
   }
 }
