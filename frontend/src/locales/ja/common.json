@@ -33,6 +33,43 @@
         "invalidCredential": "メールアドレスまたはパスワードが正しくありません",
         "unknown": "ログインに失敗しました・しばらくしてから再試行してください"
       }
+    },
+    "passwordReset": {
+      "title": "パスワード再設定",
+      "subtitle": "メールを認証すると新しいパスワードを設定できます。",
+      "back": "戻る",
+      "email": "メールアドレス",
+      "emailPlaceholder": "you@example.com",
+      "sendCode": "認証を送信",
+      "resendCode": "再送信",
+      "sending": "送信中",
+      "codeSent": "認証メールを送信しました。メールをご確認ください",
+      "code": "認証コード（7桁）",
+      "verifyCode": "確認",
+      "verifying": "確認中",
+      "codeVerified": "メール認証が完了しました",
+      "remainingTime": "残り時間 {{time}}",
+      "newPassword": "新しいパスワード",
+      "newPasswordPlaceholder": "8文字以上",
+      "confirmPassword": "新しいパスワード（確認）",
+      "confirmPasswordPlaceholder": "もう一度入力",
+      "submit": "パスワードを変更",
+      "submitting": "変更中",
+      "success": "パスワードを変更しました。もう一度ログインしてください",
+      "rememberedPassword": "パスワードを思い出しましたか？",
+      "signIn": "ログイン",
+      "error": {
+        "invalidEmail": "メールアドレスの形式が正しくありません",
+        "duplicateEmail": "すでに使用されているメールアドレスです",
+        "tooManyRequests": "送信回数を超えました · しばらくしてからお試しください",
+        "sendFailed": "認証メールの送信に失敗しました · しばらくしてからお試しください",
+        "invalidCode": "認証コードが正しくありません",
+        "verifyFailed": "認証に失敗しました · しばらくしてからお試しください",
+        "codeExpired": "認証時間が終了しました · 認証メールを再度お受け取りください",
+        "invalidPassword": "パスワードの形式が正しくありません",
+        "unauthorized": "認証の有効期限が切れました · 最初からやり直してください",
+        "resetFailed": "パスワードの変更に失敗しました · しばらくしてからお試しください"
+      }
     }
   },
   "start": {

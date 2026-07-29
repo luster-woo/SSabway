@@ -33,6 +33,43 @@
         "invalidCredential": "이메일 또는 비밀번호가 올바르지 않아요",
         "unknown": "로그인에 실패했어요 · 잠시 후 다시 시도해 주세요"
       }
+    },
+    "passwordReset": {
+      "title": "비밀번호 재설정",
+      "subtitle": "이메일을 인증하면 새 비밀번호를 설정할 수 있어요.",
+      "back": "뒤로가기",
+      "email": "이메일",
+      "emailPlaceholder": "you@example.com",
+      "sendCode": "인증 발송",
+      "resendCode": "재발송",
+      "sending": "발송 중",
+      "codeSent": "인증 메일을 보냈어요. 메일함을 확인해 주세요",
+      "code": "인증번호 7자리",
+      "verifyCode": "확인",
+      "verifying": "확인 중",
+      "codeVerified": "이메일 인증이 완료되었어요",
+      "remainingTime": "남은 시간 {{time}}",
+      "newPassword": "새 비밀번호",
+      "newPasswordPlaceholder": "8자 이상 입력",
+      "confirmPassword": "새 비밀번호 확인",
+      "confirmPasswordPlaceholder": "다시 한 번 입력",
+      "submit": "비밀번호 변경",
+      "submitting": "변경 중",
+      "success": "비밀번호가 변경되었어요. 다시 로그인해 주세요",
+      "rememberedPassword": "비밀번호가 기억났나요?",
+      "signIn": "로그인",
+      "error": {
+        "invalidEmail": "이메일 형식이 올바르지 않아요",
+        "duplicateEmail": "이미 사용 중인 이메일이에요",
+        "tooManyRequests": "발송 횟수를 초과했어요 · 잠시 후 다시 시도해 주세요",
+        "sendFailed": "인증 메일 발송에 실패했어요 · 잠시 후 다시 시도해 주세요",
+        "invalidCode": "인증번호가 올바르지 않아요",
+        "verifyFailed": "인증에 실패했어요 · 잠시 후 다시 시도해 주세요",
+        "codeExpired": "인증 시간이 만료됐어요 · 인증 메일을 다시 받아 주세요",
+        "invalidPassword": "비밀번호 형식이 올바르지 않아요",
+        "unauthorized": "인증이 만료됐어요 · 처음부터 다시 시도해 주세요",
+        "resetFailed": "비밀번호 변경에 실패했어요 · 잠시 후 다시 시도해 주세요"
+      }
     }
   },
   "start": {

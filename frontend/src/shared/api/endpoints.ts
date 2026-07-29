@@ -11,7 +11,7 @@ const users = {
   withdraw: '/users',
   login: '/users/login',
   googleLogin: '/users/login/google', // 보류
-  emailRequest: '/users/email/request',
+  emailRequest: '/users/email/requests',
   emailVerification: '/users/email/verification',
   exists: (email: string) => `/users/exists?email=${encodeURIComponent(email)}`,
 } as const
