@@ -2,6 +2,7 @@ package com.ssafy.ssabway.domain.user.controller;
 
 import com.ssafy.ssabway.domain.user.dto.request.EmailVerificationConfirmRequest;
 import com.ssafy.ssabway.domain.user.dto.request.EmailVerificationSendRequest;
+import com.ssafy.ssabway.domain.user.dto.request.SignUpRequest;
 import com.ssafy.ssabway.domain.user.dto.response.EmailDuplicateResponse;
 import com.ssafy.ssabway.domain.user.dto.response.EmailVerificationSendResponse;
 import com.ssafy.ssabway.domain.user.service.EmailVerificationService;
@@ -23,7 +24,7 @@ public class UserController {
     private final EmailVerificationService emailVerificationService;
 
     @GetMapping("/exists")
-    public ResponseEntity<ApiResponse<EmailDuplicateResponse>> checkEmailDuplcate(
+    public ResponseEntity<ApiResponse<EmailDuplicateResponse>> checkEmailDuplicate(
             @RequestParam @NotBlank @Email String email){
 
         EmailDuplicateResponse response = userService.checkEmailDuplicate(email);
@@ -44,11 +45,18 @@ public class UserController {
     }
 
     @PostMapping("/email/verification")
-    public ResponseEntity<ApiResponse<Void>> confirmVerficationCode(
+    public ResponseEntity<ApiResponse<Void>> confirmVerificationCode(
             @Valid @RequestBody EmailVerificationConfirmRequest request) {
 
         emailVerificationService.confirmCode(request);
 
         return ResponseEntity.ok(ApiResponse.ok("인증번호 검증이 완료되었습니다."));
+    }
+
+    @PostMapping
+    public ResponseEntity<ApiResponse<Void>> signup(@Valid @RequestBody SignUpRequest request) {
+        userService.signup(request);
+
+        return ResponseEntity.ok(ApiResponse.ok("회원가입 완료되었습니다."));
     }
 }
