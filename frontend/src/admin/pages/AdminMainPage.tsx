@@ -1,18 +1,52 @@
+import { useNavigate } from 'react-router-dom'
+
+import { useAuthStore } from '@/shared/lib/store/useAuthStore'
+import { Button } from '@/shared/ui'
+import { useAdminProfileStore } from '@/admin/features/auth/useAdminProfileStore'
+import { WaitingPanel } from '@/admin/features/consultation-receive/WaitingPanel'
+import { HistoryPanel } from '@/admin/features/dashboard/HistoryPanel'
 import { AdminShell } from '@/admin/ui/AdminShell'
 
 /**
  * 관리자 2. 메인 — /admin
  *
- * 아직 화면이 없는 자리. 라우트와 화면을 1:1로 유지해
- * 로그인 후 이동과 뒤로가기 동작이 어긋나지 않도록 한다.
+ * 상담 대기와 민원 기록을 한 화면에서 나란히 본다.
+ * 두 목록이 각각 길어지므로 화면 높이를 채우고 패널 안에서만 스크롤한다.
  */
 export default function AdminMainPage() {
+  const navigate = useNavigate()
+  const clearAccessToken = useAuthStore((s) => s.clearAccessToken)
+  const staffCode = useAdminProfileStore((s) => s.staffCode)
+  const clearStaffCode = useAdminProfileStore((s) => s.clearStaffCode)
+
+  const signOut = () => {
+    clearAccessToken('admin')
+    clearStaffCode()
+    void navigate('/admin/login', { replace: true })
+  }
+
   return (
-    <AdminShell>
-      <div className="flex flex-1 items-center justify-center">
-        <p className="text-ink-muted text-sm font-bold">
-          관리자 메인 페이지 준비 중
-        </p>
+    <AdminShell
+      headerRight={
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="rounded-full border border-white/40 text-white"
+            onClick={signOut}
+          >
+            로그아웃
+          </Button>
+
+          {staffCode ? (
+            <span className="text-[13px] text-white/80">{staffCode}</span>
+          ) : null}
+        </div>
+      }
+    >
+      <div className="grid min-h-0 flex-1 grid-cols-[minmax(0,4fr)_minmax(0,5fr)] gap-6 p-6">
+        <WaitingPanel />
+        <HistoryPanel />
       </div>
     </AdminShell>
   )

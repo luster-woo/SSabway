@@ -11,26 +11,31 @@ export default function AdminLoginPage() {
   const navigate = useNavigate()
   const [staffCode, setStaffCode] = useState('')
   const [staffPassword, setStaffPassword] = useState('')
-  const { mutate, isPending, error } = useAdminLogin()
+  const { login, isPending, errorMessage } = useAdminLogin()
 
   const isSubmittable =
     staffCode.trim() !== '' && staffPassword !== '' && !isPending
 
-  const submitLogin = (event: FormEvent<HTMLFormElement>) => {
+  const submitLogin = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     if (!isSubmittable) return
 
-    mutate(
-      { staffCode: staffCode.trim(), staffPassword },
-      { onSuccess: () => void navigate('/admin', { replace: true }) },
-    )
+    const isLoggedIn = await login({
+      staffCode: staffCode.trim(),
+      staffPassword,
+    })
+    if (isLoggedIn) void navigate('/admin', { replace: true })
   }
 
   return (
     <AdminShell>
       <div className="flex flex-1 items-center justify-center py-16">
         <Card className="w-[420px]">
-          <form className="px-6 py-7" onSubmit={submitLogin} noValidate>
+          <form
+            className="px-6 py-7"
+            onSubmit={(event) => void submitLogin(event)}
+            noValidate
+          >
             <div className="flex flex-col items-center">
               <AppLogo size="56px" />
               <h1 className="text-ink mt-5 text-[22px] leading-none font-bold">
@@ -57,9 +62,9 @@ export default function AdminLoginPage() {
               />
             </div>
 
-            {error ? (
+            {errorMessage ? (
               <p role="alert" className="text-danger mt-4 text-[12.5px]">
-                {error.message}
+                {errorMessage}
               </p>
             ) : null}
 
