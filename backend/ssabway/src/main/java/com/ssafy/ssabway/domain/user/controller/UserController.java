@@ -12,6 +12,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -57,6 +58,6 @@ public class UserController {
     public ResponseEntity<ApiResponse<Void>> signup(@Valid @RequestBody SignUpRequest request) {
         userService.signup(request);
 
-        return ResponseEntity.ok(ApiResponse.ok("회원가입 완료되었습니다."));
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok("회원가입이 완료되었습니다."));
     }
 }
