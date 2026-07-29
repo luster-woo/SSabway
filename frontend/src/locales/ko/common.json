@@ -79,7 +79,25 @@
   "route": {
     "next": "다음",
     "prev": "이전",
-    "arrived": "목적지에 도착했어요"
+    "arrived": "목적지에 도착했어요",
+    "select": {
+      "title": "추천 경로",
+      "back": "뒤로가기",
+      "badge": {
+        "fastest": "빠른 길",
+        "noTransfer": "환승 없음",
+        "cheapest": "최소 요금"
+      },
+      "noTransfer": "환승 없음",
+      "transferCount": "환승 {{n}}회",
+      "start": "이 경로로 안내 시작",
+      "notice": "열차 운행 상황에 따라 실제 소요 시간은 달라질 수 있어요",
+      "loading": "경로를 찾고 있어요…",
+      "failed": "경로를 불러오지 못했어요\n잠시 후 다시 시도해 주세요",
+      "empty": "이용할 수 있는 경로를 찾지 못했어요\n목적지를 다시 선택해 주세요",
+      "changeDestination": "목적지 다시 선택",
+      "started": "{{station}}까지 안내를 시작해요"
+    }
   },
   "consultation": {
     "request": "도움 요청하기",

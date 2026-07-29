@@ -79,7 +79,25 @@
   "route": {
     "next": "下一步",
     "prev": "上一步",
-    "arrived": "已到达"
+    "arrived": "已到达",
+    "select": {
+      "title": "推荐路线",
+      "back": "返回",
+      "badge": {
+        "fastest": "最快",
+        "noTransfer": "无需换乘",
+        "cheapest": "最低票价"
+      },
+      "noTransfer": "无需换乘",
+      "transferCount": "换乘{{n}}次",
+      "start": "使用此路线开始导航",
+      "notice": "实际用时可能因列车运行情况而变化",
+      "loading": "正在查找路线…",
+      "failed": "无法加载路线\n请稍后再试",
+      "empty": "未找到可用路线\n请重新选择目的地",
+      "changeDestination": "重新选择目的地",
+      "started": "开始为您导航至{{station}}"
+    }
   },
   "consultation": {
     "request": "请求帮助",

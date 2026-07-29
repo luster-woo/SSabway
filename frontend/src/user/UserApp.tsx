@@ -9,6 +9,7 @@ import {
 
 import { Button, MobileScreen, ToastProvider } from '@/shared/ui'
 import DestinationPage from '@/user/pages/DestinationPage'
+import RoutePage from '@/user/pages/RoutePage'
 import SignCapturePage from '@/user/pages/SignCapturePage'
 import StartPage from '@/user/pages/StartPage'
 
@@ -46,7 +47,8 @@ export default function UserApp() {
         <Route index element={<StartPage />} />
         <Route path="scan" element={<SignCapturePage />} />
         <Route path="destination" element={<DestinationPage />} />
-        {/* TODO: 사용자 정보 입력 화면으로 교체 */}
+        <Route path="route" element={<RoutePage />} />
+        {/* TODO: 사용자 정보 입력(교통카드 여부) 화면. 목적지 → 경로 선택 사이에 끼운다 */}
         <Route path="user-info" element={<PlaceholderScreen />} />
         {/* TODO: 로그인·회원가입 화면으로 교체 */}
         <Route path="login" element={<PlaceholderScreen />} />
