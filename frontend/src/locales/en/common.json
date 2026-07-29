@@ -87,7 +87,34 @@
     "queuePosition": "{{position}} people ahead of you",
     "unavailable": "No staff available right now",
     "micOnly": "Staff will speak to you. Their camera is off.",
-    "end": "End call"
+    "end": "End call",
+    "video": {
+      "staffConnected": "Staff connected",
+      "faceBlurOn": "Rear camera · Face blur ON",
+      "mic": "Mic",
+      "camera": "Camera",
+      "endShort": "End",
+      "micOn": "Mic turned on",
+      "micOff": "Mic turned off",
+      "cameraOn": "Camera turned on",
+      "cameraOff": "Camera turned off",
+      "ended": "The call has ended",
+      "permission": {
+        "title": "Allow mic",
+        "description": "We need microphone access\nto connect you with staff.",
+        "allow": "Allow",
+        "deny": "Deny",
+        "allowed": "Microphone allowed · Connected to staff",
+        "denied": "Permission is required to start the video call",
+        "requesting": "Checking permissions…"
+      },
+      "endConfirm": {
+        "title": "End this call?",
+        "description": "You can keep using navigation after the call ends",
+        "confirm": "End",
+        "keep": "Keep going"
+      }
+    }
   },
   "common": {
     "retry": "Retry",

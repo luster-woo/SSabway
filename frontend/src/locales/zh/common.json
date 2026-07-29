@@ -87,7 +87,34 @@
     "queuePosition": "您前面还有{{position}}人",
     "unavailable": "目前没有可接待的站务人员",
     "micOnly": "站务人员将通过语音为您提供帮助，其摄像头已关闭。",
-    "end": "结束通话"
+    "end": "结束通话",
+    "video": {
+      "staffConnected": "已连接工作人员",
+      "faceBlurOn": "后置摄像头 · 面部马赛克开启",
+      "mic": "麦克风",
+      "camera": "摄像头",
+      "endShort": "结束",
+      "micOn": "已打开麦克风",
+      "micOff": "已关闭麦克风",
+      "cameraOn": "已打开摄像头",
+      "cameraOff": "已关闭摄像头",
+      "ended": "咨询已结束",
+      "permission": {
+        "title": "允许麦克风",
+        "description": "与工作人员视频通话\n需要麦克风权限。",
+        "allow": "允许",
+        "deny": "拒绝",
+        "allowed": "已允许麦克风 · 已连接工作人员",
+        "denied": "需要允许权限才能开始视频通话",
+        "requesting": "正在确认权限…"
+      },
+      "endConfirm": {
+        "title": "要结束咨询吗？",
+        "description": "结束后仍可继续使用路线引导",
+        "confirm": "结束",
+        "keep": "继续"
+      }
+    }
   },
   "common": {
     "retry": "重试",

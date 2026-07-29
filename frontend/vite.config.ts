@@ -13,7 +13,7 @@ export default defineConfig({
     react(),
     // 폰 실기기에서 카메라(getUserMedia)를 쓰려면 보안 컨텍스트가 필요하다.
     // 자체 서명 인증서라 첫 접속 때 브라우저 경고가 뜬다 — 무시하고 진행.
-    basicSsl(),
+    // basicSsl(),
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
