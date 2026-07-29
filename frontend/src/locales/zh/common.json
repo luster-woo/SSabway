@@ -176,6 +176,25 @@
       }
     }
   },
+  "routeGuide": {
+    "back": "返回",
+    "label": "路线导航",
+    "stepCount": "第 {{current}} / {{total}} 步",
+    "progress": "共{{total}}步，第{{current}}步",
+    "rescan": "重新搜索路线",
+    "rescanning": "重新拍摄指示牌以搜索路线",
+    "nextSign": "下一个指示牌",
+    "exit": "出口",
+    "prev": "上一步",
+    "next": "下一步",
+    "showMyLocation": "查看站内当前位置",
+    "arrive": "已到达",
+    "mapNotReady": "站内地图正在准备中",
+    "help": "请求帮助",
+    "loading": "正在加载路线导航…",
+    "failed": "无法加载路线导航\n请稍后再试",
+    "empty": "未找到可导航的步骤\n请重新拍摄指示牌"
+  },
   "consultation": {
     "request": "请求帮助",
     "connecting": "正在连接站务人员...",

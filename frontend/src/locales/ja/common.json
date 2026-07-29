@@ -176,6 +176,25 @@
       }
     }
   },
+  "routeGuide": {
+    "back": "戻る",
+    "label": "ルート案内",
+    "stepCount": "{{current}} / {{total}} ステップ",
+    "progress": "全{{total}}ステップ中{{current}}ステップ目",
+    "rescan": "ルート再検索",
+    "rescanning": "案内標識をもう一度撮影してルートを探します",
+    "nextSign": "次の案内標識",
+    "exit": "出口",
+    "prev": "戻る",
+    "next": "次へ",
+    "showMyLocation": "駅構内での現在位置を見る",
+    "arrive": "到着完了",
+    "mapNotReady": "駅構内マップは準備中です",
+    "help": "ヘルプ",
+    "loading": "ルート案内を読み込んでいます…",
+    "failed": "ルート案内を読み込めませんでした\nしばらくしてからもう一度お試しください",
+    "empty": "案内するステップが見つかりませんでした\n案内標識をもう一度撮影してください"
+  },
   "consultation": {
     "request": "ヘルプを依頼する",
     "connecting": "駅員に接続しています...",

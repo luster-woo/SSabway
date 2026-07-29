@@ -176,6 +176,25 @@
       }
     }
   },
+  "routeGuide": {
+    "back": "Back",
+    "label": "Route guide",
+    "stepCount": "Step {{current}} / {{total}}",
+    "progress": "Step {{current}} of {{total}}",
+    "rescan": "Find route again",
+    "rescanning": "Take another photo of a sign to find your route",
+    "nextSign": "Next sign",
+    "exit": "Exit",
+    "prev": "Previous",
+    "next": "Next",
+    "showMyLocation": "See my location inside the station",
+    "arrive": "I have arrived",
+    "mapNotReady": "The in-station map is coming soon",
+    "help": "Get help",
+    "loading": "Loading the route guide…",
+    "failed": "Could not load the route guide\nPlease try again in a moment",
+    "empty": "No guide steps were found\nPlease photograph a sign again"
+  },
   "consultation": {
     "request": "Ask for help",
     "connecting": "Connecting to staff...",

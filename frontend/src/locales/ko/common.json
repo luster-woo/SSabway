@@ -176,6 +176,25 @@
       }
     }
   },
+  "routeGuide": {
+    "back": "뒤로가기",
+    "label": "경로 안내",
+    "stepCount": "{{current}} / {{total}} 단계",
+    "progress": "{{total}}단계 중 {{current}}단계",
+    "rescan": "경로 재탐색",
+    "rescanning": "표지판을 다시 촬영해 경로를 찾을게요",
+    "nextSign": "다음 표지판",
+    "exit": "출구",
+    "prev": "이전",
+    "next": "다음",
+    "showMyLocation": "역 내에서 현재 위치 보기",
+    "arrive": "도착 완료",
+    "mapNotReady": "역 내부 지도는 준비 중이에요",
+    "help": "도움 요청",
+    "loading": "경로 안내를 불러오는 중이에요…",
+    "failed": "경로 안내를 불러오지 못했어요\n잠시 후 다시 시도해 주세요",
+    "empty": "안내할 단계를 찾지 못했어요\n표지판을 다시 촬영해 주세요"
+  },
   "consultation": {
     "request": "도움 요청하기",
     "connecting": "역무원과 연결 중이에요...",

@@ -11,6 +11,7 @@ import { Button, MobileScreen, ToastProvider } from '@/shared/ui'
 import ConsultationPage from '@/user/pages/ConsultationPage'
 import DestinationPage from '@/user/pages/DestinationPage'
 import LoginPage from '@/user/pages/LoginPage'
+import RouteGuidePage from '@/user/pages/RouteGuidePage'
 import RoutePage from '@/user/pages/RoutePage'
 import SignCapturePage from '@/user/pages/SignCapturePage'
 import StartPage from '@/user/pages/StartPage'
@@ -53,10 +54,8 @@ export default function UserApp() {
         <Route path="route" element={<RoutePage />} />
         {/* 안내 정보 확인(출발·도착 + 교통카드 여부). 경로 선택 다음 화면이다. */}
         <Route path="user-info" element={<UserInfoPage />} />
-        {/* TODO: 로그인·회원가입 화면으로 교체 */}
-        <Route path="login" element={<PlaceholderScreen />} />
-        {/* TODO: 사용자 정보 입력(교통카드 여부) 화면. 목적지 → 경로 선택 사이에 끼운다 */}
-        <Route path="user-info" element={<PlaceholderScreen />} />
+        {/* 경로 상세 안내(역 내 표지판 단계별 안내) */}
+        <Route path="guide" element={<RouteGuidePage />} />
         <Route path="login" element={<LoginPage />} />
         <Route path="consultation" element={<ConsultationPage />} />
         {/* TODO: 도착 완료 화면으로 교체. 통화 종료 후 돌아올 자리다. */}
