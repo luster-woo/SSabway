@@ -1,5 +1,6 @@
 package com.ssafy.ssabway.domain.user.controller;
 
+import com.ssafy.ssabway.domain.user.dto.request.EmailVerificationConfirmRequest;
 import com.ssafy.ssabway.domain.user.dto.request.EmailVerificationSendRequest;
 import com.ssafy.ssabway.domain.user.dto.response.EmailDuplicateResponse;
 import com.ssafy.ssabway.domain.user.dto.response.EmailVerificationSendResponse;
@@ -40,5 +41,14 @@ public class UserController {
         EmailVerificationSendResponse response = emailVerificationService.sendCode(request);
 
         return ResponseEntity.ok(ApiResponse.ok("인증 코드가 발송되었습니다.", response));
+    }
+
+    @PostMapping("/email/verification")
+    public ResponseEntity<ApiResponse<Void>> confirmVerficationCode(
+            @Valid @RequestBody EmailVerificationConfirmRequest request) {
+
+        emailVerificationService.confirmCode(request);
+
+        return ResponseEntity.ok(ApiResponse.ok("인증번호 검증이 완료되었습니다."));
     }
 }
