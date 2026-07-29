@@ -1,0 +1,60 @@
+{
+  "app": {
+    "name": "SSabway",
+    "tagline": "외국인 관광객을 위한 지하철 길안내"
+  },
+  "language": {
+    "select": "Language · 언어 선택",
+    "changed": "언어를 변경했어요"
+  },
+  "auth": {
+    "signIn": "로그인",
+    "signOut": "로그아웃",
+    "deleteAccount": "회원탈퇴",
+    "accountMenu": "계정 메뉴",
+    "signedOut": "로그아웃 되었습니다",
+    "accountDeleted": "탈퇴 처리되었어요"
+  },
+  "start": {
+    "startGuide": "안내 시작",
+    "needConsentFirst": "위치 권한을 먼저 선택해 주세요",
+    "consent": {
+      "title": "위치 정보 접근 권한",
+      "allowHint": "동의 시 가까운 역 위치를 인식해요",
+      "denyHint": "비동의 시 표지판 촬영으로 위치를 인식해요",
+      "allow": "동의",
+      "deny": "비동의",
+      "allowed": "위치 접근을 허용했어요 · 가까운 역을 찾을 수 있어요",
+      "denied": "괜찮아요! 표지판 촬영으로 위치를 인식할 수 있어요",
+      "statusAllowed": "위치 정보 사용에 동의했어요",
+      "statusDenied": "표지판 촬영으로 위치를 인식해요",
+      "change": "다시 선택"
+    }
+  },
+  "location": {
+    "captureSign": "표지판 촬영하기",
+    "useGps": "내 위치 사용하기",
+    "selectStation": "역 직접 선택하기"
+  },
+  "route": {
+    "next": "다음",
+    "prev": "이전",
+    "arrived": "목적지에 도착했어요"
+  },
+  "consultation": {
+    "request": "도움 요청하기",
+    "connecting": "역무원과 연결 중이에요...",
+    "queuePosition": "앞에 {{position}}명 대기 중이에요",
+    "unavailable": "지금은 연결 가능한 역무원이 없어요",
+    "micOnly": "역무원이 음성으로 안내해요. 카메라는 꺼져 있어요.",
+    "end": "통화 종료"
+  },
+  "common": {
+    "retry": "다시 시도",
+    "cancel": "취소",
+    "confirm": "확인",
+    "close": "닫기",
+    "goHome": "처음으로",
+    "notReady": "준비 중인 화면입니다"
+  }
+}

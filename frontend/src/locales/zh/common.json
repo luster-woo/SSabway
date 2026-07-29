@@ -1,0 +1,60 @@
+{
+  "app": {
+    "name": "SSabway",
+    "tagline": "面向外国游客的地铁向导"
+  },
+  "language": {
+    "select": "Language · 语言",
+    "changed": "已切换语言"
+  },
+  "auth": {
+    "signIn": "登录",
+    "signOut": "退出登录",
+    "deleteAccount": "注销账号",
+    "accountMenu": "账号菜单",
+    "signedOut": "已退出登录",
+    "accountDeleted": "已注销账号"
+  },
+  "start": {
+    "startGuide": "开始导航",
+    "needConsentFirst": "请先选择位置权限",
+    "consent": {
+      "title": "位置信息权限",
+      "allowHint": "同意后识别最近车站位置",
+      "denyHint": "拒绝时通过拍摄指示牌识别位置",
+      "allow": "同意",
+      "deny": "拒绝",
+      "allowed": "已允许定位 · 可以查找最近车站",
+      "denied": "没关系！可通过拍摄指示牌识别位置",
+      "statusAllowed": "已同意使用位置信息",
+      "statusDenied": "将通过拍摄指示牌识别位置",
+      "change": "重新选择"
+    }
+  },
+  "location": {
+    "captureSign": "拍摄指示牌",
+    "useGps": "使用我的位置",
+    "selectStation": "手动选择车站"
+  },
+  "route": {
+    "next": "下一步",
+    "prev": "上一步",
+    "arrived": "已到达"
+  },
+  "consultation": {
+    "request": "请求帮助",
+    "connecting": "正在连接站务人员...",
+    "queuePosition": "您前面还有{{position}}人",
+    "unavailable": "目前没有可接待的站务人员",
+    "micOnly": "站务人员将通过语音为您提供帮助，其摄像头已关闭。",
+    "end": "结束通话"
+  },
+  "common": {
+    "retry": "重试",
+    "cancel": "取消",
+    "confirm": "确认",
+    "close": "关闭",
+    "goHome": "返回首页",
+    "notReady": "该页面正在准备中"
+  }
+}

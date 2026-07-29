@@ -10,18 +10,25 @@ import io.openvidu.java.client.OpenViduHttpException;
 import io.openvidu.java.client.OpenViduJavaClientException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/v1/openvidu")
 @RequiredArgsConstructor
 public class OpenViduController {
+
     private final OpenViduService openViduService;
 
     @PostMapping("/sessions")
     public ApiResponse<SessionCreateResponse> createSession(
         @Valid @RequestBody SessionCreateRequest request
-        ) throws OpenViduJavaClientException, OpenViduHttpException {
+    ) throws OpenViduJavaClientException,
+             OpenViduHttpException {
+
         String sessionId = openViduService.createSession(
             request.getConsultationId()
         );
@@ -31,13 +38,12 @@ public class OpenViduController {
         );
     }
 
-
     @PostMapping("/sessions/{sessionId}/connections")
     public ApiResponse<ConnectionCreateResponse> createConnection(
         @PathVariable String sessionId,
         @Valid @RequestBody ConnectionCreateRequest request
     ) throws OpenViduJavaClientException,
-        OpenViduHttpException{
+             OpenViduHttpException {
 
         String token = openViduService.createConnection(
             sessionId,
@@ -52,6 +58,4 @@ public class OpenViduController {
             )
         );
     }
-
-
 }

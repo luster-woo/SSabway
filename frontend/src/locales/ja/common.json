@@ -1,0 +1,60 @@
+{
+  "app": {
+    "name": "SSabway",
+    "tagline": "外国人観光客のための地下鉄案内"
+  },
+  "language": {
+    "select": "Language · 言語",
+    "changed": "言語を変更しました"
+  },
+  "auth": {
+    "signIn": "ログイン",
+    "signOut": "ログアウト",
+    "deleteAccount": "退会",
+    "accountMenu": "アカウントメニュー",
+    "signedOut": "ログアウトしました",
+    "accountDeleted": "退会処理しました"
+  },
+  "start": {
+    "startGuide": "ガイド開始",
+    "needConsentFirst": "先に位置情報の権限を選択してください",
+    "consent": {
+      "title": "位置情報のアクセス権限",
+      "allowHint": "同意すると最寄り駅を認識します",
+      "denyHint": "拒否時は標識撮影で位置を認識します",
+      "allow": "同意する",
+      "deny": "同意しない",
+      "allowed": "位置情報を許可しました · 最寄り駅を探せます",
+      "denied": "大丈夫です！標識の撮影で位置を認識できます",
+      "statusAllowed": "位置情報の利用に同意しました",
+      "statusDenied": "標識の撮影で位置を認識します",
+      "change": "選び直す"
+    }
+  },
+  "location": {
+    "captureSign": "案内標識を撮影する",
+    "useGps": "現在位置を使う",
+    "selectStation": "駅を手動で選択する"
+  },
+  "route": {
+    "next": "次へ",
+    "prev": "戻る",
+    "arrived": "到着しました"
+  },
+  "consultation": {
+    "request": "ヘルプを依頼する",
+    "connecting": "駅員に接続しています...",
+    "queuePosition": "あなたの前に{{position}}人待っています",
+    "unavailable": "現在対応できる駅員がいません",
+    "micOnly": "駅員が音声で案内します。カメラはオフです。",
+    "end": "通話を終了する"
+  },
+  "common": {
+    "retry": "再試行",
+    "cancel": "キャンセル",
+    "confirm": "確認",
+    "close": "閉じる",
+    "goHome": "最初に戻る",
+    "notReady": "準備中の画面です"
+  }
+}

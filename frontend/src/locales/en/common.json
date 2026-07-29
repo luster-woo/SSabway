@@ -1,0 +1,60 @@
+{
+  "app": {
+    "name": "SSabway",
+    "tagline": "Subway guide for foreign travelers"
+  },
+  "language": {
+    "select": "Language",
+    "changed": "Language changed"
+  },
+  "auth": {
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "deleteAccount": "Delete account",
+    "accountMenu": "Account menu",
+    "signedOut": "Signed out",
+    "accountDeleted": "Account deleted"
+  },
+  "start": {
+    "startGuide": "Start Guide",
+    "needConsentFirst": "Please choose location access first",
+    "consent": {
+      "title": "Location access",
+      "allowHint": "We'll detect the nearest station",
+      "denyHint": "Deny: we locate you from a sign photo",
+      "allow": "Allow",
+      "deny": "Not now",
+      "allowed": "Location allowed · we can find the nearest station",
+      "denied": "No problem! We can locate you from a sign photo",
+      "statusAllowed": "Location access allowed",
+      "statusDenied": "We'll locate you from a sign photo",
+      "change": "Change"
+    }
+  },
+  "location": {
+    "captureSign": "Take a photo of a sign",
+    "useGps": "Use my location",
+    "selectStation": "Select station manually"
+  },
+  "route": {
+    "next": "Next",
+    "prev": "Previous",
+    "arrived": "You have arrived"
+  },
+  "consultation": {
+    "request": "Ask for help",
+    "connecting": "Connecting to staff...",
+    "queuePosition": "{{position}} people ahead of you",
+    "unavailable": "No staff available right now",
+    "micOnly": "Staff will speak to you. Their camera is off.",
+    "end": "End call"
+  },
+  "common": {
+    "retry": "Retry",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "close": "Close",
+    "goHome": "Back to start",
+    "notReady": "This screen is not ready yet"
+  }
+}

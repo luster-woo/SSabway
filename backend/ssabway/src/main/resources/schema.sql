@@ -4,9 +4,7 @@
 -- 테이블이 이미 있으면 아무 일도 하지 않음
 -- 생성 순서 = FK 의존성 순서 (부모 → 자식)
 --
--- 언어 코드 표기: ISO 639-1 소문자 ('ko', 'en', 'ja', 'zh')
---   users.language 와 edge_translations.language_code 는
---   반드시 같은 표기를 사용해야 함 (조회 시 직접 매칭됨)
+-- 언어 코드 표기: ISO 639-1 대문자 ('KO', 'EN', 'JA', 'ZH')
 -- =====================================================
 
 -- -----------------------------------------------------
@@ -31,7 +29,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `password_hash` VARCHAR(255) NULL                    COMMENT '고객 암호화 비밀번호 (소셜 가입 시 NULL)',
   `provider`      VARCHAR(20)  NOT NULL DEFAULT 'LOCAL' COMMENT '가입 경로 (LOCAL/GOOGLE/KAKAO/NAVER)',
   `provider_id`   VARCHAR(100) NULL                    COMMENT '소셜 고유 식별자 (로컬 가입 시 NULL)',
-  `language`      VARCHAR(10)  NOT NULL DEFAULT 'en'   COMMENT '고객 선호 언어 (ISO 639-1)',
+  `language`      VARCHAR(10)  NOT NULL DEFAULT 'EN'   COMMENT '고객 선호 언어 (ISO 639-1)',
   `created_at`    DATETIME(6)  NOT NULL DEFAULT CURRENT_TIMESTAMP(6) COMMENT '고객 가입일자',
   `deleted_at`    DATETIME(6)  NULL                    COMMENT '고객 탈퇴일자',
   PRIMARY KEY (`user_id`),
