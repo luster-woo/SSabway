@@ -26,6 +26,11 @@ export const queryKeys = {
         params.endY,
       ] as const,
   },
+  guide: {
+    all: ['guide'] as const,
+    /** 안내 정보 확인 화면의 출발·도착 정보 */
+    info: () => [...queryKeys.guide.all, 'info'] as const,
+  },
   consultation: {
     all: ['consultation'] as const,
     detail: (id: number) => [...queryKeys.consultation.all, id] as const,

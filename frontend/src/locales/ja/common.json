@@ -119,6 +119,63 @@
       "started": "{{station}}まで案内を開始します"
     }
   },
+  "userInfo": {
+    "title": "案内情報の確認",
+    "back": "戻る",
+    "origin": "出発",
+    "destination": "到着",
+    "change": "変更",
+    "start": "ルート案内を開始",
+    "loading": "案内情報を読み込んでいます…",
+    "failed": "案内情報を読み込めませんでした\nしばらくしてからもう一度お試しください",
+    "needAnswers": "すべての質問にお答えください",
+    "started": "選択した条件で案内を開始します",
+    "preference": {
+      "label": "ルートに必要な情報",
+      "back": "前の質問",
+      "reset": "選び直す",
+      "progress": "質問 {{current}} / {{total}}",
+      "done": "すべての質問に回答しました",
+      "elevator": {
+        "question": "エレベーターの利用をご希望ですか？",
+        "yes": "はい",
+        "no": "いいえ"
+      },
+      "transitCard": {
+        "question": "交通カードをお持ちですか？",
+        "yes": "はい、あります",
+        "no": "いいえ、ありません"
+      },
+      "ticketMethod": {
+        "question": "どのように移動しますか？",
+        "single": "1回券を購入・現金で移動",
+        "buyCard": "交通カードを購入します"
+      },
+      "cash": {
+        "question": "現金をお持ちですか？",
+        "yes": "はい、あります",
+        "no": "いいえ、ありません"
+      }
+    },
+    "plan": {
+      "direct": {
+        "title": "目的地までそのまま案内します",
+        "description": "交通カードで改札を通るだけです"
+      },
+      "ticketMachine": {
+        "title": "券売機を経由します",
+        "description": "1回券を購入してから乗車経路を案内します"
+      },
+      "convenienceStore": {
+        "title": "近くのコンビニを経由します",
+        "description": "交通カードを購入してから案内を続けます"
+      },
+      "atm": {
+        "title": "近くのATMを経由します",
+        "description": "現金を引き出してから移動経路を案内します"
+      }
+    }
+  },
   "consultation": {
     "request": "ヘルプを依頼する",
     "connecting": "駅員に接続しています...",

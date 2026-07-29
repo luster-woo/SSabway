@@ -119,6 +119,63 @@
       "started": "Starting the guide to {{station}}"
     }
   },
+  "userInfo": {
+    "title": "Confirm guide details",
+    "back": "Back",
+    "origin": "From",
+    "destination": "To",
+    "change": "Change",
+    "start": "Start route guide",
+    "loading": "Loading guide details…",
+    "failed": "Could not load guide details\nPlease try again in a moment",
+    "needAnswers": "Please answer all the questions",
+    "started": "Starting the guide with your selection",
+    "preference": {
+      "label": "Details for your route",
+      "back": "Previous",
+      "reset": "Choose again",
+      "progress": "Question {{current}} of {{total}}",
+      "done": "All questions answered",
+      "elevator": {
+        "question": "Would you like to use an elevator?",
+        "yes": "Yes",
+        "no": "No"
+      },
+      "transitCard": {
+        "question": "Do you have a transit card?",
+        "yes": "Yes, I do",
+        "no": "No, I don't"
+      },
+      "ticketMethod": {
+        "question": "How would you like to travel?",
+        "single": "Buy a single ticket · pay cash",
+        "buyCard": "I'll buy a transit card"
+      },
+      "cash": {
+        "question": "Do you have cash on hand?",
+        "yes": "Yes, I do",
+        "no": "No, I don't"
+      }
+    },
+    "plan": {
+      "direct": {
+        "title": "We'll guide you straight there",
+        "description": "Just tap your card at the gate"
+      },
+      "ticketMachine": {
+        "title": "We'll stop by a ticket machine",
+        "description": "Buy a single ticket, then head to the platform"
+      },
+      "convenienceStore": {
+        "title": "We'll stop by a nearby store",
+        "description": "Buy a transit card there and continue"
+      },
+      "atm": {
+        "title": "We'll stop by a nearby ATM",
+        "description": "Withdraw cash, then continue to the platform"
+      }
+    }
+  },
   "consultation": {
     "request": "Ask for help",
     "connecting": "Connecting to staff...",
