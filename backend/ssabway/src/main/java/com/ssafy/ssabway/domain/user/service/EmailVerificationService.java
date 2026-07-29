@@ -140,4 +140,15 @@ public class EmailVerificationService {
             throw new BusinessException(ErrorCode.TOO_MANY_REQUESTS);
         }
     }
+
+    // 회원 가입 시점에 이메일 인증 완료 여부를 확인 (verify:done: 키를 check)
+    public void validateVerified(String email) {
+        Boolean verified = redisTemplate.hasKey(DONE_KEY_PREFIX + email);
+
+        if (!Boolean.TRUE.equals(verified)) throw new BusinessException(ErrorCode.EMAIL_NOT_VERIFIED);
+    }
+
+    public void clearVerified(String email) {
+        redisTemplate.delete(DONE_KEY_PREFIX + email);
+    }
 }
