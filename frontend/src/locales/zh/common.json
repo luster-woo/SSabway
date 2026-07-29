@@ -33,6 +33,43 @@
         "invalidCredential": "邮箱或密码不正确",
         "unknown": "登录失败 · 请稍后重试"
       }
+    },
+    "passwordReset": {
+      "title": "重置密码",
+      "subtitle": "验证邮箱后即可设置新密码。",
+      "back": "返回",
+      "email": "邮箱",
+      "emailPlaceholder": "you@example.com",
+      "sendCode": "发送验证",
+      "resendCode": "重新发送",
+      "sending": "发送中",
+      "codeSent": "验证邮件已发送，请查看邮箱",
+      "code": "验证码（7位）",
+      "verifyCode": "确认",
+      "verifying": "确认中",
+      "codeVerified": "邮箱验证已完成",
+      "remainingTime": "剩余时间 {{time}}",
+      "newPassword": "新密码",
+      "newPasswordPlaceholder": "请输入8位以上",
+      "confirmPassword": "确认新密码",
+      "confirmPasswordPlaceholder": "请再输入一次",
+      "submit": "修改密码",
+      "submitting": "修改中",
+      "success": "密码已修改，请重新登录",
+      "rememberedPassword": "想起密码了吗？",
+      "signIn": "登录",
+      "error": {
+        "invalidEmail": "邮箱格式不正确",
+        "duplicateEmail": "该邮箱已被使用",
+        "tooManyRequests": "发送次数已超限 · 请稍后再试",
+        "sendFailed": "验证邮件发送失败 · 请稍后再试",
+        "invalidCode": "验证码不正确",
+        "verifyFailed": "验证失败 · 请稍后再试",
+        "codeExpired": "验证时间已过期 · 请重新获取验证邮件",
+        "invalidPassword": "密码格式不正确",
+        "unauthorized": "验证已过期 · 请重新开始",
+        "resetFailed": "密码修改失败 · 请稍后再试"
+      }
     }
   },
   "start": {
