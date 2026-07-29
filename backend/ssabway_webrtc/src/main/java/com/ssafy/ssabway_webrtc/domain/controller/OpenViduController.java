@@ -85,4 +85,21 @@ public class OpenViduController {
         );
     }
 
+
+    @DeleteMapping("/recordings/{recordingId}")
+    public ApiResponse<AudioRecordingStopResponse> stopAudioRecording(
+        @PathVariable String recordingId
+    ) throws OpenViduJavaClientException, OpenViduHttpException{
+
+        Recording recording = openViduService.stopAudioRecording(recordingId);
+
+        return ApiResponse.ok(
+            new AudioRecordingStopResponse(
+                recording.getId(),
+                recording.getSessionId(),
+                recording.getStatus().name()
+            )
+        );
+    }
+
 }

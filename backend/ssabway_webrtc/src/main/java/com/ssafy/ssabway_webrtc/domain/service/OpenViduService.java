@@ -71,4 +71,8 @@ public class OpenViduService {
 
         return openVidu.startRecording(sessionId, properties);
     }
+
+    public Recording stopAudioRecording(String recordingId) throws OpenViduJavaClientException, OpenViduHttpException{
+        return openVidu.stopRecording(recordingId);
+    }
 }
