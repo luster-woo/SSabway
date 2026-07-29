@@ -256,6 +256,52 @@
       }
     }
   },
+  "routeGuide": {
+    "back": "戻る",
+    "label": "ルート案内",
+    "stepCount": "{{current}} / {{total}} ステップ",
+    "progress": "全{{total}}ステップ中{{current}}ステップ目",
+    "rescan": "ルート再検索",
+    "rescanning": "案内標識をもう一度撮影してルートを探します",
+    "nextSign": "次の案内標識",
+    "exit": "出口",
+    "prev": "戻る",
+    "next": "次へ",
+    "showMyLocation": "駅構内での現在位置を見る",
+    "arrive": "到着完了",
+    "mapNotReady": "駅構内マップは準備中です",
+    "help": "ヘルプ",
+    "loading": "ルート案内を読み込んでいます…",
+    "failed": "ルート案内を読み込めませんでした\nしばらくしてからもう一度お試しください",
+    "empty": "案内するステップが見つかりませんでした\n案内標識をもう一度撮影してください"
+  },
+  "arrival": {
+    "back": "戻る",
+    "title": "目的地に到着しました！",
+    "duration": "所要時間",
+    "origin": "出発地",
+    "destination": "到着地",
+    "newDestination": "新しい目的地の案内を受ける",
+    "feedback": {
+      "question": "案内は役に立ちましたか？",
+      "helpful": "役に立った",
+      "notHelpful": "いまいち",
+      "thanks": "ご意見ありがとうございます"
+    }
+  },
+  "helpChat": {
+    "back": "戻る",
+    "title": "SSabwayサポート",
+    "online": "オンライン",
+    "greeting": "何をお手伝いしましょうか？",
+    "connectStaff": "駅員とビデオ通話",
+    "loginRequired": "ビデオ通話にはログインが必要です。",
+    "loginAndConnect": "ログインして通話する",
+    "ready": "接続の準備ができました。\n下のボタンで接続を開始してください。",
+    "connect": "ビデオ通話",
+    "recordNotice": "通話音声が録音されることがあります",
+    "backToGuide": "ルート案内に戻る"
+  },
   "consultation": {
     "request": "ヘルプを依頼する",
     "connecting": "駅員に接続しています...",

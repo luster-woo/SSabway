@@ -1,16 +1,12 @@
-import { useTranslation } from 'react-i18next'
-import {
-  Navigate,
-  Route,
-  Routes,
-  useLocation,
-  useNavigate,
-} from 'react-router-dom'
+import { Navigate, Route, Routes } from 'react-router-dom'
 
-import { Button, MobileScreen, ToastProvider } from '@/shared/ui'
+import { ToastProvider } from '@/shared/ui'
+import ArrivalPage from '@/user/pages/ArrivalPage'
 import ConsultationPage from '@/user/pages/ConsultationPage'
 import DestinationPage from '@/user/pages/DestinationPage'
+import HelpChatPage from '@/user/pages/HelpChatPage'
 import LoginPage from '@/user/pages/LoginPage'
+import RouteGuidePage from '@/user/pages/RouteGuidePage'
 import PasswordResetPage from '@/user/pages/PasswordResetPage'
 import RoutePage from '@/user/pages/RoutePage'
 import SignCapturePage from '@/user/pages/SignCapturePage'
@@ -21,7 +17,7 @@ import UserInfoPage from '@/user/pages/UserInfoPage'
 /**
  * 아직 구현되지 않은 화면 자리. 라우트와 화면을 1:1로 유지해
  * 뒤로가기 동작이 어긋나지 않도록 한다.
- * TODO: arrival 화면이 붙으면 Route를 실제 페이지로 교체
+ * TODO: auth / arrival 화면이 붙으면 각 Route를 실제 페이지로 교체
  */
 function PlaceholderScreen() {
   const { t } = useTranslation()
@@ -55,12 +51,16 @@ export default function UserApp() {
         <Route path="route" element={<RoutePage />} />
         {/* 안내 정보 확인(출발·도착 + 교통카드 여부). 경로 선택 다음 화면이다. */}
         <Route path="user-info" element={<UserInfoPage />} />
+        {/* 경로 상세 안내(역 내 표지판 단계별 안내) */}
+        <Route path="guide" element={<RouteGuidePage />} />
+        {/* 도움 요청(버튼 클릭형 도우미). 경로 안내의 도움 요청에서 진입한다. */}
+        <Route path="help" element={<HelpChatPage />} />
         <Route path="login" element={<LoginPage />} />
         <Route path="signup" element={<SignUpPage />} />
         <Route path="password-reset" element={<PasswordResetPage />} />
         <Route path="consultation" element={<ConsultationPage />} />
-        {/* TODO: 도착 완료 화면으로 교체. 통화 종료 후 돌아올 자리다. */}
-        <Route path="arrival" element={<PlaceholderScreen />} />
+        {/* 도착 완료. 안내 종료·통화 종료 후 돌아올 자리다. */}
+        <Route path="arrival" element={<ArrivalPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </ToastProvider>

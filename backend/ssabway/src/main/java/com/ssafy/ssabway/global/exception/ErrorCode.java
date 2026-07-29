@@ -24,6 +24,7 @@ public enum ErrorCode {
     EMAIL_SEND_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "인증 메일 발송에 실패했습니다."),   // 500
     VERIFICATION_CODE_MISTMATCH(HttpStatus.BAD_REQUEST, "인증 코드가 일치하지 않습니다."),
     VERIFICATION_CODE_EXPIRED(HttpStatus.BAD_REQUEST, "인증 코드가 만료되었습니다. 다시 요청해주세요."),
+    EMAIL_NOT_VERIFIED(HttpStatus.BAD_REQUEST, "이메일 인증이 필요합니다."),
 
     // 상담
     CONSULTATION_DUPLICATED(HttpStatus.CONFLICT, "중복된 상담 요청입니다."); // 409

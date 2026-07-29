@@ -1,64 +1,51 @@
+name: ssabway
+
 services:
   frontend:
-    container_name: ssabway-frontend
     build: ./frontend
-    ports:
-      - "8080:80"
     restart: unless-stopped
 
   mysql:
-    container_name: ssabway-mysql-db
     image: mysql:8.0.46
     environment:
-      MYSQL_ROOT_PASSWORD: localonly
-      MYSQL_DATABASE: ssabway
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
       TZ: Asia/Seoul
-    ports:
-      - "127.0.0.1:3307:3306"
     volumes:
       - mysql-data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-plocalonly"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${MYSQL_ROOT_PASSWORD}"]
       interval: 10s
       retries: 10
     restart: unless-stopped
 
   redis:
-    container_name: ssabway-redis
     image: redis:7-alpine
-    ports:
-      - "127.0.0.1:6379:6379"
     restart: unless-stopped
 
   api:
-    container_name: ssabway-api
     build: ./backend/ssabway
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/ssabway
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE}
       SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: localonly
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       SPRING_DATA_REDIS_HOST: redis
       TZ: Asia/Seoul
-    ports:
-      - "127.0.0.1:8081:8080"
     depends_on:
-      mysql:
-        condition: service_healthy
+      mysql: { condition: service_healthy }
     restart: unless-stopped
 
   signaling:
-    container_name: ssabway-signaling
     build: ./backend/ssabway_webrtc
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/ssabway
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE}?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Seoul
       SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: localonly
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      OPENVIDU_URL: ${OPENVIDU_URL}
+      OPENVIDU_SECRET: ${OPENVIDU_SECRET}
       TZ: Asia/Seoul
-    ports:
-      - "127.0.0.1:8082:8080"
     depends_on:
-      mysql:
-        condition: service_healthy
+      mysql: { condition: service_healthy }
     restart: unless-stopped
     
 volumes:

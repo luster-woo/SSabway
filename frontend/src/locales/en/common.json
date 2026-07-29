@@ -256,6 +256,52 @@
       }
     }
   },
+  "routeGuide": {
+    "back": "Back",
+    "label": "Route guide",
+    "stepCount": "Step {{current}} / {{total}}",
+    "progress": "Step {{current}} of {{total}}",
+    "rescan": "Find route again",
+    "rescanning": "Take another photo of a sign to find your route",
+    "nextSign": "Next sign",
+    "exit": "Exit",
+    "prev": "Previous",
+    "next": "Next",
+    "showMyLocation": "See my location inside the station",
+    "arrive": "I have arrived",
+    "mapNotReady": "The in-station map is coming soon",
+    "help": "Get help",
+    "loading": "Loading the route guide…",
+    "failed": "Could not load the route guide\nPlease try again in a moment",
+    "empty": "No guide steps were found\nPlease photograph a sign again"
+  },
+  "arrival": {
+    "back": "Back",
+    "title": "You have arrived!",
+    "duration": "Travel time",
+    "origin": "From",
+    "destination": "To",
+    "newDestination": "Guide me to a new destination",
+    "feedback": {
+      "question": "Was the guide helpful?",
+      "helpful": "It helped",
+      "notHelpful": "Not really",
+      "thanks": "Thank you for your feedback"
+    }
+  },
+  "helpChat": {
+    "back": "Back",
+    "title": "SSabway Helper",
+    "online": "Online",
+    "greeting": "How can I help you?",
+    "connectStaff": "Video call with staff",
+    "loginRequired": "You need to sign in for a video call.",
+    "loginAndConnect": "Sign in and connect",
+    "ready": "Everything is ready.\nStart the call with the button below.",
+    "connect": "Start video call",
+    "recordNotice": "The call audio may be recorded",
+    "backToGuide": "Back to route guide"
+  },
   "consultation": {
     "request": "Ask for help",
     "connecting": "Connecting to staff...",

@@ -1,0 +1,9 @@
+services:
+  nginx:
+    image: nginx:alpine
+    volumes:
+      - ./deploy/nginx.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - "127.0.0.1:5442:80"
+    depends_on: [frontend, api, signaling]
+    restart: unless-stopped

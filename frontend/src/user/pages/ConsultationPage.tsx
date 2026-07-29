@@ -92,7 +92,7 @@ export default function ConsultationPage() {
     setIsEndDialogOpen(false)
     showToast(t('consultation.video.ended'))
     // TODO: 실제로는 경로 안내 중이었으면 도착 화면으로 돌아가야 한다.
-    void navigate('/arrival', { replace: true })
+    void navigate('/help', { replace: true })
   }
 
   return (
