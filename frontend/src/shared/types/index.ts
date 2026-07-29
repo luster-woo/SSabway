@@ -1,4 +1,5 @@
 export * from './place'
+export * from './route'
 export * from './station'
 export * from './user'
 export * from './consultation'

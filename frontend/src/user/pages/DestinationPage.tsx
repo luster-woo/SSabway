@@ -80,7 +80,7 @@ export default function DestinationPage() {
   const confirmDestination = () => {
     if (!selected) return
     setDestination(selected)
-    void navigate('/user-info')
+    void navigate('/route')
   }
 
   const isResultVisible = isSearching || hasSearched

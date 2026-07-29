@@ -79,7 +79,25 @@
   "route": {
     "next": "次へ",
     "prev": "戻る",
-    "arrived": "到着しました"
+    "arrived": "到着しました",
+    "select": {
+      "title": "おすすめルート",
+      "back": "戻る",
+      "badge": {
+        "fastest": "最速",
+        "noTransfer": "乗換なし",
+        "cheapest": "最安"
+      },
+      "noTransfer": "乗換なし",
+      "transferCount": "乗換{{n}}回",
+      "start": "このルートで案内を開始",
+      "notice": "運行状況により実際の所要時間は変わることがあります",
+      "loading": "ルートを検索しています…",
+      "failed": "ルートを取得できませんでした\nしばらくしてからもう一度お試しください",
+      "empty": "利用できるルートが見つかりませんでした\n目的地を選び直してください",
+      "changeDestination": "目的地を選び直す",
+      "started": "{{station}}まで案内を開始します"
+    }
   },
   "consultation": {
     "request": "ヘルプを依頼する",

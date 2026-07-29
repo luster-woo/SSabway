@@ -1,4 +1,4 @@
-import type { ConsultationStatus } from '@/shared/types'
+import type { ConsultationStatus, RoutePathParams } from '@/shared/types'
 
 export const queryKeys = {
   station: {
@@ -12,6 +12,19 @@ export const queryKeys = {
     /** 목적지 키워드 검색 결과 (언어별로 표기가 달라 언어도 키에 넣는다) */
     search: (query: string, language: string) =>
       [...queryKeys.place.all, 'search', language, query] as const,
+  },
+  route: {
+    all: ['route'] as const,
+    /** 출발·도착 좌표로 조회한 추천 경로 목록 */
+    path: (params: RoutePathParams) =>
+      [
+        ...queryKeys.route.all,
+        'path',
+        params.startX,
+        params.startY,
+        params.endX,
+        params.endY,
+      ] as const,
   },
   consultation: {
     all: ['consultation'] as const,
