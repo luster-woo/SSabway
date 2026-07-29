@@ -13,7 +13,64 @@
     "deleteAccount": "退会",
     "accountMenu": "アカウントメニュー",
     "signedOut": "ログアウトしました",
-    "accountDeleted": "退会処理しました"
+    "accountDeleted": "退会処理しました",
+    "login": {
+      "title": "ログイン",
+      "subtitle": "メールとパスワードでログインしてください。",
+      "google": "Googleで続行",
+      "googlePending": "Googleログインは準備中です",
+      "orEmail": "またはメールで",
+      "email": "メールアドレス",
+      "emailPlaceholder": "you@example.com",
+      "password": "パスワード",
+      "passwordPlaceholder": "パスワードを入力",
+      "forgotPassword": "パスワードをお忘れですか?",
+      "noAccount": "アカウントをお持ちでないですか?",
+      "signUp": "会員登録",
+      "back": "戻る",
+      "success": "ログインしました",
+      "error": {
+        "invalidCredential": "メールアドレスまたはパスワードが正しくありません",
+        "unknown": "ログインに失敗しました・しばらくしてから再試行してください"
+      }
+    },
+    "passwordReset": {
+      "title": "パスワード再設定",
+      "subtitle": "メールを認証すると新しいパスワードを設定できます。",
+      "back": "戻る",
+      "email": "メールアドレス",
+      "emailPlaceholder": "you@example.com",
+      "sendCode": "認証を送信",
+      "resendCode": "再送信",
+      "sending": "送信中",
+      "codeSent": "認証メールを送信しました。メールをご確認ください",
+      "code": "認証コード（7桁）",
+      "verifyCode": "確認",
+      "verifying": "確認中",
+      "codeVerified": "メール認証が完了しました",
+      "remainingTime": "残り時間 {{time}}",
+      "newPassword": "新しいパスワード",
+      "newPasswordPlaceholder": "8文字以上",
+      "confirmPassword": "新しいパスワード（確認）",
+      "confirmPasswordPlaceholder": "もう一度入力",
+      "submit": "パスワードを変更",
+      "submitting": "変更中",
+      "success": "パスワードを変更しました。もう一度ログインしてください",
+      "rememberedPassword": "パスワードを思い出しましたか？",
+      "signIn": "ログイン",
+      "error": {
+        "invalidEmail": "メールアドレスの形式が正しくありません",
+        "duplicateEmail": "すでに使用されているメールアドレスです",
+        "tooManyRequests": "送信回数を超えました · しばらくしてからお試しください",
+        "sendFailed": "認証メールの送信に失敗しました · しばらくしてからお試しください",
+        "invalidCode": "認証コードが正しくありません",
+        "verifyFailed": "認証に失敗しました · しばらくしてからお試しください",
+        "codeExpired": "認証時間が終了しました · 認証メールを再度お受け取りください",
+        "invalidPassword": "パスワードの形式が正しくありません",
+        "unauthorized": "認証の有効期限が切れました · 最初からやり直してください",
+        "resetFailed": "パスワードの変更に失敗しました · しばらくしてからお試しください"
+      }
+    }
   },
   "start": {
     "startGuide": "ガイド開始",
@@ -51,6 +108,26 @@
       "upload": "写真をアップロードする"
     }
   },
+  "destination": {
+    "placeholder": "どこへ行きますか？（駅・スポット・住所）",
+    "search": "検索",
+    "clear": "入力を消す",
+    "back": "戻る",
+    "searching": "場所を検索しています…",
+    "noResult": "検索結果がありません\n施設名ではなく住所で検索してみてください",
+    "searchFailed": "検索に失敗しました・しばらくしてからもう一度お試しください",
+    "needKeyword": "検索語を入力してください",
+    "mapNotReady": "地図を読み込んでいます・少々お待ちください",
+    "mapLoading": "地図を読み込み中",
+    "selected": "選択した目的地",
+    "change": "選び直す",
+    "next": "次へ",
+    "error": {
+      "missingKey": "地図キーが設定されていません\nconfig.js の NAVER_MAP_CLIENT_ID を確認してください",
+      "authFailed": "地図の認証に失敗しました\nClient ID とコンソールの Web サービス URL 登録をご確認ください",
+      "mapFailed": "地図を読み込めませんでした\nネットワーク状態をご確認ください"
+    }
+  },
   "location": {
     "captureSign": "案内標識を撮影する",
     "useGps": "現在位置を使う",
@@ -59,7 +136,82 @@
   "route": {
     "next": "次へ",
     "prev": "戻る",
-    "arrived": "到着しました"
+    "arrived": "到着しました",
+    "select": {
+      "title": "おすすめルート",
+      "back": "戻る",
+      "badge": {
+        "fastest": "最速",
+        "noTransfer": "乗換なし",
+        "cheapest": "最安"
+      },
+      "noTransfer": "乗換なし",
+      "transferCount": "乗換{{n}}回",
+      "start": "このルートで案内を開始",
+      "notice": "運行状況により実際の所要時間は変わることがあります",
+      "loading": "ルートを検索しています…",
+      "failed": "ルートを取得できませんでした\nしばらくしてからもう一度お試しください",
+      "empty": "利用できるルートが見つかりませんでした\n目的地を選び直してください",
+      "changeDestination": "目的地を選び直す",
+      "started": "{{station}}まで案内を開始します"
+    }
+  },
+  "userInfo": {
+    "title": "案内情報の確認",
+    "back": "戻る",
+    "origin": "出発",
+    "destination": "到着",
+    "change": "変更",
+    "start": "ルート案内を開始",
+    "loading": "案内情報を読み込んでいます…",
+    "failed": "案内情報を読み込めませんでした\nしばらくしてからもう一度お試しください",
+    "needAnswers": "すべての質問にお答えください",
+    "started": "選択した条件で案内を開始します",
+    "preference": {
+      "label": "ルートに必要な情報",
+      "back": "前の質問",
+      "reset": "選び直す",
+      "progress": "質問 {{current}} / {{total}}",
+      "done": "すべての質問に回答しました",
+      "elevator": {
+        "question": "エレベーターの利用をご希望ですか？",
+        "yes": "はい",
+        "no": "いいえ"
+      },
+      "transitCard": {
+        "question": "交通カードをお持ちですか？",
+        "yes": "はい、あります",
+        "no": "いいえ、ありません"
+      },
+      "ticketMethod": {
+        "question": "どのように移動しますか？",
+        "single": "1回券を購入・現金で移動",
+        "buyCard": "交通カードを購入します"
+      },
+      "cash": {
+        "question": "現金をお持ちですか？",
+        "yes": "はい、あります",
+        "no": "いいえ、ありません"
+      }
+    },
+    "plan": {
+      "direct": {
+        "title": "目的地までそのまま案内します",
+        "description": "交通カードで改札を通るだけです"
+      },
+      "ticketMachine": {
+        "title": "券売機を経由します",
+        "description": "1回券を購入してから乗車経路を案内します"
+      },
+      "convenienceStore": {
+        "title": "近くのコンビニを経由します",
+        "description": "交通カードを購入してから案内を続けます"
+      },
+      "atm": {
+        "title": "近くのATMを経由します",
+        "description": "現金を引き出してから移動経路を案内します"
+      }
+    }
   },
   "consultation": {
     "request": "ヘルプを依頼する",
@@ -67,7 +219,34 @@
     "queuePosition": "あなたの前に{{position}}人待っています",
     "unavailable": "現在対応できる駅員がいません",
     "micOnly": "駅員が音声で案内します。カメラはオフです。",
-    "end": "通話を終了する"
+    "end": "通話を終了する",
+    "video": {
+      "staffConnected": "スタッフ接続中",
+      "faceBlurOn": "背面カメラ・顔モザイクON",
+      "mic": "マイク",
+      "camera": "カメラ",
+      "endShort": "終了",
+      "micOn": "マイクをオンにしました",
+      "micOff": "マイクをオフにしました",
+      "cameraOn": "カメラをオンにしました",
+      "cameraOff": "カメラをオフにしました",
+      "ended": "相談が終了しました",
+      "permission": {
+        "title": "マイクを許可",
+        "description": "スタッフとのビデオ通話には\nマイクの許可が必要です。",
+        "allow": "許可",
+        "deny": "拒否",
+        "allowed": "マイクを許可しました・スタッフと接続しました",
+        "denied": "許可しないとビデオ通話を開始できません",
+        "requesting": "権限を確認しています…"
+      },
+      "endConfirm": {
+        "title": "相談を終了しますか？",
+        "description": "終了後も道案内は続けて利用できます",
+        "confirm": "終了",
+        "keep": "続ける"
+      }
+    }
   },
   "common": {
     "retry": "再試行",

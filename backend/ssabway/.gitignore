@@ -41,6 +41,7 @@ application-secret.yml
 application-secret.properties
 application-local.yml
 .env
+docker-compose.yml
 
 ### Logs ###
 *.log

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-import { Button, useToast } from '@/shared/ui'
+import { useToast } from '@/shared/ui'
 import { BlacklistReasonModal } from '@/admin/features/blacklist/BlacklistReasonModal'
 import { BlacklistRosterModal } from '@/admin/features/blacklist/BlacklistRosterModal'
 import {
@@ -15,6 +15,7 @@ import {
   type ConsultationHistory,
 } from '@/admin/features/dashboard/useConsultationHistory'
 import { useConsultationRecord } from '@/admin/features/dashboard/useConsultationRecord'
+import { AdminButton } from '@/admin/ui/AdminButton'
 import { Panel } from '@/admin/ui/Panel'
 
 /** 사유 선택 모달을 띄운 대상. 수정 모드면 기존 사유를 미리 채운다. */
@@ -130,14 +131,14 @@ export function HistoryPanel() {
       <Panel
         title="민원 기록"
         titleRight={
-          <Button
-            variant="secondary"
+          <AdminButton
+            variant="dangerOutline"
             size="sm"
-            className="border-danger text-danger rounded-full font-bold"
+            className="rounded-full"
             onClick={() => setIsRosterOpen(true)}
           >
             블랙리스트 명단
-          </Button>
+          </AdminButton>
         }
       >
         {isPending ? (

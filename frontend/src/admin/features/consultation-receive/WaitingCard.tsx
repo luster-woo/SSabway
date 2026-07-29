@@ -1,9 +1,9 @@
 import { cn } from '@/shared/lib/cn'
-import { Button } from '@/shared/ui'
 import {
   toWaitedMinutes,
   type WaitingConsultation,
 } from '@/admin/features/consultation-receive/useWaitingConsultations'
+import { AdminButton } from '@/admin/ui/AdminButton'
 import { Chip } from '@/admin/ui/Chip'
 
 export interface WaitingCardProps {
@@ -45,14 +45,14 @@ export function WaitingCard({
         <Chip tone="info">{langCode}</Chip>
       </div>
 
-      <Button
+      <AdminButton
         variant={isNext ? 'primary' : 'secondary'}
         className="shrink-0 rounded-full px-6"
         disabled={isPending}
         onClick={() => onAccept(consultationId)}
       >
         {isPending ? '연결 중…' : '상담 연결'}
-      </Button>
+      </AdminButton>
     </li>
   )
 }

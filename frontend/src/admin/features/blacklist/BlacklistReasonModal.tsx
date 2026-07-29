@@ -1,12 +1,12 @@
 import { useState, type FormEvent } from 'react'
 
 import { cn } from '@/shared/lib/cn'
-import { Button } from '@/shared/ui'
 import {
   BLACKLIST_REASONS,
   joinReasons,
   type BlacklistReason,
 } from '@/admin/features/blacklist/blacklistReasons'
+import { AdminButton } from '@/admin/ui/AdminButton'
 import { Modal } from '@/admin/ui/Modal'
 
 export interface BlacklistReasonModalProps {
@@ -120,22 +120,24 @@ export function BlacklistReasonModal({
         ) : null}
 
         <div className="mt-7 flex gap-2">
-          <Button
+          <AdminButton
             variant="secondary"
-            fullWidth
+            size="lg"
+            className="flex-1"
             disabled={isPending}
             onClick={onClose}
           >
             취소
-          </Button>
-          <Button
+          </AdminButton>
+          <AdminButton
             type="submit"
-            fullWidth
-            className="bg-danger text-white"
+            variant="danger"
+            size="lg"
+            className="flex-1"
             disabled={!isSubmittable}
           >
             {isPending ? '처리 중…' : isEditMode ? '저장' : '등록'}
-          </Button>
+          </AdminButton>
         </div>
       </form>
     </Modal>

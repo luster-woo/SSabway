@@ -1,5 +1,5 @@
-import { Button } from '@/shared/ui'
 import { useBlacklistRoster } from '@/admin/features/blacklist/useBlacklist'
+import { AdminButton } from '@/admin/ui/AdminButton'
 import { Modal } from '@/admin/ui/Modal'
 
 export interface BlacklistRosterModalProps {
@@ -62,7 +62,7 @@ export function BlacklistRosterModal({
                   </p>
                 </div>
 
-                <Button
+                <AdminButton
                   variant="secondary"
                   size="sm"
                   className="shrink-0 rounded-full"
@@ -70,15 +70,16 @@ export function BlacklistRosterModal({
                   onClick={() => onEditReason(entry.userEmail, entry.reason)}
                 >
                   수정
-                </Button>
-                <Button
+                </AdminButton>
+                <AdminButton
+                  variant="danger"
                   size="sm"
-                  className="bg-danger shrink-0 rounded-full text-white"
+                  className="shrink-0 rounded-full"
                   disabled={pendingEmail === entry.userEmail}
                   onClick={() => onRelease(entry.userEmail)}
                 >
                   해제
-                </Button>
+                </AdminButton>
               </li>
             ))}
           </ul>
@@ -86,9 +87,9 @@ export function BlacklistRosterModal({
       </div>
 
       <div className="mt-6">
-        <Button fullWidth onClick={onClose}>
+        <AdminButton size="lg" fullWidth onClick={onClose}>
           닫기
-        </Button>
+        </AdminButton>
       </div>
     </Modal>
   )

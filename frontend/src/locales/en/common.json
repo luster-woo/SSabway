@@ -13,7 +13,64 @@
     "deleteAccount": "Delete account",
     "accountMenu": "Account menu",
     "signedOut": "Signed out",
-    "accountDeleted": "Account deleted"
+    "accountDeleted": "Account deleted",
+    "login": {
+      "title": "Sign in",
+      "subtitle": "Sign in with your email and password.",
+      "google": "Continue with Google",
+      "googlePending": "Google sign-in is not ready yet",
+      "orEmail": "or with email",
+      "email": "Email",
+      "emailPlaceholder": "you@example.com",
+      "password": "Password",
+      "passwordPlaceholder": "Enter password",
+      "forgotPassword": "Forgot password?",
+      "noAccount": "Don't have an account?",
+      "signUp": "Sign up",
+      "back": "Back",
+      "success": "Signed in",
+      "error": {
+        "invalidCredential": "Email or password is incorrect",
+        "unknown": "Sign-in failed · Please try again in a moment"
+      }
+    },
+    "passwordReset": {
+      "title": "Reset password",
+      "subtitle": "Verify your email to set a new password.",
+      "back": "Back",
+      "email": "Email",
+      "emailPlaceholder": "you@example.com",
+      "sendCode": "Send code",
+      "resendCode": "Resend",
+      "sending": "Sending",
+      "codeSent": "We sent a verification email. Please check your inbox",
+      "code": "Verification code (7 characters)",
+      "verifyCode": "Verify",
+      "verifying": "Verifying",
+      "codeVerified": "Email verified",
+      "remainingTime": "Time left {{time}}",
+      "newPassword": "New password",
+      "newPasswordPlaceholder": "At least 8 characters",
+      "confirmPassword": "Confirm new password",
+      "confirmPasswordPlaceholder": "Enter it again",
+      "submit": "Change password",
+      "submitting": "Changing",
+      "success": "Password changed. Please sign in again",
+      "rememberedPassword": "Remembered your password?",
+      "signIn": "Sign in",
+      "error": {
+        "invalidEmail": "That email address isn't valid",
+        "duplicateEmail": "That email is already in use",
+        "tooManyRequests": "Too many requests · Please try again later",
+        "sendFailed": "Couldn't send the verification email · Please try again later",
+        "invalidCode": "That verification code isn't correct",
+        "verifyFailed": "Verification failed · Please try again later",
+        "codeExpired": "The code expired · Please request a new email",
+        "invalidPassword": "That password format isn't valid",
+        "unauthorized": "Your verification expired · Please start over",
+        "resetFailed": "Couldn't change the password · Please try again later"
+      }
+    }
   },
   "start": {
     "startGuide": "Start Guide",
@@ -51,6 +108,26 @@
       "upload": "Upload a photo instead"
     }
   },
+  "destination": {
+    "placeholder": "Where to? (station · place · address)",
+    "search": "Search",
+    "clear": "Clear input",
+    "back": "Back",
+    "searching": "Looking for places…",
+    "noResult": "No results found\nTry searching by address instead of place name",
+    "searchFailed": "Search failed · please try again in a moment",
+    "needKeyword": "Please enter a search term",
+    "mapNotReady": "The map is still loading · please wait a moment",
+    "mapLoading": "Loading the map",
+    "selected": "Destination",
+    "change": "Change",
+    "next": "Next",
+    "error": {
+      "missingKey": "Map key is not configured\nCheck NAVER_MAP_CLIENT_ID in config.js",
+      "authFailed": "Map authentication failed\nCheck the Client ID and the registered Web service URL",
+      "mapFailed": "Could not load the map\nPlease check your network connection"
+    }
+  },
   "location": {
     "captureSign": "Take a photo of a sign",
     "useGps": "Use my location",
@@ -59,7 +136,82 @@
   "route": {
     "next": "Next",
     "prev": "Previous",
-    "arrived": "You have arrived"
+    "arrived": "You have arrived",
+    "select": {
+      "title": "Recommended routes",
+      "back": "Back",
+      "badge": {
+        "fastest": "Fastest",
+        "noTransfer": "No transfer",
+        "cheapest": "Lowest fare"
+      },
+      "noTransfer": "No transfer",
+      "transferCount": "{{n}} transfer(s)",
+      "start": "Start guide with this route",
+      "notice": "Actual travel time may vary with train service conditions",
+      "loading": "Finding routes…",
+      "failed": "Could not load routes\nPlease try again in a moment",
+      "empty": "No available route was found\nPlease choose another destination",
+      "changeDestination": "Change destination",
+      "started": "Starting the guide to {{station}}"
+    }
+  },
+  "userInfo": {
+    "title": "Confirm guide details",
+    "back": "Back",
+    "origin": "From",
+    "destination": "To",
+    "change": "Change",
+    "start": "Start route guide",
+    "loading": "Loading guide details…",
+    "failed": "Could not load guide details\nPlease try again in a moment",
+    "needAnswers": "Please answer all the questions",
+    "started": "Starting the guide with your selection",
+    "preference": {
+      "label": "Details for your route",
+      "back": "Previous",
+      "reset": "Choose again",
+      "progress": "Question {{current}} of {{total}}",
+      "done": "All questions answered",
+      "elevator": {
+        "question": "Would you like to use an elevator?",
+        "yes": "Yes",
+        "no": "No"
+      },
+      "transitCard": {
+        "question": "Do you have a transit card?",
+        "yes": "Yes, I do",
+        "no": "No, I don't"
+      },
+      "ticketMethod": {
+        "question": "How would you like to travel?",
+        "single": "Buy a single ticket · pay cash",
+        "buyCard": "I'll buy a transit card"
+      },
+      "cash": {
+        "question": "Do you have cash on hand?",
+        "yes": "Yes, I do",
+        "no": "No, I don't"
+      }
+    },
+    "plan": {
+      "direct": {
+        "title": "We'll guide you straight there",
+        "description": "Just tap your card at the gate"
+      },
+      "ticketMachine": {
+        "title": "We'll stop by a ticket machine",
+        "description": "Buy a single ticket, then head to the platform"
+      },
+      "convenienceStore": {
+        "title": "We'll stop by a nearby store",
+        "description": "Buy a transit card there and continue"
+      },
+      "atm": {
+        "title": "We'll stop by a nearby ATM",
+        "description": "Withdraw cash, then continue to the platform"
+      }
+    }
   },
   "consultation": {
     "request": "Ask for help",
@@ -67,7 +219,34 @@
     "queuePosition": "{{position}} people ahead of you",
     "unavailable": "No staff available right now",
     "micOnly": "Staff will speak to you. Their camera is off.",
-    "end": "End call"
+    "end": "End call",
+    "video": {
+      "staffConnected": "Staff connected",
+      "faceBlurOn": "Rear camera · Face blur ON",
+      "mic": "Mic",
+      "camera": "Camera",
+      "endShort": "End",
+      "micOn": "Mic turned on",
+      "micOff": "Mic turned off",
+      "cameraOn": "Camera turned on",
+      "cameraOff": "Camera turned off",
+      "ended": "The call has ended",
+      "permission": {
+        "title": "Allow mic",
+        "description": "We need microphone access\nto connect you with staff.",
+        "allow": "Allow",
+        "deny": "Deny",
+        "allowed": "Microphone allowed · Connected to staff",
+        "denied": "Permission is required to start the video call",
+        "requesting": "Checking permissions…"
+      },
+      "endConfirm": {
+        "title": "End this call?",
+        "description": "You can keep using navigation after the call ends",
+        "confirm": "End",
+        "keep": "Keep going"
+      }
+    }
   },
   "common": {
     "retry": "Retry",
