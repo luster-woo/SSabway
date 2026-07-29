@@ -31,6 +31,26 @@
       "change": "選び直す"
     }
   },
+  "signCapture": {
+    "hint": "標識をフレームに合わせて撮影してください",
+    "back": "戻る",
+    "shoot": "撮影",
+    "retake": "再撮影",
+    "analyze": "AI分析",
+    "analyzing": "AIが標識を分析しています…",
+    "needCaptureFirst": "先に標識を撮影してください",
+    "retaken": "もう一度撮影してください",
+    "captureFailed": "撮影に失敗しました · もう一度お試しください",
+    "capturedAlt": "撮影した標識の写真",
+    "error": {
+      "insecure": "カメラは安全な接続(HTTPS)でのみ使用できます",
+      "denied": "カメラの権限が必要です\nブラウザの設定でカメラを許可してください",
+      "notFound": "使用できるカメラが見つかりませんでした",
+      "inUse": "他のアプリがカメラを使用中です\n終了してからもう一度お試しください",
+      "unknown": "カメラを起動できませんでした",
+      "upload": "写真をアップロードする"
+    }
+  },
   "location": {
     "captureSign": "案内標識を撮影する",
     "useGps": "現在位置を使う",

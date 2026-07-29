@@ -31,6 +31,26 @@
       "change": "다시 선택"
     }
   },
+  "signCapture": {
+    "hint": "표지판을 지정된 프레임에 맞춰서 촬영해 주세요",
+    "back": "뒤로가기",
+    "shoot": "촬영",
+    "retake": "재촬영",
+    "analyze": "AI 분석",
+    "analyzing": "AI가 표지판을 분석하고 있어요…",
+    "needCaptureFirst": "먼저 표지판을 촬영해 주세요",
+    "retaken": "다시 촬영해 주세요",
+    "captureFailed": "촬영에 실패했어요 · 다시 시도해 주세요",
+    "capturedAlt": "촬영된 표지판 사진",
+    "error": {
+      "insecure": "보안 연결(HTTPS)에서만 카메라를 사용할 수 있어요",
+      "denied": "카메라 권한이 필요해요\n브라우저 설정에서 카메라를 허용해 주세요",
+      "notFound": "사용할 수 있는 카메라를 찾지 못했어요",
+      "inUse": "다른 앱이 카메라를 사용 중이에요\n해당 앱을 종료한 뒤 다시 시도해 주세요",
+      "unknown": "카메라를 시작할 수 없어요",
+      "upload": "사진 업로드로 대신하기"
+    }
+  },
   "location": {
     "captureSign": "표지판 촬영하기",
     "useGps": "내 위치 사용하기",
