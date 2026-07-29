@@ -5,7 +5,7 @@ spring:
     import: application-secret.yaml
 
   datasource:
-    url: jdbc:mysql://localhost:3306/ssabway_db
+    url: jdbc:mysql://localhost:3306/ssabway_db?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Seoul
     username: ${database.username}
     password: ${database.password}
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -31,3 +31,10 @@ logging:
   level:
     org.hibernate.SQL: DEBUG
     org.hibernate.orm.jdbc.bind: TRACE
+
+server:
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true

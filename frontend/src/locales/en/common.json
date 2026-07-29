@@ -1,0 +1,28 @@
+{
+  "language": {
+    "select": "Select your language"
+  },
+  "location": {
+    "captureSign": "Take a photo of a sign",
+    "useGps": "Use my location",
+    "selectStation": "Select station manually"
+  },
+  "route": {
+    "next": "Next",
+    "prev": "Previous",
+    "arrived": "You have arrived"
+  },
+  "consultation": {
+    "request": "Ask for help",
+    "connecting": "Connecting to staff...",
+    "queuePosition": "{{position}} people ahead of you",
+    "unavailable": "No staff available right now",
+    "micOnly": "Staff will speak to you. Their camera is off.",
+    "end": "End call"
+  },
+  "common": {
+    "retry": "Retry",
+    "cancel": "Cancel",
+    "confirm": "Confirm"
+  }
+}

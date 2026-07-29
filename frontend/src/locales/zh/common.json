@@ -1,0 +1,28 @@
+{
+  "language": {
+    "select": "请选择语言"
+  },
+  "location": {
+    "captureSign": "拍摄指示牌",
+    "useGps": "使用我的位置",
+    "selectStation": "手动选择车站"
+  },
+  "route": {
+    "next": "下一步",
+    "prev": "上一步",
+    "arrived": "已到达"
+  },
+  "consultation": {
+    "request": "请求帮助",
+    "connecting": "正在连接站务人员...",
+    "queuePosition": "您前面还有{{position}}人",
+    "unavailable": "目前没有可接待的站务人员",
+    "micOnly": "站务人员将通过语音为您提供帮助，其摄像头已关闭。",
+    "end": "结束通话"
+  },
+  "common": {
+    "retry": "重试",
+    "cancel": "取消",
+    "confirm": "确认"
+  }
+}
