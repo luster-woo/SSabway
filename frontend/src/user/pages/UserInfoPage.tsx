@@ -35,8 +35,9 @@ export default function UserInfoPage() {
       showToast(t('userInfo.needAnswers'))
       return
     }
-    // TODO: 경로 상세(역 내 안내) 화면이 붙으면 preference.answers·plan과 함께 이동한다.
+    // TODO: preference.answers·plan을 경로 계산 요청에 실어 보낸다. (지금은 목 응답)
     showToast(t('userInfo.started'))
+    void navigate('/guide')
   }
 
   return (
