@@ -1,13 +1,19 @@
 package com.ssafy.ssabway.global.config;
 
+import com.ssafy.ssabway.global.jwt.JwtAccessDeniedHandler;
+import com.ssafy.ssabway.global.jwt.JwtAuthenticationEntryPoint;
+import com.ssafy.ssabway.global.jwt.JwtAuthenticationFilter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 
 /*
@@ -16,7 +22,12 @@ import org.springframework.security.web.SecurityFilterChain;
     아래의 설정이 보안 필터 구성 전체
  */
 @Configuration
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -41,13 +52,29 @@ public class SecurityConfig {
 
                 // URL 패턴별 접근 권한 규칙 설정, 위에서부터 순서대로 매칭
                 .authorizeHttpRequests(auth -> auth
-                        // anyRequest() : 앞의 규칙에 걸리지 않은 나머지 전부
-                        // permitAll() : 인증 여부와 무관하게 통과
-                        // FIXME: 인증이 필요한 api들에 대해서 나중에 설정 필요
-                        //   .requestMatchers("/api/v1/users/**", "/api/v1/auth/**").permitAll()
-                        //   .anyRequest().authenticated()
-                        .anyRequest().permitAll()
-                );
+
+                        // POST /api/v1/users : 회원가입 API라 열어야 함.
+                        // 하지만 동일 엔드포인트에 PUT(비밀번호 변경), PATCH(탈퇴)는 같은 URL 이므로 메서드까지 지정
+                        .requestMatchers(HttpMethod.POST, "/api/v1/users").permitAll()
+
+                        // 로그인 & 이메일 중복 & 이메일 발송|검증 & 로그아웃|액세스 토큰 재발급 허용
+                        .requestMatchers("/api/v1/users/login").permitAll()
+                        .requestMatchers("/api/v1/users/exists").permitAll()
+                        .requestMatchers("/api/v1/users/email/**").permitAll()
+                        .requestMatchers("/api/v1/auth/**").permitAll()
+
+                        // 나머지는 모두 인증 필요함
+                        .anyRequest().authenticated()
+                )
+
+                // 인증 실패(401) / 권한 부족(403) 응답을 핸들러를 추가함으로써 ApiResponse 형태로 통일
+                .exceptionHandling(handler -> handler
+                                        .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                                        .accessDeniedHandler(jwtAccessDeniedHandler))
+
+
+                // authorizeHttpRequests에 적은 규칙으로 넘어가기 전 jwtAuthenticationFilter 작동
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
