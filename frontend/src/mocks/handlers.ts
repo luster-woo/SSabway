@@ -189,6 +189,31 @@ export const handlers: RequestHandler[] = [
     return HttpResponse.json(okBodyWithoutData('비밀번호 변경 성공'))
   }),
 
+  // 회원 탈퇴 (Soft Delete)
+  //
+  // 명세: PATCH /users, body { password }, Authorization 필수. (백엔드 개발완료)
+  // 명세의 상태코드는 200/401 뿐이라 "토큰 인증 실패"와 "비밀번호 불일치"가
+  // 둘 다 401 이다. useWithdraw 는 401 을 받으면 토큰을 재발급해 한 번
+  // 재시도하고, 그래도 401 이면 비밀번호 불일치로 판정한다.
+  http.patch(`${BASE}/users`, async ({ request }) => {
+    if (!request.headers.get('Authorization')) {
+      return HttpResponse.json(errorBody('인증이 필요합니다.'), { status: 401 })
+    }
+
+    const { password } = (await request.json()) as { password?: string }
+
+    if (password !== USER_ACCOUNT.password) {
+      return HttpResponse.json(errorBody('비밀번호가 일치하지 않습니다.'), {
+        status: 401,
+      })
+    }
+
+    // 탈퇴하면 서버가 리프레시 토큰도 무효화한다. 쿠키를 즉시 만료시킨다.
+    return HttpResponse.json(okBodyWithoutData('회원탈퇴에 성공하였습니다.'), {
+      headers: { 'Set-Cookie': expiredRefreshCookie() },
+    })
+  }),
+
   /* ---------------------------------------------------------------- *
    * 인증
    * ---------------------------------------------------------------- */
