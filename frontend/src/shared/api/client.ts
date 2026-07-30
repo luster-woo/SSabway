@@ -22,8 +22,23 @@ const LOGIN_PATH: Record<AuthRole, string> = {
  */
 const bareClient = axios.create({
   baseURL: `${env.API_BASE_URL}/api/v1`,
+  // userApi 와 같은 값. 없으면 네트워크가 멈췄을 때 요청이 무한정 걸려 있는다.
+  timeout: 10_000,
   withCredentials: true,
 })
+
+/**
+ * 비로그인 상태에서 호출하는 공개 API 용 인스턴스. (bareClient 와 동일 객체)
+ *
+ * 비밀번호 재설정처럼 401 이 "토큰 만료"가 아니라 "이메일 인증 만료"를 뜻하는
+ * 엔드포인트는 userApi 를 쓰면 안 된다. userApi 의 인터셉터가 401 을 보고
+ * 토큰 재발급 → 실패 → 로그인 화면 리다이렉트까지 가버려서, 화면이 "인증이
+ * 만료됐어요" 문구를 보여줄 기회 자체가 사라진다.
+ *
+ * 참고: 회원가입·이메일 인증도 공개 API 지만 성공 흐름에서 401 을 만나지 않아
+ * userApi 로도 동작한다. 새로 붙이는 공개 엔드포인트는 이쪽을 쓰는 게 안전하다.
+ */
+export const publicApi: AxiosInstance = bareClient
 
 /** 동시 401 발생 시 refresh 요청이 중복되지 않도록 공유 */
 let refreshPromise: Promise<string> | null = null

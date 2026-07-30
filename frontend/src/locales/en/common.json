@@ -60,6 +60,7 @@
       "signIn": "Sign in",
       "error": {
         "invalidEmail": "That email address isn't valid",
+        "emailNotFound": "No account found with that email",
         "duplicateEmail": "That email is already in use",
         "tooManyRequests": "Too many requests · Please try again later",
         "sendFailed": "Couldn't send the verification email · Please try again later",

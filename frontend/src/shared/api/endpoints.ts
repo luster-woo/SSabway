@@ -12,6 +12,15 @@ const users = {
   login: '/users/login',
   googleLogin: '/users/login/google', // 보류
   emailRequest: '/users/email/requests',
+  /**
+   * 비밀번호 재설정용 인증 메일 발송.
+   *
+   * 기존 emailRequest 는 가입된 이메일이면 409(중복)를 반환해 재설정에 쓸 수 없다.
+   * (재설정은 가입된 이메일이어야 정상이라 정반대) BE 가 전용 API 를 새로 만들
+   * 예정이며 주소는 미확정 — 아래는 가정값이다. 확정되면 이 한 줄만 바꾼다.
+   * 요청·응답 형식은 emailRequest 와 동일 (BE 확인).
+   */
+  passwordEmailRequest: '/users/password/email/requests',
   emailVerification: '/users/email/verification',
   exists: (email: string) => `/users/exists?email=${encodeURIComponent(email)}`,
 } as const

@@ -60,6 +60,7 @@
       "signIn": "로그인",
       "error": {
         "invalidEmail": "이메일 형식이 올바르지 않아요",
+        "emailNotFound": "가입되지 않은 이메일이에요",
         "duplicateEmail": "이미 사용 중인 이메일이에요",
         "tooManyRequests": "발송 횟수를 초과했어요 · 잠시 후 다시 시도해 주세요",
         "sendFailed": "인증 메일 발송에 실패했어요 · 잠시 후 다시 시도해 주세요",
