@@ -6,10 +6,7 @@ import { MIN_ZOOM } from '@/user/features/sign-capture/hooks/usePinchZoom'
 /** 프레임 가이드 코너 브래킷 하나 */
 function Corner({ position }: { position: string }) {
   return (
-    <span
-      aria-hidden
-      className={`absolute size-7 border-white ${position}`}
-    />
+    <span aria-hidden className={`absolute size-7 border-white ${position}`} />
   )
 }
 
@@ -102,14 +99,15 @@ export function CameraPreview({
         </button>
       ) : null}
 
-      <div className="absolute inset-x-6 top-[62%] text-center text-[13px] text-[#c6d2da]">
-        <p>{t('signCapture.hint')}</p>
-        {/* 핀치 줌은 눈에 보이지 않는 조작이라 안내가 필요하다 */}
-        {capturedUrl || isZoomed ? null : (
-          <p className="mt-1 text-[12px] text-[#8b97a1]">
-            {t('signCapture.zoomHint')}
-          </p>
-        )}
+      {/*
+        안내 문구는 카메라 영상 위에 얹히므로 밝은 표지판을 비추면 글자가 묻힌다.
+        어두운 알약형 배경을 깔아 영상 밝기와 무관하게 읽히도록 한다.
+        pointer-events-none: 이 영역에서 시작한 핀치 제스처도 컨테이너가 받도록.
+      */}
+      <div className="pointer-events-none absolute inset-x-4 top-[62%] flex flex-col items-center gap-1.5 text-center">
+        <p className="rounded-full bg-black/65 px-4 py-2 text-[14px] leading-snug font-bold text-white backdrop-blur-[2px]">
+          {t('signCapture.hint')}
+        </p>
       </div>
     </div>
   )
