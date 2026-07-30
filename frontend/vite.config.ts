@@ -30,6 +30,9 @@ export default defineConfig({
         globIgnores: [
           '**/assets/admin-*',
           '**/config.js',
+          // 개발 전용 목 서버 워커. 빌드 산출물에 복사되지만 등록되지 않으므로
+          // precache 대상에서 제외한다.
+          '**/mockServiceWorker.js',
           '**/mediapipe/**',
           '**/models/**',
         ],
