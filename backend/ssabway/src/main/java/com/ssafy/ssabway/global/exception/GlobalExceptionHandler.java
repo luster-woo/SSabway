@@ -49,7 +49,7 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(errorCode.getHttpStatus())
-                .body(ApiResponse.error(e.getMessage()));
+                .body(ApiResponse.error(errorCode));
     }
 
     /*
@@ -60,15 +60,16 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<Void>> handleValidationException(MethodArgumentNotValidException e){
+        ErrorCode errorCode = ErrorCode.INVALID_INPUT_VALUE;
         String message = e.getBindingResult().getFieldErrors().stream()
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .collect(Collectors.joining(", "));
 
-        log.warn("Validation failed: {}", message);
+        log.warn("Validation failed: {} - {}", errorCode.name(), message);
 
         return ResponseEntity
-                .status(ErrorCode.INVALID_INPUT_VALUE.getHttpStatus())
-                .body(ApiResponse.error(message));
+                .status(errorCode.getHttpStatus())
+                .body(ApiResponse.error(errorCode, message));
     }
 
     /*
@@ -77,11 +78,12 @@ public class GlobalExceptionHandler {
     */
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ApiResponse<Void>> handleNotReadableException(HttpMessageNotReadableException e){
-        log.warn("Malformed request body: {}", e.getMessage());
+        ErrorCode errorCode = ErrorCode.INVALID_INPUT_VALUE;
+        log.warn("Malformed request body: {} - {}", errorCode.name(), e.getMessage());
 
         return ResponseEntity
-                .status(ErrorCode.INVALID_INPUT_VALUE.getHttpStatus())
-                .body(ApiResponse.error(ErrorCode.INVALID_INPUT_VALUE));
+                .status(errorCode.getHttpStatus())
+                .body(ApiResponse.error(errorCode));
     }
 
     /*
@@ -91,8 +93,9 @@ public class GlobalExceptionHandler {
     */
     @ExceptionHandler(HandlerMethodValidationException.class)
     public ResponseEntity<ApiResponse<Void>> handleHandlerMethodValidation(HandlerMethodValidationException e) {
-        log.warn("파라미터 검증 실패: {}", e.getMessage());
         ErrorCode errorCode = ErrorCode.INVALID_INPUT_VALUE;
+        log.warn("파라미터 검증 실패: {} - {}", errorCode.name(), e.getMessage());
+
         return ResponseEntity.status(errorCode.getHttpStatus())
                 .body(ApiResponse.error(errorCode));
     }
@@ -104,8 +107,9 @@ public class GlobalExceptionHandler {
     */
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public ResponseEntity<ApiResponse<Void>> handleMissingParameter(MissingServletRequestParameterException e) {
-        log.warn("필수 파라미터 누락: {}", e.getParameterName());
         ErrorCode errorCode = ErrorCode.INVALID_INPUT_VALUE;
+        log.warn("필수 파라미터 누락: {} - {}", errorCode.name(), e.getParameterName());
+
         return ResponseEntity.status(errorCode.getHttpStatus())
                 .body(ApiResponse.error(errorCode));
     }
@@ -116,11 +120,12 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<ApiResponse<Void>> handleMethodNotSupported(HttpRequestMethodNotSupportedException e) {
-        log.warn("Method not allowed: {}", e.getMessage());
+        ErrorCode errorCode = ErrorCode.METHOD_NOT_ALLOWED;
+        log.warn("Method not allowed: {} - {}", errorCode.name(), e.getMessage());
 
         return ResponseEntity
-                .status(ErrorCode.METHOD_NOT_ALLOWED.getHttpStatus())
-                .body(ApiResponse.error(ErrorCode.METHOD_NOT_ALLOWED));
+                .status(errorCode.getHttpStatus())
+                .body(ApiResponse.error(errorCode));
     }
 
     /*
@@ -129,10 +134,12 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(NoResourceFoundException.class)
     public ResponseEntity<ApiResponse<Void>> handleNoResourceFound(NoResourceFoundException e) {
-        log.warn("Resource not found: {}", e.getMessage());
+        ErrorCode errorCode = ErrorCode.RESOURCE_NOT_FOUND;
+        log.warn("Resource not found: {} - {}", errorCode.name(), e.getMessage());
+
         return ResponseEntity
-                .status(ErrorCode.RESOURCE_NOT_FOUND.getHttpStatus())
-                .body(ApiResponse.error(ErrorCode.RESOURCE_NOT_FOUND));
+                .status(errorCode.getHttpStatus())
+                .body(ApiResponse.error(errorCode));
     }
 
     /*
@@ -141,19 +148,21 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
     public ResponseEntity<ApiResponse<Void>> handleMediaTypeNotSupported(HttpMediaTypeNotSupportedException e) {
-        log.warn("Unsupported media type: {}", e.getMessage());
+        ErrorCode errorCode = ErrorCode.UNSUPPORTED_MEDIA_TYPE;
+        log.warn("Unsupported media type: {} - {}", errorCode.name(), e.getMessage());
 
         return ResponseEntity
-                .status(ErrorCode.UNSUPPORTED_MEDIA_TYPE.getHttpStatus())
-                .body(ApiResponse.error(ErrorCode.UNSUPPORTED_MEDIA_TYPE));
+                .status(errorCode.getHttpStatus())
+                .body(ApiResponse.error(errorCode));
     }
 
     // 메일 발송 실패 (SMTP 연결 실패, 타임아웃, 인증 오류 등)
     // 서버 버그가 아니라 외부 서버 문제이므로 별도 코드로 구분
     @ExceptionHandler(MailException.class)
     public ResponseEntity<ApiResponse<Void>> handleMailException(MailException e) {
-        log.error("메일 발송 실패", e);
         ErrorCode errorCode = ErrorCode.EMAIL_SEND_FAILED;
+        log.error("메일 발송 실패: {}", errorCode.name(), e);
+
         return ResponseEntity.status(errorCode.getHttpStatus())
                 .body(ApiResponse.error(errorCode));
     }
@@ -165,10 +174,11 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleException(Exception e) {
-        log.error("Unhandled exception", e);
+        ErrorCode errorCode = ErrorCode.INTERNAL_SERVER_ERROR;
+        log.error("Unhandled exception: {}", errorCode.name(), e);
 
         return ResponseEntity
-                .status(ErrorCode.INTERNAL_SERVER_ERROR.getHttpStatus())
-                .body(ApiResponse.error(ErrorCode.INTERNAL_SERVER_ERROR));
+                .status(errorCode.getHttpStatus())
+                .body(ApiResponse.error(errorCode));
     }
 }
