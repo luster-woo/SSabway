@@ -35,6 +35,11 @@ dependencies {
     implementation 'io.openvidu:openvidu-java-client:2.32.1'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-security'
+    // AWS SDK 모듈들의 버전을 동일하게 관리
+    implementation platform('software.amazon.awssdk:bom:2.46.8')
+
+    // 녹음 파일을 S3에 업로드하기 위한 AWS SDK
+    implementation 'software.amazon.awssdk:s3'
 }
 
 tasks.named('test') {
