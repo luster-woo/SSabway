@@ -1,44 +1,17 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
-
 import { ToastProvider } from '@/shared/ui'
 import ArrivalPage from '@/user/pages/ArrivalPage'
 import ConsultationPage from '@/user/pages/ConsultationPage'
 import DestinationPage from '@/user/pages/DestinationPage'
 import HelpChatPage from '@/user/pages/HelpChatPage'
 import LoginPage from '@/user/pages/LoginPage'
-import RouteGuidePage from '@/user/pages/RouteGuidePage'
 import PasswordResetPage from '@/user/pages/PasswordResetPage'
+import RouteGuidePage from '@/user/pages/RouteGuidePage'
 import RoutePage from '@/user/pages/RoutePage'
 import SignCapturePage from '@/user/pages/SignCapturePage'
 import SignUpPage from '@/user/pages/SignUpPage'
 import StartPage from '@/user/pages/StartPage'
 import UserInfoPage from '@/user/pages/UserInfoPage'
-
-/**
- * 아직 구현되지 않은 화면 자리. 라우트와 화면을 1:1로 유지해
- * 뒤로가기 동작이 어긋나지 않도록 한다.
- * TODO: auth / arrival 화면이 붙으면 각 Route를 실제 페이지로 교체
- */
-function PlaceholderScreen() {
-  const { t } = useTranslation()
-  const { pathname } = useLocation()
-  const navigate = useNavigate()
-
-  return (
-    <MobileScreen
-      footer={
-        <Button size="lg" fullWidth onClick={() => void navigate('/')}>
-          {t('common.goHome')}
-        </Button>
-      }
-    >
-      <div className="flex flex-1 flex-col items-center justify-center gap-2 text-center">
-        <p className="text-ink text-base font-bold">{t('common.notReady')}</p>
-        <p className="text-ink-muted text-[13px]">{pathname}</p>
-      </div>
-    </MobileScreen>
-  )
-}
 
 /** user(PWA) 앱의 라우트 루트. 시작 페이지가 진입점이다. */
 export default function UserApp() {
