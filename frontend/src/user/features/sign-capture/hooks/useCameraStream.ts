@@ -87,8 +87,10 @@ export function useCameraStream(): UseCameraStreamResult {
       const mediaStream = await navigator.mediaDevices.getUserMedia({
         video: {
           facingMode: { ideal: 'environment' },
-          width: { ideal: 1280 },
-          height: { ideal: 720 },
+          // 디지털 줌은 원본을 잘라 쓰므로 해상도가 곧 확대 시 화질이다.
+          // ideal이라 지원하지 않는 기기에서는 알아서 낮은 값으로 떨어진다.
+          width: { ideal: 1920 },
+          height: { ideal: 1080 },
         },
         audio: false,
       })
