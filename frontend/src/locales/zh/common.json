@@ -345,6 +345,10 @@
     "confirm": "确认",
     "close": "关闭",
     "goHome": "返回首页",
-    "notReady": "该页面正在准备中"
+    "notReady": "该页面正在准备中",
+    "notFound": {
+      "title": "找不到页面",
+      "description": "网址有误或页面已被删除。"
+    }
   }
 }

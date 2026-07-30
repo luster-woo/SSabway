@@ -1,10 +1,11 @@
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 import { ToastProvider } from '@/shared/ui'
 import ArrivalPage from '@/user/pages/ArrivalPage'
 import ConsultationPage from '@/user/pages/ConsultationPage'
 import DestinationPage from '@/user/pages/DestinationPage'
 import HelpChatPage from '@/user/pages/HelpChatPage'
 import LoginPage from '@/user/pages/LoginPage'
+import NotFoundPage from '@/user/pages/NotFoundPage'
 import PasswordResetPage from '@/user/pages/PasswordResetPage'
 import RouteGuidePage from '@/user/pages/RouteGuidePage'
 import RoutePage from '@/user/pages/RoutePage'
@@ -34,7 +35,7 @@ export default function UserApp() {
         <Route path="consultation" element={<ConsultationPage />} />
         {/* 도착 완료. 안내 종료·통화 종료 후 돌아올 자리다. */}
         <Route path="arrival" element={<ArrivalPage />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </ToastProvider>
   )
