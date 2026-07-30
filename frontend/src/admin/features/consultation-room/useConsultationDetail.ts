@@ -9,8 +9,10 @@ import type { LangCode } from '@/admin/lib/language'
  * 필드명은 상담 대기 리스트 조회(GET /admins/waiting)의 content 와 동일하게 맞췄다.
  * 같은 값을 상담 화면에서도 받기로 합의했으므로 이름이 갈리면 안 된다.
  *
- * TODO: isBlack 은 아직 합의된 4개 필드에 없다. 새로고침 후 "차단됨" 상태를
- *       복원하려면 필요하므로 BE 에 추가를 요청한다.
+ * 블랙리스트 여부는 여기에 두지 않는다. 블랙리스트 사용자는 화상 연결 자체가
+ * 거부되므로 상담방에 들어온 사용자는 정의상 블랙리스트가 아니고, 명세의 합의된
+ * 응답 필드에도 없다. 통화 중 등록한 직후의 "차단됨" 표시만 필요하므로
+ * 상담 페이지가 로컬 상태로 관리한다.
  */
 export interface ConsultationDetail {
   consultationId: number
@@ -21,8 +23,6 @@ export interface ConsultationDetail {
   /** 도착위치 */
   finalPoint: string
   langCode: LangCode
-  /** 이 사용자가 현재 블랙리스트에 올라 있는지 */
-  isBlack: boolean
 }
 
 const MOCK_LATENCY_MS = 400
@@ -42,7 +42,6 @@ const MOCK_DETAIL: Omit<ConsultationDetail, 'consultationId'> = {
   startPoint: '대구역 3번 출구',
   finalPoint: '경북대 북문',
   langCode: 'EN',
-  isBlack: false,
 }
 
 async function fetchConsultationDetail(
@@ -67,10 +66,14 @@ async function fetchConsultationDetail(
  *
  * URL 의 consultationId 로 조회하므로 새로고침해도 정보가 유지된다.
  * 통화 중 바뀌지 않는 값이라 폴링하지 않는다.
+ *
+ * 잘못된 URL 로 들어오면 호출부가 0 을 넘긴다. 그때 요청을 보내면
+ * 실패하고 리트라이까지 도니 enabled 로 아예 막는다.
  */
 export function useConsultationDetail(consultationId: number) {
   return useQuery({
     queryKey: queryKeys.consultation.detail(consultationId),
     queryFn: () => fetchConsultationDetail(consultationId),
+    enabled: consultationId > 0,
   })
 }

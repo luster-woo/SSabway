@@ -38,6 +38,15 @@ export default function AdminConsultationPage() {
   const [isEndDialogOpen, setIsEndDialogOpen] = useState(false)
   const [isLocationOpen, setIsLocationOpen] = useState(false)
 
+  /**
+   * 이번 통화 중에 블랙리스트로 등록했는지.
+   *
+   * 서버에서 받지 않는다. 블랙리스트 사용자는 화상 연결 자체가 거부되므로
+   * 상담방에 들어온 시점에는 항상 false 이고, 등록 직후 버튼을 잠가
+   * 같은 사용자를 다시 등록하지 못하게 하는 용도만 남는다.
+   */
+  const [isBlacklisted, setIsBlacklisted] = useState(false)
+
   // 잘못된 URL 로 들어온 경우. 조회를 시도하지 않고 목록으로 돌린다.
   if (!isValidId) return <Navigate to="/admin" replace />
 
@@ -45,6 +54,7 @@ export default function AdminConsultationPage() {
     if (!detail) return
 
     const isRegistered = await registerBlacklist(detail.email, reason)
+    if (isRegistered) setIsBlacklisted(true)
     setIsReasonOpen(false)
     showToast(
       isRegistered
@@ -90,6 +100,7 @@ export default function AdminConsultationPage() {
         {detail ? (
           <ConsultationInfoPanel
             detail={detail}
+            isBlacklisted={isBlacklisted}
             isBanPending={pendingEmail === detail.email}
             onViewLocation={() => setIsLocationOpen(true)}
             onRegisterBlacklist={() => setIsReasonOpen(true)}
