@@ -51,9 +51,6 @@ public class S3Service {
                 "녹음 파일을 S3에 업로드 할 수 없음",exception
             );
         }
-
-
     }
-
 
 }
