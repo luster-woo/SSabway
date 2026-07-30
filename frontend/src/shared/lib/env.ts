@@ -23,7 +23,10 @@ declare global {
 }
 
 const FALLBACK: AppEnv = {
-  API_BASE_URL: 'http://localhost:8080',
+  // 빈 문자열 = 상대 경로. dev 는 vite proxy, 배포는 nginx 가 백엔드로 넘긴다.
+  // 절대 주소를 기본값으로 두면 config.js 로드가 실패했을 때 조용히
+  // 엉뚱한 오리진으로 요청이 나가므로 여기서도 상대 경로를 기본으로 한다.
+  API_BASE_URL: '',
   NAVER_MAP_CLIENT_ID: '',
   USE_MSW: false,
 }

@@ -1,9 +1,17 @@
 window.__ENV__ = {
-  API_BASE_URL: 'http://localhost:8080',
+  // 빈 문자열 = 상대 경로. client.ts 의 baseURL 이 '/api/v1' 이 되어
+  // 항상 현재 접속한 오리진으로 요청이 나간다.
+  //
+  //   dev  → vite.config.ts 의 server.proxy 가 백엔드로 전달
+  //   배포 → deploy/nginx.conf 의 location /api/ 가 api:8080 으로 전달
+  //
+  // 그래서 환경별로 이 값을 바꿀 필요가 없다. 절대 주소를 다시 넣으면
+  // 배포 환경에서 사용자 브라우저의 localhost 를 가리켜 깨진다.
+  // 붙일 백엔드를 바꾸려면 frontend/.env.local 의 VITE_PROXY_TARGET 을 쓴다.
+  API_BASE_URL: '',
   // 네이버 클라우드 플랫폼 > Maps 애플리케이션의 Client ID.
   // Client Secret은 서버 전용이므로 여기에 넣지 않는다.
-  // 로컬 개발용 기본값이다. 배포 환경에서는 이 파일을 환경별 값으로 교체해야 한다.
-  // TODO: nginx 이미지에 entrypoint를 붙여 환경변수로 이 파일을 생성하도록 할 것.
+  // 콘솔의 Web 서비스 URL 에 접속 도메인이 등록돼 있어야 지도가 뜬다.
   NAVER_MAP_CLIENT_ID: 'pumqt2h9m1',
   // MSW 목 서버 사용 여부 (개발 모드에서만 동작).
   // BE 미완성 API를 프론트 단독으로 확인할 때 true.
