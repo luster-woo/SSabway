@@ -53,12 +53,11 @@ export interface ConsultationSession {
 /**
  * 세션 참가자 구분.
  * 백엔드가 토큰 발급 시 connection.data 에 { role } 로 주입한다.
- * 역무원 화면은 이 값으로 원본/마스킹 스트림을 구별한다.
+ * (얼굴 모자이크는 사용자 브라우저에서 canvas로 처리 후 publish한다)
  */
 export const PARTICIPANT_ROLE = {
   USER: 'user',
   STAFF: 'staff',
-  MASK_AGENT: 'mask-agent',
 } as const
 
 export type ParticipantRole =
