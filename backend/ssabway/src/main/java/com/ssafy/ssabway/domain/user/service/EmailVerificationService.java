@@ -116,7 +116,7 @@ public class EmailVerificationService {
 
         // 일치하지 않으면 400 발생
         if(!savedCode.equals(code)) {
-            throw new BusinessException(ErrorCode.VERIFICATION_CODE_MISTMATCH);
+            throw new BusinessException(ErrorCode.VERIFICATION_CODE_MISMATCH);
         }
 
         // 인증 완료 표시 - 회원가입 시 해당 키의 존재를 확인하고 진행
