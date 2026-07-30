@@ -6,12 +6,15 @@ import io.openvidu.java.client.OpenViduHttpException;
 import io.openvidu.java.client.OpenViduJavaClientException;
 import io.openvidu.java.client.Recording;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class OpenViduWebhookService {
     private final OpenVidu openVidu;
+    private final RecordingStorageService recordingStorageService;
 
     public void handle(OpenViduWebhookRequest request) {
         if(!"recordingStatusChanged".equals(request.getEvent())){
@@ -28,6 +31,13 @@ public class OpenViduWebhookService {
 
         try {
             Recording recording = openVidu.getRecording(request.getId());
+            // 처리가 완료된 녹음 파일을 다운로드해 S3에 저장합니다.
+            String s3ObjectKey = recordingStorageService.uploadRecording(recording);
+            log.info(
+                "녹음 파일 S3 업로드 완료 - recordingId={}, objectKey={}",
+                recording.getId(),
+                s3ObjectKey
+            );
         } catch (OpenViduJavaClientException | OpenViduHttpException exception) {
             throw new IllegalStateException("완료된 녹음 정보를 조회할 수 없습니다.", exception);
         }
