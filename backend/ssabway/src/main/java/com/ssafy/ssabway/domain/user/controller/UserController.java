@@ -1,10 +1,7 @@
 package com.ssafy.ssabway.domain.user.controller;
 
 import com.ssafy.ssabway.domain.auth.util.RefreshTokenCookieProvider;
-import com.ssafy.ssabway.domain.user.dto.request.EmailVerificationConfirmRequest;
-import com.ssafy.ssabway.domain.user.dto.request.EmailVerificationSendRequest;
-import com.ssafy.ssabway.domain.user.dto.request.LoginRequest;
-import com.ssafy.ssabway.domain.user.dto.request.SignUpRequest;
+import com.ssafy.ssabway.domain.user.dto.request.*;
 import com.ssafy.ssabway.domain.user.dto.response.EmailDuplicateResponse;
 import com.ssafy.ssabway.domain.user.dto.response.EmailVerificationSendResponse;
 import com.ssafy.ssabway.domain.user.dto.response.LoginResponse;
@@ -21,6 +18,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Duration;
@@ -69,6 +67,20 @@ public class UserController {
         userService.signup(request);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok("회원가입이 완료되었습니다."));
+    }
+
+    @PatchMapping
+    public ResponseEntity<ApiResponse<Void>> withdraw(
+            @AuthenticationPrincipal Long userId,
+            @Valid @RequestBody WithdrawRequest request) {
+
+        userService.withdraw(userId, request);
+
+        ResponseCookie cookie = refreshTokenCookieProvider.expire();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(ApiResponse.ok("회원탈퇴에 성공하였습니다."));
     }
 
     @PostMapping("/login")
