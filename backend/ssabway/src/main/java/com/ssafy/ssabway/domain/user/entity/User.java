@@ -86,4 +86,21 @@ public class User {
     public static User createGoogle(String email, String providerId, Language language){
         return new User(email, null, Provider.GOOGLE, providerId, language);
     }
+
+    /*
+        소프트 삭제. deleted_at을 찍고 email과 provider_id를 변조시킴
+
+        UNIQUE(email) / UNIQUE(provider, provider_id) 제약때문에 변조하지 않으면 탈퇴한 사용자가 같은 이메일로 재가입 불가능
+     */
+    public void withdraw() {
+        this.deletedAt = LocalDateTime.now();
+        this.email = "deleted_" + this.id + "_" + this.email;
+
+        if (this.providerId != null) this.providerId = "deleted_" + this.id + "_" + this.providerId;
+
+    }
+
+    public boolean isDeleted() {
+        return this.deletedAt != null;
+    }
 }

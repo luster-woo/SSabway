@@ -3,6 +3,7 @@ package com.ssafy.ssabway.domain.user.service;
 import com.ssafy.ssabway.domain.auth.service.RefreshTokenService;
 import com.ssafy.ssabway.domain.user.dto.request.LoginRequest;
 import com.ssafy.ssabway.domain.user.dto.request.SignUpRequest;
+import com.ssafy.ssabway.domain.user.dto.request.WithdrawRequest;
 import com.ssafy.ssabway.domain.user.dto.response.EmailDuplicateResponse;
 import com.ssafy.ssabway.domain.user.dto.response.LoginResult;
 import com.ssafy.ssabway.domain.user.entity.Provider;
@@ -72,5 +73,23 @@ public class UserService {
         refreshTokenService.save(user.getId(), refreshToken, jwtProvider.getRefreshTokenExpiration());
 
         return new LoginResult(accessToken, refreshToken, user.getLanguage());
+    }
+
+    @Transactional
+    public void withdraw(Long userId, WithdrawRequest request) {
+
+        User user = userRepository.findByIdAndDeletedAtIsNull(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+
+        // 소셜 가입자는 password_hash가 NULL이라 비밀번호로 본인 확인을 할 수 없음
+        // 구글 로그인이 붙으면 별도 확인 수단이 필요!!!
+        if (user.getPasswordHash() == null) throw new BusinessException(ErrorCode.SOCIAL_LOGIN_REQUIRED);
+
+        if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) throw new BusinessException(ErrorCode.PASSWORD_MISMATCH);
+
+        user.withdraw();
+
+        refreshTokenService.delete(userId);
     }
 }
