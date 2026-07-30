@@ -3,11 +3,17 @@ import { http, HttpResponse, type RequestHandler } from 'msw'
 import {
   CODE_TIME_LIMIT_SEC,
   RATE_LIMITED_EMAIL,
+  REFRESH_COOKIE,
   TAKEN_EMAILS,
+  USER_ACCOUNT,
+  USER_LANGUAGE,
   VALID_CODE,
   errorBody,
+  expiredRefreshCookie,
+  issueAccessToken,
   okBody,
   okBodyWithoutData,
+  refreshCookie,
 } from '@/mocks/data'
 
 /**
@@ -111,5 +117,71 @@ export const handlers: RequestHandler[] = [
     return HttpResponse.json(okBodyWithoutData('회원가입이 완료되었습니다.'), {
       status: 201,
     })
+  }),
+
+  /* ---------------------------------------------------------------- *
+   * 인증
+   * ---------------------------------------------------------------- */
+
+  // 회원 일반 로그인
+  //
+  // 이 엔드포인트는 노션에 "백엔드 개발완료"로 표시되어 있다. 그런데도 목을 두는
+  // 이유는 배포 주소가 나오기 전까지 백엔드 없이 화면을 확인해야 하기 때문이다.
+  // 백엔드에 붙여 확인할 때는 이 핸들러를 지우거나 USE_MSW 를 false 로 둘 것.
+  // (목이 통과시키는 계정으로만 로그인되므로, 실서버와 다르다는 사실을 잊기 쉽다.)
+  http.post(`${BASE}/users/login`, async ({ request }) => {
+    const { email, password } = (await request.json()) as {
+      email?: string
+      password?: string
+    }
+
+    if (email !== USER_ACCOUNT.email || password !== USER_ACCOUNT.password) {
+      return HttpResponse.json(
+        errorBody('이메일 또는 비밀번호가 일치하지 않습니다.'),
+        { status: 401 },
+      )
+    }
+
+    return HttpResponse.json(
+      okBody('로그인 되었습니다.', {
+        accessToken: issueAccessToken('user'),
+        language: USER_LANGUAGE,
+      }),
+      { headers: { 'Set-Cookie': refreshCookie() } },
+    )
+  }),
+
+  // 로그아웃 (사용자·관리자 공통 엔드포인트. 지금은 사용자만 호출한다)
+  // 명세의 401(액세스 토큰 인증 실패)을 재현하려고 헤더 유무만 본다.
+  http.post(`${BASE}/auth/logout`, ({ request }) => {
+    if (!request.headers.get('Authorization')) {
+      return HttpResponse.json(errorBody('인증이 필요합니다.'), { status: 401 })
+    }
+
+    return HttpResponse.json(okBodyWithoutData('로그아웃 성공'), {
+      headers: { 'Set-Cookie': expiredRefreshCookie() },
+    })
+  }),
+
+  // 토큰 재발급 (사용자·관리자 공통)
+  //
+  // 아직 노션 엔드포인트 표에 없는 API 다. client.ts 의 401 인터셉터와
+  // restoreSession 이 이 경로를 호출하므로, 목이 없으면 실서버에서 404 를 받고
+  // 곧바로 로그인 화면으로 튕긴다. 즉 재시도 로직을 확인할 방법이 없어진다.
+  //
+  // 로그인하지 않았으면 401 이어야 한다. 무조건 200 을 주면 새로고침만으로
+  // 로그인 상태가 되어 비로그인 흐름을 확인할 수 없다.
+  http.post(`${BASE}/auth/refresh`, ({ cookies }) => {
+    if (!cookies[REFRESH_COOKIE]) {
+      return HttpResponse.json(errorBody('로그인이 필요합니다.'), {
+        status: 401,
+      })
+    }
+
+    return HttpResponse.json(
+      okBody('토큰이 재발급되었습니다.', {
+        accessToken: issueAccessToken('refresh'),
+      }),
+    )
   }),
 ]
