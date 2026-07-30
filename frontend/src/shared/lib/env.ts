@@ -6,6 +6,14 @@ export interface AppEnv {
    * 콘솔의 Web 서비스 URL에 접속 도메인이 등록돼 있어야 지도가 뜬다.
    */
   NAVER_MAP_CLIENT_ID: string
+  /**
+   * MSW 목 서버 사용 여부. 개발 모드에서만 의미가 있다.
+   *
+   * BE가 준비되지 않은 API를 프론트 단독으로 확인할 때 true.
+   * 실제 서버로 붙여볼 때나 PWA 동작을 확인할 때(devOptions.enabled = true)는
+   * 서비스 워커가 겹치지 않도록 false 로 둔다.
+   */
+  USE_MSW: boolean
 }
 
 declare global {
@@ -17,6 +25,7 @@ declare global {
 const FALLBACK: AppEnv = {
   API_BASE_URL: 'http://localhost:8080',
   NAVER_MAP_CLIENT_ID: '',
+  USE_MSW: false,
 }
 
 export const env: AppEnv = { ...FALLBACK, ...window.__ENV__ }
