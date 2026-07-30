@@ -5,6 +5,7 @@
 import { lazy, Suspense } from 'react'
 import { createBrowserRouter } from 'react-router-dom'
 
+import { RouteLoading } from '@/shared/ui'
 import UserApp from '@/user/UserApp'
 
 // user 앱은 메인 청크에 포함시켜야 PWA 오프라인 진입이 보장된다.
@@ -19,7 +20,7 @@ export const router = createBrowserRouter([
   {
     path: '/admin/*',
     element: (
-      <Suspense fallback={<div className="p-8">Loading…</div>}>
+      <Suspense fallback={<RouteLoading />}>
         <AdminApp />
       </Suspense>
     ),
