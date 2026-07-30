@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
+import { requestLogout } from '@/shared/api/client'
 import { useLanguage } from '@/shared/lib/useLanguage'
 import { useAuthStore } from '@/shared/lib/store/useAuthStore'
 import {
@@ -60,8 +61,12 @@ export default function StartPage() {
     void navigate('/scan')
   }
 
-  const signOut = () => {
-    clearAccessToken('user')
+  /**
+   * 서버에서 리프레시 토큰을 무효화한 뒤 안내한다.
+   * requestLogout 은 요청이 실패해도 로컬 토큰을 지우므로 성공 여부를 따지지 않는다.
+   */
+  const signOut = async () => {
+    await requestLogout('user')
     showToast(t('auth.signedOut'))
   }
 
@@ -83,7 +88,7 @@ export default function StartPage() {
           <AccountMenu
             isLoggedIn={isLoggedIn}
             onSignIn={moveToLogin}
-            onSignOut={signOut}
+            onSignOut={() => void signOut()}
             onDeleteAccount={deleteAccount}
           />
         </div>
