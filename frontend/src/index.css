@@ -1,0 +1,95 @@
+@import 'tailwindcss';
+
+@theme {
+  /* 프로토타입 팔레트 */
+  --color-brand: #018abe;
+  --color-brand-dark: #02457a;
+  --color-brand-soft: #d6e8ee;
+  --color-danger: #dc2626;
+  --color-success: #00a84d;
+
+  --color-ink: #0f172a;
+  --color-ink-muted: #475569;
+  --color-ink-faint: #94a3b8;
+  --color-line: #e2e8f0;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f1f5f9;
+  --color-surface-soft: #f8fafc;
+
+  /* 역 안내 표지판 팔레트 — 실제 표지판 색을 그대로 쓴다 */
+  --color-sign: #001b4b; /* 표지판 바탕(감청) */
+  --color-sign-exit: #ffc83d; /* 출구 번호 블록(노랑) */
+  --color-sign-sub: #97cadb; /* 표지판 영문 보조 텍스트 */
+
+  --font-sans:
+    'Pretendard', system-ui, -apple-system, 'Segoe UI', Roboto,
+    'Helvetica Neue', 'Noto Sans KR', 'Noto Sans', sans-serif;
+}
+
+/* 브랜드 그라디언트(주요 CTA·로고에 공통 사용) */
+@utility bg-brand-gradient {
+  background-image: linear-gradient(
+    135deg,
+    var(--color-brand-dark),
+    var(--color-brand)
+  );
+}
+
+/*
+ * 화면 높이. dvh를 지원하지 않는 브라우저에서 선언이 통째로 버려지면
+ * 자식이 전부 absolute인 화면(지도·카메라)이 높이 0으로 무너지므로 vh로 폴백한다.
+ */
+@utility min-h-viewport {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* 노치·홈바 안전영역 유틸리티 */
+@utility pt-safe {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+@utility pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@utility px-safe {
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+}
+
+/*
+ * 네이버 지도 내부 DOM은 Tailwind preflight와 충돌한다.
+ * preflight의 `img { max-width: 100%; height: auto }`가 타일 이미지의
+ * 인라인 크기를 덮어써서 타일이 어긋나거나 사라진다. 지도 안쪽만 예외 처리.
+ */
+.naver-map-canvas img {
+  max-width: none;
+  height: auto;
+}
+
+@layer base {
+  html {
+    /* iOS 가로모드 전환 시 글자 자동 확대 방지 */
+    -webkit-text-size-adjust: 100%;
+    /* 탭할 때 회색 박스 깜빡임 제거 */
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    margin: 0;
+    /* 당겨서 새로고침 방지 — 카메라/경로 화면에서 오작동 차단 */
+    overscroll-behavior-y: none;
+  }
+
+  #root {
+    /* dvh: 모바일 주소창 높이 변화에 대응 (vh는 잘림) */
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  /* iOS는 16px 미만 입력창에 포커스하면 화면을 확대함 */
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}

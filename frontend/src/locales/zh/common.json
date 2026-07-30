@@ -1,0 +1,354 @@
+{
+  "app": {
+    "name": "SSabway",
+    "tagline": "面向外国游客的地铁向导"
+  },
+  "language": {
+    "select": "Language · 语言",
+    "changed": "已切换语言"
+  },
+  "auth": {
+    "signIn": "登录",
+    "signOut": "退出登录",
+    "deleteAccount": "注销账号",
+    "accountMenu": "账号菜单",
+    "signedOut": "已退出登录",
+    "accountDeleted": "已注销账号",
+    "login": {
+      "title": "登录",
+      "subtitle": "请使用邮箱和密码登录。",
+      "google": "使用 Google 继续",
+      "googlePending": "Google 登录正在准备中",
+      "orEmail": "或使用邮箱",
+      "email": "邮箱",
+      "emailPlaceholder": "you@example.com",
+      "password": "密码",
+      "passwordPlaceholder": "请输入密码",
+      "forgotPassword": "忘记密码?",
+      "noAccount": "还没有账号?",
+      "signUp": "注册",
+      "back": "返回",
+      "success": "已登录",
+      "error": {
+        "invalidCredential": "邮箱或密码不正确",
+        "unknown": "登录失败 · 请稍后重试"
+      }
+    },
+    "passwordReset": {
+      "title": "重置密码",
+      "subtitle": "验证邮箱后即可设置新密码。",
+      "back": "返回",
+      "email": "邮箱",
+      "emailPlaceholder": "you@example.com",
+      "sendCode": "发送验证",
+      "resendCode": "重新发送",
+      "sending": "发送中",
+      "codeSent": "验证邮件已发送，请查看邮箱",
+      "code": "验证码（7位）",
+      "verifyCode": "确认",
+      "verifying": "确认中",
+      "codeVerified": "邮箱验证已完成",
+      "remainingTime": "剩余时间 {{time}}",
+      "newPassword": "新密码",
+      "newPasswordPlaceholder": "请输入8位以上",
+      "confirmPassword": "确认新密码",
+      "confirmPasswordPlaceholder": "请再输入一次",
+      "submit": "修改密码",
+      "submitting": "修改中",
+      "success": "密码已修改，请重新登录",
+      "rememberedPassword": "想起密码了吗？",
+      "signIn": "登录",
+      "error": {
+        "invalidEmail": "邮箱格式不正确",
+        "duplicateEmail": "该邮箱已被使用",
+        "tooManyRequests": "发送次数已超限 · 请稍后再试",
+        "sendFailed": "验证邮件发送失败 · 请稍后再试",
+        "invalidCode": "验证码不正确",
+        "verifyFailed": "验证失败 · 请稍后再试",
+        "codeExpired": "验证时间已过期 · 请重新获取验证邮件",
+        "invalidPassword": "密码格式不正确",
+        "unauthorized": "验证已过期 · 请重新开始",
+        "resetFailed": "密码修改失败 · 请稍后再试",
+        "verifiedExpired": "验证有效时间已过 · 请重新验证邮箱",
+        "passwordMismatch": "两次输入的密码不一致"
+      }
+    },
+    "signUp": {
+      "title": "注册",
+      "subtitle": "验证邮箱后，只需设置密码即可。",
+      "back": "返回",
+      "email": "邮箱",
+      "emailPlaceholder": "you@example.com",
+      "checkEmail": "重复确认",
+      "checking": "确认中",
+      "emailAvailable": "该邮箱可以使用",
+      "resendCode": "重新发送",
+      "sending": "发送中",
+      "codeSent": "验证邮件已发送，请查看邮箱",
+      "code": "验证码（7位）",
+      "verifyCode": "确认",
+      "verifying": "确认中",
+      "codeVerified": "邮箱验证已完成",
+      "remainingTime": "剩余时间 {{time}}",
+      "password": "密码",
+      "passwordPlaceholder": "请输入8位以上",
+      "confirmPassword": "确认密码",
+      "confirmPasswordPlaceholder": "请输入8位以上",
+      "submit": "注册",
+      "submitting": "注册中",
+      "success": "注册已完成，请登录",
+      "hasAccount": "已有账号？",
+      "signIn": "登录",
+      "error": {
+        "invalidEmail": "邮箱格式不正确",
+        "duplicateEmail": "该邮箱已被使用",
+        "checkFailed": "重复确认失败 · 请稍后再试",
+        "tooManyRequests": "发送次数已超限 · 请稍后再试",
+        "sendFailed": "验证邮件发送失败 · 请稍后再试",
+        "invalidCode": "验证码不正确",
+        "verifyFailed": "验证失败 · 请稍后再试",
+        "codeExpired": "验证时间已过期 · 请重新获取验证邮件",
+        "invalidForm": "输入格式不正确",
+        "signUpFailed": "注册失败 · 请稍后再试",
+        "passwordMismatch": "两次输入的密码不一致",
+        "verifiedExpired": "验证有效时间已过 · 请重新验证邮箱"
+      }
+    }
+  },
+  "start": {
+    "startGuide": "开始导航",
+    "needConsentFirst": "请先选择位置权限",
+    "consent": {
+      "title": "位置信息权限",
+      "allowHint": "同意后识别最近车站位置",
+      "denyHint": "拒绝时通过拍摄指示牌识别位置",
+      "allow": "同意",
+      "deny": "拒绝",
+      "allowed": "已允许定位 · 可以查找最近车站",
+      "denied": "没关系！可通过拍摄指示牌识别位置",
+      "statusAllowed": "已同意使用位置信息",
+      "statusDenied": "将通过拍摄指示牌识别位置",
+      "change": "重新选择"
+    }
+  },
+  "signCapture": {
+    "hint": "请将指示牌对准取景框进行拍摄",
+    "zoomHint": "可用双指缩放画面",
+    "zoomReset": "重置缩放",
+    "back": "返回",
+    "shoot": "拍摄",
+    "retake": "重拍",
+    "analyze": "AI分析",
+    "analyzing": "AI正在分析指示牌…",
+    "needCaptureFirst": "请先拍摄指示牌",
+    "retaken": "请重新拍摄",
+    "captureFailed": "拍摄失败 · 请重试",
+    "capturedAlt": "已拍摄的指示牌照片",
+    "error": {
+      "insecure": "摄像头仅在安全连接(HTTPS)下可用",
+      "denied": "需要摄像头权限\n请在浏览器设置中允许使用摄像头",
+      "notFound": "未找到可用的摄像头",
+      "inUse": "其他应用正在使用摄像头\n请关闭后重试",
+      "unknown": "无法启动摄像头",
+      "upload": "改为上传照片"
+    }
+  },
+  "destination": {
+    "placeholder": "要去哪里？（车站 · 地点 · 地址）",
+    "search": "搜索",
+    "clear": "清除输入",
+    "back": "返回",
+    "searching": "正在查找地点…",
+    "noResult": "没有找到结果\n请尝试用地址代替地点名称搜索",
+    "searchFailed": "搜索失败 · 请稍后再试",
+    "needKeyword": "请输入搜索关键词",
+    "mapNotReady": "地图正在加载 · 请稍候",
+    "mapLoading": "正在加载地图",
+    "selected": "已选目的地",
+    "change": "重新选择",
+    "next": "下一步",
+    "error": {
+      "missingKey": "尚未设置地图密钥\n请检查 config.js 中的 NAVER_MAP_CLIENT_ID",
+      "authFailed": "地图认证失败\n请检查 Client ID 以及控制台中登记的 Web 服务 URL",
+      "mapFailed": "无法加载地图\n请检查网络连接"
+    }
+  },
+  "location": {
+    "captureSign": "拍摄指示牌",
+    "useGps": "使用我的位置",
+    "selectStation": "手动选择车站"
+  },
+  "route": {
+    "next": "下一步",
+    "prev": "上一步",
+    "arrived": "已到达",
+    "select": {
+      "title": "推荐路线",
+      "back": "返回",
+      "badge": {
+        "fastest": "最快",
+        "noTransfer": "无需换乘",
+        "cheapest": "最低票价"
+      },
+      "noTransfer": "无需换乘",
+      "transferCount": "换乘{{n}}次",
+      "start": "使用此路线开始导航",
+      "notice": "实际用时可能因列车运行情况而变化",
+      "loading": "正在查找路线…",
+      "failed": "无法加载路线\n请稍后再试",
+      "empty": "未找到可用路线\n请重新选择目的地",
+      "changeDestination": "重新选择目的地",
+      "started": "开始为您导航至{{station}}"
+    }
+  },
+  "userInfo": {
+    "title": "确认导航信息",
+    "back": "返回",
+    "origin": "出发",
+    "destination": "到达",
+    "change": "更改",
+    "start": "开始路线导航",
+    "loading": "正在加载导航信息…",
+    "failed": "无法加载导航信息\n请稍后再试",
+    "needAnswers": "请回答所有问题",
+    "started": "将按所选条件开始导航",
+    "preference": {
+      "label": "路线所需信息",
+      "back": "上一题",
+      "reset": "重新选择",
+      "progress": "问题 {{current}} / {{total}}",
+      "done": "已回答全部问题",
+      "elevator": {
+        "question": "您希望使用电梯吗？",
+        "yes": "是",
+        "no": "否"
+      },
+      "transitCard": {
+        "question": "您有交通卡吗？",
+        "yes": "有",
+        "no": "没有"
+      },
+      "ticketMethod": {
+        "question": "您打算怎么乘车？",
+        "single": "购买单程票 · 使用现金",
+        "buyCard": "我要购买交通卡"
+      },
+      "cash": {
+        "question": "您带现金了吗？",
+        "yes": "有",
+        "no": "没有"
+      }
+    },
+    "plan": {
+      "direct": {
+        "title": "将直接为您导航至目的地",
+        "description": "用交通卡通过闸机即可"
+      },
+      "ticketMachine": {
+        "title": "将途经售票机",
+        "description": "购买单程票后为您指引乘车路线"
+      },
+      "convenienceStore": {
+        "title": "将途经附近的便利店",
+        "description": "购买交通卡后继续为您导航"
+      },
+      "atm": {
+        "title": "将途经附近的ATM",
+        "description": "取现后为您指引前行路线"
+      }
+    }
+  },
+  "routeGuide": {
+    "back": "返回",
+    "label": "路线导航",
+    "stepCount": "第 {{current}} / {{total}} 步",
+    "progress": "共{{total}}步，第{{current}}步",
+    "rescan": "重新搜索路线",
+    "rescanning": "重新拍摄指示牌以搜索路线",
+    "nextSign": "下一个指示牌",
+    "exit": "出口",
+    "prev": "上一步",
+    "next": "下一步",
+    "showMyLocation": "查看站内当前位置",
+    "arrive": "已到达",
+    "mapNotReady": "站内地图正在准备中",
+    "help": "请求帮助",
+    "loading": "正在加载路线导航…",
+    "failed": "无法加载路线导航\n请稍后再试",
+    "empty": "未找到可导航的步骤\n请重新拍摄指示牌"
+  },
+  "arrival": {
+    "back": "返回",
+    "title": "已到达目的地！",
+    "duration": "用时",
+    "origin": "出发地",
+    "destination": "目的地",
+    "newDestination": "导航到新目的地",
+    "feedback": {
+      "question": "本次导航对您有帮助吗？",
+      "helpful": "有帮助",
+      "notHelpful": "不太满意",
+      "thanks": "感谢您的反馈"
+    }
+  },
+  "helpChat": {
+    "back": "返回",
+    "title": "SSabway 助手",
+    "online": "在线",
+    "greeting": "需要什么帮助？",
+    "connectStaff": "与站务员视频通话",
+    "loginRequired": "视频通话需要登录。",
+    "loginAndConnect": "登录并开始通话",
+    "ready": "已准备就绪。\n请点击下方按钮开始连接。",
+    "connect": "视频通话",
+    "recordNotice": "通话语音可能会被录音",
+    "backToGuide": "返回路线导航"
+  },
+  "consultation": {
+    "request": "请求帮助",
+    "connecting": "正在连接站务人员...",
+    "queuePosition": "您前面还有{{position}}人",
+    "unavailable": "目前没有可接待的站务人员",
+    "micOnly": "站务人员将通过语音为您提供帮助，其摄像头已关闭。",
+    "end": "结束通话",
+    "video": {
+      "staffConnected": "已连接工作人员",
+      "faceBlurOn": "后置摄像头 · 面部马赛克开启",
+      "mic": "麦克风",
+      "camera": "摄像头",
+      "endShort": "结束",
+      "micOn": "已打开麦克风",
+      "micOff": "已关闭麦克风",
+      "cameraOn": "已打开摄像头",
+      "cameraOff": "已关闭摄像头",
+      "ended": "咨询已结束",
+      "permission": {
+        "title": "允许麦克风",
+        "description": "与工作人员视频通话\n需要麦克风权限。",
+        "allow": "允许",
+        "deny": "拒绝",
+        "allowed": "已允许麦克风 · 已连接工作人员",
+        "denied": "需要允许权限才能开始视频通话",
+        "requesting": "正在确认权限…"
+      },
+      "endConfirm": {
+        "title": "要结束咨询吗？",
+        "description": "结束后仍可继续使用路线引导",
+        "confirm": "结束",
+        "keep": "继续"
+      }
+    }
+  },
+  "common": {
+    "retry": "重试",
+    "cancel": "取消",
+    "confirm": "确认",
+    "close": "关闭",
+    "goHome": "返回首页",
+    "notReady": "该页面正在准备中",
+    "notFound": {
+      "title": "找不到页面",
+      "description": "网址有误或页面已被删除。"
+    }
+  }
+}

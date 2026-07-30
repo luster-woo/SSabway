@@ -1,0 +1,40 @@
+spring:
+  application:
+    name: ssabway_webrtc
+  config:
+    import: optional:application-secret.yaml
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/ssabway_db?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Seoul
+    username: ${database.username}
+    password: ${database.password}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+
+  sql:
+    init:
+      mode: always
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: true
+    show-sql: true
+    open-in-view: false
+
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE
+
+server:
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true

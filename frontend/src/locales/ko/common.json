@@ -1,0 +1,354 @@
+{
+  "app": {
+    "name": "SSabway",
+    "tagline": "외국인 관광객을 위한 지하철 길안내"
+  },
+  "language": {
+    "select": "Language · 언어 선택",
+    "changed": "언어를 변경했어요"
+  },
+  "auth": {
+    "signIn": "로그인",
+    "signOut": "로그아웃",
+    "deleteAccount": "회원탈퇴",
+    "accountMenu": "계정 메뉴",
+    "signedOut": "로그아웃 되었습니다",
+    "accountDeleted": "탈퇴 처리되었어요",
+    "login": {
+      "title": "로그인",
+      "subtitle": "이메일과 비밀번호로 로그인하세요.",
+      "google": "Google로 계속하기",
+      "googlePending": "Google 로그인은 준비 중입니다",
+      "orEmail": "또는 이메일로",
+      "email": "이메일",
+      "emailPlaceholder": "you@example.com",
+      "password": "비밀번호",
+      "passwordPlaceholder": "비밀번호 입력",
+      "forgotPassword": "비밀번호를 잊으셨나요?",
+      "noAccount": "아직 계정이 없으세요?",
+      "signUp": "회원가입",
+      "back": "뒤로가기",
+      "success": "로그인 되었습니다",
+      "error": {
+        "invalidCredential": "이메일 또는 비밀번호가 올바르지 않아요",
+        "unknown": "로그인에 실패했어요 · 잠시 후 다시 시도해 주세요"
+      }
+    },
+    "passwordReset": {
+      "title": "비밀번호 재설정",
+      "subtitle": "이메일을 인증하면 새 비밀번호를 설정할 수 있어요.",
+      "back": "뒤로가기",
+      "email": "이메일",
+      "emailPlaceholder": "you@example.com",
+      "sendCode": "인증 발송",
+      "resendCode": "재발송",
+      "sending": "발송 중",
+      "codeSent": "인증 메일을 보냈어요. 메일함을 확인해 주세요",
+      "code": "인증번호 7자리",
+      "verifyCode": "확인",
+      "verifying": "확인 중",
+      "codeVerified": "이메일 인증이 완료되었어요",
+      "remainingTime": "남은 시간 {{time}}",
+      "newPassword": "새 비밀번호",
+      "newPasswordPlaceholder": "8자 이상 입력",
+      "confirmPassword": "새 비밀번호 확인",
+      "confirmPasswordPlaceholder": "다시 한 번 입력",
+      "submit": "비밀번호 변경",
+      "submitting": "변경 중",
+      "success": "비밀번호가 변경되었어요. 다시 로그인해 주세요",
+      "rememberedPassword": "비밀번호가 기억났나요?",
+      "signIn": "로그인",
+      "error": {
+        "invalidEmail": "이메일 형식이 올바르지 않아요",
+        "duplicateEmail": "이미 사용 중인 이메일이에요",
+        "tooManyRequests": "발송 횟수를 초과했어요 · 잠시 후 다시 시도해 주세요",
+        "sendFailed": "인증 메일 발송에 실패했어요 · 잠시 후 다시 시도해 주세요",
+        "invalidCode": "인증번호가 올바르지 않아요",
+        "verifyFailed": "인증에 실패했어요 · 잠시 후 다시 시도해 주세요",
+        "codeExpired": "인증 시간이 만료됐어요 · 인증 메일을 다시 받아 주세요",
+        "invalidPassword": "비밀번호 형식이 올바르지 않아요",
+        "unauthorized": "인증이 만료됐어요 · 처음부터 다시 시도해 주세요",
+        "resetFailed": "비밀번호 변경에 실패했어요 · 잠시 후 다시 시도해 주세요",
+        "verifiedExpired": "인증 유효 시간이 지났어요 · 이메일 인증을 다시 해주세요",
+        "passwordMismatch": "비밀번호가 일치하지 않아요"
+      }
+    },
+    "signUp": {
+      "title": "회원가입",
+      "subtitle": "이메일 인증 후 비밀번호만 설정하면 돼요.",
+      "back": "뒤로가기",
+      "email": "이메일",
+      "emailPlaceholder": "you@example.com",
+      "checkEmail": "중복 확인",
+      "checking": "확인 중",
+      "emailAvailable": "사용할 수 있는 이메일이에요",
+      "resendCode": "재발송",
+      "sending": "발송 중",
+      "codeSent": "인증 메일을 보냈어요. 메일함을 확인해 주세요",
+      "code": "인증코드 7자리",
+      "verifyCode": "확인",
+      "verifying": "확인 중",
+      "codeVerified": "이메일 인증이 완료되었어요",
+      "remainingTime": "남은 시간 {{time}}",
+      "password": "비밀번호",
+      "passwordPlaceholder": "8자 이상 입력",
+      "confirmPassword": "비밀번호 확인",
+      "confirmPasswordPlaceholder": "8자 이상 입력",
+      "submit": "회원가입",
+      "submitting": "가입 중",
+      "success": "회원가입이 완료되었어요. 로그인해 주세요",
+      "hasAccount": "이미 계정이 있으세요?",
+      "signIn": "로그인",
+      "error": {
+        "invalidEmail": "이메일 형식이 올바르지 않아요",
+        "duplicateEmail": "이미 사용 중인 이메일이에요",
+        "checkFailed": "중복 확인에 실패했어요 · 잠시 후 다시 시도해 주세요",
+        "tooManyRequests": "발송 횟수를 초과했어요 · 잠시 후 다시 시도해 주세요",
+        "sendFailed": "인증 메일 발송에 실패했어요 · 잠시 후 다시 시도해 주세요",
+        "invalidCode": "인증코드가 올바르지 않아요",
+        "verifyFailed": "인증에 실패했어요 · 잠시 후 다시 시도해 주세요",
+        "codeExpired": "인증 시간이 만료됐어요 · 인증 메일을 다시 받아 주세요",
+        "invalidForm": "입력 형식이 올바르지 않아요",
+        "signUpFailed": "회원가입에 실패했어요 · 잠시 후 다시 시도해 주세요",
+        "passwordMismatch": "비밀번호가 일치하지 않아요",
+        "verifiedExpired": "인증 유효 시간이 지났어요 · 이메일 인증을 다시 해주세요"
+      }
+    }
+  },
+  "start": {
+    "startGuide": "안내 시작",
+    "needConsentFirst": "위치 권한을 먼저 선택해 주세요",
+    "consent": {
+      "title": "위치 정보 접근 권한",
+      "allowHint": "동의 시 가까운 역 위치를 인식해요",
+      "denyHint": "비동의 시 표지판 촬영으로 위치를 인식해요",
+      "allow": "동의",
+      "deny": "비동의",
+      "allowed": "위치 접근을 허용했어요 · 가까운 역을 찾을 수 있어요",
+      "denied": "괜찮아요! 표지판 촬영으로 위치를 인식할 수 있어요",
+      "statusAllowed": "위치 정보 사용에 동의했어요",
+      "statusDenied": "표지판 촬영으로 위치를 인식해요",
+      "change": "다시 선택"
+    }
+  },
+  "signCapture": {
+    "hint": "표지판을 지정된 프레임에 맞춰서 촬영해 주세요",
+    "zoomHint": "두 손가락으로 확대·축소할 수 있어요",
+    "zoomReset": "확대 배율 초기화",
+    "back": "뒤로가기",
+    "shoot": "촬영",
+    "retake": "재촬영",
+    "analyze": "AI 분석",
+    "analyzing": "AI가 표지판을 분석하고 있어요…",
+    "needCaptureFirst": "먼저 표지판을 촬영해 주세요",
+    "retaken": "다시 촬영해 주세요",
+    "captureFailed": "촬영에 실패했어요 · 다시 시도해 주세요",
+    "capturedAlt": "촬영된 표지판 사진",
+    "error": {
+      "insecure": "보안 연결(HTTPS)에서만 카메라를 사용할 수 있어요",
+      "denied": "카메라 권한이 필요해요\n브라우저 설정에서 카메라를 허용해 주세요",
+      "notFound": "사용할 수 있는 카메라를 찾지 못했어요",
+      "inUse": "다른 앱이 카메라를 사용 중이에요\n해당 앱을 종료한 뒤 다시 시도해 주세요",
+      "unknown": "카메라를 시작할 수 없어요",
+      "upload": "사진 업로드로 대신하기"
+    }
+  },
+  "destination": {
+    "placeholder": "어디로 갈까요? (역 · 장소 · 주소)",
+    "search": "검색",
+    "clear": "입력 지우기",
+    "back": "뒤로가기",
+    "searching": "장소를 찾고 있어요…",
+    "noResult": "검색 결과가 없어요\n장소명 대신 주소로 검색해 보세요",
+    "searchFailed": "검색에 실패했어요 · 잠시 후 다시 시도해 주세요",
+    "needKeyword": "검색어를 입력해 주세요",
+    "mapNotReady": "지도를 불러오는 중이에요 · 잠시만 기다려 주세요",
+    "mapLoading": "지도를 불러오는 중",
+    "selected": "선택한 목적지",
+    "change": "다시 선택",
+    "next": "다음",
+    "error": {
+      "missingKey": "지도 키가 설정되지 않았어요\nconfig.js의 NAVER_MAP_CLIENT_ID를 확인해 주세요",
+      "authFailed": "지도 인증에 실패했어요\nClient ID와 콘솔의 Web 서비스 URL 등록을 확인해 주세요",
+      "mapFailed": "지도를 불러오지 못했어요\n네트워크 상태를 확인해 주세요"
+    }
+  },
+  "location": {
+    "captureSign": "표지판 촬영하기",
+    "useGps": "내 위치 사용하기",
+    "selectStation": "역 직접 선택하기"
+  },
+  "route": {
+    "next": "다음",
+    "prev": "이전",
+    "arrived": "목적지에 도착했어요",
+    "select": {
+      "title": "추천 경로",
+      "back": "뒤로가기",
+      "badge": {
+        "fastest": "빠른 길",
+        "noTransfer": "환승 없음",
+        "cheapest": "최소 요금"
+      },
+      "noTransfer": "환승 없음",
+      "transferCount": "환승 {{n}}회",
+      "start": "이 경로로 안내 시작",
+      "notice": "열차 운행 상황에 따라 실제 소요 시간은 달라질 수 있어요",
+      "loading": "경로를 찾고 있어요…",
+      "failed": "경로를 불러오지 못했어요\n잠시 후 다시 시도해 주세요",
+      "empty": "이용할 수 있는 경로를 찾지 못했어요\n목적지를 다시 선택해 주세요",
+      "changeDestination": "목적지 다시 선택",
+      "started": "{{station}}까지 안내를 시작해요"
+    }
+  },
+  "userInfo": {
+    "title": "안내 정보 확인",
+    "back": "뒤로가기",
+    "origin": "출발",
+    "destination": "도착",
+    "change": "변경",
+    "start": "경로 안내 시작",
+    "loading": "안내 정보를 불러오는 중이에요…",
+    "failed": "안내 정보를 불러오지 못했어요\n잠시 후 다시 시도해 주세요",
+    "needAnswers": "질문에 모두 답해 주세요",
+    "started": "선택하신 조건으로 안내를 시작해요",
+    "preference": {
+      "label": "경로에 필요한 정보",
+      "back": "이전 질문",
+      "reset": "다시 선택하기",
+      "progress": "질문 {{current}} / {{total}}",
+      "done": "질문에 모두 답했어요",
+      "elevator": {
+        "question": "엘리베이터 사용을 희망하나요?",
+        "yes": "네",
+        "no": "아니요"
+      },
+      "transitCard": {
+        "question": "교통카드가 있나요?",
+        "yes": "네, 있어요",
+        "no": "아니요, 없어요"
+      },
+      "ticketMethod": {
+        "question": "어떻게 이동할까요?",
+        "single": "1회권 구매 · 현금으로 이동",
+        "buyCard": "교통카드를 구매할래요"
+      },
+      "cash": {
+        "question": "현금을 보유하고 있나요?",
+        "yes": "네, 있어요",
+        "no": "아니요, 없어요"
+      }
+    },
+    "plan": {
+      "direct": {
+        "title": "목적지까지 바로 안내할게요",
+        "description": "교통카드로 개찰구만 통과하면 돼요"
+      },
+      "ticketMachine": {
+        "title": "승차권 발매기를 경유해요",
+        "description": "1회권 구매 후 탑승 경로를 안내할게요"
+      },
+      "convenienceStore": {
+        "title": "가까운 편의점을 경유해요",
+        "description": "교통카드 구매 후 안내를 이어가요"
+      },
+      "atm": {
+        "title": "가까운 ATM을 경유해요",
+        "description": "현금 인출 후 이동 경로를 안내할게요"
+      }
+    }
+  },
+  "routeGuide": {
+    "back": "뒤로가기",
+    "label": "경로 안내",
+    "stepCount": "{{current}} / {{total}} 단계",
+    "progress": "{{total}}단계 중 {{current}}단계",
+    "rescan": "경로 재탐색",
+    "rescanning": "표지판을 다시 촬영해 경로를 찾을게요",
+    "nextSign": "다음 표지판",
+    "exit": "출구",
+    "prev": "이전",
+    "next": "다음",
+    "showMyLocation": "역 내에서 현재 위치 보기",
+    "arrive": "도착 완료",
+    "mapNotReady": "역 내부 지도는 준비 중이에요",
+    "help": "도움 요청",
+    "loading": "경로 안내를 불러오는 중이에요…",
+    "failed": "경로 안내를 불러오지 못했어요\n잠시 후 다시 시도해 주세요",
+    "empty": "안내할 단계를 찾지 못했어요\n표지판을 다시 촬영해 주세요"
+  },
+  "arrival": {
+    "back": "뒤로가기",
+    "title": "목적지에 도착했어요!",
+    "duration": "소요 시간",
+    "origin": "출발지",
+    "destination": "도착지",
+    "newDestination": "새 목적지 안내 받기",
+    "feedback": {
+      "question": "안내가 도움이 되었나요?",
+      "helpful": "도움됐어요",
+      "notHelpful": "아쉬워요",
+      "thanks": "소중한 의견 감사해요"
+    }
+  },
+  "helpChat": {
+    "back": "뒤로가기",
+    "title": "SSabway 도우미",
+    "online": "온라인",
+    "greeting": "무엇을 도와드릴까요?",
+    "connectStaff": "역무원과 화상 연결",
+    "loginRequired": "화상 연결은 로그인이 필요해요.",
+    "loginAndConnect": "로그인하고 화상 연결",
+    "ready": "연결 준비가 끝났어요.\n아래 버튼으로 연결을 시작하세요.",
+    "connect": "화상 연결",
+    "recordNotice": "통화 음성이 녹음될 수 있어요",
+    "backToGuide": "경로 다시 안내"
+  },
+  "consultation": {
+    "request": "도움 요청하기",
+    "connecting": "역무원과 연결 중이에요...",
+    "queuePosition": "앞에 {{position}}명 대기 중이에요",
+    "unavailable": "지금은 연결 가능한 역무원이 없어요",
+    "micOnly": "역무원이 음성으로 안내해요. 카메라는 꺼져 있어요.",
+    "end": "통화 종료",
+    "video": {
+      "staffConnected": "역무원 연결됨",
+      "faceBlurOn": "후면 카메라 · 타인 얼굴 모자이크 ON",
+      "mic": "마이크",
+      "camera": "카메라",
+      "endShort": "종료",
+      "micOn": "마이크를 켰어요",
+      "micOff": "마이크를 껐어요",
+      "cameraOn": "카메라를 켰어요",
+      "cameraOff": "카메라를 껐어요",
+      "ended": "상담이 종료되었습니다",
+      "permission": {
+        "title": "마이크 허용",
+        "description": "역무원과의 화상 연결을 위해\n마이크 권한이 필요해요.",
+        "allow": "허용",
+        "deny": "거부",
+        "allowed": "마이크를 허용했어요 · 역무원과 연결되었어요",
+        "denied": "권한을 허용해야 화상 연결을 시작할 수 있어요",
+        "requesting": "권한을 확인하고 있어요…"
+      },
+      "endConfirm": {
+        "title": "상담을 종료할까요?",
+        "description": "종료 후에도 길안내는 계속 이용할 수 있어요",
+        "confirm": "종료",
+        "keep": "계속하기"
+      }
+    }
+  },
+  "common": {
+    "retry": "다시 시도",
+    "cancel": "취소",
+    "confirm": "확인",
+    "close": "닫기",
+    "goHome": "처음으로",
+    "notReady": "준비 중인 화면입니다",
+    "notFound": {
+      "title": "페이지를 찾을 수 없어요",
+      "description": "주소가 잘못되었거나 삭제된 화면이에요."
+    }
+  }
+}
