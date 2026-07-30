@@ -1,6 +1,8 @@
 import { useEffect, type RefObject } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { MIN_ZOOM } from '@/user/features/sign-capture/hooks/usePinchZoom'
+
 /** 프레임 가이드 코너 브래킷 하나 */
 function Corner({ position }: { position: string }) {
   return (
@@ -14,15 +16,23 @@ function Corner({ position }: { position: string }) {
 export interface CameraPreviewProps {
   stream: MediaStream | null
   videoRef: RefObject<HTMLVideoElement | null>
+  /** 핀치 제스처를 받는 컨테이너 */
+  containerRef: RefObject<HTMLDivElement | null>
   /** 촬영된 정지 이미지 URL. 있으면 video 대신 이미지를 보여준다. */
   capturedUrl: string | null
+  /** 프리뷰에 적용할 디지털 줌 배율 */
+  zoom: number
+  onResetZoom: () => void
 }
 
 /** 카메라 프리뷰 + 표지판 프레임 가이드. 페이지 전체를 채운다. */
 export function CameraPreview({
   stream,
   videoRef,
+  containerRef,
   capturedUrl,
+  zoom,
+  onResetZoom,
 }: CameraPreviewProps) {
   const { t } = useTranslation()
 
@@ -35,16 +45,25 @@ export function CameraPreview({
     }
   }, [stream, videoRef])
 
+  const isZoomed = zoom > MIN_ZOOM
+
   return (
-    <div className="absolute inset-0 bg-[#15181c]">
+    // touch-action-none: 핀치가 페이지 확대로 새지 않게 한다
+    <div
+      ref={containerRef}
+      className="absolute inset-0 touch-none bg-[#15181c]"
+    >
       {/* 스트림은 유지한 채 캡처본을 위에 덮는다 — 재촬영 시 즉시 복귀 */}
+      {/* 확대는 video에만 적용한다. 프레임 가이드·오버레이는 그대로 둔다. */}
       <video
         ref={videoRef}
         autoPlay
         playsInline
         muted
-        className="size-full object-cover"
+        className="size-full origin-center object-cover will-change-transform"
+        style={{ transform: `scale(${zoom})` }}
       />
+      {/* 캡처본은 이미 줌 영역만 잘라 저장했으므로 배율을 다시 걸지 않는다 */}
       {capturedUrl ? (
         <img
           src={capturedUrl}
@@ -71,9 +90,27 @@ export function CameraPreview({
         )}
       </div>
 
-      <p className="absolute inset-x-6 top-[62%] text-center text-[13px] text-[#c6d2da]">
-        {t('signCapture.hint')}
-      </p>
+      {/* 배율 표시 — 눌러서 원래 배율로 되돌린다 */}
+      {isZoomed && !capturedUrl ? (
+        <button
+          type="button"
+          onClick={onResetZoom}
+          aria-label={t('signCapture.zoomReset')}
+          className="absolute top-[calc(env(safe-area-inset-top,0px)+0.75rem)] left-1/2 -translate-x-1/2 rounded-full bg-black/45 px-3 py-1 text-[13px] font-bold text-white"
+        >
+          {zoom.toFixed(1)}×
+        </button>
+      ) : null}
+
+      <div className="absolute inset-x-6 top-[62%] text-center text-[13px] text-[#c6d2da]">
+        <p>{t('signCapture.hint')}</p>
+        {/* 핀치 줌은 눈에 보이지 않는 조작이라 안내가 필요하다 */}
+        {capturedUrl || isZoomed ? null : (
+          <p className="mt-1 text-[12px] text-[#8b97a1]">
+            {t('signCapture.zoomHint')}
+          </p>
+        )}
+      </div>
     </div>
   )
 }

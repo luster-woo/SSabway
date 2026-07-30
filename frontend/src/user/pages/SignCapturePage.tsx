@@ -10,6 +10,7 @@ import {
   CAMERA_STATUS,
   useCameraStream,
 } from '@/user/features/sign-capture/hooks/useCameraStream'
+import { usePinchZoom } from '@/user/features/sign-capture/hooks/usePinchZoom'
 import { captureFrame } from '@/user/features/sign-capture/lib/captureFrame'
 
 /** 분석 API 연동 전 로딩 연출용 지연 */
@@ -38,10 +39,14 @@ export default function SignCapturePage() {
   const { status, errorType, stream, restart } = useCameraStream()
 
   const videoRef = useRef<HTMLVideoElement>(null)
+  const previewRef = useRef<HTMLDivElement>(null)
   const capturedBlobRef = useRef<Blob | null>(null)
   const [capturedUrl, setCapturedUrl] = useState<string | null>(null)
   const [isFlashing, setIsFlashing] = useState(false)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
+
+  // 촬영본을 보여주는 동안에는 확대해도 반영되지 않으므로 제스처를 끈다
+  const { zoom, resetZoom } = usePinchZoom(previewRef, capturedUrl === null)
 
   // 페이지를 떠날 때 object URL 정리
   useEffect(
@@ -66,7 +71,8 @@ export default function SignCapturePage() {
     setIsFlashing(true)
     window.setTimeout(() => setIsFlashing(false), 350)
     try {
-      setCaptured(await captureFrame(video))
+      // 화면에 보이는 만큼만 잘라 담기 위해 현재 배율을 함께 넘긴다
+      setCaptured(await captureFrame(video, zoom))
     } catch {
       showToast(t('signCapture.captureFailed'))
     }
@@ -104,7 +110,10 @@ export default function SignCapturePage() {
       <CameraPreview
         stream={stream}
         videoRef={videoRef}
+        containerRef={previewRef}
         capturedUrl={capturedUrl}
+        zoom={zoom}
+        onResetZoom={resetZoom}
       />
 
       {/* 뒤로가기 */}
