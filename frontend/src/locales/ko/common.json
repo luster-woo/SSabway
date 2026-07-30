@@ -13,7 +13,21 @@
     "deleteAccount": "회원탈퇴",
     "accountMenu": "계정 메뉴",
     "signedOut": "로그아웃 되었습니다",
-    "accountDeleted": "탈퇴 처리되었어요",
+    "withdraw": {
+      "title": "회원탈퇴",
+      "description": "탈퇴하시려면 현재 비밀번호를 입력해 주세요.",
+      "password": "현재 비밀번호",
+      "passwordPlaceholder": "비밀번호 입력",
+      "cancel": "취소",
+      "submit": "탈퇴하기",
+      "submitting": "처리 중",
+      "success": "탈퇴에 성공했습니다",
+      "confirm": "확인",
+      "error": {
+        "wrongPassword": "비밀번호가 틀렸습니다. 다시 입력해 주세요",
+        "failed": "탈퇴에 실패했어요 · 잠시 후 다시 시도해 주세요"
+      }
+    },
     "login": {
       "title": "로그인",
       "subtitle": "이메일과 비밀번호로 로그인하세요.",

@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
@@ -17,6 +18,7 @@ import {
   useToast,
 } from '@/shared/ui'
 import { AccountMenu } from '@/user/features/auth/AccountMenu'
+import { WithdrawDialog } from '@/user/features/auth/WithdrawDialog'
 import { LanguageSelector } from '@/user/features/start/LanguageSelector'
 import { LocationConsentCard } from '@/user/features/start/LocationConsentCard'
 import { LocationConsentStatus } from '@/user/features/start/LocationConsentStatus'
@@ -31,7 +33,9 @@ export default function StartPage() {
   const { language, changeLanguage } = useLanguage()
 
   const isLoggedIn = useAuthStore((s) => s.status.user === 'authenticated')
-  const clearAccessToken = useAuthStore((s) => s.clearAccessToken)
+
+  /** 회원 탈퇴 다이얼로그. 비밀번호 확인이 필요해 토스트가 아니라 모달로 처리한다. */
+  const [isWithdrawOpen, setIsWithdrawOpen] = useState(false)
 
   const consent = useLocationConsentStore((s) => s.consent)
   const setConsent = useLocationConsentStore((s) => s.setConsent)
@@ -70,12 +74,6 @@ export default function StartPage() {
     showToast(t('auth.signedOut'))
   }
 
-  const deleteAccount = () => {
-    // TODO: API 연동 시 탈퇴 확인 모달 + 요청 처리
-    clearAccessToken('user')
-    showToast(t('auth.accountDeleted'))
-  }
-
   const moveToLogin = () => {
     // TODO: 로그인 화면 연결
     void navigate('/login')
@@ -89,7 +87,7 @@ export default function StartPage() {
             isLoggedIn={isLoggedIn}
             onSignIn={moveToLogin}
             onSignOut={() => void signOut()}
-            onDeleteAccount={deleteAccount}
+            onDeleteAccount={() => setIsWithdrawOpen(true)}
           />
         </div>
       }
@@ -132,6 +130,10 @@ export default function StartPage() {
           />
         )}
       </section>
+
+      {isWithdrawOpen ? (
+        <WithdrawDialog onClose={() => setIsWithdrawOpen(false)} />
+      ) : null}
     </MobileScreen>
   )
 }

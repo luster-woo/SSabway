@@ -13,7 +13,21 @@
     "deleteAccount": "退会",
     "accountMenu": "アカウントメニュー",
     "signedOut": "ログアウトしました",
-    "accountDeleted": "退会処理しました",
+    "withdraw": {
+      "title": "退会",
+      "description": "退会するには現在のパスワードを入力してください。",
+      "password": "現在のパスワード",
+      "passwordPlaceholder": "パスワードを入力",
+      "cancel": "キャンセル",
+      "submit": "退会する",
+      "submitting": "処理中",
+      "success": "退会が完了しました",
+      "confirm": "OK",
+      "error": {
+        "wrongPassword": "パスワードが正しくありません。もう一度入力してください",
+        "failed": "退会に失敗しました · しばらくしてからお試しください"
+      }
+    },
     "login": {
       "title": "ログイン",
       "subtitle": "メールとパスワードでログインしてください。",
