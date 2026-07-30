@@ -43,6 +43,10 @@ spring:
           timeout: 5000
           writetimeout: 5000
 
+jwt:
+  access-token-expiration: 1800000      # 30분
+  refresh-token-expiration: 1209600000  # 14일
+
 logging:
   level:
     org.hibernate.SQL: debug
