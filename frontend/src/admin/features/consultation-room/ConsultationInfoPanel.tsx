@@ -4,6 +4,13 @@ import { AdminButton } from '@/admin/ui/AdminButton'
 
 export interface ConsultationInfoPanelProps {
   detail: ConsultationDetail
+  /**
+   * 이번 통화 중에 블랙리스트로 등록했는지.
+   *
+   * 블랙리스트 사용자는 화상 연결 자체가 거부되므로 상담방에 들어온 시점에는
+   * 항상 false 다. 등록 직후 버튼을 잠가 재등록을 막는 용도다.
+   */
+  isBlacklisted?: boolean
   isBanPending?: boolean
   onViewLocation: () => void
   onRegisterBlacklist: () => void
@@ -27,6 +34,7 @@ function InfoRow({ label, value }: InfoRowProps) {
 /** 우측 패널 — 상담 정보와 역무원 조작 버튼 */
 export function ConsultationInfoPanel({
   detail,
+  isBlacklisted = false,
   isBanPending = false,
   onViewLocation,
   onRegisterBlacklist,
@@ -61,7 +69,7 @@ export function ConsultationInfoPanel({
           사용자가 보낸 표지판 사진 위치 · 지도 표시
         </p>
 
-        {detail.isBlack ? (
+        {isBlacklisted ? (
           <AdminButton variant="secondary" size="lg" fullWidth disabled>
             차단됨
           </AdminButton>

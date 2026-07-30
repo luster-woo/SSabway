@@ -1,9 +1,9 @@
 import {
+  useCallback,
   useEffect,
   useRef,
   useState,
   type PointerEvent,
-  type WheelEvent,
 } from 'react'
 
 import { cn } from '@/shared/lib/cn'
@@ -76,6 +76,9 @@ export function UserLocationModal({
   const [map, setMap] = useState<MapState | null>(null)
   const [isDragging, setIsDragging] = useState(false)
 
+  /** 휠 리스너를 직접 붙일 도면 영역 */
+  const stageRef = useRef<HTMLDivElement | null>(null)
+
   /** 드래그 시작 지점. 화면 픽셀과 도면 좌표를 함께 기억한다. */
   const dragOrigin = useRef<{
     clientX: number
@@ -86,23 +89,29 @@ export function UserLocationModal({
     unitPerPixel: number
   } | null>(null)
 
+  /**
+   * 경로의 시작 지점. 경로가 빈 배열일 수 있으므로 undefined 를 허용한다.
+   * route?.[0].view 로 쓰면 route 가 [] 일 때 undefined.view 접근으로 던진다.
+   */
+  const startStep = route?.[0]
+
   const activeView =
     STATION_MAP_VIEWS.find((view) => view.key === activeViewKey) ??
-    STATION_MAP_VIEWS.find((view) => view.key === route?.[0].view) ??
+    STATION_MAP_VIEWS.find((view) => view.key === startStep?.view) ??
     STATION_MAP_VIEWS[0]
 
   // 경로를 받아오면 시작 지점이 있는 층으로 맞춘다.
   useEffect(() => {
-    if (!route || activeViewKey !== null) return
+    if (!startStep || activeViewKey !== null) return
 
     const startView = STATION_MAP_VIEWS.find(
-      (view) => view.key === route[0].view,
+      (view) => view.key === startStep.view,
     )
     if (startView) {
       setActiveViewKey(startView.key)
       setMap({ zoom: MIN_ZOOM, cx: startView.cx, cy: startView.cy })
     }
-  }, [route, activeViewKey])
+  }, [startStep, activeViewKey])
 
   const current = map ?? {
     zoom: MIN_ZOOM,
@@ -116,15 +125,66 @@ export function UserLocationModal({
     setMap({ zoom: MIN_ZOOM, cx: view.cx, cy: view.cy })
   }
 
-  const changeZoom = (delta: number) => {
-    setMap({ ...current, zoom: clampZoom(current.zoom + delta) })
-  }
+  /**
+   * 중심을 도면 안으로 가둔 뒤 상태에 넣는다.
+   *
+   * 렌더 시점에만 가두면 상태에는 범위 밖 값이 그대로 쌓인다. 경계 밖으로 계속
+   * 끌었다가 반대로 끌면 그 초과분만큼 화면이 안 움직이는 데드존이 생긴다.
+   */
+  const clampState = useCallback(
+    (state: MapState): MapState => {
+      const nextHalf = activeView.half / state.zoom
+      return {
+        zoom: state.zoom,
+        cx: clampCenter(state.cx, nextHalf),
+        cy: clampCenter(state.cy, nextHalf),
+      }
+    },
+    [activeView.half],
+  )
 
-  /** 휠 위로 확대, 아래로 축소 */
-  const zoomByWheel = (event: WheelEvent<HTMLDivElement>) => {
-    event.preventDefault()
-    changeZoom(event.deltaY < 0 ? ZOOM_STEP : -ZOOM_STEP)
-  }
+  /**
+   * 배율을 한 단계 움직인다.
+   *
+   * 렌더 스코프의 값을 읽지 않고 업데이터 함수를 쓴다. 한 프레임에 휠 이벤트가
+   * 여러 번 들어오면 모두 같은 값에서 계산되어 한 단계만 적용되기 때문이다.
+   */
+  const changeZoom = useCallback(
+    (delta: number) => {
+      setMap((prev) => {
+        const base = prev ?? {
+          zoom: MIN_ZOOM,
+          cx: activeView.cx,
+          cy: activeView.cy,
+        }
+        return clampState({ ...base, zoom: clampZoom(base.zoom + delta) })
+      })
+    },
+    [activeView.cx, activeView.cy, clampState],
+  )
+
+  /**
+   * 휠 확대. 리스너를 직접 등록한다.
+   *
+   * React 는 wheel 을 루트에 passive 리스너로 붙이기 때문에 onWheel 핸들러의
+   * preventDefault() 가 무시된다. 그러면 확대와 동시에 모달 본문
+   * (max-h + overflow-y-auto)이 함께 스크롤된다.
+   */
+  useEffect(() => {
+    const stage = stageRef.current
+    if (!stage) return
+
+    const zoomByWheel = (event: WheelEvent) => {
+      event.preventDefault()
+      changeZoom(event.deltaY < 0 ? ZOOM_STEP : -ZOOM_STEP)
+    }
+
+    stage.addEventListener('wheel', zoomByWheel, { passive: false })
+    return () => {
+      stage.removeEventListener('wheel', zoomByWheel)
+    }
+    // route 가 도착해 도면이 마운트된 뒤에 리스너를 붙여야 한다.
+  }, [changeZoom, route])
 
   /** 현재 층에 있는 첫 경로 지점으로 화면을 옮긴다. */
   const moveToRoute = () => {
@@ -133,11 +193,13 @@ export function UserLocationModal({
     for (const step of route) {
       const point = toPointOnFloor(step, activeView.floor)
       if (point) {
-        setMap({
-          zoom: Math.max(current.zoom, 2),
-          cx: point.x,
-          cy: point.y,
-        })
+        setMap((prev) =>
+          clampState({
+            zoom: Math.max(prev?.zoom ?? MIN_ZOOM, 2),
+            cx: point.x,
+            cy: point.y,
+          }),
+        )
         return
       }
     }
@@ -164,11 +226,13 @@ export function UserLocationModal({
     if (!origin) return
 
     // 끄는 방향과 반대로 중심이 움직여야 지도가 손끝을 따라온다.
-    setMap({
-      zoom: current.zoom,
-      cx: origin.cx - (event.clientX - origin.clientX) * origin.unitPerPixel,
-      cy: origin.cy - (event.clientY - origin.clientY) * origin.unitPerPixel,
-    })
+    setMap((prev) =>
+      clampState({
+        zoom: prev?.zoom ?? MIN_ZOOM,
+        cx: origin.cx - (event.clientX - origin.clientX) * origin.unitPerPixel,
+        cy: origin.cy - (event.clientY - origin.clientY) * origin.unitPerPixel,
+      }),
+    )
   }
 
   const endDrag = (event: PointerEvent<HTMLDivElement>) => {
@@ -216,9 +280,12 @@ export function UserLocationModal({
             ))}
           </div>
 
-          {/* 휠 확대와 드래그 이동을 위해 wrapper 에서 포인터 이벤트를 받는다. */}
+          {/*
+            드래그 이동을 위해 wrapper 에서 포인터 이벤트를 받는다.
+            휠은 passive 문제로 위 useEffect 에서 직접 등록한다.
+          */}
           <div
-            onWheel={zoomByWheel}
+            ref={stageRef}
             onPointerDown={startDrag}
             onPointerMove={moveDrag}
             onPointerUp={endDrag}
