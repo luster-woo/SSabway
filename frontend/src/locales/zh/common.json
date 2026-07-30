@@ -60,6 +60,7 @@
       "signIn": "登录",
       "error": {
         "invalidEmail": "邮箱格式不正确",
+        "emailNotFound": "该邮箱尚未注册",
         "duplicateEmail": "该邮箱已被使用",
         "tooManyRequests": "发送次数已超限 · 请稍后再试",
         "sendFailed": "验证邮件发送失败 · 请稍后再试",

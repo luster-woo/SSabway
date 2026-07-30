@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
+import { endpoints } from '@/shared/api/endpoints'
 import { useLanguage } from '@/shared/lib/useLanguage'
 import { Button, MobileScreen, useToast } from '@/shared/ui'
 import { AuthTextField } from '@/user/features/auth/AuthTextField'
@@ -58,7 +59,10 @@ export default function PasswordResetPage() {
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
 
-  const verification = useEmailVerification('auth.passwordReset')
+  // 발송만 재설정 전용 API. 회원가입용은 가입된 이메일에 409 를 줘서 쓸 수 없다.
+  const verification = useEmailVerification('auth.passwordReset', {
+    emailRequestPath: endpoints.users.passwordEmailRequest,
+  })
   const {
     reset,
     isPending: isResetting,
