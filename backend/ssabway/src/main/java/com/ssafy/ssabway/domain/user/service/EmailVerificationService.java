@@ -84,7 +84,7 @@ public class EmailVerificationService {
 
         // SEND_LIMIT을 넘길 경우 429 발생
         if (count > SEND_LIMIT) {
-            throw new BusinessException(ErrorCode.TOO_MANY_REQUESTS);
+            throw new BusinessException(ErrorCode.EMAIL_SEND_LIMIT_EXCEEDED);
         }
     }
 
@@ -137,7 +137,7 @@ public class EmailVerificationService {
 
         if (count > TRY_LIMIT) {
             redisTemplate.delete(codeKey);
-            throw new BusinessException(ErrorCode.TOO_MANY_REQUESTS);
+            throw new BusinessException(ErrorCode.VERIFICATION_ATTEMPT_EXCEEDED);
         }
     }
 
