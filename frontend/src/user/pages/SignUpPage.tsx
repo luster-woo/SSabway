@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import { useLanguage } from '@/shared/lib/useLanguage'
 import { Button, MobileScreen, useToast } from '@/shared/ui'
 import { AuthTextField } from '@/user/features/auth/AuthTextField'
+import { FieldError } from '@/user/features/auth/FieldError'
 import { InlineActionField } from '@/user/features/auth/InlineActionField'
 import { formatDuration } from '@/user/features/auth/lib/formatDuration'
 import { NoticeBanner } from '@/user/features/auth/NoticeBanner'
@@ -37,15 +38,6 @@ function BackIcon() {
     >
       <path d="M15 5l-7 7 7 7" />
     </svg>
-  )
-}
-
-/** 문제가 생긴 입력칸 바로 아래에 붙는 실패 문구 */
-function FieldError({ children }: { children: string }) {
-  return (
-    <p role="alert" className="text-danger -mt-1 text-[12.5px]">
-      {children}
-    </p>
   )
 }
 
