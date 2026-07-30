@@ -11,7 +11,7 @@ import java.time.Duration;
 @RequiredArgsConstructor
 public class RefreshTokenCookieProvider {
 
-    public static final String COOKIE_NAME = "refresToken";
+    public static final String COOKIE_NAME = "refreshToken";
     private static final String COOKIE_PATH = "/api/v1/auth";
     private final JwtProvider jwtProvider;
 
