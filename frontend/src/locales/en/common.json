@@ -343,6 +343,10 @@
     "confirm": "Confirm",
     "close": "Close",
     "goHome": "Back to start",
-    "notReady": "This screen is not ready yet"
+    "notReady": "This screen is not ready yet",
+    "notFound": {
+      "title": "Page not found",
+      "description": "The address is wrong or the page was removed."
+    }
   }
 }

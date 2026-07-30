@@ -343,6 +343,10 @@
     "confirm": "確認",
     "close": "閉じる",
     "goHome": "最初に戻る",
-    "notReady": "準備中の画面です"
+    "notReady": "準備中の画面です",
+    "notFound": {
+      "title": "ページが見つかりません",
+      "description": "アドレスが間違っているか、削除された画面です。"
+    }
   }
 }

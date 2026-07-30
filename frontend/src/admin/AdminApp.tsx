@@ -1,10 +1,11 @@
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 
 import { ToastProvider } from '@/shared/ui'
 import { RequireAdminAuth } from '@/admin/features/auth/RequireAdminAuth'
 import AdminConsultationPage from '@/admin/pages/AdminConsultationPage'
 import AdminLoginPage from '@/admin/pages/AdminLoginPage'
 import AdminMainPage from '@/admin/pages/AdminMainPage'
+import AdminNotFoundPage from '@/admin/pages/AdminNotFoundPage'
 
 /** admin 앱의 라우트 루트. 진입점은 로그인 화면이다. */
 export default function AdminApp() {
@@ -28,7 +29,7 @@ export default function AdminApp() {
             </RequireAdminAuth>
           }
         />
-        <Route path="*" element={<Navigate to="/admin" replace />} />
+        <Route path="*" element={<AdminNotFoundPage />} />
       </Routes>
     </ToastProvider>
   )
