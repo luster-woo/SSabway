@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 public interface ConsultationRepository extends JpaRepository<Consultation, Long> {
 
@@ -23,5 +24,22 @@ public interface ConsultationRepository extends JpaRepository<Consultation, Long
     int updateRecordS3(
         @Param("consultationId") Long consultationId,
         @Param("s3ObjectKey") String s3ObjectKey
+    );
+
+    // 진행 중인 상담만 종료 상태로 변경해 중복 종료를 방지
+    @Transactional
+    @Modifying(
+        clearAutomatically = true,
+        flushAutomatically = true
+    )
+    @Query("""
+        UPDATE Consultation c
+        SET c.status = 'ENDED',
+            c.endedAt = CURRENT_TIMESTAMP
+        WHERE c.id = :consultationId
+          AND c.status = 'IN_PROGRESS'
+    """)
+    int endConsultation(
+        @Param("consultationId") Long consultationId
     );
 }
