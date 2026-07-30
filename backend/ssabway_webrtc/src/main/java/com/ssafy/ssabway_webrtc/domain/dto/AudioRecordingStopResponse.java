@@ -6,7 +6,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class AudioRecordingStopResponse {
-    private String recordingid;
+    private String recordingId;
     private String sessionId;
     private String status;
 }
