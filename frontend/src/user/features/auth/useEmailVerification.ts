@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import { userApi } from '@/shared/api/client'
+import { endpoints } from '@/shared/api/endpoints'
+import type { ApiResponse } from '@/shared/types/api'
 import type { Language } from '@/shared/types/user'
-import {
-  MockHttpError,
-  toErrorKey,
-} from '@/user/features/auth/lib/mockHttpError'
+import { toErrorKey } from '@/user/features/auth/lib/mockHttpError'
 
 /** 명세가 요구하는 언어 코드. */
 export type LangCode = Uppercase<Language>
@@ -99,51 +99,19 @@ function buildErrorKeys(prefix: string) {
  */
 const VERIFIED_TTL_SEC = 30 * 60
 
-/* ------------------------------------------------------------------ *
- * 목 처리. BE 연동 시 이 블록만 지우고 아래 TODO 의 호출로 교체한다.
- * ------------------------------------------------------------------ */
-
-/** 명세 응답의 timeLimit 기본값(초). 실제로는 서버가 내려준 값을 쓴다. */
-const MOCK_TIME_LIMIT_SEC = 300
-const MOCK_LATENCY_MS = 600
-/**
- * 이 코드만 통과시킨다. 명세 예시값(영문+숫자 7자리)을 그대로 썼다.
- * 비교는 대소문자를 구분하지 않는다 (BE 확인).
- */
-const MOCK_CODE = 'A7KM3PQ'
-
-function delay(ms: number): Promise<void> {
-  return new Promise((resolve) => {
-    window.setTimeout(resolve, ms)
-  })
-}
-
 /** 인증 메일 발송. 응답의 timeLimit(초)을 돌려준다. */
 async function requestEmailCode(body: EmailRequestBody): Promise<number> {
-  // TODO: BE 연동 시 아래 목 처리를 실제 호출로 교체.
-  //   const res = await userApi.post<ApiResponse<{ timeLimit: number }>>(
-  //     endpoints.users.emailRequest, body,
-  //   )
-  //   return res.data.data.timeLimit
-  await delay(MOCK_LATENCY_MS)
-
-  if (!body.email.includes('@')) throw new MockHttpError(400)
-
-  return MOCK_TIME_LIMIT_SEC
+  const res = await userApi.post<ApiResponse<{ timeLimit: number }>>(
+    endpoints.users.emailRequest,
+    body,
+  )
+  return res.data.data.timeLimit
 }
 
 /** 인증번호 검증. 성공하면 아무것도 돌려주지 않는다. */
 async function verifyEmailCode(body: EmailVerifyBody): Promise<void> {
-  // TODO: BE 연동 시 실제 호출로 교체.
-  //   await userApi.post(endpoints.users.emailVerification, body)
-  await delay(MOCK_LATENCY_MS)
-
-  const isValid =
-    normalizeCode(body.code).toUpperCase() === MOCK_CODE.toUpperCase()
-  if (!isValid) throw new MockHttpError(400)
+  await userApi.post(endpoints.users.emailVerification, body)
 }
-
-/* ------------------------------------------------------------------ */
 
 export interface UseEmailVerificationResult {
   step: VerifyStep
