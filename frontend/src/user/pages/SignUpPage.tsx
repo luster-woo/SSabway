@@ -40,6 +40,15 @@ function BackIcon() {
   )
 }
 
+/** 문제가 생긴 입력칸 바로 아래에 붙는 실패 문구 */
+function FieldError({ children }: { children: string }) {
+  return (
+    <p role="alert" className="text-danger -mt-1 text-[12.5px]">
+      {children}
+    </p>
+  )
+}
+
 /**
  * 7-3. 회원가입 — /signup
  *
@@ -105,12 +114,21 @@ export default function SignUpPage() {
     !isSigningUp
 
   /**
-   * 실패 문구를 한 자리에서 보여준다.
-   * 불일치는 서버에 보내기 전에 잡는 것이라 가장 앞에 둔다.
+   * 실패 문구는 원인이 된 입력칸 바로 아래에 붙인다.
+   * 화면 아래 한 곳에 모으면 어느 칸을 고쳐야 하는지 알기 어렵다.
+   *
+   * 인증 훅의 errorKey 는 발송 실패와 검증 실패를 함께 쓴다.
+   * 발송 실패는 인증코드 칸이 열리기 전이므로(isCodeSent === false)
+   * 이 값으로 두 실패를 갈라 각각 이메일·인증코드 칸에 붙인다.
    */
-  const errorKey = isMismatched
+  const emailErrorKey =
+    availability.errorKey ?? (isCodeSent ? null : verification.errorKey)
+  const codeErrorKey = isCodeSent ? verification.errorKey : null
+
+  /** 어느 칸이라고 짚을 수 없는 실패. 불일치는 서버에 보내기 전에 잡는다. */
+  const formErrorKey = isMismatched
     ? 'auth.signUp.error.passwordMismatch'
-    : (availability.errorKey ?? verification.errorKey ?? signUpErrorKey)
+    : signUpErrorKey
 
   /**
    * 이메일을 고치면 중복 확인 결과와 실패 문구를 함께 지운다.
@@ -218,6 +236,8 @@ export default function SignUpPage() {
           actionDisabled={!canCheckEmail}
         />
 
+        {emailErrorKey ? <FieldError>{t(emailErrorKey)}</FieldError> : null}
+
         {/* 확인은 통과했지만 발송이 실패한 경우(예: 429)에만 보인다. */}
         {isAvailable && !verification.hasRequested ? (
           <NoticeBanner>{t('auth.signUp.emailAvailable')}</NoticeBanner>
@@ -275,6 +295,8 @@ export default function SignUpPage() {
               actionDisabled={!canVerifyCode}
             />
 
+            {codeErrorKey ? <FieldError>{t(codeErrorKey)}</FieldError> : null}
+
             <p className="text-danger text-[12.5px] font-bold">
               {t('auth.signUp.remainingTime', {
                 time: formatDuration(verification.remainingSec),
@@ -306,11 +328,7 @@ export default function SignUpPage() {
           />
         </fieldset>
 
-        {errorKey ? (
-          <p role="alert" className="text-danger text-[12.5px]">
-            {t(errorKey)}
-          </p>
-        ) : null}
+        {formErrorKey ? <FieldError>{t(formErrorKey)}</FieldError> : null}
 
         <Button
           type="submit"
