@@ -42,7 +42,8 @@ export default function RoutePage() {
 
   const { data, isPending, isError, refetch } = useRoutePaths(params)
   const paths = data ?? []
-  const badges = useMemo(() => toRouteBadges(paths), [paths])
+  // 의존성은 data로 둔다. paths는 매 렌더 새 배열이라 메모이제이션이 무효화된다.
+  const badges = useMemo(() => toRouteBadges(data ?? []), [data])
 
   const [selectedIndex, setSelectedIndex] = useState(0)
 
