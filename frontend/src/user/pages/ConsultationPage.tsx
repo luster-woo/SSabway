@@ -91,8 +91,13 @@ export default function ConsultationPage() {
     stop()
     setIsEndDialogOpen(false)
     showToast(t('consultation.video.ended'))
-    // TODO: 실제로는 경로 안내 중이었으면 도착 화면으로 돌아가야 한다.
-    void navigate('/help', { replace: true })
+    /*
+      경로 상세 안내로 돌아간다.
+      진입 흐름이 경로 상세 → 도움 요청 → 챗봇 → 화상이므로, 상담이 끝나면
+      사용자가 원래 받고 있던 길 안내로 복귀해야 한다. 챗봇으로 되돌리면
+      안내를 이어가기 위해 한 단계를 더 눌러야 한다.
+    */
+    void navigate('/guide', { replace: true })
   }
 
   return (
