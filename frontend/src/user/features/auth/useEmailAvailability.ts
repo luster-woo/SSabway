@@ -1,9 +1,9 @@
 import { useCallback, useState } from 'react'
 
-import {
-  MockHttpError,
-  toErrorKey,
-} from '@/user/features/auth/lib/mockHttpError'
+import { userApi } from '@/shared/api/client'
+import { endpoints } from '@/shared/api/endpoints'
+import type { ApiResponse } from '@/shared/types/api'
+import { toErrorKey } from '@/user/features/auth/lib/mockHttpError'
 
 /** 중복 확인 결과. 아직 확인하지 않았으면 UNCHECKED. */
 export const EMAIL_CHECK = {
@@ -20,28 +20,12 @@ const CHECK_ERROR_KEY: Record<number, string> = {
 
 const FALLBACK_ERROR_KEY = 'auth.signUp.error.checkFailed'
 
-const MOCK_LATENCY_MS = 500
-/** 이 이메일들만 이미 가입된 것으로 취급한다. */
-const MOCK_TAKEN_EMAILS = ['user1@mail.com', 'test@mail.com']
-
-function delay(ms: number): Promise<void> {
-  return new Promise((resolve) => {
-    window.setTimeout(resolve, ms)
-  })
-}
-
 /** 중복이면 true. 명세의 isDuplicate 를 그대로 돌려준다. */
 async function requestEmailExists(email: string): Promise<boolean> {
-  // TODO: BE 연동 시 실제 호출로 교체. (이 엔드포인트는 개발완료 상태)
-  //   const res = await userApi.get<ApiResponse<{ isDuplicate: boolean }>>(
-  //     endpoints.users.exists(email),
-  //   )
-  //   return res.data.data.isDuplicate
-  await delay(MOCK_LATENCY_MS)
-
-  if (!email.includes('@')) throw new MockHttpError(400)
-
-  return MOCK_TAKEN_EMAILS.includes(email.toLowerCase())
+  const res = await userApi.get<ApiResponse<{ isDuplicate: boolean }>>(
+    endpoints.users.exists(email),
+  )
+  return res.data.data.isDuplicate
 }
 
 export interface UseEmailAvailabilityResult {

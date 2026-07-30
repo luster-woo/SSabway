@@ -1,10 +1,9 @@
 import { useCallback, useState } from 'react'
 
+import { userApi } from '@/shared/api/client'
+import { endpoints } from '@/shared/api/endpoints'
 import type { Language } from '@/shared/types/user'
-import {
-  MockHttpError,
-  toErrorKey,
-} from '@/user/features/auth/lib/mockHttpError'
+import { toErrorKey } from '@/user/features/auth/lib/mockHttpError'
 
 export interface SignUpBody {
   email: string
@@ -27,20 +26,8 @@ const SIGNUP_ERROR_KEY: Record<number, string> = {
 
 const FALLBACK_ERROR_KEY = 'auth.signUp.error.signUpFailed'
 
-const MOCK_LATENCY_MS = 700
-
-function delay(ms: number): Promise<void> {
-  return new Promise((resolve) => {
-    window.setTimeout(resolve, ms)
-  })
-}
-
 async function requestSignUp(body: SignUpBody): Promise<void> {
-  // TODO: BE 연동 시 실제 호출로 교체.
-  //   await userApi.post(endpoints.users.signup, body)
-  await delay(MOCK_LATENCY_MS)
-
-  if (body.password.length < 8) throw new MockHttpError(400)
+  await userApi.post(endpoints.users.signup, body)
 }
 
 export interface UseSignUpResult {
