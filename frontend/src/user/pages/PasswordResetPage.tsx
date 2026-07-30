@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import { useLanguage } from '@/shared/lib/useLanguage'
 import { Button, MobileScreen, useToast } from '@/shared/ui'
 import { AuthTextField } from '@/user/features/auth/AuthTextField'
+import { FieldError } from '@/user/features/auth/FieldError'
 import { InlineActionField } from '@/user/features/auth/InlineActionField'
 import { formatDuration } from '@/user/features/auth/lib/formatDuration'
 import { NoticeBanner } from '@/user/features/auth/NoticeBanner'
@@ -89,12 +90,20 @@ export default function PasswordResetPage() {
     !isResetting
 
   /**
-   * 실패 문구를 한 자리에서 보여준다.
-   * 불일치는 서버에 보내기 전에 잡는 것이라 가장 앞에 둔다.
+   * 실패 문구는 원인이 된 입력칸 바로 아래에 붙인다.
+   * 화면 아래 한 곳에 모으면 어느 칸을 고쳐야 하는지 알기 어렵다.
+   *
+   * 인증 훅의 errorKey 는 발송 실패와 검증 실패를 함께 쓴다.
+   * 발송 실패는 인증코드 칸이 열리기 전이므로(isCodeSent === false)
+   * 이 값으로 두 실패를 갈라 각각 이메일·인증코드 칸에 붙인다.
    */
-  const errorKey = isMismatched
+  const emailErrorKey = isCodeSent ? null : verification.errorKey
+  const codeErrorKey = isCodeSent ? verification.errorKey : null
+
+  /** 어느 칸이라고 짚을 수 없는 실패. 불일치는 서버에 보내기 전에 잡는다. */
+  const formErrorKey = isMismatched
     ? 'auth.passwordReset.error.passwordMismatch'
-    : (verification.errorKey ?? resetErrorKey)
+    : resetErrorKey
 
   const sendCode = () => {
     void verification.sendCode({
@@ -167,6 +176,8 @@ export default function PasswordResetPage() {
           actionDisabled={!canSendCode || isEmailLocked}
         />
 
+        {emailErrorKey ? <FieldError>{t(emailErrorKey)}</FieldError> : null}
+
         {isCodeSent ? (
           <NoticeBanner>{t('auth.passwordReset.codeSent')}</NoticeBanner>
         ) : null}
@@ -207,6 +218,8 @@ export default function PasswordResetPage() {
               actionDisabled={!canVerifyCode}
             />
 
+            {codeErrorKey ? <FieldError>{t(codeErrorKey)}</FieldError> : null}
+
             <p className="text-danger text-[12.5px] font-bold">
               {t('auth.passwordReset.remainingTime', {
                 time: formatDuration(verification.remainingSec),
@@ -238,11 +251,7 @@ export default function PasswordResetPage() {
           />
         </fieldset>
 
-        {errorKey ? (
-          <p role="alert" className="text-danger text-[12.5px]">
-            {t(errorKey)}
-          </p>
-        ) : null}
+        {formErrorKey ? <FieldError>{t(formErrorKey)}</FieldError> : null}
 
         <Button
           type="submit"

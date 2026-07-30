@@ -25,6 +25,15 @@ const FALLBACK_ERROR_KEY = 'auth.passwordReset.error.resetFailed'
 
 const MOCK_LATENCY_MS = 600
 
+/**
+ * 목이 통과시킬 최소 길이. 회원가입 목과 같은 값을 쓴다.
+ *
+ * 프론트에서 길이를 검사하지 않는 이유는 이메일 형식을 검사하지 않는 것과 같다.
+ * 판정을 서버 한 곳에만 두고, 명세에 비밀번호 규칙이 확정되지 않았다.
+ * 8 은 화면 안내 문구("8자 이상 입력") 기준이며, BE 규칙이 정해지면 그것을 따른다.
+ */
+const MOCK_MIN_PASSWORD_LENGTH = 8
+
 function delay(ms: number): Promise<void> {
   return new Promise((resolve) => {
     window.setTimeout(resolve, ms)
@@ -40,7 +49,9 @@ async function requestPasswordReset(body: PasswordResetBody): Promise<void> {
   //   })
   await delay(MOCK_LATENCY_MS)
 
-  if (body.newPassword === '') throw new MockHttpError(400)
+  if (body.newPassword.length < MOCK_MIN_PASSWORD_LENGTH) {
+    throw new MockHttpError(400)
+  }
 }
 
 export interface UsePasswordResetResult {
