@@ -26,6 +26,8 @@ public enum ErrorCode {
     VERIFICATION_CODE_MISTMATCH(HttpStatus.BAD_REQUEST, "인증 코드가 일치하지 않습니다."),
     VERIFICATION_CODE_EXPIRED(HttpStatus.BAD_REQUEST, "인증 코드가 만료되었습니다. 다시 요청해주세요."),
     EMAIL_NOT_VERIFIED(HttpStatus.BAD_REQUEST, "이메일 인증이 필요합니다."),
+    LOGIN_FAILED(HttpStatus.UNAUTHORIZED, "이메일 또는 비밀번호가 올바르지 않습니다."),
+    SOCIAL_LOGIN_REQUIRED(HttpStatus.UNAUTHORIZED, "소셜 계정으로 가입된 이메일입니다. 소셜 로그인을 이용해주세요."),
 
     // 상담
     CONSULTATION_DUPLICATED(HttpStatus.CONFLICT, "중복된 상담 요청입니다."); // 409

@@ -1,11 +1,17 @@
 package com.ssafy.ssabway.domain.user.service;
 
+import com.ssafy.ssabway.domain.auth.service.RefreshTokenService;
+import com.ssafy.ssabway.domain.user.dto.request.LoginRequest;
 import com.ssafy.ssabway.domain.user.dto.request.SignUpRequest;
 import com.ssafy.ssabway.domain.user.dto.response.EmailDuplicateResponse;
+import com.ssafy.ssabway.domain.user.dto.response.LoginResult;
+import com.ssafy.ssabway.domain.user.entity.Provider;
 import com.ssafy.ssabway.domain.user.entity.User;
 import com.ssafy.ssabway.domain.user.repository.UserRepository;
 import com.ssafy.ssabway.global.exception.BusinessException;
 import com.ssafy.ssabway.global.exception.ErrorCode;
+import com.ssafy.ssabway.global.jwt.JwtProvider;
+import com.ssafy.ssabway.global.jwt.TokenType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,6 +25,8 @@ public class UserService {
     private final UserRepository userRepository;
     private final EmailVerificationService emailVerificationService;
     private final PasswordEncoder passwordEncoder;
+    private final JwtProvider jwtProvider;
+    private final RefreshTokenService refreshTokenService;
 
     public EmailDuplicateResponse checkEmailDuplicate (String email) {
         boolean isDuplicate = userRepository.existsByEmail(email);
@@ -41,5 +49,28 @@ public class UserService {
         userRepository.save(User.createLocal(email, passwordHash, request.language()));
 
         emailVerificationService.clearVerified(email);
+    }
+
+    public LoginResult login(LoginRequest request) {
+        // 이메일 정규화
+        String email = request.email().trim().toLowerCase();
+
+        User user = userRepository.findByEmailAndDeletedAtIsNull(email)
+                .orElseThrow(() -> new BusinessException(ErrorCode.LOGIN_FAILED));
+
+        // 소셜 가입자가 일반 로그인으로 시도하는 경우 차단
+        if (user.getProvider() != Provider.LOCAL) throw new BusinessException(ErrorCode.SOCIAL_LOGIN_REQUIRED);
+
+        // 혹시 모를 데이터 이상 방지
+        if (user.getPasswordHash() == null) throw new BusinessException(ErrorCode.LOGIN_FAILED);
+
+        if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) throw new BusinessException(ErrorCode.LOGIN_FAILED);
+
+        String accessToken = jwtProvider.createAccessToken(user.getId(), TokenType.USER);
+        String refreshToken = jwtProvider.createRefreshToken(user.getId());
+
+        refreshTokenService.save(user.getId(), refreshToken, jwtProvider.getRefreshTokenExpiration());
+
+        return new LoginResult(accessToken, refreshToken, user.getLanguage());
     }
 }
