@@ -25,11 +25,10 @@ export default defineConfig({
       workbox: {
         navigateFallback: 'index.html',
         // ① admin 경로는 SW 네비게이션 폴백에서 제외
-        navigateFallbackDenylist: [/^\/admin/, /^\/agent/],
+        navigateFallbackDenylist: [/^\/admin/],
         // ② admin 청크와 런타임 설정 파일은 precache 대상에서 제외
         globIgnores: [
           '**/assets/admin-*',
-          '**/assets/agent-*',
           '**/config.js',
           '**/mediapipe/**',
           '**/models/**',
@@ -65,12 +64,11 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        // ④ admin, agent 코드를 각각 별도 청크로 분리
+        // ④ admin 코드를 별도 청크로 분리
         //    위 globIgnores 와 짝을 이룸
         manualChunks(id) {
           const p = id.replace(/\\/g, '/')
           if (p.includes('/src/admin/')) return 'admin'
-          if (p.includes('/src/agent/')) return 'agent'
         },
       },
     },
