@@ -1,6 +1,7 @@
 package com.ssafy.ssabway.domain.user.service;
 
 import com.ssafy.ssabway.domain.user.dto.request.PasswordResetSendRequest;
+import com.ssafy.ssabway.domain.user.dto.request.PasswordResetVerifyRequest;
 import com.ssafy.ssabway.domain.user.dto.response.PasswordResetSendResponse;
 import com.ssafy.ssabway.domain.user.entity.Provider;
 import com.ssafy.ssabway.domain.user.entity.User;
@@ -88,5 +89,50 @@ public class PasswordResetService {
             sb.append(CODE_CHARS.charAt(secureRandom.nextInt(CODE_CHARS.length())));
         }
         return sb.toString();
+    }
+
+    public void confirmCode(PasswordResetVerifyRequest request) {
+        // 이메일 정규화
+        String email = request.email().trim().toLowerCase();
+
+        // 코드는 대문자만 사용하므로 toUpperCase 한 번으로 비교 가능.
+        // trim은 메일에서 복사할 때 붙는 공백 제거용
+        String code = request.code().trim().toUpperCase();
+
+        String storedCode = redisTemplate.opsForValue().get(CODE_KEY_PREFIX + email);
+
+        // 코드 만료 검사를 시도 횟수 증가보다 먼저 한다.
+        // 코드가 없으면 대입할 대상이 없으므로 횟수를 소진시키지 않는다
+        if (storedCode == null) {
+            throw new BusinessException(ErrorCode.VERIFICATION_CODE_EXPIRED);
+        }
+
+        Long tryCount = redisTemplate.opsForValue().increment(TRY_KEY_PREFIX + email);
+
+        if (tryCount == 1L) {
+            redisTemplate.expire(TRY_KEY_PREFIX + email, Duration.ofSeconds(CODE_TTL_SECONDS));
+        }
+
+        // 시도 초과 시 코드를 삭제해 재발송을 강제한다. 무차별 대입 차단.
+        if (tryCount > TRY_LIMIT) {
+            redisTemplate.delete(CODE_KEY_PREFIX + email);
+            throw new BusinessException(ErrorCode.VERIFICATION_ATTEMPT_EXCEEDED);
+        }
+
+        // 불일치와 만료를 구분
+        // 사용자가 취할 행동이 다름 (재입력 vs 재발송)
+        if (!storedCode.equals(code)) {
+            throw new BusinessException(ErrorCode.VERIFICATION_CODE_MISMATCH);
+        }
+
+        // 인증 완료 표시, 비밀번호 수정 시 이 키를 확인
+        redisTemplate.opsForValue().set(
+                DONE_KEY_PREFIX + email,
+                "true",
+                Duration.ofSeconds(DONE_TTL_SECONDS)
+        );
+
+        redisTemplate.delete(CODE_KEY_PREFIX + email);
+        redisTemplate.delete(TRY_KEY_PREFIX + email);
     }
 }
