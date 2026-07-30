@@ -32,6 +32,19 @@ public class AuthService {
         return new AccessTokenReissueResponse(accessToken);
     }
 
+
+    public void logout(String refreshToken) {
+
+        if (refreshToken == null) throw new BusinessException(ErrorCode.INVALID_REFRESH_TOKEN);
+
+        Long userId = parseUserId(refreshToken);
+
+        // 대조 없이 삭제하면 다른 사람 userId로 로그아웃시킬 수도 있음
+        if (!refreshTokenService.checkToken(userId, refreshToken)) throw new BusinessException(ErrorCode.INVALID_REFRESH_TOKEN);
+
+        refreshTokenService.delete(userId);
+    }
+
     private Long parseUserId(String refreshToken) {
         try {
             Claims claims = jwtProvider.parseClaims(refreshToken);
