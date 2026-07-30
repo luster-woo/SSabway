@@ -1,5 +1,7 @@
 package com.ssafy.ssabway.domain.user.service;
 
+import com.ssafy.ssabway.domain.auth.service.RefreshTokenService;
+import com.ssafy.ssabway.domain.user.dto.request.PasswordResetRequest;
 import com.ssafy.ssabway.domain.user.dto.request.PasswordResetSendRequest;
 import com.ssafy.ssabway.domain.user.dto.request.PasswordResetVerifyRequest;
 import com.ssafy.ssabway.domain.user.dto.response.PasswordResetSendResponse;
@@ -7,12 +9,13 @@ import com.ssafy.ssabway.domain.user.entity.Provider;
 import com.ssafy.ssabway.domain.user.entity.User;
 import com.ssafy.ssabway.domain.user.repository.UserRepository;
 import com.ssafy.ssabway.domain.user.util.PasswordResetMailSender;
-import com.ssafy.ssabway.domain.user.util.VerificationMailSender;
 import com.ssafy.ssabway.global.exception.BusinessException;
 import com.ssafy.ssabway.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.time.Duration;
@@ -47,6 +50,8 @@ public class PasswordResetService {
     private final StringRedisTemplate redisTemplate;
     private final UserRepository userRepository;
     private final PasswordResetMailSender mailSender;
+    private final PasswordEncoder passwordEncoder;
+    private final RefreshTokenService refreshTokenService;
 
     public PasswordResetSendResponse sendCode(PasswordResetSendRequest request) {
         // 이메일 정규화
@@ -134,5 +139,29 @@ public class PasswordResetService {
 
         redisTemplate.delete(CODE_KEY_PREFIX + email);
         redisTemplate.delete(TRY_KEY_PREFIX + email);
+    }
+
+    @Transactional
+    public void resetPassword(PasswordResetRequest request) {
+        String email = request.email().trim().toLowerCase();
+
+        // 인증한 이메일인 지 확인
+        boolean verified = Boolean.TRUE.equals(redisTemplate.hasKey(DONE_KEY_PREFIX + email));
+
+        if (!verified) {
+            throw new BusinessException(ErrorCode.EMAIL_NOT_VERIFIED);
+        }
+
+        // 인증 시점과 재설정 시점 사이에 탈퇴할 수 있으므로 다시 조회한다.
+        User user = userRepository.findByEmailAndDeletedAtIsNull(email)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        user.changePassword(passwordEncoder.encode(request.newPassword()));
+
+        // 변경 후 인증 키 삭제
+        redisTemplate.delete(DONE_KEY_PREFIX + email);
+
+        // 리프레시 토큰 삭제시켜서 다시 로그인 유도
+        refreshTokenService.delete(user.getId());
     }
 }

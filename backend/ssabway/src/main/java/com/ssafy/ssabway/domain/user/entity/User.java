@@ -103,4 +103,8 @@ public class User {
     public boolean isDeleted() {
         return this.deletedAt != null;
     }
+
+    public void changePassword(String passwordHash) {
+        this.passwordHash = passwordHash;
+    }
 }
