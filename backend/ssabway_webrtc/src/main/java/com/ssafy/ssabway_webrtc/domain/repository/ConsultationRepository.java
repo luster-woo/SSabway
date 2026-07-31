@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.security.core.parameters.P;
 import org.springframework.transaction.annotation.Transactional;
 
 public interface ConsultationRepository extends JpaRepository<Consultation, Long> {
@@ -62,6 +63,24 @@ public interface ConsultationRepository extends JpaRepository<Consultation, Long
           AND c.status = :currentStatus
     """)
     int endConsultation(
+        @Param("consultationId") Long consultationId,
+        @Param("currentStatus") ConsultationStatus currentStatus,
+        @Param("nextStatus") ConsultationStatus nextStatus
+    );
+
+
+    @Transactional
+    @Modifying(
+        clearAutomatically = true,
+        flushAutomatically = true
+    )
+    @Query("""
+        UPDATE consultation c
+        SET c.status = :nextStatus
+        WHERE c.id = :consultationId
+            AND c.status = :currentStatus
+    """)
+    int cancelConsultation(
         @Param("consultationId") Long consultationId,
         @Param("currentStatus") ConsultationStatus currentStatus,
         @Param("nextStatus") ConsultationStatus nextStatus
