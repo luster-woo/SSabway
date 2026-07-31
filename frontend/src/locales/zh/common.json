@@ -144,7 +144,10 @@
       "denied": "没关系！可通过拍摄指示牌识别位置",
       "statusAllowed": "已同意使用位置信息",
       "statusDenied": "将通过拍摄指示牌识别位置",
-      "change": "重新选择"
+      "change": "重新选择",
+      "requesting": "确认中…",
+      "unavailable": "无法获取位置 · 可通过拍摄指示牌继续",
+      "nearStation": "最近车站: {{station}}"
     }
   },
   "signCapture": {
