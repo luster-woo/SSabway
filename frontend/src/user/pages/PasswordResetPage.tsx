@@ -59,9 +59,11 @@ export default function PasswordResetPage() {
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
 
-  // 발송만 재설정 전용 API. 회원가입용은 가입된 이메일에 409 를 줘서 쓸 수 없다.
+  // 발송·확인 둘 다 재설정 전용 API 다. 회원가입용과 서버 저장소가 분리되어
+  // 있어(BE PasswordController) 하나라도 섞으면 인증 상태를 찾지 못한다.
   const verification = useEmailVerification('auth.passwordReset', {
     emailRequestPath: endpoints.users.passwordEmailRequest,
+    emailVerificationPath: endpoints.users.passwordEmailVerification,
   })
   const {
     reset,

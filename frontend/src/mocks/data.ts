@@ -35,9 +35,9 @@ export const RATE_LIMITED_EMAIL = 'toomany@mail.com'
 /**
  * "이메일 인증이 만료된 상태"를 재현할 이메일.
  *
- * 실제 서버는 인증 완료 후 30분이 지나면 재설정 요청을 거부하는데,
- * 목으로 이 흐름을 보려면 30분을 기다려야 하므로 이메일 값으로 대신 판별한다.
- * (RATE_LIMITED_EMAIL 과 같은 방식)
+ * 실제 서버는 인증 완료 후 30분이 지나면 재설정 요청을
+ * 400 EMAIL_NOT_VERIFIED 로 거부하는데, 목으로 이 흐름을 보려면 30분을
+ * 기다려야 하므로 이메일 값으로 대신 판별한다. (RATE_LIMITED_EMAIL 과 같은 방식)
  */
 export const VERIFICATION_EXPIRED_EMAIL = 'expired@mail.com'
 
@@ -113,6 +113,13 @@ export function okBodyWithoutData(message: string) {
   return { success: true, message }
 }
 
-export function errorBody(message: string) {
-  return { success: false, message }
+/**
+ * 실패 응답. BE ApiResponse.error 와 같은 모양이다.
+ *
+ * code 는 ErrorCode enum 이름 문자열 (예: 'EMAIL_NOT_VERIFIED').
+ * 프론트가 상태코드만으로 구분할 수 없는 실패(같은 400 의 형식 오류 vs
+ * 인증 만료)를 가를 때 쓰므로, 그런 핸들러에서는 반드시 넣는다.
+ */
+export function errorBody(message: string, code?: string) {
+  return { success: false, code, message }
 }
