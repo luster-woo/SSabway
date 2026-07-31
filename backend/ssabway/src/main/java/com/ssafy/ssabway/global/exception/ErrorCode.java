@@ -34,6 +34,8 @@ public enum ErrorCode {
     INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 리프레시 토큰입니다."),  // 401
     PASSWORD_MISMATCH(HttpStatus.UNAUTHORIZED, "비밀번호가 일치하지 않습니다."), // 401
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 사용자입니다."),    // 404
+    INVALID_GOOGLE_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 구글 토큰입니다."), // 401
+    LOCAL_LOGIN_REQUIRED(HttpStatus.UNAUTHORIZED, "이미 가입된 이메일입니다. 일반 로그인을 이용해주세요."), // 401
 
     // 상담
     CONSULTATION_DUPLICATED(HttpStatus.CONFLICT, "중복된 상담 요청입니다."); // 409
