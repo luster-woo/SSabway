@@ -31,8 +31,6 @@
     "login": {
       "title": "登录",
       "subtitle": "请使用邮箱和密码登录。",
-      "google": "使用 Google 继续",
-      "googlePending": "Google 登录正在准备中",
       "orEmail": "或使用邮箱",
       "email": "邮箱",
       "emailPlaceholder": "you@example.com",
@@ -45,8 +43,11 @@
       "success": "已登录",
       "error": {
         "invalidCredential": "邮箱或密码不正确",
-        "unknown": "登录失败 · 请稍后重试"
-      }
+        "unknown": "登录失败 · 请稍后重试",
+        "googleRejected": "Google 验证失败 · 请重试",
+        "googleFailed": "Google 登录失败 · 请稍后再试"
+      },
+      "googleUnavailable": "无法使用 Google 登录 · 请检查网络"
     },
     "passwordReset": {
       "title": "重置密码",
@@ -337,6 +338,12 @@
       "cameraOn": "已打开摄像头",
       "cameraOff": "已关闭摄像头",
       "ended": "咨询已结束",
+      "waitingStaff": "正在等待工作人员…",
+      "queuePosition": "您的排队号码为 {{position}} 号",
+      "noConsultationId": "未找到咨询信息，请从帮助页面重新开始。",
+      "connecting": "正在连接…",
+      "reconnecting": "网络不稳定，正在重新连接…",
+      "joinFailed": "未能连接到工作人员，请稍后再试。",
       "permission": {
         "title": "允许麦克风",
         "description": "与工作人员视频通话\n需要麦克风权限。",

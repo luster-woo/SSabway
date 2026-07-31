@@ -1,7 +1,7 @@
+import { lazy, Suspense } from 'react'
 import { Route, Routes } from 'react-router-dom'
-import { ToastProvider } from '@/shared/ui'
+import { RouteLoading, ToastProvider } from '@/shared/ui'
 import ArrivalPage from '@/user/pages/ArrivalPage'
-import ConsultationPage from '@/user/pages/ConsultationPage'
 import DestinationPage from '@/user/pages/DestinationPage'
 import HelpChatPage from '@/user/pages/HelpChatPage'
 import LoginPage from '@/user/pages/LoginPage'
@@ -13,6 +13,18 @@ import SignCapturePage from '@/user/pages/SignCapturePage'
 import SignUpPage from '@/user/pages/SignUpPage'
 import StartPage from '@/user/pages/StartPage'
 import UserInfoPage from '@/user/pages/UserInfoPage'
+
+/**
+ * 화상 상담만 lazy 로 뺀다.
+ *
+ * 다른 user 페이지는 오프라인 진입을 보장하려고 메인 청크에 두지만, 이 화면은
+ * openvidu-browser(약 420kB)를 끌고 오고 통화 자체가 네트워크 없이는 성립하지
+ * 않는다. 그래서 도움 요청까지 간 사용자만 내려받게 한다.
+ *
+ * vite.config.ts 의 globIgnores 에 있는 browser 청크 제외 규칙과 짝이다.
+ * 한쪽만 바꾸면 조용히 깨진다.
+ */
+const ConsultationPage = lazy(() => import('@/user/pages/ConsultationPage'))
 
 /** user(PWA) 앱의 라우트 루트. 시작 페이지가 진입점이다. */
 export default function UserApp() {
@@ -32,7 +44,14 @@ export default function UserApp() {
         <Route path="login" element={<LoginPage />} />
         <Route path="signup" element={<SignUpPage />} />
         <Route path="password-reset" element={<PasswordResetPage />} />
-        <Route path="consultation" element={<ConsultationPage />} />
+        <Route
+          path="consultation"
+          element={
+            <Suspense fallback={<RouteLoading />}>
+              <ConsultationPage />
+            </Suspense>
+          }
+        />
         {/* 도착 완료. 안내 종료·통화 종료 후 돌아올 자리다. */}
         <Route path="arrival" element={<ArrivalPage />} />
         <Route path="*" element={<NotFoundPage />} />

@@ -31,8 +31,6 @@
     "login": {
       "title": "Sign in",
       "subtitle": "Sign in with your email and password.",
-      "google": "Continue with Google",
-      "googlePending": "Google sign-in is not ready yet",
       "orEmail": "or with email",
       "email": "Email",
       "emailPlaceholder": "you@example.com",
@@ -45,8 +43,11 @@
       "success": "Signed in",
       "error": {
         "invalidCredential": "Email or password is incorrect",
-        "unknown": "Sign-in failed · Please try again in a moment"
-      }
+        "unknown": "Sign-in failed · Please try again in a moment",
+        "googleRejected": "Google verification failed · Please try again",
+        "googleFailed": "Google sign-in failed · Please try again later"
+      },
+      "googleUnavailable": "Google sign-in is unavailable · Please check your connection"
     },
     "passwordReset": {
       "title": "Reset password",
@@ -337,6 +338,12 @@
       "cameraOn": "Camera turned on",
       "cameraOff": "Camera turned off",
       "ended": "The call has ended",
+      "waitingStaff": "Waiting for a staff member…",
+      "queuePosition": "You are number {{position}} in the queue",
+      "noConsultationId": "We couldn't find your request. Please start from Help again.",
+      "connecting": "Connecting…",
+      "reconnecting": "Your network is unstable. Reconnecting…",
+      "joinFailed": "We couldn't reach a staff member. Please try again shortly.",
       "permission": {
         "title": "Allow mic",
         "description": "We need microphone access\nto connect you with staff.",

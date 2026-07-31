@@ -5,7 +5,7 @@ import { endpoints } from '@/shared/api/endpoints'
 import { useAuthStore } from '@/shared/lib/store/useAuthStore'
 import { useLanguage } from '@/shared/lib/useLanguage'
 import type { ApiResponse } from '@/shared/types/api'
-import { SUPPORTED_LANGUAGES, type Language } from '@/shared/types/user'
+import { toLanguage } from '@/user/features/auth/lib/language'
 import { toErrorKey } from '@/user/features/auth/lib/mockHttpError'
 
 export interface UserLoginRequest {
@@ -39,18 +39,6 @@ const LOGIN_ERROR_KEY: Record<number, string> = {
 }
 
 const FALLBACK_ERROR_KEY = 'auth.login.error.unknown'
-
-/**
- * 서버가 준 언어 코드를 앱의 Language 로 바꾼다. 모르는 값이면 null.
- *
- * 지원하지 않는 언어가 와도 로그인 자체는 성공시켜야 하므로 던지지 않는다.
- */
-function toLanguage(code: string): Language | null {
-  const lower = code.toLowerCase()
-  return (SUPPORTED_LANGUAGES as readonly string[]).includes(lower)
-    ? (lower as Language)
-    : null
-}
 
 async function requestLogin(body: UserLoginRequest): Promise<UserLoginData> {
   const res = await userApi.post<ApiResponse<UserLoginData>>(

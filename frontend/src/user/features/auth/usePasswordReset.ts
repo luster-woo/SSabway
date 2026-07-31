@@ -1,40 +1,41 @@
 import { useCallback, useState } from 'react'
+import { isAxiosError } from 'axios'
 
 import { publicApi } from '@/shared/api/client'
 import { endpoints } from '@/shared/api/endpoints'
-import { toErrorKey } from '@/user/features/auth/lib/mockHttpError'
 
 export interface PasswordResetBody {
-  /**
-   * 명세의 요청 본문에는 newPassword 하나만 있지만 email 을 함께 보낸다.
-   *
-   * 재설정은 비로그인 요청이라 토큰이 없다. 서버가 "누구의 비밀번호인지"를
-   * 알 방법은 이메일 인증 상태 조회뿐이고, 그 조회 키가 email 이다.
-   * BE 가 재설정용으로 수정하면서 본문에 email 이 추가될 것으로 보고
-   * 미리 맞춰둔다. 확정 명세가 다르면 이 타입과 requestPasswordReset 만 고친다.
-   */
+  /** 비로그인 요청이라 토큰이 없다. 서버는 email 로 인증 상태를 찾는다. (BE 확인) */
   email: string
   newPassword: string
 }
 
-/**
- * 실패 문구의 i18n 키. 상태코드를 키로 쓴다.
- *
- * 400: 형식 오류 (비밀번호 규칙 위반)
- * 401: 이메일 인증 만료 — 인증 완료 상태(30분)가 지나 처음부터 다시 해야 한다.
- *      재설정에서 401 은 "로그인이 필요하다"가 아니므로 이 훅은 인터셉터가 있는
- *      userApi 가 아니라 publicApi 를 쓴다. (userApi 면 토큰 재발급 → 실패 →
- *      로그인 화면 리다이렉트로 이어져 이 문구를 보여줄 수 없다)
- */
-const RESET_ERROR_KEY: Record<number, string> = {
-  400: 'auth.passwordReset.error.invalidPassword',
-  401: 'auth.passwordReset.error.unauthorized',
-}
-
+const INVALID_PASSWORD_KEY = 'auth.passwordReset.error.invalidPassword'
+const VERIFICATION_EXPIRED_KEY = 'auth.passwordReset.error.unauthorized'
 const FALLBACK_ERROR_KEY = 'auth.passwordReset.error.resetFailed'
 
+/**
+ * 에러를 i18n 키로 바꾼다.
+ *
+ * BE 는 400 을 두 의미로 쓴다 — EMAIL_NOT_VERIFIED(인증 안 됨·만료)와
+ * INVALID_INPUT_VALUE(비밀번호 형식). 상태코드만으로는 구분할 수 없어
+ * 응답 본문의 code 필드로 가른다. (에러 응답: { success, code, message })
+ *
+ * 이 훅이 publicApi 를 쓰는 이유: 재설정은 비로그인 흐름이라 401 재시도나
+ * 로그인 리다이렉트가 끼어들면 안 된다.
+ */
+function toResetErrorKey(error: unknown): string {
+  if (!isAxiosError(error) || !error.response) return FALLBACK_ERROR_KEY
+
+  const { code } = (error.response.data ?? {}) as { code?: string }
+
+  if (code === 'EMAIL_NOT_VERIFIED') return VERIFICATION_EXPIRED_KEY
+  if (error.response.status === 400) return INVALID_PASSWORD_KEY
+  return FALLBACK_ERROR_KEY
+}
+
 async function requestPasswordReset(body: PasswordResetBody): Promise<void> {
-  await publicApi.put(endpoints.users.changePassword, body)
+  await publicApi.patch(endpoints.users.passwordReset, body)
 }
 
 export interface UsePasswordResetResult {
@@ -67,7 +68,7 @@ export function usePasswordReset(): UsePasswordResetResult {
       await requestPasswordReset(body)
       return true
     } catch (error) {
-      setErrorKey(toErrorKey(error, RESET_ERROR_KEY, FALLBACK_ERROR_KEY))
+      setErrorKey(toResetErrorKey(error))
       return false
     } finally {
       setIsPending(false)
