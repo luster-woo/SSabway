@@ -337,6 +337,12 @@
       "cameraOn": "カメラをオンにしました",
       "cameraOff": "カメラをオフにしました",
       "ended": "相談が終了しました",
+      "waitingStaff": "スタッフを待っています…",
+      "queuePosition": "待ち順は {{position}} 番目です",
+      "noConsultationId": "相談情報が見つかりません。ヘルプからやり直してください。",
+      "connecting": "接続しています…",
+      "reconnecting": "ネットワークが不安定です。再接続しています…",
+      "joinFailed": "スタッフに接続できませんでした。しばらくしてからもう一度お試しください。",
       "permission": {
         "title": "マイクを許可",
         "description": "スタッフとのビデオ通話には\nマイクの許可が必要です。",

@@ -337,6 +337,12 @@
       "cameraOn": "Camera turned on",
       "cameraOff": "Camera turned off",
       "ended": "The call has ended",
+      "waitingStaff": "Waiting for a staff member…",
+      "queuePosition": "You are number {{position}} in the queue",
+      "noConsultationId": "We couldn't find your request. Please start from Help again.",
+      "connecting": "Connecting…",
+      "reconnecting": "Your network is unstable. Reconnecting…",
+      "joinFailed": "We couldn't reach a staff member. Please try again shortly.",
       "permission": {
         "title": "Allow mic",
         "description": "We need microphone access\nto connect you with staff.",
