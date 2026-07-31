@@ -93,8 +93,8 @@ pipeline {
                     // compose 파일 변경은 어느 서비스가 영향받는지 경로만으로 알 수 없어
                     // 전체 재배포로 처리. up -d 는 변경 없는 컨테이너를 건드리지 않으므로 안전.
                     // (override.yml 은 로컬 전용이라 서버 배포와 무관 — 감지 대상에서 제외)
-                    def composeChanged = changed.contains('docker-compose.yml')
-                                      || changed.contains('docker-compose.prod.yml')
+                    def composeChanged = changed.contains('docker-compose.yml') ||
+                        changed.contains('docker-compose.prod.yml')
 
                     def all = (changed == 'ALL' || composeChanged)
                     env.BUILD_API      = (all || changed.contains('backend/ssabway/')).toString()
