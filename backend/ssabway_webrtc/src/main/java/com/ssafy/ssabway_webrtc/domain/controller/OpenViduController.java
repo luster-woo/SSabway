@@ -3,10 +3,10 @@ package com.ssafy.ssabway_webrtc.domain.controller;
 import com.ssafy.ssabway_webrtc.common.response.ApiResponse;
 import com.ssafy.ssabway_webrtc.domain.dto.*;
 import com.ssafy.ssabway_webrtc.domain.service.ConsultationEndService;
+import com.ssafy.ssabway_webrtc.domain.service.ConsultationStartService;
 import com.ssafy.ssabway_webrtc.domain.service.OpenViduService;
 import io.openvidu.java.client.OpenViduHttpException;
 import io.openvidu.java.client.OpenViduJavaClientException;
-import io.openvidu.java.client.Recording;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.*;
 public class OpenViduController {
 
     private final OpenViduService openViduService;
+
+    private final ConsultationStartService consultationStartService;
 
     private final ConsultationEndService consultationEndService;
 
@@ -57,6 +59,13 @@ public class OpenViduController {
         );
     }
 
+    @PostMapping("/sessions/{sessionId}/start")
+    public ApiResponse<ConsultationStartResponse> startConsultation(
+        @PathVariable String sessionId
+    ) throws OpenViduJavaClientException, OpenViduHttpException{
+        return ApiResponse.ok(consultationStartService.startConsultation(sessionId));
+    }
+
     @DeleteMapping("/sessions/{sessionId}")
     public ApiResponse<SessionCloseResponse> closeSession(
         @PathVariable String sessionId
@@ -72,52 +81,11 @@ public class OpenViduController {
     }
 
 
-    @PostMapping("/sessions/{sessionId}/recordings")
-    public ApiResponse<AudioRecordingStartResponse> startAudioRecording(
-        @PathVariable String sessionId
-    ) throws OpenViduJavaClientException, OpenViduHttpException{
-
-        Recording recording = openViduService.startAudioRecording(sessionId);
-
-        return ApiResponse.ok(
-            new AudioRecordingStartResponse(
-                recording.getId(),
-                recording.getSessionId(),
-                recording.getStatus().name()
-            )
-        );
-    }
-
-
-    @DeleteMapping("/recordings/{recordingId}")
-    public ApiResponse<AudioRecordingStopResponse> stopAudioRecording(
-        @PathVariable String recordingId
-    ) throws OpenViduJavaClientException, OpenViduHttpException{
-
-        Recording recording = openViduService.stopAudioRecording(recordingId);
-
-        return ApiResponse.ok(
-            new AudioRecordingStopResponse(
-                recording.getId(),
-                recording.getSessionId(),
-                recording.getStatus().name()
-            )
-        );
-    }
-
-
     @PostMapping("/sessions/{sessionId}/end")
-    public ApiResponse<ConsultationEndResponse> endConsultation(
-        @PathVariable String sessionId,
-        @Valid @RequestBody ConsultationEndRequest request
-    ) throws OpenViduJavaClientException, OpenViduHttpException {
+    public ApiResponse<ConsultationEndResponse> endConsultation(@PathVariable String sessionId)
+        throws OpenViduJavaClientException, OpenViduHttpException {
 
-        ConsultationEndResponse response = consultationEndService.endConsultation(
-            sessionId,
-            request.getRecordingId()
-        );
-
-        return  ApiResponse.ok(response);
+        return  ApiResponse.ok(consultationEndService.endConsultation(sessionId));
     }
 
 }

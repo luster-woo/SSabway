@@ -26,6 +26,25 @@ public interface ConsultationRepository extends JpaRepository<Consultation, Long
         @Param("s3ObjectKey") String s3ObjectKey
     );
 
+    // 대기 중인 상담을 시작하고 OpenVidu 녹음 ID를 저장
+    @Transactional
+    @Modifying(
+        clearAutomatically = true,
+        flushAutomatically = true
+    )
+    @Query("""
+    UPDATE Consultation c
+        SET c.status = 'IN_PROGRESS',
+            c.startedAt = CURRENT_TIMESTAMP,
+            c.recordId = :recordId
+        WHERE c.id = :consultationId
+          AND c.status = 'WAITING'
+    """)
+    int startConsultation(
+        @Param("consultationId") Long consultationId,
+        @Param("recordId") String recordId
+    );
+
     // 진행 중인 상담만 종료 상태로 변경해 중복 종료를 방지
     @Transactional
     @Modifying(
