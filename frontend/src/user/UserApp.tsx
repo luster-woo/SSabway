@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react'
 import { Route, Routes } from 'react-router-dom'
+import { useRestoreSession } from '@/shared/api/useRestoreSession'
 import { RouteLoading, ToastProvider } from '@/shared/ui'
 import ArrivalPage from '@/user/pages/ArrivalPage'
 import DestinationPage from '@/user/pages/DestinationPage'
@@ -28,6 +29,19 @@ const ConsultationPage = lazy(() => import('@/user/pages/ConsultationPage'))
 
 /** user(PWA) 앱의 라우트 루트. 시작 페이지가 진입점이다. */
 export default function UserApp() {
+  /*
+    새로고침·앱 재시작으로 잃은 로그인 상태를 여기서 되살린다.
+
+    화면 전체를 막지 않는 이유는 오프라인 진입 때문이다. 이 앱은 지하에서
+    네트워크 없이도 열려야 하는데, 복구 응답을 기다리며 렌더를 미루면
+    요청이 타임아웃(10초)날 때까지 아무것도 보이지 않는다.
+
+    대신 인증 여부로 갈리는 화면(StartPage·HelpChatPage)이 status 'idle' 을
+    로딩으로 취급한다. 그쪽을 수정하지 않고 새 화면을 추가하면 새로고침 직후
+    비로그인 UI 가 잠깐 보이므로 주의할 것.
+  */
+  useRestoreSession('user')
+
   return (
     <ToastProvider>
       <Routes>

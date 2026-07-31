@@ -3,6 +3,7 @@ import { isAxiosError } from 'axios'
 
 import { publicApi, refreshAccessToken } from '@/shared/api/client'
 import { endpoints } from '@/shared/api/endpoints'
+import { disableGoogleAutoSelect } from '@/shared/lib/googleIdentity'
 import { useAuthStore } from '@/shared/lib/store/useAuthStore'
 
 const WRONG_PASSWORD_KEY = 'auth.withdraw.error.wrongPassword'
@@ -85,6 +86,8 @@ export function useWithdraw(): UseWithdrawResult {
       try {
         await requestWithdraw(password)
         clearAccessToken('user')
+        // 탈퇴한 계정으로 자동 재로그인되면 안 된다. (구글로 가입한 경우)
+        disableGoogleAutoSelect()
         return true
       } catch (error) {
         setErrorKey(toWithdrawErrorKey(error))

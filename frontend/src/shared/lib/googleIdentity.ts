@@ -56,3 +56,18 @@ export function loadGoogleIdentity(): Promise<void> {
 
   return loadPromise
 }
+
+/**
+ * 구글의 계정 자동 선택을 해제한다. 세션을 끝낼 때(로그아웃·탈퇴) 부른다.
+ *
+ * 이걸 부르지 않으면 구글 쪽에 "이 브라우저는 이 계정" 이라는 기억이 남아,
+ * 로그아웃한 뒤 구글 버튼을 눌렀을 때 계정 선택 없이 직전 계정으로 바로
+ * 로그인된다. 역 안의 공용 기기를 이어 쓰는 상황에서는 남의 계정으로
+ * 들어가 버리는 셈이다.
+ *
+ * GIS 스크립트가 아직 로드되지 않았다면(구글 로그인을 쓰지 않은 세션)
+ * 해제할 상태도 없으므로 아무것도 하지 않는다.
+ */
+export function disableGoogleAutoSelect(): void {
+  window.google?.accounts.id.disableAutoSelect()
+}
