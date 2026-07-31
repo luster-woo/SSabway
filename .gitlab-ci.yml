@@ -1,0 +1,139 @@
+# SSabway MR 검증 파이프라인
+# develop 을 target 으로 하는 MR 에서만 동작합니다.
+# main 배포는 Jenkins 가 담당하므로 여기서는 아무것도 하지 않습니다.
+
+stages:
+  - check
+  - verify
+
+# 같은 MR 에 새 커밋을 push 하면 진행 중인 파이프라인을 자동 취소합니다.
+# MR 이 잦은 팀에서 서버 부담을 가장 크게 줄여주는 설정입니다.
+default:
+  interruptible: true
+
+workflow:
+  rules:
+    # develop 대상 MR 일 때만 파이프라인 생성
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "develop"'
+    # 그 외(브랜치 push, main 병합 등)는 아무것도 하지 않음
+    - when: never
+
+# ─────────────────────────────────────────────────────────
+# 병합 가능성 확인
+#
+# Free 플랜에는 "병합된 결과를 미리 빌드"하는 기능이 없어서,
+# 여기서 직접 테스트 병합을 해봅니다.
+# 인접한 줄을 양쪽이 고쳐 충돌 없이 이어붙는 사고를 잡기 위한 단계입니다.
+# ─────────────────────────────────────────────────────────
+merge-check:
+  stage: check
+  image:
+    name: alpine/git:latest
+    entrypoint: [""]
+  variables:
+    GIT_DEPTH: 0          # merge 하려면 전체 히스토리 필요
+  script:
+    - git config user.email "ci@ssabway.local"
+    - git config user.name "ssabway-ci"
+    - git fetch origin "$CI_MERGE_REQUEST_TARGET_BRANCH_NAME"
+    - echo "=== $CI_MERGE_REQUEST_TARGET_BRANCH_NAME 과 테스트 병합 ==="
+    - |
+      if ! git merge --no-commit --no-ff "origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME"; then
+        echo "충돌이 있습니다. 로컬에서 먼저 병합해 해결한 뒤 push 해주세요."
+        echo "  git fetch origin $CI_MERGE_REQUEST_TARGET_BRANCH_NAME"
+        echo "  git merge origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME"
+        exit 1
+      fi
+    - echo "=== 충돌 마커 잔재 확인 ==="
+    - |
+      HIT=$(grep -rn '^<<<<<<<\|^>>>>>>>' backend frontend 2>/dev/null || true)
+      if [ -n "$HIT" ]; then
+        echo "충돌 마커가 남아 있습니다:"
+        echo "$HIT"
+        exit 1
+      fi
+    - echo "병합 가능"
+
+# ─────────────────────────────────────────────────────────
+# 백엔드 컴파일
+#
+# GRADLE_USER_HOME 을 프로젝트 폴더 안에 두는 이유:
+# GitLab CI 의 cache: 는 프로젝트 폴더 밖은 저장하지 못합니다.
+# ─────────────────────────────────────────────────────────
+.gradle-base:
+  stage: verify
+  image: eclipse-temurin:21-jdk
+  variables:
+    GRADLE_USER_HOME: "$CI_PROJECT_DIR/.gradle"
+  cache:
+    paths:
+      - .gradle/caches
+      - .gradle/wrapper
+
+backend-ssabway:
+  extends: .gradle-base
+  cache:
+    key: gradle-ssabway
+    paths:
+      - .gradle/caches
+      - .gradle/wrapper
+  rules:
+    - changes:
+        - backend/ssabway/**/*
+        - .gitlab-ci.yml
+  script:
+    - cd backend/ssabway
+    - >
+      sh gradlew compileJava --no-daemon
+      -Dorg.gradle.jvmargs=-Xmx1g
+      -Dorg.gradle.workers.max=2
+
+backend-signaling:
+  extends: .gradle-base
+  cache:
+    key: gradle-signaling
+    paths:
+      - .gradle/caches
+      - .gradle/wrapper
+  rules:
+    - changes:
+        - backend/ssabway_webrtc/**/*
+        - .gitlab-ci.yml
+  script:
+    - cd backend/ssabway_webrtc
+    - >
+      sh gradlew compileJava --no-daemon
+      -Dorg.gradle.jvmargs=-Xmx1g
+      -Dorg.gradle.workers.max=2
+
+# ─────────────────────────────────────────────────────────
+# 프론트엔드 검증 (팀 컨벤션의 "빌드 3종")
+#
+# 이 프로젝트에 테스트 코드가 없어 이게 유일한 안전망입니다.
+# 시간이 부담되면 마지막 `npm run build` 줄을 지우면 절반 이하로 줍니다.
+# 대신 Vite 빌드 단계에서만 드러나는 문제는 놓칩니다.
+# ─────────────────────────────────────────────────────────
+frontend:
+  stage: verify
+  image: node:22-alpine
+  variables:
+    NODE_OPTIONS: "--max-old-space-size=2048"
+  cache:
+    # package-lock.json 이 바뀌지 않으면 npm 캐시를 그대로 재사용합니다.
+    # node_modules 를 캐시하지 않는 이유: npm ci 가 매번 지우고 다시 만들기 때문에
+    # 효과가 없고, 대신 다운로드 캐시(.npm)를 재사용하는 게 훨씬 빠릅니다.
+    key:
+      files:
+        - frontend/package-lock.json
+    paths:
+      - frontend/.npm
+  rules:
+    - changes:
+        - frontend/**/*
+        - .gitlab-ci.yml
+  script:
+    - cd frontend
+    - npm ci --cache .npm --prefer-offline --no-audit --no-fund
+    - npx tsc -p tsconfig.app.json --noEmit
+    - npm run lint
+    - npm run build
