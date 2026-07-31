@@ -4,6 +4,7 @@ import com.ssafy.ssabway_webrtc.common.exception.BusinessException;
 import com.ssafy.ssabway_webrtc.common.exception.ErrorCode;
 import com.ssafy.ssabway_webrtc.domain.dto.ConsultationEndResponse;
 import com.ssafy.ssabway_webrtc.domain.entity.Consultation;
+import com.ssafy.ssabway_webrtc.domain.entity.ConsultationStatus;
 import com.ssafy.ssabway_webrtc.domain.repository.ConsultationRepository;
 import io.openvidu.java.client.OpenViduHttpException;
 import io.openvidu.java.client.OpenViduJavaClientException;
@@ -34,11 +35,11 @@ public class ConsultationEndService {
             );
 
         // 이미 종료된 상담에 대한 재요청은 성공으로 처리합니다.
-        if ("ENDED".equals(consultation.getStatus())) {
-            return new ConsultationEndResponse(sessionId, consultation.getRecordId(), true);
+        if (consultation.getStatus() == ConsultationStatus.ENDED) {
+            return new ConsultationEndResponse(sessionId, consultation.getRecordId(), ConsultationStatus.ENDED);
         }
 
-        if (!"IN_PROGRESS".equals(consultation.getStatus())) {
+        if (consultation.getStatus() != ConsultationStatus.IN_PROGRESS) {
             throw new BusinessException(ErrorCode.CONSULTATION_NOT_IN_PROGRESS);
         }
 
@@ -66,13 +67,14 @@ public class ConsultationEndService {
 
         openViduService.closeSessionIfActive(sessionId);
 
-        int updatedCount = consultationRepository.endConsultation(consultationId);
+        int updatedCount = consultationRepository.endConsultation(consultationId, ConsultationStatus.IN_PROGRESS,
+            ConsultationStatus.ENDED);
 
         if (updatedCount == 0) {
             throw new BusinessException(ErrorCode.CONSULTATION_END_FAILED);
         }
 
-        return new ConsultationEndResponse(sessionId, recordId, true);
+        return new ConsultationEndResponse(sessionId, recordId, ConsultationStatus.ENDED);
     }
 
     // consultation-{상담 ID} 형식의 세션 ID에서 상담 ID 추출
