@@ -1,13 +1,16 @@
 spring:
   application:
     name: ssabway_webrtc
+
+  # 로컬 전용 시크릿(선택). 존재하면 .env 대신 이 파일이 placeholder 를 채움.
+  # Docker 에는 이 파일이 없으므로 .env(환경변수)가 사용됨.
   config:
     import: optional:application-secret.yaml
 
   datasource:
-    url: jdbc:mysql://localhost:3306/ssabway_db?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Seoul
-    username: ${database.username}
-    password: ${database.password}
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/ssabway_db?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Seoul}
+    username: ${SPRING_DATASOURCE_USERNAME:root}
+    password: ${SPRING_DATASOURCE_PASSWORD:localonly}
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       maximum-pool-size: 10
@@ -38,3 +41,17 @@ server:
       charset: UTF-8
       enabled: true
       force: true
+
+openvidu:
+  url: ${OPENVIDU_URL:http://localhost:4443}
+  secret: ${OPENVIDU_SECRET:dummy}
+  webhook-secret: ${OPENVIDU_WEBHOOK_SECRET:}
+
+cloud:
+  aws:
+    region: ${AWS_REGION:ap-northeast-2}
+    s3:
+      bucket: ${AWS_S3_BUCKET:}
+    credentials:
+      access-key: ${AWS_ACCESS_KEY_ID:}
+      secret-key: ${AWS_SECRET_ACCESS_KEY:}
