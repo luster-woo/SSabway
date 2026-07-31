@@ -1,7 +1,10 @@
 import { useQuery } from '@tanstack/react-query'
 
+import { BACKEND_READY } from '@/shared/api/backendCapabilities'
+import { adminApi } from '@/shared/api/client'
+import { endpoints } from '@/shared/api/endpoints'
 import { queryKeys } from '@/shared/lib/queryKeys'
-import type { ConsultationStatus } from '@/shared/types'
+import type { ApiResponse, ConsultationStatus } from '@/shared/types'
 import type { LangCode } from '@/admin/lib/language'
 import {
   FIRST_PAGE,
@@ -36,8 +39,8 @@ function minutesAgo(minutes: number): string {
 }
 
 /**
- * BE 개발 전이라 목 응답을 사용한다.
- * 연동 시 fetchWaitingConsultations 본문만 교체하고 아래 상수는 삭제한다.
+ * ⚠️ 목 데이터. BACKEND_READY.ADMIN_QUEUE 를 켤 때 이 상수와
+ * mockAcceptedIds / markMockAccepted / isMockAccepted / delay 를 함께 지운다.
  */
 const MOCK_WAITING: readonly WaitingConsultation[] = [
   {
@@ -111,12 +114,15 @@ function byWaitedLongestFirst(
 async function fetchWaitingConsultations(): Promise<
   PagedContent<WaitingConsultation>
 > {
-  // TODO: BE 연동 시 아래 목 처리를 실제 호출로 교체
-  //   const res = await adminApi.get<ApiResponse<PagedContent<WaitingConsultation>>>(
-  //     endpoints.admin.waiting(FIRST_PAGE),
-  //   )
-  //   const { content, page } = res.data.data
-  //   return { content: [...content].sort(byWaitedLongestFirst), page }
+  if (BACKEND_READY.ADMIN_QUEUE) {
+    const res =
+      await adminApi.get<ApiResponse<PagedContent<WaitingConsultation>>>(
+        endpoints.admin.waiting(FIRST_PAGE),
+      )
+    const { content, page } = res.data.data
+    return { content: [...content].sort(byWaitedLongestFirst), page }
+  }
+
   await delay(MOCK_LATENCY_MS)
 
   const content = MOCK_WAITING.filter(

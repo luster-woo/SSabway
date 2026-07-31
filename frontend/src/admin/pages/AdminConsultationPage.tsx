@@ -7,6 +7,7 @@ import { useBlacklist } from '@/admin/features/blacklist/useBlacklist'
 import { ConsultationInfoPanel } from '@/admin/features/consultation-room/ConsultationInfoPanel'
 import { EndConsultationDialog } from '@/admin/features/consultation-room/EndConsultationDialog'
 import { useConsultationDetail } from '@/admin/features/consultation-room/useConsultationDetail'
+import { useConsultationRoom } from '@/admin/features/consultation-room/useConsultationRoom'
 import { useEndConsultation } from '@/admin/features/consultation-room/useEndConsultation'
 import { UserLocationModal } from '@/admin/features/consultation-room/UserLocationModal'
 import { VideoStage } from '@/admin/features/consultation-room/VideoStage'
@@ -33,6 +34,7 @@ export default function AdminConsultationPage() {
   } = useConsultationDetail(isValidId ? consultationId : 0)
   const { registerBlacklist, pendingEmail } = useBlacklist()
   const { endConsultation, isPending: isEndPending } = useEndConsultation()
+  const room = useConsultationRoom(isValidId ? consultationId : 0)
 
   const [isReasonOpen, setIsReasonOpen] = useState(false)
   const [isEndDialogOpen, setIsEndDialogOpen] = useState(false)
@@ -80,7 +82,13 @@ export default function AdminConsultationPage() {
     <AdminShell>
       <div className="flex min-h-0 flex-1 gap-6 p-6">
         <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-          <VideoStage />
+          <VideoStage
+            userStream={room.userStream}
+            status={room.status}
+            isRestoring={room.isRestoring}
+            isRestoreFailed={room.isRestoreFailed}
+            isRecording={room.isRecording}
+          />
         </div>
 
         {isPending ? (
