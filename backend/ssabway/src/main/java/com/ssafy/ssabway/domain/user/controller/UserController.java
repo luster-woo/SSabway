@@ -105,4 +105,14 @@ public class UserController {
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .body(ApiResponse.ok("로그인 되었습니다.", new LoginResponse(result.accessToken(), result.language())));
     }
+
+    @PatchMapping("/language")
+    public ResponseEntity<ApiResponse<Void>> updateLanguage(
+            @AuthenticationPrincipal Long userId,
+            @Valid @RequestBody LanguageUpdateRequest request) {
+
+        userService.updateLanguage(userId, request);
+
+        return ResponseEntity.ok(ApiResponse.ok("언어 설정이 완료되었습니다."));
+    }
 }

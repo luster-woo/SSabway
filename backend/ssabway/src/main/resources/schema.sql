@@ -144,6 +144,7 @@ CREATE TABLE IF NOT EXISTS `consultations` (
   `started_at`        DATETIME(6)  NULL                    COMMENT '상담 시작 시간',
   `ended_at`          DATETIME(6)  NULL                    COMMENT '상담 종료 시간',
   `requested_at`      DATETIME(6)  NOT NULL DEFAULT CURRENT_TIMESTAMP(6) COMMENT '상담 요청 시간',
+  `record_id`         VARCHAR(255) NULL                    COMMENT '상담 녹취 ID',
   `record_s3`         VARCHAR(500) NULL                    COMMENT '상담 녹취 S3 경로',
   `summary`           VARCHAR(255) NULL                    COMMENT '상담 요약',
   PRIMARY KEY (`consultation_id`),
