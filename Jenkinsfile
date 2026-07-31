@@ -94,12 +94,14 @@ pipeline {
                     env.BUILD_API      = (all || changed.contains('backend/ssabway/')).toString()
                     env.BUILD_SIGNAL   = (all || changed.contains('backend/ssabway_webrtc/')).toString()
                     env.BUILD_FRONTEND = (all || changed.contains('frontend/')).toString()
+                    env.BUILD_AI = (all || changed.contains('ai/serve/')).toString()
                     env.TOUCH_NGINX    = (all || changed.contains('deploy/nginx.conf')).toString()
 
-                    echo "api=${env.BUILD_API} signaling=${env.BUILD_SIGNAL} frontend=${env.BUILD_FRONTEND} nginx설정=${env.TOUCH_NGINX}"
+                    echo "api=${env.BUILD_API} signaling=${env.BUILD_SIGNAL} frontend=${env.BUILD_FRONTEND} ai=${env.BUILD_AI} nginx설정=${env.TOUCH_NGINX}"
 
                     if (env.BUILD_API == 'false' && env.BUILD_SIGNAL == 'false'
-                        && env.BUILD_FRONTEND == 'false' && env.TOUCH_NGINX == 'false') {
+                        && env.BUILD_FRONTEND == 'false' && env.TOUCH_NGINX == 'false'
+                        && env.BUILD_AI == 'false') {
                         currentBuild.result = 'SUCCESS'
                         currentBuild.description = '배포 대상 없음'
                         error('배포할 변경사항이 없습니다.')
@@ -127,6 +129,13 @@ pipeline {
             when { environment name: 'BUILD_FRONTEND', value: 'true' }
             steps {
                 sh 'cd "$APP_DIR" && $DC up -d --build frontend'
+            }
+        }
+
+        stage('ai 배포') {
+            when { environment name: 'BUILD_AI', value: 'true' }
+            steps {
+                sh 'cd "$APP_DIR" && $DC up -d --build ai'
             }
         }
 
