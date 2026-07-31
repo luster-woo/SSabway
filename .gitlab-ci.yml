@@ -27,7 +27,9 @@ workflow:
 # ─────────────────────────────────────────────────────────
 merge-check:
   stage: check
-  image: alpine/git:latest
+  image:
+    name: alpine/git:latest
+    entrypoint: [""]
   variables:
     GIT_DEPTH: 0          # merge 하려면 전체 히스토리 필요
   script:
