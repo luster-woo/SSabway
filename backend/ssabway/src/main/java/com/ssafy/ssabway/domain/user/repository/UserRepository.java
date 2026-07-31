@@ -1,5 +1,6 @@
 package com.ssafy.ssabway.domain.user.repository;
 
+import com.ssafy.ssabway.domain.user.entity.Provider;
 import com.ssafy.ssabway.domain.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -19,4 +20,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmailAndDeletedAtIsNull(String email);
 
     Optional<User> findByIdAndDeletedAtIsNull(Long id);
+
+    Optional<User> findByProviderAndProviderIdAndDeletedAtIsNull(Provider provider, String providerId);
 }

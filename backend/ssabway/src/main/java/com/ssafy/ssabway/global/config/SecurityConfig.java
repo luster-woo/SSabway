@@ -62,6 +62,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/users/exists").permitAll()
                         .requestMatchers("/api/v1/users/email/**").permitAll()
                         .requestMatchers("/api/v1/users/password/**").permitAll()
+                        .requestMatchers("/api/v1/users/login/google").permitAll()
                         .requestMatchers("/api/v1/auth/**").permitAll()
 
                         // 나머지는 모두 인증 필요함
