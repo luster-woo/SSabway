@@ -20,8 +20,8 @@ pipeline {
     }
 
     triggers {
-        // 2분마다 main 브랜치 변경 확인 (웹훅 붙이기 전 임시 방식)
-        pollSCM('H/2 * * * *')
+        // 15분마다 main 브랜치 변경 확인 (웹훅 유실 대비 fallback)
+        pollSCM('H/15 * * * *')
     }
 
     environment {

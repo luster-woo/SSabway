@@ -6,6 +6,9 @@ services:
     ports:
       - "127.0.0.1:5442:80"
     depends_on: [frontend, api, signaling]
+    networks:
+      default:
+      edge:
     restart: unless-stopped
   ai:
     build: ./ai/serve
@@ -18,3 +21,7 @@ services:
     ports:
       - "127.0.0.1:8000:8000"
     restart: unless-stopped
+
+networks:
+  edge:
+    external: true
