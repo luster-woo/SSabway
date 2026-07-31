@@ -36,6 +36,12 @@ public enum ErrorCode {
     CONSULTATION_END_FAILED(HttpStatus.INTERNAL_SERVER_ERROR,
         "상담 종료 상태를 저장하지 못했습니다."),
 
+    // 상담 오류
+    CONSULTATION_CANCEL_NOT_ALLOWED(HttpStatus.CONFLICT,
+        "대기 중인 상담만 취소할 수 있습니다."),
+    CONSULTATION_CANCEL_FAILED(HttpStatus.CONFLICT,
+        "상담 요청을 취소하지 못했습니다."),
+
     // OpenVidu 세션
     INVALID_SESSION_ID(HttpStatus.BAD_REQUEST,
         "잘못된 상담 세션 ID입니다."),
@@ -71,6 +77,7 @@ public enum ErrorCode {
         "잘못된 OpenVidu 웹훅 요청입니다."),
     INVALID_WEBHOOK_SECRET(HttpStatus.UNAUTHORIZED,
         "유효하지 않은 웹훅 인증 정보입니다.");
+
 
     private final HttpStatus httpStatus;
     private final String message;
