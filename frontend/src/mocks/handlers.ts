@@ -134,7 +134,10 @@ export const handlers: RequestHandler[] = [
       // 서버가 trim + 대문자 변환 후 비교한다 (BE PasswordResetService)
       if ((code ?? '').trim().toUpperCase() !== VALID_CODE) {
         return HttpResponse.json(
-          errorBody('인증 코드가 일치하지 않습니다.', 'VERIFICATION_CODE_MISMATCH'),
+          errorBody(
+            '인증 코드가 일치하지 않습니다.',
+            'VERIFICATION_CODE_MISMATCH',
+          ),
           { status: 400 },
         )
       }
@@ -259,6 +262,33 @@ export const handlers: RequestHandler[] = [
     if (email !== USER_ACCOUNT.email || password !== USER_ACCOUNT.password) {
       return HttpResponse.json(
         errorBody('이메일 또는 비밀번호가 일치하지 않습니다.'),
+        { status: 401 },
+      )
+    }
+
+    return HttpResponse.json(
+      okBody('로그인 되었습니다.', {
+        accessToken: issueAccessToken('user'),
+        language: USER_LANGUAGE,
+      }),
+      { headers: { 'Set-Cookie': refreshCookie() } },
+    )
+  }),
+
+  // 회원 구글 로그인 / 회원가입 (백엔드 개발중)
+  //
+  // 명세상 응답은 일반 로그인과 동일하다. 신규 가입 여부(isNewUser)는 없다.
+  // language 는 "신규 가입 시에만 사용" 이므로 프론트가 항상 보내고 여기서는
+  // 검사하지 않는다. (실제 서버도 기존 회원이면 무시한다)
+  //
+  // idToken 은 구글이 서명한 JWT 라 목에서 검증할 방법이 없다. 값이 있는지만 본다.
+  // 서명·aud·iss·exp 검증은 서버가 한다.
+  http.post(`${BASE}/users/login/google`, async ({ request }) => {
+    const { idToken } = (await request.json()) as { idToken?: string }
+
+    if (!idToken) {
+      return HttpResponse.json(
+        errorBody('구글 인증 정보가 올바르지 않습니다.'),
         { status: 401 },
       )
     }
