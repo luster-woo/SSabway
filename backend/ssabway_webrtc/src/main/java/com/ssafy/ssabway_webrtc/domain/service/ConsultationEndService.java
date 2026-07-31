@@ -18,49 +18,63 @@ public class ConsultationEndService {
 
     private final ConsultationRepository consultationRepository;
 
-    public ConsultationEndResponse endConsultation(String sessionId, String recordingId) throws OpenViduJavaClientException, OpenViduHttpException {
+    public ConsultationEndResponse endConsultation(
+        String sessionId
+    ) throws OpenViduJavaClientException,
+        OpenViduHttpException {
 
         Long consultationId = extractConsultationId(sessionId);
 
-        // 전달받은 녹화 ID가 현재 상담 세션의 녹화인지 확인
-        Recording recording = openViduService.getRecording(recordingId);
+        Consultation consultation = consultationRepository
+            .findById(consultationId)
+            .orElseThrow(
+                () -> new IllegalStateException(
+                    "상담 정보를 찾을 수 없습니다."
+                )
+            );
 
-        if(!sessionId.equals(recording.getSessionId())){
-            throw new IllegalStateException("상담 세션과 녹화 정보가 일치하지 않습니다.");
+        // 이미 종료된 상담에 대한 재요청은 성공으로 처리합니다.
+        if ("ENDED".equals(consultation.getStatus())) {
+            return new ConsultationEndResponse(sessionId, consultation.getRecordId(), true);
         }
 
-        if(recording.getStatus() == Recording.Status.started){
-            openViduService.stopAudioRecording(recordingId);
-        } else if(recording.getStatus() != Recording.Status.stopped &&
-            recording.getStatus() != Recording.Status.ready) {
-            throw new IllegalStateException("현재 상태에서는 녹화를 종료할 수 없습니다.");
+        if (!"IN_PROGRESS".equals(consultation.getStatus())) {
+            throw new IllegalStateException("진행 중인 상담이 아닙니다.");
         }
 
-        // 활성 세션이 존재할 때만 종료해 중복 요청을 허용
+        String recordId = consultation.getRecordId();
+
+        if (recordId == null || recordId.isBlank()) {
+            throw new IllegalStateException("상담 녹음 정보를 찾을 수 없습니다.");
+        }
+
+        Recording recording = openViduService.getRecording(recordId);
+
+        if (!sessionId.equals(recording.getSessionId())) {
+            throw new IllegalStateException("상담 세션과 녹음 정보가 일치하지 않습니다.");
+        }
+
+        // 진행 중인 녹음을 먼저 종료한 뒤 OpenVidu 세션을 종료합니다.
+        if (recording.getStatus() == Recording.Status.started) {
+            openViduService.stopAudioRecording(recordId);
+        } else if (
+            recording.getStatus() != Recording.Status.stopped &&
+                recording.getStatus() != Recording.Status.ready
+        ) {
+            throw new IllegalStateException(
+                "현재 상태에서는 녹음을 종료할 수 없습니다."
+            );
+        }
+
         openViduService.closeSessionIfActive(sessionId);
 
-        // 진행 중인 상담만 ENDED로 변경
         int updatedCount = consultationRepository.endConsultation(consultationId);
 
-        if(updatedCount == 0){
-            Consultation consultation = consultationRepository.findById(consultationId)
-                .orElseThrow(
-                    () -> new IllegalStateException("상담 정보를 찾을 수 없습니다."
-                    )
-                );
-
-            // 이미 종료된 상담에 대한 재요청은 성공으로 처리
-            if(!"ENDED".equals(consultation.getStatus())){
-                throw new IllegalStateException("진행 중인 상담이 아닙니다.");
-            }
-
+        if (updatedCount == 0) {
+            throw new IllegalStateException("상담 종료 상태를 저장하지 못했습니다.");
         }
 
-        return new ConsultationEndResponse(
-            sessionId,
-            recordingId,
-            true
-        );
+        return new ConsultationEndResponse(sessionId, recordId, true);
     }
 
     // consultation-{상담 ID} 형식의 세션 ID에서 상담 ID 추출
