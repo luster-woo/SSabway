@@ -6,6 +6,7 @@ import { AppLogo, Button, MobileScreen, useToast } from '@/shared/ui'
 import { AuthTextField } from '@/user/features/auth/AuthTextField'
 import { GoogleLoginButton } from '@/user/features/auth/GoogleLoginButton'
 import { useGoBack } from '@/user/features/auth/useGoBack'
+import { useGoogleLogin } from '@/user/features/auth/useGoogleLogin'
 import { useUserLogin } from '@/user/features/auth/useUserLogin'
 
 /** 뒤로가기 화살표 */
@@ -40,8 +41,19 @@ export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const { login, isPending, errorKey } = useUserLogin()
+  const {
+    login: loginWithGoogle,
+    isPending: isGooglePending,
+    errorKey: googleErrorKey,
+  } = useGoogleLogin()
 
   const isSubmittable = email.trim() !== '' && password !== '' && !isPending
+
+  /** 로그인 성공 후 처리. 일반·구글 로그인이 같다. */
+  const finishLogin = () => {
+    showToast(t('auth.login.success'))
+    goBack()
+  }
 
   const submitLogin = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -50,8 +62,20 @@ export default function LoginPage() {
     const isLoggedIn = await login({ email: email.trim(), password })
     if (!isLoggedIn) return
 
-    showToast(t('auth.login.success'))
-    goBack()
+    finishLogin()
+  }
+
+  /**
+   * 구글이 준 ID Token 을 서버로 넘긴다.
+   *
+   * 응답이 일반 로그인과 동일하므로 성공 후 처리도 같다.
+   * 팝업을 그냥 닫으면 콜백이 오지 않으므로 이 화면에 그대로 남는다.
+   */
+  const submitGoogleLogin = async (idToken: string) => {
+    const isLoggedIn = await loginWithGoogle(idToken)
+    if (!isLoggedIn) return
+
+    finishLogin()
   }
 
   return (
@@ -79,7 +103,9 @@ export default function LoginPage() {
 
       <div className="mt-[clamp(20px,4.5vh,34px)]">
         <GoogleLoginButton
-          onClick={() => showToast(t('auth.login.googlePending'))}
+          onCredential={(idToken) => void submitGoogleLogin(idToken)}
+          isPending={isGooglePending}
+          errorKey={googleErrorKey}
         />
       </div>
 

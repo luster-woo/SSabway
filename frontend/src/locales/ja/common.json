@@ -31,8 +31,6 @@
     "login": {
       "title": "ログイン",
       "subtitle": "メールとパスワードでログインしてください。",
-      "google": "Googleで続行",
-      "googlePending": "Googleログインは準備中です",
       "orEmail": "またはメールで",
       "email": "メールアドレス",
       "emailPlaceholder": "you@example.com",
@@ -45,8 +43,11 @@
       "success": "ログインしました",
       "error": {
         "invalidCredential": "メールアドレスまたはパスワードが正しくありません",
-        "unknown": "ログインに失敗しました・しばらくしてから再試行してください"
-      }
+        "unknown": "ログインに失敗しました・しばらくしてから再試行してください",
+        "googleRejected": "Google 認証に失敗しました · もう一度お試しください",
+        "googleFailed": "Google ログインに失敗しました · しばらくしてからお試しください"
+      },
+      "googleUnavailable": "Google ログインを利用できません · ネットワークをご確認ください"
     },
     "passwordReset": {
       "title": "パスワード再設定",
