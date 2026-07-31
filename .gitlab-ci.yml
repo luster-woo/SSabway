@@ -69,8 +69,6 @@ merge-check:
     paths:
       - .gradle/caches
       - .gradle/wrapper
-  before_script:
-    - chmod +x ./gradlew || true
 
 backend-ssabway:
   extends: .gradle-base
@@ -86,7 +84,7 @@ backend-ssabway:
   script:
     - cd backend/ssabway
     - >
-      ./gradlew compileJava --no-daemon
+      sh gradlew compileJava --no-daemon
       -Dorg.gradle.jvmargs=-Xmx1g
       -Dorg.gradle.workers.max=2
 
@@ -104,7 +102,7 @@ backend-signaling:
   script:
     - cd backend/ssabway_webrtc
     - >
-      ./gradlew compileJava --no-daemon
+      sh gradlew compileJava --no-daemon
       -Dorg.gradle.jvmargs=-Xmx1g
       -Dorg.gradle.workers.max=2
 
