@@ -24,8 +24,9 @@ public class Consultation {
     @Column(name = "staff_id", nullable = false)
     private Long staffId;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
-    private String status;
+    private ConsultationStatus status;
 
     @Column(name = "started_at")
     private LocalDateTime startedAt;

@@ -1,5 +1,6 @@
 package com.ssafy.ssabway_webrtc.domain.dto;
 
+import com.ssafy.ssabway_webrtc.domain.entity.ConsultationStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -8,5 +9,5 @@ import lombok.Getter;
 public class ConsultationEndResponse {
     private String sessionId;
     private String recordingId;
-    private boolean ended;
+    private ConsultationStatus status;
 }
