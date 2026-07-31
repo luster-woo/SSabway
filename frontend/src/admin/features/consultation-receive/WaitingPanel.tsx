@@ -34,7 +34,7 @@ export function WaitingPanel() {
 
     showToast(`${consultation.email} 상담을 시작합니다`)
     /*
-      세션 정보(sessionId·token·recordingId)는 useAcceptConsultation 이 스토어에
+      세션 정보(sessionId·token)는 useAcceptConsultation 이 스토어에
       넣어 뒀다. 라우팅 state 로 넘기면 새로고침·뒤로가기에서 사라진다.
     */
     void navigate(`/admin/consultation/${String(consultation.consultationId)}`)

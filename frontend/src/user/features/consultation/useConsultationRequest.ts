@@ -23,8 +23,8 @@ export interface UseConsultationRequestResult {
  * 플래그가 꺼져 있는 동안에는 호출하지 않고 null 을 돌려준다.
  * 연결 검증 중에는 역무원 대기 목록의 ID 를 쿼리 파라미터로 직접 넘긴다.
  *
- * TODO: 블랙리스트 403 을 화면 문구로 구분해야 한다. 지금은 서버가 에러 코드를
- *       주지 않아 isRejected 를 채울 근거가 없다. (BACKEND_READY.ERROR_CODES)
+ * TODO: 블랙리스트 403 을 화면 문구로 구분해야 한다. 에러 응답에 code 필드가
+ *       추가되면(백엔드 요청 중) 403 + BLACKLISTED 로 좁힌다.
  */
 export function useConsultationRequest(): UseConsultationRequestResult {
   const [isPending, setIsPending] = useState(false)

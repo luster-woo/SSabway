@@ -33,15 +33,16 @@ export interface UseAcceptConsultationResult {
 }
 
 /**
- * 상담 수락 — 화상 세션 생성 + 토큰 발급 + 녹음 시작.
+ * 상담 수락 — 화상 세션 생성 + 토큰 발급.
  *
- * 백엔드에 상담 리소스 래퍼가 없어 세 번의 호출로 이뤄지며, 순서와 롤백은
- * `@/shared/api/openvidu` 의 openSession 이 책임진다. 여기서는 결과를 스토어에
- * 넣어 상담 화면으로 넘기는 일만 한다.
+ * 순서와 롤백은 `@/shared/api/openvidu` 의 openSession 이 책임진다.
+ * 여기서는 결과를 스토어에 넣어 상담 화면으로 넘기는 일만 한다.
  *
- * 수락과 동시에 녹음이 시작된다. 녹음 파일은 종료 시 OpenVidu 가 처리를 마치고
- * `recordingStatusChanged: ready` 웹훅을 보내면 백엔드가 S3 로 올린다.
- * 프론트가 파일을 직접 다루는 구간은 없다.
+ * 녹음은 여기서 시작하지 않는다 — 사용자까지 접속한 뒤 상담방 훅
+ * (useConsultationRoom)이 start 를 불러 시작한다. 팀 합의(7/31).
+ *
+ * 선착순은 서버가 판정한다. 늦게 누른 역무원은 커넥션 발급에서 409
+ * (PARTICIPANT_ALREADY_CONNECTED)를 받는다.
  *
  * 실패해도 대기 목록 쿼리를 무효화한다. 이미 없어진 항목이 화면에 남으면 안 된다.
  */
