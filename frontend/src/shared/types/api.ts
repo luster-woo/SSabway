@@ -16,13 +16,27 @@ export interface WebrtcApiResponse<T> {
   message: string | null
 }
 
+/**
+ * 화상 상담 에러 코드 — signaling 서버 ErrorCode enum 기준 (7/31 갱신).
+ *
+ * ⚠️ 백엔드 에러 응답이 아직 `{ success, data, message }` 뿐이라 이 코드가
+ *    응답에 실리지 않는다(code 필드 추가 요청 중). 그 전까지 분기는 HTTP
+ *    상태코드로 하고, 이 상수는 code 필드가 들어오는 즉시 쓸 수 있게 백엔드
+ *    enum 이름과 1:1로 맞춰 둔다. (기존 7/27 명세 이름은 폐기)
+ */
 export const API_ERROR_CODE = {
-  BLACKLISTED: 'BLACKLISTED', // 403 차단 사용자의 상담 요청
-  ALREADY_ACCEPTED: 'ALREADY_ACCEPTED', // 409 다른 역무원이 먼저 수락
-  INVALID_STATE: 'INVALID_STATE', // 409 불가능한 상태 전이
-  SESSION_CLOSED: 'SESSION_CLOSED', // 410 종료된 상담에 토큰 요청
-  TOKEN_REISSUE_EXCEEDED: 'TOKEN_REISSUE_EXCEEDED', // 429 재발급 한도 초과
-  OPENVIDU_ERROR: 'OPENVIDU_ERROR', // 502 세션 생성 실패
+  // 상담 — 409는 "이 상태에선 그 동작 불가"
+  CONSULTATION_NOT_FOUND: 'CONSULTATION_NOT_FOUND', // 404
+  CONSULTATION_NOT_WAITING: 'CONSULTATION_NOT_WAITING', // 409 이미 시작됨(선착순 패배 포함)
+  CONSULTATION_NOT_IN_PROGRESS: 'CONSULTATION_NOT_IN_PROGRESS', // 409 진행 중이 아님
+  // 세션·참여자
+  OPENVIDU_SESSION_NOT_FOUND: 'OPENVIDU_SESSION_NOT_FOUND', // 404 아직 수락 전(사용자 폴링의 재시도 신호)
+  PARTICIPANT_ALREADY_CONNECTED: 'PARTICIPANT_ALREADY_CONNECTED', // 409 같은 역할이 이미 접속
+  PARTICIPANT_LIMIT_EXCEEDED: 'PARTICIPANT_LIMIT_EXCEEDED', // 409 1:1 초과
+  OPENVIDU_COMMUNICATION_FAILED: 'OPENVIDU_COMMUNICATION_FAILED', // 502 OpenVidu 서버 장애
+  // 녹음
+  RECORDING_NOT_FOUND: 'RECORDING_NOT_FOUND', // 404
+  RECORDING_STATUS_INVALID: 'RECORDING_STATUS_INVALID', // 409
 } as const
 
 export type ApiErrorCode = (typeof API_ERROR_CODE)[keyof typeof API_ERROR_CODE]

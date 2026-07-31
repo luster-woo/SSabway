@@ -1,9 +1,7 @@
 import axios, { type AxiosInstance } from 'axios'
 
-import { BACKEND_READY } from '@/shared/api/backendCapabilities'
 import { endpoints } from '@/shared/api/endpoints'
 import type {
-  AcceptResult,
   ApiResponse,
   ConsultationSession,
   ConsultationSnapshot,
@@ -13,22 +11,23 @@ import type {
 } from '@/shared/types'
 
 /**
- * 화상 상담 서버 호출부.
+ * 화상 상담 서버(ssabway_webrtc) 호출부. — 7/31 백엔드 최신화 반영
  *
- * 백엔드에 상담 리소스 래퍼가 아직 없어서, "역무원이 상담을 수락한다"는 한 동작이
- * 세 번의 HTTP 호출로 쪼개져 있다. 순서·롤백·세션 ID 규칙을 화면 코드가 알면
- * 래퍼가 생겼을 때 고칠 자리가 흩어지므로 전부 이 파일에 가둔다.
+ * 서버 흐름: sessions(생성) → connections(토큰) → start(녹음+IN_PROGRESS) → end.
+ * 순서·실패 처리·세션 ID 규칙을 화면 코드가 알면 고칠 자리가 흩어지므로
+ * 전부 이 파일에 가둔다.
  *
- * 래퍼가 들어오면 BACKEND_READY 플래그만 켜면 되고, 화면·훅은 손대지 않는다.
+ * start 는 사용자와 역무원이 모두 접속한 뒤(streamCreated 이후) 불러야 한다 —
+ * 팀 합의(7/31). 따라서 수락 시점(openSession)에는 부르지 않고,
+ * 상담방 훅이 사용자 스트림을 받은 순간 startConsultation 을 부른다.
  */
 
 /**
- * 세션 ID 생성 규칙. — ⚠️ 임시
+ * 세션 ID 생성 규칙.
  *
- * 백엔드와 암묵적으로 공유하는 규칙이다.
- *   - OpenViduService.createSession — customSessionId("consultation-" + consultationId)
- *   - ConsultationEndService.SESSION_PREFIX
- * accept 래퍼가 consultationId 기준이 되면 이 함수는 통째로 삭제한다.
+ * ⚠️ 백엔드와 공유하는 규칙이다. (양쪽 서비스의 SESSION_PREFIX 상수)
+ * accept 통합안을 철회하고 sessionId 기준 API 로 확정했으므로(7/31)
+ * 이 규칙은 계속 유지된다. 서버에서 접두사를 바꾸면 반드시 상호 공지할 것.
  */
 const SESSION_ID_PREFIX = 'consultation-'
 
@@ -45,10 +44,15 @@ interface ConnectionCreated {
   token: string
 }
 
-interface RecordingStarted {
-  recordingId: string
+interface ConsultationStarted {
   sessionId: string
-  status: string
+  started: boolean
+}
+
+interface ConsultationEnded {
+  sessionId: string
+  recordingId: string
+  ended: boolean
 }
 
 export interface JoinSessionOptions {
@@ -82,26 +86,24 @@ function delay(ms: number, signal?: AbortSignal): Promise<void> {
 }
 
 /**
- * "아직 세션이 안 열렸다" 와 "서버가 고장났다" 를 구분한다.
+ * "아직 세션이 안 열렸다"의 판정.
  *
- * ⚠️ ERROR_CODES 플래그가 꺼져 있는 동안은 구분할 수 없다. 백엔드가 존재하지 않는
- * 세션에 IllegalStateException 을 던지고 @RestControllerAdvice 가 없어서 둘 다
- * 500 으로 나오기 때문이다. 그래서 5xx 도 "아직 아님" 으로 보고 재시도하되,
- * timeoutMs 로 상한을 둔다. 그동안은 서버 장애가 "대기 중" 으로 보인다.
+ * GlobalExceptionHandler 도입(7/31)으로 이제 상태코드가 구분된다.
+ *   404 OPENVIDU_SESSION_NOT_FOUND — 역무원이 아직 수락 전 → 재시도
+ *   409 PARTICIPANT_ALREADY_CONNECTED — 같은 역할이 이미 접속(중복 탭 등) → 중단
+ *   502 OPENVIDU_COMMUNICATION_FAILED — OpenVidu 서버 장애 → 중단
+ *
+ * ⚠️ 에러 응답에 code 필드가 아직 없어(message 는 한국어 안내문) 상태코드로만
+ *    가른다. 같은 404 라도 CONSULTATION_NOT_FOUND 와 구분하지 못하지만,
+ *    커넥션 발급 맥락에서 404 는 사실상 "세션 없음"이다.
+ *    code 필드 추가를 백엔드에 요청해 둔 상태 — 들어오면 code 로 좁힌다.
  */
 function isSessionNotReady(error: unknown): boolean {
   if (!axios.isAxiosError(error)) return false
-
-  const status = error.response?.status
-  if (status === undefined) return false // 네트워크 오류는 재시도하지 않는다
-
-  if (BACKEND_READY.ERROR_CODES) return status === 409
-  return status === 409 || status >= 500
+  return error.response?.status === 404
 }
 
 export function createOpenViduApi(api: AxiosInstance) {
-  // ─── OpenVidu 원시 API (래퍼가 생기면 openSession 내부에서만 쓰인다) ───
-
   async function createSession(consultationId: number): Promise<string> {
     const res = await api.post<WebrtcApiResponse<SessionCreated>>(
       endpoints.openvidu.createSession,
@@ -122,74 +124,50 @@ export function createOpenViduApi(api: AxiosInstance) {
     return res.data.data
   }
 
-  async function startRecording(sessionId: string): Promise<RecordingStarted> {
-    const res = await api.post<WebrtcApiResponse<RecordingStarted>>(
-      endpoints.openvidu.startRecording(sessionId),
-    )
-    return res.data.data
-  }
-
   async function closeSession(sessionId: string): Promise<void> {
     await api.delete(endpoints.openvidu.closeSession(sessionId))
   }
 
-  // ─── 화면이 쓰는 업무 단위 ───
-
   /**
-   * 역무원이 상담을 수락할 때. 세션 생성 → 토큰 발급 → 녹음 시작.
+   * 역무원이 상담을 수락할 때. 세션 생성 → 토큰 발급.
    *
-   * 토큰 발급이 실패하면 방금 만든 세션을 되돌린다. 남겨두면 아무도 못 들어가는
-   * 빈 세션이 쌓이고, 사용자 쪽은 세션이 열렸다고 판단해 접속을 시도하다 실패한다.
+   * 녹음은 여기서 시작하지 않는다 — start 가 사용자 접속 이후로 합의됐다.
    *
-   * 녹음 실패는 롤백하지 않는다. 통화는 성립하므로 끊을 이유가 없고,
-   * 명세도 녹음 실패 시 통화를 계속하도록 되어 있다. (NFR-REL-003 5번)
+   * 선착순 판정은 서버가 한다. 두 역무원이 동시에 수락하면 늦은 쪽이
+   * 세션 생성(409, OpenVidu customSessionId 충돌) 또는 커넥션 발급
+   * (409 PARTICIPANT_ALREADY_CONNECTED / PARTICIPANT_LIMIT_EXCEEDED)에서 거절된다.
+   *
+   * 토큰 발급이 실패하면 방금 만든 세션을 되돌린다. 남겨두면 사용자 쪽
+   * joinSession 이 "세션이 열렸다"고 오판해 들어가 혼자 기다리게 된다.
+   * (closeSession 은 백엔드 재추가 예정 — 그 전까지 롤백 실패는 무시된다)
    */
   async function openSession(
     consultationId: number,
     participantId: string,
     role: ParticipantRole,
   ): Promise<ConsultationSession> {
-    if (BACKEND_READY.CONSULTATION_ACCEPT) {
-      const res = await api.post<ApiResponse<AcceptResult>>(
-        endpoints.admin.accept(consultationId),
-      )
-      const { sessionId, token, recordingId } = res.data.data
-      return { consultationId, sessionId, token, recordingId }
-    }
-
     const sessionId = await createSession(consultationId)
 
-    let token: string
     try {
       const connection = await createConnection(sessionId, participantId, role)
-      token = connection.token
+      return { consultationId, sessionId, token: connection.token }
     } catch (error) {
       await closeSession(sessionId).catch(() => {
-        // 롤백 실패는 원래 오류를 덮지 않는다. 세션은 통화 종료 시 정리된다.
+        // 롤백 실패는 원래 오류를 덮지 않는다.
       })
       throw error
     }
-
-    let recordingId: string | null = null
-    try {
-      recordingId = (await startRecording(sessionId)).recordingId
-    } catch {
-      // 녹음만 실패. AI 요약이 없을 뿐 통화는 진행한다.
-    }
-
-    return { consultationId, sessionId, token, recordingId }
   }
 
   /**
    * 이미 열려 있는 세션에 접속할 때. 사용자(여행객)와, 새로고침한 역무원이 쓴다.
    *
-   * ⚠️ 임시 경로다. 세션은 역무원이 수락해야 생기는데 서버가 "아직 매칭 안 됨"을
-   * 구분해 주지 않아 실패를 폴링으로 흡수한다. CONSULTATION_STATUS 가 켜지면
-   * 사용자 쪽은 상태 폴링 → issueToken 으로 바뀌고, 이 함수는 역무원 새로고침
-   * 복구용으로만 남는다.
+   * 세션은 역무원이 수락해야 생기므로, 열릴 때까지(404) 3초 간격으로 재시도한다.
+   * 상담 상태 조회 API(BACKEND_READY.CONSULTATION_STATUS)가 생기면 사용자 쪽은
+   * 상태 폴링 → 1회 접속으로 바뀌고, 이 함수는 역무원 새로고침 복구용으로 남는다.
    *
-   * 재호출은 안전하다. 매번 새 Connection 이 생기지만 쓰지 않은 커넥션은
-   * OpenVidu 가 세션 종료 시 함께 정리한다.
+   * 재접속은 서버가 처리한다 — 같은 participantId 로 다시 커넥션을 받으면
+   * 서버가 이전 커넥션을 끊고 새로 발급한다. 다른 participantId 면 409.
    */
   async function joinSession(
     consultationId: number,
@@ -204,12 +182,7 @@ export function createOpenViduApi(api: AxiosInstance) {
     for (;;) {
       try {
         const connection = await createConnection(sessionId, participantId, role)
-        return {
-          consultationId,
-          sessionId,
-          token: connection.token,
-          recordingId: null,
-        }
+        return { consultationId, sessionId, token: connection.token }
       } catch (error) {
         const canRetry =
           isSessionNotReady(error) &&
@@ -222,22 +195,51 @@ export function createOpenViduApi(api: AxiosInstance) {
   }
 
   /**
-   * 매칭된 사용자가 접속 토큰을 받는다. — ⚠️ CONSULTATION_STATUS 필요
+   * 상담 시작 — 녹음 시작 + WAITING→IN_PROGRESS + record_id 저장.
    *
-   * 명세상 TTL 5분·재발급 5회이고 재연결 시 반복 호출한다.
-   * 이 API 가 생기면 사용자 쪽에서 joinSession 폴링이 사라진다.
+   * 사용자와 역무원이 모두 접속한 뒤(사용자 streamCreated 이후) 역무원 쪽이 부른다.
+   * 중복 호출은 서버가 멱등 처리하므로, 새로고침 후 다시 불러도 안전하고
+   * 이미 진행 중이면 started: true 가 돌아와 REC 배지 복원에도 쓰인다.
    */
-  async function issueToken(
-    consultationId: number,
-  ): Promise<ConsultationSession> {
-    const res = await api.post<ApiResponse<{ sessionId: string; token: string }>>(
-      endpoints.consultations.token(consultationId),
+  async function startConsultation(sessionId: string): Promise<boolean> {
+    const res = await api.post<WebrtcApiResponse<ConsultationStarted>>(
+      endpoints.openvidu.start(sessionId),
     )
-    const { sessionId, token } = res.data.data
-    return { consultationId, sessionId, token, recordingId: null }
+    return res.data.data.started
   }
 
-  /** 상담 상태 조회. 사용자가 매칭을 기다리며 폴링한다. — ⚠️ CONSULTATION_STATUS 필요 */
+  /**
+   * 상담 종료 — 녹음 정지 + 세션 종료 + ENDED 전이.
+   *
+   * recordingId 는 보내지 않는다. 서버가 consultations.record_id 에서 스스로
+   * 찾는다. 이미 종료된 상담이면 성공으로 응답하므로 재클릭에 안전하다.
+   *
+   * S3 업로드는 이 응답 이후 웹훅으로 비동기 진행된다 — 응답이 왔다고
+   * 녹음 파일이 준비된 것은 아니다.
+   */
+  async function endConsultation(consultationId: number): Promise<EndResult> {
+    const sessionId = toSessionId(consultationId)
+    const res = await api.post<WebrtcApiResponse<ConsultationEnded>>(
+      endpoints.openvidu.endConsultation(sessionId),
+    )
+    return {
+      consultationId,
+      sessionId: res.data.data.sessionId,
+      ended: res.data.data.ended,
+    }
+  }
+
+  // ─── 상담 도메인 API — ⚠️ BE 미구현 (BACKEND_READY.CONSULTATION_STATUS) ───
+
+  /** 상담 요청 → 대기열 등록 */
+  async function requestConsultation(): Promise<ConsultationSnapshot> {
+    const res = await api.post<ApiResponse<ConsultationSnapshot>>(
+      endpoints.consultations.create,
+    )
+    return res.data.data
+  }
+
+  /** 상담 상태 조회. 사용자가 매칭을 기다리며 3초 폴링한다. */
   async function fetchSnapshot(
     consultationId: number,
   ): Promise<ConsultationSnapshot> {
@@ -247,65 +249,29 @@ export function createOpenViduApi(api: AxiosInstance) {
     return res.data.data
   }
 
-  /** 상담 요청 → 대기열 등록. — ⚠️ CONSULTATION_STATUS 필요 */
-  async function requestConsultation(): Promise<ConsultationSnapshot> {
-    const res = await api.post<ApiResponse<ConsultationSnapshot>>(
-      endpoints.consultations.create,
-    )
-    return res.data.data
-  }
-
   /**
-   * 상담 종료 — 녹음 정지 + 세션 종료 + ENDED 전이.
-   *
-   * 녹음 파일 S3 업로드는 OpenVidu 웹훅 이후 비동기로 진행되므로 이 응답이
-   * 왔다고 파일이 준비된 것은 아니다. summaryStatus 로 추적한다.
+   * 매칭된 사용자가 접속 토큰을 받는다.
+   * 이 API 가 생기면 사용자 쪽 joinSession 폴링이 상태 폴링 + 1회 발급으로 바뀐다.
    */
-  async function endConsultation(
+  async function issueToken(
     consultationId: number,
-    session: ConsultationSession | null,
-  ): Promise<EndResult> {
-    if (BACKEND_READY.CONSULTATION_END) {
-      const res = await api.post<ApiResponse<EndResult>>(
-        endpoints.admin.end(consultationId),
-      )
-      return res.data.data
-    }
-
-    const sessionId = session?.sessionId ?? toSessionId(consultationId)
-    const recordingId = session?.recordingId ?? null
-
-    /*
-      recordingId 를 모르면 /end 를 부를 수 없다. 서버가 그 값을 필수로 받고
-      DB 에 저장하지도 않아서(consultations 에 recording_id 컬럼 없음) 새로고침
-      후에는 되찾을 방법이 없다. 세션만 닫으면 OpenVidu 가 녹음을 마감하고
-      웹훅을 보내므로 파일 자체는 보존된다.
-      TODO: recording_id 컬럼이 추가되면 이 분기를 지운다.
-    */
-    if (recordingId === null) {
-      await closeSession(sessionId)
-    } else {
-      await api.post(endpoints.openvidu.endConsultation(sessionId), {
-        recordingId,
-      })
-    }
-
-    return {
-      consultationId,
-      status: 'ENDED',
-      durationSec: null,
-      summaryStatus: 'PENDING',
-    }
+  ): Promise<ConsultationSession> {
+    const res = await api.post<
+      ApiResponse<{ sessionId: string; token: string }>
+    >(endpoints.consultations.token(consultationId))
+    const { sessionId, token } = res.data.data
+    return { consultationId, sessionId, token }
   }
 
   return {
     openSession,
     joinSession,
-    issueToken,
-    fetchSnapshot,
-    requestConsultation,
+    startConsultation,
     endConsultation,
     closeSession,
+    requestConsultation,
+    fetchSnapshot,
+    issueToken,
   }
 }
 
