@@ -2,6 +2,7 @@ package com.ssafy.ssabway_webrtc.domain.repository;
 
 
 import com.ssafy.ssabway_webrtc.domain.entity.Consultation;
+import com.ssafy.ssabway_webrtc.domain.entity.ConsultationStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -26,26 +27,7 @@ public interface ConsultationRepository extends JpaRepository<Consultation, Long
         @Param("s3ObjectKey") String s3ObjectKey
     );
 
-    // 대기 중인 상담을 시작하고 OpenVidu 녹음 ID를 저장
-    @Transactional
-    @Modifying(
-        clearAutomatically = true,
-        flushAutomatically = true
-    )
-    @Query("""
-    UPDATE Consultation c
-        SET c.status = 'IN_PROGRESS',
-            c.startedAt = CURRENT_TIMESTAMP,
-            c.recordId = :recordId
-        WHERE c.id = :consultationId
-          AND c.status = 'WAITING'
-    """)
-    int startConsultation(
-        @Param("consultationId") Long consultationId,
-        @Param("recordId") String recordId
-    );
-
-    // 진행 중인 상담만 종료 상태로 변경해 중복 종료를 방지
+    // 지정된 현재 상태의 상담만 시작 상태로 변경하고 녹음 ID를 저장
     @Transactional
     @Modifying(
         clearAutomatically = true,
@@ -53,12 +35,35 @@ public interface ConsultationRepository extends JpaRepository<Consultation, Long
     )
     @Query("""
         UPDATE Consultation c
-        SET c.status = 'ENDED',
+        SET c.status = :nextStatus,
+            c.startedAt = CURRENT_TIMESTAMP,
+            c.recordId = :recordId
+        WHERE c.id = :consultationId
+          AND c.status = :currentStatus
+    """)
+    int startConsultation(
+        @Param("consultationId") Long consultationId,
+        @Param("recordId") String recordId,
+        @Param("currentStatus") ConsultationStatus currentStatus,
+        @Param("nextStatus") ConsultationStatus nextStatus
+    );
+
+    // 지정된 현재 상태의 상담만 종료 상태로 변경하고 종료 시간을 저장
+    @Transactional
+    @Modifying(
+        clearAutomatically = true,
+        flushAutomatically = true
+    )
+    @Query("""
+        UPDATE Consultation c
+        SET c.status = :nextStatus,
             c.endedAt = CURRENT_TIMESTAMP
         WHERE c.id = :consultationId
-          AND c.status = 'IN_PROGRESS'
+          AND c.status = :currentStatus
     """)
     int endConsultation(
-        @Param("consultationId") Long consultationId
+        @Param("consultationId") Long consultationId,
+        @Param("currentStatus") ConsultationStatus currentStatus,
+        @Param("nextStatus") ConsultationStatus nextStatus
     );
 }
