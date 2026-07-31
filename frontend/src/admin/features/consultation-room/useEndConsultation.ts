@@ -2,88 +2,55 @@ import { useCallback, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 
 import { queryKeys } from '@/shared/lib/queryKeys'
-
-/**
- * 종료 사유.
- *
- * 명세의 상담 종료 API 는 NORMAL | ERROR 만 받는다.
- * (부록의 EndReason 에는 USER_DISCONNECT·STAFF_DISCONNECT·TIMEOUT 도 있지만
- *  그 값들은 서버가 유예 초과 등을 감지해 스스로 붙이는 값이다)
- *
- * 블랙리스트 등록은 통화를 끊지 않고 등록만 하므로, 역무원이 누르는 종료는 항상 NORMAL 이다.
- */
-export const END_REASON_NORMAL = 'NORMAL'
-
-/** POST /api/v1/admin/consultations/{consultationId}/end 응답 */
-export interface EndConsultationResult {
-  consultationId: number
-  status: 'ENDED'
-  /** 통화 시간(초). 서버가 OpenVidu 웹훅 기준으로 확정한 값이다. */
-  durationSec: number
-  summaryStatus: 'PENDING' | 'DONE' | 'FAILED'
-}
-
-const MOCK_LATENCY_MS = 500
-
-function delay(ms: number): Promise<void> {
-  return new Promise((resolve) => {
-    window.setTimeout(resolve, ms)
-  })
-}
-
-async function requestEnd(
-  consultationId: number,
-): Promise<EndConsultationResult> {
-  // TODO: BE 연동 시 아래 목 처리를 실제 호출로 교체
-  //   const res = await adminApi.post<ApiResponse<EndConsultationResult>>(
-  //     endpoints.admin.end(consultationId),
-  //     { endReason: END_REASON_NORMAL },
-  //   )
-  //   return res.data.data
-  await delay(MOCK_LATENCY_MS)
-
-  return {
-    consultationId,
-    status: 'ENDED',
-    durationSec: 258,
-    summaryStatus: 'PENDING',
-  }
-}
+import { useConsultationSessionStore } from '@/shared/lib/store/useConsultationSessionStore'
+import type { EndResult } from '@/shared/types'
+import { openviduApi } from '@/admin/lib/openviduApi'
 
 export interface UseEndConsultationResult {
   /** 성공하면 결과, 실패하면 null */
-  endConsultation: (
-    consultationId: number,
-  ) => Promise<EndConsultationResult | null>
+  endConsultation: (consultationId: number) => Promise<EndResult | null>
   isPending: boolean
 }
 
 /**
- * 상담 종료.
+ * 상담 종료 — 녹음 정지 + 세션 종료 + 상담 ENDED 전이.
  *
- * 조회가 아니라 서버 상태를 바꾸는 명령이라 로컬 상태로 처리한다.
+ * 녹음 파일은 여기서 올리지 않는다. OpenVidu 가 녹음 처리를 마치고 웹훅을 보내면
+ * 백엔드가 S3 에 저장한다. 따라서 종료 응답이 와도 업로드는 진행 중일 수 있고,
+ * 요약 완료 여부는 민원 기록 화면에서 summaryStatus 로 확인한다.
+ *
+ * 조회가 아니라 서버 상태를 바꾸는 명령이라 로컬 상태로 처리하고,
  * 종료되면 대기 목록과 민원 기록이 달라지므로 상담 관련 쿼리를 무효화한다.
  */
 export function useEndConsultation(): UseEndConsultationResult {
   const queryClient = useQueryClient()
   const [isPending, setIsPending] = useState(false)
+  const session = useConsultationSessionStore((s) => s.session)
+  const clearSession = useConsultationSessionStore((s) => s.clearSession)
 
   const endConsultation = useCallback(
-    async (consultationId: number) => {
+    async (consultationId: number): Promise<EndResult | null> => {
       setIsPending(true)
 
+      // 다른 상담의 세션이 남아 있으면 그걸 끊어버리므로 ID 를 확인한다
+      const current =
+        session !== null && session.consultationId === consultationId
+          ? session
+          : null
+
       try {
-        return await requestEnd(consultationId)
+        return await openviduApi.endConsultation(consultationId, current)
       } catch {
         return null
       } finally {
         setIsPending(false)
+        clearSession()
         void queryClient.invalidateQueries({
           queryKey: queryKeys.consultation.all,
         })
       }
     },
-    [queryClient],
+    [clearSession, queryClient, session],
   )
 
   return { endConsultation, isPending }

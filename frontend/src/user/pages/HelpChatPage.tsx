@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/shared/lib/store/useAuthStore'
 import { useHelpChatStore } from '@/shared/lib/store/useHelpChatStore'
 import { MobileViewport } from '@/shared/ui'
+import { useConsultationRequest } from '@/user/features/consultation/useConsultationRequest'
 import { BotBubble } from '@/user/features/help-chat/BotBubble'
 import { HelpChatHeader } from '@/user/features/help-chat/HelpChatHeader'
 
@@ -31,6 +32,7 @@ export default function HelpChatPage() {
   const hasRequested = useHelpChatStore((state) => state.hasRequestedConnection)
   const requestConnection = useHelpChatStore((state) => state.requestConnection)
   const resetConversation = useHelpChatStore((state) => state.resetConversation)
+  const { requestConsultation, isPending } = useConsultationRequest()
 
   /** 화면을 떠날 때는 대화를 처음으로 되돌린다. */
   const leaveTo = (path: string) => {
@@ -43,8 +45,20 @@ export default function HelpChatPage() {
     void navigate('/login')
   }
 
-  const startVideoCall = () => {
-    void navigate('/consultation')
+  /**
+   * 상담을 요청하고 화상 화면으로 넘어간다.
+   *
+   * 요청 API 가 아직 없어 지금은 항상 null 이 오고, 그때는 상담 ID 없이 이동해
+   * 화상 화면이 안내 문구를 띄운다. API 가 붙으면 발급받은 ID 를 실어 보낸다.
+   */
+  const startVideoCall = async () => {
+    const consultationId = await requestConsultation()
+
+    void navigate(
+      consultationId === null
+        ? '/consultation'
+        : `/consultation?consultationId=${String(consultationId)}`,
+    )
   }
 
   return (
@@ -88,8 +102,9 @@ export default function HelpChatPage() {
             <div className="mt-1 flex flex-col items-center gap-3">
               <button
                 type="button"
-                onClick={startVideoCall}
-                className="bg-brand-gradient focus-visible:ring-brand h-[52px] w-[82%] rounded-2xl text-[15px] font-bold text-white shadow-sm transition active:brightness-95 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+                disabled={isPending}
+                onClick={() => void startVideoCall()}
+                className="bg-brand-gradient focus-visible:ring-brand h-[52px] w-[82%] rounded-2xl text-[15px] font-bold text-white shadow-sm transition active:brightness-95 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:opacity-60"
               >
                 {t('helpChat.connect')}
               </button>

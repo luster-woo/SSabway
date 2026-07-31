@@ -63,8 +63,9 @@ export interface UseCallMediaResult {
  *
  * 오류 분류(CAMERA_ERROR)와 i18n 키(signCapture.error.*)는 재사용한다.
  *
- * TODO: OpenVidu 연동 시 이 스트림을 publish 한다.
- *       모자이크는 canvas 로 가공한 스트림을 publish 해야 하므로 경로가 한 겹 늘어난다.
+ * 여기서 얻은 스트림을 useConsultationCall 이 OpenVidu 로 발행한다.
+ * TODO: 모자이크는 canvas 로 가공한 스트림을 발행해야 하므로 경로가 한 겹 늘어난다.
+ *       그때 이 훅의 stream 과 발행용 stream 이 갈린다.
  */
 export function useCallMedia(): UseCallMediaResult {
   const [status, setStatus] = useState<CallMediaStatus>(CALL_MEDIA_STATUS.IDLE)
