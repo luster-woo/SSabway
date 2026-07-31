@@ -59,3 +59,5 @@ services:
     
 volumes:
   mysql-data:
+  - mysql_data:/var/lib/mysql        # 기존 것
+  - ./deploy/db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
