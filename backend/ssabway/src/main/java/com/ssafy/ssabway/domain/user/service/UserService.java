@@ -1,10 +1,7 @@
 package com.ssafy.ssabway.domain.user.service;
 
 import com.ssafy.ssabway.domain.auth.service.RefreshTokenService;
-import com.ssafy.ssabway.domain.user.dto.request.GoogleLoginRequest;
-import com.ssafy.ssabway.domain.user.dto.request.LoginRequest;
-import com.ssafy.ssabway.domain.user.dto.request.SignUpRequest;
-import com.ssafy.ssabway.domain.user.dto.request.WithdrawRequest;
+import com.ssafy.ssabway.domain.user.dto.request.*;
 import com.ssafy.ssabway.domain.user.dto.response.EmailDuplicateResponse;
 import com.ssafy.ssabway.domain.user.dto.response.LoginResult;
 import com.ssafy.ssabway.domain.user.entity.Provider;
@@ -124,5 +121,13 @@ public class UserService {
         }
 
         return userRepository.save(User.createGoogle(googleUser.email(), googleUser.providerId(), language));
+    }
+
+    @Transactional
+    public void updateLanguage(Long userId, LanguageUpdateRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        user.changeLanguage(request.language());
     }
 }

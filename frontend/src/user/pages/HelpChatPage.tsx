@@ -26,9 +26,14 @@ export default function HelpChatPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
 
-  const isAuthenticated = useAuthStore(
-    (state) => state.status.user === 'authenticated',
-  )
+  /*
+    'idle' 은 비로그인이 아니라 "아직 모름" 이다. (UserApp 의 useRestoreSession)
+    이 화면에서 직접 새로고침했을 때, 판정 전에 "로그인이 필요해요" 를 띄우면
+    이미 로그인한 사용자를 로그인 화면으로 보내게 된다.
+  */
+  const authStatus = useAuthStore((state) => state.status.user)
+  const isAuthenticated = authStatus === 'authenticated'
+  const isAuthPending = authStatus === 'idle'
   const hasRequested = useHelpChatStore((state) => state.hasRequestedConnection)
   const requestConnection = useHelpChatStore((state) => state.requestConnection)
   const resetConversation = useHelpChatStore((state) => state.resetConversation)
@@ -83,7 +88,7 @@ export default function HelpChatPage() {
           </button>
         )}
 
-        {hasRequested && !isAuthenticated ? (
+        {hasRequested && !isAuthPending && !isAuthenticated ? (
           <>
             <BotBubble>{t('helpChat.loginRequired')}</BotBubble>
             <button

@@ -16,10 +16,7 @@ public class SecurityConfig {
 
         http
             .csrf(csrf -> csrf
-                .ignoringRequestMatchers(
-                    "/api/v1/openvidu/webhooks"
-                )
-            )
+                .disable())
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
                     HttpMethod.POST,

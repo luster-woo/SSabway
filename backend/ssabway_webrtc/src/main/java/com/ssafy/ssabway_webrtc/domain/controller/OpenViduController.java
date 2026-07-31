@@ -66,20 +66,6 @@ public class OpenViduController {
         return ApiResponse.ok(consultationStartService.startConsultation(sessionId));
     }
 
-    @DeleteMapping("/sessions/{sessionId}")
-    public ApiResponse<SessionCloseResponse> closeSession(
-        @PathVariable String sessionId
-    ) throws OpenViduJavaClientException, OpenViduHttpException{
-        openViduService.closeSession(sessionId);
-
-        return ApiResponse.ok(
-            new SessionCloseResponse(
-                sessionId,
-                true
-            )
-        );
-    }
-
 
     @PostMapping("/sessions/{sessionId}/end")
     public ApiResponse<ConsultationEndResponse> endConsultation(@PathVariable String sessionId)

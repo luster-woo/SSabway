@@ -1,5 +1,7 @@
 package com.ssafy.ssabway_webrtc.domain.service;
 
+import com.ssafy.ssabway_webrtc.common.exception.BusinessException;
+import com.ssafy.ssabway_webrtc.common.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -47,8 +49,9 @@ public class S3Service {
 
             return objectKey;
         } catch (S3Exception exception){
-            throw new IllegalStateException(
-                "녹음 파일을 S3에 업로드 할 수 없음",exception
+            throw new BusinessException(
+                ErrorCode.RECORDING_UPLOAD_FAILED,
+                exception
             );
         }
     }

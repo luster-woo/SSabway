@@ -2,23 +2,25 @@ spring:
   application:
     name: ssabway
 
+  # 로컬 전용 시크릿(선택). 존재하면 .env 대신 이 파일이 placeholder 를 채움.
+  # Docker 에는 이 파일이 없으므로 .env(환경변수)가 사용됨.
   config:
     import: optional:application-secret.yml
 
   data:
     redis:
-      host: localhost
+      host: ${SPRING_DATA_REDIS_HOST:localhost}
       port: 6379
 
   datasource:
-    url: jdbc:mysql://localhost:3306/ssabway_db
-    username: ssafy
-    password: ${DB_PASSWORD}
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/ssabway_db}
+    username: ${SPRING_DATASOURCE_USERNAME:root}
+    password: ${SPRING_DATASOURCE_PASSWORD:localonly}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   sql:
     init:
-      mode: always
+      mode: never
 
   jpa:
     hibernate:
@@ -51,6 +53,7 @@ spring:
             client-id: 719352113387-r5stvku567sapsg850mpjfet14cq5vvr.apps.googleusercontent.com
 
 jwt:
+  secret: ${JWT_SECRET}
   access-token-expiration: 1800000      # 30분
   refresh-token-expiration: 1209600000  # 14일
 

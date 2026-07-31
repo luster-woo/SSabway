@@ -1,5 +1,7 @@
 package com.ssafy.ssabway_webrtc.domain.service;
 
+import com.ssafy.ssabway_webrtc.common.exception.BusinessException;
+import com.ssafy.ssabway_webrtc.common.exception.ErrorCode;
 import io.openvidu.java.client.Recording;
 import java.io.IOException;
 import java.io.InputStream;
@@ -114,10 +116,7 @@ public class RecordingStorageService {
 
                 response.body().close();
 
-                throw new IllegalStateException(
-                    "OpenVidu 녹음 파일 다운로드에 실패했습니다. status="
-                        + response.statusCode()
-                );
+                throw new BusinessException(ErrorCode.RECORDING_DOWNLOAD_FAILED);
             }
 
 
@@ -138,16 +137,16 @@ public class RecordingStorageService {
             // 중단 신호를 복구해 상위 실행 흐름이 중단 상태를 인식하게 합니다.
             Thread.currentThread().interrupt();
 
-            throw new IllegalStateException(
-                "OpenVidu 녹음 파일 다운로드가 중단되었습니다.",
+            throw new BusinessException(
+                ErrorCode.RECORDING_DOWNLOAD_FAILED,
                 exception
             );
 
         } catch (IOException exception) {
             // 파일 복사 중 실패한 경우 생성된 임시 파일을 즉시 정리
             deleteTemporaryFile(temporaryFile);
-            throw new IllegalStateException(
-                "OpenVidu 녹음 파일을 다운로드할 수 없습니다.",
+            throw new BusinessException(
+                ErrorCode.RECORDING_DOWNLOAD_FAILED,
                 exception
             );
         }
@@ -158,23 +157,17 @@ public class RecordingStorageService {
      */
     private void validateRecording(Recording recording) {
         if (recording == null) {
-            throw new IllegalArgumentException(
-                "녹화 정보가 없습니다."
-            );
+            throw new BusinessException(ErrorCode.RECORDING_NOT_FOUND);
         }
 
         if (recording.getStatus() != Recording.Status.ready) {
-            throw new IllegalStateException(
-                "녹음 파일이 아직 준비되지 않았습니다."
-            );
+            throw new BusinessException(ErrorCode.RECORDING_STATUS_INVALID);
         }
 
         if (recording.getUrl() == null ||
             recording.getUrl().isBlank()) {
 
-            throw new IllegalStateException(
-                "녹음 파일 URL이 없습니다."
-            );
+            throw new BusinessException(ErrorCode.RECORDING_DOWNLOAD_FAILED);
         }
     }
 
@@ -185,9 +178,7 @@ public class RecordingStorageService {
         if (sessionId == null ||
             !sessionId.startsWith(SESSION_PREFIX)) {
 
-            throw new IllegalStateException(
-                "잘못된 상담 세션 ID입니다."
-            );
+            throw new BusinessException(ErrorCode.INVALID_SESSION_ID);
         }
 
         try {
@@ -195,8 +186,8 @@ public class RecordingStorageService {
                 sessionId.substring(SESSION_PREFIX.length())
             );
         } catch (NumberFormatException exception) {
-            throw new IllegalStateException(
-                "상담 세션 ID에서 상담 ID를 확인할 수 없습니다.",
+            throw new BusinessException(
+                ErrorCode.INVALID_SESSION_ID,
                 exception
             );
         }
