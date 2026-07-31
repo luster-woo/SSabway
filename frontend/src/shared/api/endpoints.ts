@@ -9,7 +9,7 @@ const users = {
   signup: '/users',
   withdraw: '/users', // PATCH — 같은 경로의 POST 는 회원가입
   login: '/users/login',
-  googleLogin: '/users/login/google', // 보류
+  googleLogin: '/users/login/google',
   /** 회원가입용 이메일 인증. 가입된 이메일이면 409 — 재설정에는 못 쓴다. */
   emailRequest: '/users/email/requests',
   emailVerification: '/users/email/verification',

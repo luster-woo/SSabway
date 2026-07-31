@@ -36,6 +36,9 @@ public class Consultation {
     @Column(name = "requested_at", nullable = false)
     private LocalDateTime requestedAt;
 
+    @Column(name = "record_id", length = 255)
+    private String recordId;
+
     @Column(name = "record_s3", length = 500)
     private String recordS3;
 

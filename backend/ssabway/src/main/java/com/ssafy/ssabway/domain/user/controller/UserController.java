@@ -93,4 +93,16 @@ public class UserController {
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .body(ApiResponse.ok("로그인 되었습니다.", new LoginResponse(result.accessToken(), result.language())));
     }
+
+    @PostMapping("/login/google")
+    public ResponseEntity<ApiResponse<LoginResponse>> googleLogin(
+            @Valid @RequestBody GoogleLoginRequest request) {
+        LoginResult result = userService.googleLogin(request);
+
+        ResponseCookie cookie = refreshTokenCookieProvider.create(result.refreshToken());
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(ApiResponse.ok("로그인 되었습니다.", new LoginResponse(result.accessToken(), result.language())));
+    }
 }
