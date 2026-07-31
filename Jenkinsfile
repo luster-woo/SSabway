@@ -168,12 +168,7 @@ pipeline {
             }
         }
 
-        stage('정리') {
-            steps {
-                // dangling(태그 없는) 이미지만 삭제 — 실행 중 컨테이너에는 영향 없음
-                sh 'docker image prune -f'
-            }
-        }
+
     }
 
     post {
@@ -189,7 +184,7 @@ pipeline {
             '''
         }
         success {
-            sh 'cd "$APP_DIR" && git rev-parse --short HEAD > /home/ubuntu/last-good.txt'
+            sh 'cd "$APP_DIR" && git rev-parse --short HEAD > /var/jenkins_home/last-good.txt'
             echo '배포 성공 — last-good.txt 갱신'
         }
     }

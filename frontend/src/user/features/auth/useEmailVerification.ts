@@ -73,6 +73,10 @@ function buildErrorKeys(prefix: string) {
   return {
     send: {
       400: `${prefix}.error.invalidEmail`,
+      // 404: 재설정용 발송 API 전용 — 가입되지 않은 이메일.
+      //      회원가입 발송에서는 나오지 않으므로 signUp 쪽 번역 키는 없다.
+      404: `${prefix}.error.emailNotFound`,
+      // 409: 회원가입 발송 API 전용 — 이미 가입된 이메일.
       409: `${prefix}.error.duplicateEmail`,
       429: `${prefix}.error.tooManyRequests`,
     } as Record<number, string>,
@@ -100,17 +104,20 @@ function buildErrorKeys(prefix: string) {
 const VERIFIED_TTL_SEC = 30 * 60
 
 /** 인증 메일 발송. 응답의 timeLimit(초)을 돌려준다. */
-async function requestEmailCode(body: EmailRequestBody): Promise<number> {
-  const res = await userApi.post<ApiResponse<{ timeLimit: number }>>(
-    endpoints.users.emailRequest,
-    body,
-  )
+async function requestEmailCode(
+  path: string,
+  body: EmailRequestBody,
+): Promise<number> {
+  const res = await userApi.post<ApiResponse<{ timeLimit: number }>>(path, body)
   return res.data.data.timeLimit
 }
 
 /** 인증번호 검증. 성공하면 아무것도 돌려주지 않는다. */
-async function verifyEmailCode(body: EmailVerifyBody): Promise<void> {
-  await userApi.post(endpoints.users.emailVerification, body)
+async function verifyEmailCode(
+  path: string,
+  body: EmailVerifyBody,
+): Promise<void> {
+  await userApi.post(path, body)
 }
 
 export interface UseEmailVerificationResult {
@@ -146,12 +153,23 @@ export interface UseEmailVerificationResult {
  * 0 이 되면 step 을 IDLE 로 되돌려 재발송을 다시 누를 수 있게 한다.
  *
  * @param errorKeyPrefix 실패 문구 i18n 키의 앞부분.
- *   비밀번호 재설정과 회원가입이 같은 인증 API 를 쓰지만 문구가 달라
- *   기본값을 두지 않고 화면이 명시하도록 했다.
+ *   비밀번호 재설정과 회원가입의 문구가 달라 기본값을 두지 않고 화면이 명시한다.
+ * @param options.emailRequestPath 인증 메일 발송 엔드포인트.
+ *   기본값은 회원가입용(emailRequest). 재설정 화면은 전용 발송 API 를 넘긴다 —
+ *   회원가입용은 가입된 이메일에 409 를 반환해 재설정에 쓸 수 없기 때문이다.
+ * @param options.emailVerificationPath 인증코드 확인 엔드포인트.
+ *   기본값은 회원가입용. 재설정은 확인도 전용 API 다 — BE 가 두 흐름의 인증
+ *   상태를 별도 저장소(Redis verify:* / reset:*)에 두므로, 발송만 재설정용을
+ *   쓰고 확인을 회원가입용으로 하면 서버가 코드를 찾지 못해 항상 불일치가 난다.
  */
 export function useEmailVerification(
   errorKeyPrefix: string,
+  options?: { emailRequestPath?: string; emailVerificationPath?: string },
 ): UseEmailVerificationResult {
+  const emailRequestPath =
+    options?.emailRequestPath ?? endpoints.users.emailRequest
+  const emailVerificationPath =
+    options?.emailVerificationPath ?? endpoints.users.emailVerification
   // 매 렌더마다 새 객체를 만들면 아래 useCallback·useEffect 의 의존성이 계속 바뀐다.
   const errorKeys = useMemo(
     () => buildErrorKeys(errorKeyPrefix),
@@ -204,7 +222,7 @@ export function useEmailVerification(
       setErrorKey(null)
 
       try {
-        const timeLimitSec = await requestEmailCode(body)
+        const timeLimitSec = await requestEmailCode(emailRequestPath, body)
         expiresAtRef.current = Date.now() + timeLimitSec * 1000
         setRemainingSec(timeLimitSec)
         setHasRequested(true)
@@ -217,7 +235,7 @@ export function useEmailVerification(
         setIsSending(false)
       }
     },
-    [errorKeys],
+    [errorKeys, emailRequestPath],
   )
 
   const verifyCode = useCallback(
@@ -226,7 +244,7 @@ export function useEmailVerification(
       setErrorKey(null)
 
       try {
-        await verifyEmailCode(body)
+        await verifyEmailCode(emailVerificationPath, body)
         // 코드 입력 시간을 끝내고, 인증 완료 상태의 유효 시간으로 갈아탄다.
         expiresAtRef.current = Date.now() + VERIFIED_TTL_SEC * 1000
         setRemainingSec(VERIFIED_TTL_SEC)
@@ -241,7 +259,7 @@ export function useEmailVerification(
         setIsVerifying(false)
       }
     },
-    [errorKeys],
+    [errorKeys, emailVerificationPath],
   )
 
   return {

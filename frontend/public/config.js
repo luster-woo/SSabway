@@ -13,6 +13,12 @@ window.__ENV__ = {
   // Client Secret은 서버 전용이므로 여기에 넣지 않는다.
   // 콘솔의 Web 서비스 URL 에 접속 도메인이 등록돼 있어야 지도가 뜬다.
   NAVER_MAP_CLIENT_ID: 'pumqt2h9m1',
+  // Google Cloud Console > 사용자 인증 정보 > OAuth 클라이언트 ID (웹 애플리케이션).
+  // 프론트에 노출되는 public 값이다. Client Secret 은 서버 전용이라 여기에 넣지 않는다.
+  // 콘솔의 "승인된 자바스크립트 원본"에 접속 오리진이 등록돼 있어야 동작한다.
+  // (리디렉션 URI 가 아니다. 로컬은 http://localhost:5173)
+  GOOGLE_CLIENT_ID:
+    '719352113387-r5stvku567sapsg850mpjfet14cq5vvr.apps.googleusercontent.com',
   // MSW 목 서버 사용 여부 (개발 모드에서만 동작).
   // BE 미완성 API를 프론트 단독으로 확인할 때 true.
   // 실제 서버로 붙여볼 때, PWA 동작을 확인할 때는 false 로 되돌린다.

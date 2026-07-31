@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import { Button, useToast } from '@/shared/ui'
+import { OpenViduVideo } from '@/shared/webrtc/OpenViduVideo'
+import { OV_STATUS } from '@/shared/webrtc/useOpenViduSession'
 import { CallControls } from '@/user/features/consultation/CallControls'
 import { CallDialog } from '@/user/features/consultation/CallDialog'
 import { CameraStage } from '@/user/features/consultation/CameraStage'
@@ -12,6 +14,7 @@ import {
   CALL_MEDIA_STATUS,
   useCallMedia,
 } from '@/user/features/consultation/useCallMedia'
+import { useConsultationCall } from '@/user/features/consultation/useConsultationCall'
 
 /** 마이크 권한 안내 모달의 아이콘 */
 function MicBadgeIcon() {
@@ -41,13 +44,27 @@ function MicBadgeIcon() {
  * 후면 카메라로 표지판을 비추면서 역무원과 통화한다.
  * 진입하면 먼저 권한 안내 모달을 띄우고, [허용] 을 누르면 브라우저 권한 팝업이 뜬다.
  *
- * TODO: OpenVidu 연동 시 스트림을 publish 하고 역무원 음성을 재생한다.
+ * 권한을 얻으면 그 스트림으로 OpenVidu 세션에 접속한다. 세션은 역무원이
+ * 수락해야 생기므로 그때까지 대기 문구를 보여준다.
+ *
  * TODO: 얼굴 모자이크(선택지 A)는 이 화면에서 canvas 로 처리한 뒤 publish 한다.
+ *       지금은 원본 스트림을 그대로 발행한다.
  */
 export default function ConsultationPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { showToast } = useToast()
+  const [searchParams] = useSearchParams()
+
+  /*
+    상담 ID.
+
+    원래는 `POST /api/v1/consultations`(상담 요청) 응답으로 받아야 하지만
+    백엔드에 해당 컨트롤러가 없다. 연결 검증 동안에는 역무원 대기 목록에 보이는
+    ID 를 쿼리 파라미터로 직접 넘긴다. (/consultation?consultationId=1)
+    TODO: 상담 요청 API 가 생기면 응답의 consultationId 를 쓰고 이 파싱은 지운다.
+  */
+  const consultationId = Number(searchParams.get('consultationId') ?? '0')
 
   const {
     status,
@@ -61,10 +78,41 @@ export default function ConsultationPage() {
     stop,
   } = useCallMedia()
 
+  const call = useConsultationCall(consultationId, stream)
+
   const [isEndDialogOpen, setIsEndDialogOpen] = useState(false)
 
   const isStreaming = status === CALL_MEDIA_STATUS.STREAMING
   const isRequesting = status === CALL_MEDIA_STATUS.REQUESTING
+
+  /** 역무원 음성이 실제로 들어오고 있는지. 배지와 대기 문구가 이걸로 갈린다. */
+  const isStaffConnected =
+    call.status === OV_STATUS.CONNECTED && call.staffStream !== null
+
+  const hasConsultationId = consultationId > 0
+
+  /** 통화 화면 상단에 띄울 안내. 없으면 null */
+  const callNotice = (() => {
+    if (!hasConsultationId) return t('consultation.video.noConsultationId')
+    if (call.isJoinFailed) return t('consultation.video.joinFailed')
+    if (call.status === OV_STATUS.RECONNECTING) {
+      return t('consultation.video.reconnecting')
+    }
+    if (call.isWaitingMatch) {
+      // 대기 순번은 상태 API 가 붙어야 값이 들어온다. 없으면 문구만 보여준다.
+      return call.queuePosition === null
+        ? t('consultation.video.waitingStaff')
+        : t('consultation.video.queuePosition', {
+            position: call.queuePosition,
+          })
+    }
+    if (call.status === OV_STATUS.CONNECTING) {
+      return t('consultation.video.connecting')
+    }
+    return null
+  })()
+
+  const isNoticeAlert = call.isJoinFailed || !hasConsultationId
 
   const denyPermission = () => {
     showToast(t('consultation.video.permission.denied'))
@@ -88,6 +136,15 @@ export default function ConsultationPage() {
   }
 
   const endCall = () => {
+    /*
+      연결을 먼저 끊고 장치를 반납한다. 순서가 반대면 이미 끝난 트랙을 발행하다
+      OpenVidu 가 예외를 던진다.
+
+      녹음 정지는 여기서 하지 않는다. 역무원이 [상담 종료] 를 누르면 서버가
+      정지시키고, 사용자가 먼저 나가도 세션 종료 웹훅으로 녹음이 마감된다.
+      (명세의 POST /consultations/{id}/leave 는 백엔드 미구현)
+    */
+    call.leave()
     stop()
     setIsEndDialogOpen(false)
     showToast(t('consultation.video.ended'))
@@ -106,11 +163,32 @@ export default function ConsultationPage() {
 
       <div className="px-safe relative flex flex-1 flex-col">
         <header className="flex shrink-0 flex-col items-center gap-2 pt-[calc(env(safe-area-inset-top,0px)+1rem)]">
-          <ConnectedBadge isConnected={isStreaming} />
+          <ConnectedBadge isConnected={isStaffConnected} />
           <p className="rounded-full bg-black/45 px-4 py-2 text-[12.5px] text-white/85">
             {t('consultation.video.faceBlurOn')}
           </p>
+
+          {callNotice ? (
+            <p
+              role={isNoticeAlert ? 'alert' : 'status'}
+              className="mx-6 rounded-full bg-black/55 px-4 py-2 text-center text-[12.5px] text-white"
+            >
+              {callNotice}
+            </p>
+          ) : null}
         </header>
+
+        {/*
+          역무원 음성 재생. 역무원은 영상을 발행하지 않아 화면에 보일 것이 없지만,
+          엘리먼트에 붙여야 소리가 난다. display:none 은 일부 브라우저에서 재생을
+          멈추므로 화면 밖으로 밀어낸다.
+        */}
+        {call.staffStream ? (
+          <OpenViduVideo
+            streamManager={call.staffStream}
+            className="pointer-events-none absolute size-px opacity-0"
+          />
+        ) : null}
 
         <footer className="mt-auto flex shrink-0 justify-center pb-[calc(env(safe-area-inset-bottom,0px)+1.5rem)]">
           {isStreaming ? (

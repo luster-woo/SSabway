@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
+import { endpoints } from '@/shared/api/endpoints'
 import { useLanguage } from '@/shared/lib/useLanguage'
 import { Button, MobileScreen, useToast } from '@/shared/ui'
 import { AuthTextField } from '@/user/features/auth/AuthTextField'
@@ -58,7 +59,12 @@ export default function PasswordResetPage() {
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
 
-  const verification = useEmailVerification('auth.passwordReset')
+  // 발송·확인 둘 다 재설정 전용 API 다. 회원가입용과 서버 저장소가 분리되어
+  // 있어(BE PasswordController) 하나라도 섞으면 인증 상태를 찾지 못한다.
+  const verification = useEmailVerification('auth.passwordReset', {
+    emailRequestPath: endpoints.users.passwordEmailRequest,
+    emailVerificationPath: endpoints.users.passwordEmailVerification,
+  })
   const {
     reset,
     isPending: isResetting,

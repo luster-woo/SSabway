@@ -1,6 +1,7 @@
 import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
-import basicSsl from '@vitejs/plugin-basic-ssl'
+// 실제 모바일에서 테스트할 때만 주석 해제할 것.
+//import basicSsl from '@vitejs/plugin-basic-ssl'
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 import path from 'node:path'
@@ -46,8 +47,8 @@ export default defineConfig(({ mode }) => {
       // 폰 실기기에서 카메라(getUserMedia)를 쓰려면 보안 컨텍스트가 필요하다.
       // sign-capture 와 consultation 두 기능이 여기에 걸린다.
       // 자체 서명 인증서라 첫 접속 때 브라우저 경고가 뜬다 — 무시하고 진행.
-      // 노트북에서만 테스트할 때는 주석 처리해도 된다 (PWA 캐시 혼란이 줄어든다).
-      basicSsl(),
+      // 실제 모바일에서 테스트할 때만 주석 해제할 것.
+      // basicSsl(),
       tailwindcss(),
       VitePWA({
         registerType: 'autoUpdate',
@@ -63,6 +64,20 @@ export default defineConfig(({ mode }) => {
           // ② admin 청크와 런타임 설정 파일은 precache 대상에서 제외
           globIgnores: [
             '**/assets/admin-*',
+            /*
+              openvidu-browser(약 420kB) 청크.
+
+              통화는 네트워크가 있어야 성립하므로 오프라인 보장 대상이 아니다.
+              precache 에 넣으면 도움 요청까지 안 간 사용자도 첫 방문에 받는다.
+
+              ⚠️ 이름이 rolldown 의 자동 분할 결과(openvidu-browser 의 진입 파일이
+                 lib/index.js → 'browser')에 묶여 있다. manualChunks 로 이름을
+                 고정하려 했으나 rolldown 에서는 node_modules 에 적용되지 않았다.
+                 빌드 후 dist/assets 에 browser-*.js 가 있는지, precache 총량이
+                 420KiB 안팎인지 확인할 것. 이름이 바뀌면 이 패턴도 바꿔야 한다.
+                 UserApp 의 ConsultationPage lazy 와 짝을 이룬다.
+            */
+            '**/assets/browser-*',
             '**/config.js',
             // 개발 전용 목 서버 워커. 빌드 산출물에 복사되지만 등록되지 않으므로
             // precache 대상에서 제외한다.

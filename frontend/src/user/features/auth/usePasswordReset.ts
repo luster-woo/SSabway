@@ -1,57 +1,41 @@
 import { useCallback, useState } from 'react'
+import { isAxiosError } from 'axios'
 
-import {
-  MockHttpError,
-  toErrorKey,
-} from '@/user/features/auth/lib/mockHttpError'
+import { publicApi } from '@/shared/api/client'
+import { endpoints } from '@/shared/api/endpoints'
 
 export interface PasswordResetBody {
-  /**
-   * 명세의 요청 본문에는 newPassword 하나만 있다.
-   * 하지만 그 엔드포인트는 401(액세스 토큰 인증 실패)을 반환하는 "로그인한 회원의
-   * 비밀번호 변경"이라, 로그인하지 않은 사용자의 재설정에는 그대로 쓸 수 없다.
-   * 재설정 전용 엔드포인트가 확정되면 email 또는 인증 토큰을 함께 보내야 한다.
-   */
+  /** 비로그인 요청이라 토큰이 없다. 서버는 email 로 인증 상태를 찾는다. (BE 확인) */
   email: string
   newPassword: string
 }
 
-const RESET_ERROR_KEY: Record<number, string> = {
-  400: 'auth.passwordReset.error.invalidPassword',
-  401: 'auth.passwordReset.error.unauthorized',
-}
-
+const INVALID_PASSWORD_KEY = 'auth.passwordReset.error.invalidPassword'
+const VERIFICATION_EXPIRED_KEY = 'auth.passwordReset.error.unauthorized'
 const FALLBACK_ERROR_KEY = 'auth.passwordReset.error.resetFailed'
 
-const MOCK_LATENCY_MS = 600
-
 /**
- * 목이 통과시킬 최소 길이. 회원가입 목과 같은 값을 쓴다.
+ * 에러를 i18n 키로 바꾼다.
  *
- * 프론트에서 길이를 검사하지 않는 이유는 이메일 형식을 검사하지 않는 것과 같다.
- * 판정을 서버 한 곳에만 두고, 명세에 비밀번호 규칙이 확정되지 않았다.
- * 8 은 화면 안내 문구("8자 이상 입력") 기준이며, BE 규칙이 정해지면 그것을 따른다.
+ * BE 는 400 을 두 의미로 쓴다 — EMAIL_NOT_VERIFIED(인증 안 됨·만료)와
+ * INVALID_INPUT_VALUE(비밀번호 형식). 상태코드만으로는 구분할 수 없어
+ * 응답 본문의 code 필드로 가른다. (에러 응답: { success, code, message })
+ *
+ * 이 훅이 publicApi 를 쓰는 이유: 재설정은 비로그인 흐름이라 401 재시도나
+ * 로그인 리다이렉트가 끼어들면 안 된다.
  */
-const MOCK_MIN_PASSWORD_LENGTH = 8
+function toResetErrorKey(error: unknown): string {
+  if (!isAxiosError(error) || !error.response) return FALLBACK_ERROR_KEY
 
-function delay(ms: number): Promise<void> {
-  return new Promise((resolve) => {
-    window.setTimeout(resolve, ms)
-  })
+  const { code } = (error.response.data ?? {}) as { code?: string }
+
+  if (code === 'EMAIL_NOT_VERIFIED') return VERIFICATION_EXPIRED_KEY
+  if (error.response.status === 400) return INVALID_PASSWORD_KEY
+  return FALLBACK_ERROR_KEY
 }
 
 async function requestPasswordReset(body: PasswordResetBody): Promise<void> {
-  // TODO: 재설정 전용 엔드포인트 확정 후 실제 호출로 교체.
-  //   명세의 PUT /api/v1/users 는 액세스 토큰이 필요한 "비밀번호 변경"이라
-  //   비로그인 재설정에는 쓸 수 없다. BE 확인 필요.
-  //   await userApi.put(endpoints.users.changePassword, {
-  //     newPassword: body.newPassword,
-  //   })
-  await delay(MOCK_LATENCY_MS)
-
-  if (body.newPassword.length < MOCK_MIN_PASSWORD_LENGTH) {
-    throw new MockHttpError(400)
-  }
+  await publicApi.patch(endpoints.users.passwordReset, body)
 }
 
 export interface UsePasswordResetResult {
@@ -67,6 +51,10 @@ export interface UsePasswordResetResult {
  *
  * 로그인과 마찬가지로 캐시·재조회할 서버 상태가 아니라 일회성 명령이라
  * TanStack Query 를 쓰지 않고 요청 진행 상태만 로컬로 들고 있는다.
+ *
+ * 비밀번호 길이 등 형식 검증은 프론트에서 하지 않는다. 판정을 서버 한 곳에
+ * 두기 위함이고, 명세에 비밀번호 규칙이 아직 확정되지 않았다.
+ * (두 칸 불일치 검사만 화면에서 한다 — 서버가 알 수 없는 정보라서)
  */
 export function usePasswordReset(): UsePasswordResetResult {
   const [isPending, setIsPending] = useState(false)
@@ -80,7 +68,7 @@ export function usePasswordReset(): UsePasswordResetResult {
       await requestPasswordReset(body)
       return true
     } catch (error) {
-      setErrorKey(toErrorKey(error, RESET_ERROR_KEY, FALLBACK_ERROR_KEY))
+      setErrorKey(toResetErrorKey(error))
       return false
     } finally {
       setIsPending(false)

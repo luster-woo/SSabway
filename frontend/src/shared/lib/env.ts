@@ -7,6 +7,15 @@ export interface AppEnv {
    */
   NAVER_MAP_CLIENT_ID: string
   /**
+   * Google Identity Services 의 OAuth 클라이언트 ID.
+   *
+   * 프론트에 노출되는 것이 정상인 public 값이다. Client Secret 과 달리
+   * 이 값만으로는 아무것도 못 하며, Google Cloud Console 의
+   * "승인된 자바스크립트 원본" 화이트리스트가 실제 방어선이다.
+   * 등록되지 않은 오리진에서 호출하면 origin_mismatch 로 막힌다.
+   */
+  GOOGLE_CLIENT_ID: string
+  /**
    * MSW 목 서버 사용 여부. 개발 모드에서만 의미가 있다.
    *
    * BE가 준비되지 않은 API를 프론트 단독으로 확인할 때 true.
@@ -28,6 +37,7 @@ const FALLBACK: AppEnv = {
   // 엉뚱한 오리진으로 요청이 나가므로 여기서도 상대 경로를 기본으로 한다.
   API_BASE_URL: '',
   NAVER_MAP_CLIENT_ID: '',
+  GOOGLE_CLIENT_ID: '',
   USE_MSW: false,
 }
 

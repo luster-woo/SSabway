@@ -13,12 +13,24 @@
     "deleteAccount": "退会",
     "accountMenu": "アカウントメニュー",
     "signedOut": "ログアウトしました",
-    "accountDeleted": "退会処理しました",
+    "withdraw": {
+      "title": "退会",
+      "description": "退会するには現在のパスワードを入力してください。",
+      "password": "現在のパスワード",
+      "passwordPlaceholder": "パスワードを入力",
+      "cancel": "キャンセル",
+      "submit": "退会する",
+      "submitting": "処理中",
+      "success": "退会が完了しました",
+      "confirm": "OK",
+      "error": {
+        "wrongPassword": "パスワードが正しくありません。もう一度入力してください",
+        "failed": "退会に失敗しました · しばらくしてからお試しください"
+      }
+    },
     "login": {
       "title": "ログイン",
       "subtitle": "メールとパスワードでログインしてください。",
-      "google": "Googleで続行",
-      "googlePending": "Googleログインは準備中です",
       "orEmail": "またはメールで",
       "email": "メールアドレス",
       "emailPlaceholder": "you@example.com",
@@ -31,8 +43,11 @@
       "success": "ログインしました",
       "error": {
         "invalidCredential": "メールアドレスまたはパスワードが正しくありません",
-        "unknown": "ログインに失敗しました・しばらくしてから再試行してください"
-      }
+        "unknown": "ログインに失敗しました・しばらくしてから再試行してください",
+        "googleRejected": "Google 認証に失敗しました · もう一度お試しください",
+        "googleFailed": "Google ログインに失敗しました · しばらくしてからお試しください"
+      },
+      "googleUnavailable": "Google ログインを利用できません · ネットワークをご確認ください"
     },
     "passwordReset": {
       "title": "パスワード再設定",
@@ -60,6 +75,7 @@
       "signIn": "ログイン",
       "error": {
         "invalidEmail": "メールアドレスの形式が正しくありません",
+        "emailNotFound": "登録されていないメールアドレスです",
         "duplicateEmail": "すでに使用されているメールアドレスです",
         "tooManyRequests": "送信回数を超えました · しばらくしてからお試しください",
         "sendFailed": "認証メールの送信に失敗しました · しばらくしてからお試しください",
@@ -322,6 +338,12 @@
       "cameraOn": "カメラをオンにしました",
       "cameraOff": "カメラをオフにしました",
       "ended": "相談が終了しました",
+      "waitingStaff": "スタッフを待っています…",
+      "queuePosition": "待ち順は {{position}} 番目です",
+      "noConsultationId": "相談情報が見つかりません。ヘルプからやり直してください。",
+      "connecting": "接続しています…",
+      "reconnecting": "ネットワークが不安定です。再接続しています…",
+      "joinFailed": "スタッフに接続できませんでした。しばらくしてからもう一度お試しください。",
       "permission": {
         "title": "マイクを許可",
         "description": "スタッフとのビデオ通話には\nマイクの許可が必要です。",

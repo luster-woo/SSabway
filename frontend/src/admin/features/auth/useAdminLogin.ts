@@ -57,8 +57,10 @@ async function requestAdminLogin(
   body: AdminLoginRequest,
 ): Promise<AdminLoginResult> {
   // TODO: BE 연동 시 아래 목 처리를 실제 호출로 교체.
-  //   실패 응답의 code(UNAUTHORIZED / FORBIDDEN)를 Error.message 로 옮겨 던지면
-  //   toErrorMessage 가 그대로 문구로 바꿔준다.
+  //   사용자 로그인(useUserLogin)은 MSW 목 서버 + 실제 axios 호출로 옮겼다.
+  //   관리자도 같은 방식으로 간다. handlers.ts 에 admins/login 핸들러를 추가하고
+  //   여기서는 adminApi 를 호출하면 된다.
+  //   주의: 응답 형태가 사용자와 다르다. 토큰이 data.token.accessToken 에 있다.
   //   const res = await adminApi.post<
   //     ApiResponse<{ token: { accessToken: string }; staffCode: string }>
   //   >(endpoints.admin.login, body)
