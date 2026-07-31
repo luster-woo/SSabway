@@ -144,10 +144,10 @@
       "denied": "No problem! We can locate you from a sign photo",
       "statusAllowed": "Location access allowed",
       "statusDenied": "We'll locate you from a sign photo",
-      "change": "Change",
       "requesting": "Checking…",
       "unavailable": "Couldn't find your location · You can continue by scanning a sign",
-      "nearStation": "Nearest station: {{station}}"
+      "nearStation": "Nearest station: {{station}}",
+      "switchToAllow": "Use my location"
     }
   },
   "signCapture": {
