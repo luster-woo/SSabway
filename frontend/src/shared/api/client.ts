@@ -40,11 +40,23 @@ const bareClient = axios.create({
  */
 export const publicApi: AxiosInstance = bareClient
 
-/** 동시 401 발생 시 refresh 요청이 중복되지 않도록 공유 */
-let refreshPromise: Promise<string> | null = null
+/**
+ * 동시 401 발생 시 refresh 요청이 중복되지 않도록 공유한다.
+ *
+ * role 별로 따로 들고 있어야 한다. 하나로 합치면 user 와 admin 이 거의 동시에
+ * 재발급을 시도했을 때 뒤에 온 쪽이 앞의 Promise 를 그대로 받아, 자기 슬롯에는
+ * 토큰이 저장되지 않았는데 성공을 돌려받는다. (status 가 'idle' 로 남는다)
+ */
+const refreshPromises: Record<AuthRole, Promise<string> | null> = {
+  user: null,
+  admin: null,
+}
 
-export async function refreshAccessToken(role: AuthRole): Promise<string> {
-  refreshPromise ??= bareClient
+export function refreshAccessToken(role: AuthRole): Promise<string> {
+  const pending = refreshPromises[role]
+  if (pending) return pending
+
+  const promise = bareClient
     .post<{ data: { accessToken: string } }>(endpoints.auth.refresh)
     .then((res) => {
       const token = res.data.data.accessToken
@@ -52,10 +64,11 @@ export async function refreshAccessToken(role: AuthRole): Promise<string> {
       return token
     })
     .finally(() => {
-      refreshPromise = null
+      refreshPromises[role] = null
     })
 
-  return refreshPromise
+  refreshPromises[role] = promise
+  return promise
 }
 
 /**
@@ -65,10 +78,20 @@ export async function refreshAccessToken(role: AuthRole): Promise<string> {
  * 같다. 걸러내지 않으면 로그인 버튼 한 번에 refresh 요청이 따라 나가고,
  * 두 번째 401 에서 redirectToLogin 이 호출돼 화면이 통째로 새로고침된다.
  *
+ * 구글 로그인도 마찬가지다. 게다가 여기서 재발급을 시도하면 인터셉터가 던지는
+ * 에러가 원래의 401 이 아니라 refreshError 로 바뀌어, 호출한 훅이 상태코드를
+ * 읽지 못해 "구글 인증 거부" 문구 대신 공통 실패 문구를 보여준다.
+ *
+ * 관리자 로그인은 아직 목이라 HTTP 요청이 나가지 않지만, 연동하는 순간
+ * 같은 문제가 생기므로 미리 넣어 둔다.
+ *
  * 로그아웃·재발급은 인터셉터가 없는 bareClient 를 쓰므로 여기에 넣지 않는다.
- * 관리자 로그인을 연동할 때 endpoints.admin.login 을 여기에 추가할 것.
  */
-const NO_RETRY_PATHS: string[] = [endpoints.users.login]
+const NO_RETRY_PATHS: string[] = [
+  endpoints.users.login,
+  endpoints.users.googleLogin,
+  endpoints.admin.login,
+]
 
 function redirectToLogin(role: AuthRole) {
   useAuthStore.getState().clearAccessToken(role)
@@ -153,7 +176,16 @@ export async function requestLogout(role: AuthRole): Promise<void> {
   }
 }
 
-/** 앱 부팅 시 1회 호출. 쿠키의 리프레시 토큰으로 세션 복구 */
+/**
+ * 앱 부팅 시 1회 호출. 쿠키의 리프레시 토큰으로 세션 복구.
+ *
+ * 액세스 토큰은 메모리에만 있어서 새로고침하면 사라진다. 이 함수가 없으면
+ * 쿠키가 살아 있어도 화면은 비로그인으로 시작하고, 인터셉터의 재발급은
+ * 보호 API 가 401 을 받을 때만 돌기 때문에 아무 일도 일어나지 않는다.
+ *
+ * 직접 부르지 말고 `useRestoreSession(role)` 을 쓴다. 그쪽이 status 가
+ * 'idle' 인지 확인해 중복 호출을 막는다.
+ */
 export async function restoreSession(role: AuthRole): Promise<boolean> {
   try {
     await refreshAccessToken(role)
