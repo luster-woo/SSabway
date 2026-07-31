@@ -19,6 +19,11 @@ export default function AdminMainPage() {
   const staffCode = useAdminProfileStore((s) => s.staffCode)
   const clearStaffCode = useAdminProfileStore((s) => s.clearStaffCode)
 
+  /**
+   * TODO: 관리자 로그인 연동 시 requestLogout('admin') 으로 교체.
+   *   POST /auth/logout 은 사용자·관리자 공통이라 이미 shared/api/client.ts 에 있다.
+   *   staffCode 는 관리자 전용이라 shared 가 지울 수 없으므로 여기서 계속 지운다.
+   */
   const signOut = () => {
     clearAccessToken('admin')
     clearStaffCode()

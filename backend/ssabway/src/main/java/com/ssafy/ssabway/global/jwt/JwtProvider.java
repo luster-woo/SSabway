@@ -1,5 +1,6 @@
 package com.ssafy.ssabway.global.jwt;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -45,6 +46,18 @@ public class JwtProvider {
                 .expiration(new Date(now.getTime() + refreshTokenExpiration))
                 .signWith(secretKey)
                 .compact();
+    }
+
+    public Claims parseClaims(String token) {
+        return Jwts.parser()
+                .verifyWith(secretKey)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+    }
+
+    public Long getUserId(Claims claims) {
+        return Long.valueOf(claims.getSubject());
     }
 
     // 쿠키 Max-Age와 Redis TTL이 리프레시 만료와 같아야 하므로 등록

@@ -13,7 +13,21 @@
     "deleteAccount": "Delete account",
     "accountMenu": "Account menu",
     "signedOut": "Signed out",
-    "accountDeleted": "Account deleted",
+    "withdraw": {
+      "title": "Delete account",
+      "description": "Enter your current password to delete your account.",
+      "password": "Current password",
+      "passwordPlaceholder": "Enter password",
+      "cancel": "Cancel",
+      "submit": "Delete",
+      "submitting": "Processing",
+      "success": "Your account has been deleted",
+      "confirm": "OK",
+      "error": {
+        "wrongPassword": "Incorrect password. Please try again",
+        "failed": "Couldn't delete your account · Please try again later"
+      }
+    },
     "login": {
       "title": "Sign in",
       "subtitle": "Sign in with your email and password.",
@@ -60,6 +74,7 @@
       "signIn": "Sign in",
       "error": {
         "invalidEmail": "That email address isn't valid",
+        "emailNotFound": "No account found with that email",
         "duplicateEmail": "That email is already in use",
         "tooManyRequests": "Too many requests · Please try again later",
         "sendFailed": "Couldn't send the verification email · Please try again later",

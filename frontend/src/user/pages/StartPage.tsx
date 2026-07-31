@@ -1,6 +1,8 @@
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
+import { requestLogout } from '@/shared/api/client'
 import { useLanguage } from '@/shared/lib/useLanguage'
 import { useAuthStore } from '@/shared/lib/store/useAuthStore'
 import {
@@ -16,6 +18,7 @@ import {
   useToast,
 } from '@/shared/ui'
 import { AccountMenu } from '@/user/features/auth/AccountMenu'
+import { WithdrawDialog } from '@/user/features/auth/WithdrawDialog'
 import { LanguageSelector } from '@/user/features/start/LanguageSelector'
 import { LocationConsentCard } from '@/user/features/start/LocationConsentCard'
 import { LocationConsentStatus } from '@/user/features/start/LocationConsentStatus'
@@ -30,7 +33,9 @@ export default function StartPage() {
   const { language, changeLanguage } = useLanguage()
 
   const isLoggedIn = useAuthStore((s) => s.status.user === 'authenticated')
-  const clearAccessToken = useAuthStore((s) => s.clearAccessToken)
+
+  /** 회원 탈퇴 다이얼로그. 비밀번호 확인이 필요해 토스트가 아니라 모달로 처리한다. */
+  const [isWithdrawOpen, setIsWithdrawOpen] = useState(false)
 
   const consent = useLocationConsentStore((s) => s.consent)
   const setConsent = useLocationConsentStore((s) => s.setConsent)
@@ -60,15 +65,13 @@ export default function StartPage() {
     void navigate('/scan')
   }
 
-  const signOut = () => {
-    clearAccessToken('user')
+  /**
+   * 서버에서 리프레시 토큰을 무효화한 뒤 안내한다.
+   * requestLogout 은 요청이 실패해도 로컬 토큰을 지우므로 성공 여부를 따지지 않는다.
+   */
+  const signOut = async () => {
+    await requestLogout('user')
     showToast(t('auth.signedOut'))
-  }
-
-  const deleteAccount = () => {
-    // TODO: API 연동 시 탈퇴 확인 모달 + 요청 처리
-    clearAccessToken('user')
-    showToast(t('auth.accountDeleted'))
   }
 
   const moveToLogin = () => {
@@ -83,8 +86,8 @@ export default function StartPage() {
           <AccountMenu
             isLoggedIn={isLoggedIn}
             onSignIn={moveToLogin}
-            onSignOut={signOut}
-            onDeleteAccount={deleteAccount}
+            onSignOut={() => void signOut()}
+            onDeleteAccount={() => setIsWithdrawOpen(true)}
           />
         </div>
       }
@@ -127,6 +130,10 @@ export default function StartPage() {
           />
         )}
       </section>
+
+      {isWithdrawOpen ? (
+        <WithdrawDialog onClose={() => setIsWithdrawOpen(false)} />
+      ) : null}
     </MobileScreen>
   )
 }

@@ -75,4 +75,24 @@ public class OpenViduService {
     public Recording stopAudioRecording(String recordingId) throws OpenViduJavaClientException, OpenViduHttpException{
         return openVidu.stopRecording(recordingId);
     }
+
+    // 녹화 ID에 해당하는 현재 녹화 정보를 조회
+    public Recording getRecording(String recordingId) throws OpenViduJavaClientException, OpenViduHttpException {
+        return openVidu.getRecording(recordingId);
+    }
+
+    // 이미 종료된 세션에 재요청이 들어와도 오류 없이 처리
+    public boolean closeSessionIfActive(String sessionId) throws OpenViduJavaClientException, OpenViduHttpException{
+        openVidu.fetch();
+
+        Session session = openVidu.getActiveSession(sessionId);
+
+        if(session == null){
+            return false;
+        }
+        session.close();
+
+        return true;
+    }
+
 }

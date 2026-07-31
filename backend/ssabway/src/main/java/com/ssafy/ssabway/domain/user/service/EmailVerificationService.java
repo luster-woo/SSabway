@@ -4,6 +4,7 @@ import com.ssafy.ssabway.domain.user.dto.request.EmailVerificationConfirmRequest
 import com.ssafy.ssabway.domain.user.dto.request.EmailVerificationSendRequest;
 import com.ssafy.ssabway.domain.user.dto.response.EmailVerificationSendResponse;
 import com.ssafy.ssabway.domain.user.repository.UserRepository;
+import com.ssafy.ssabway.domain.user.util.VerificationMailSender;
 import com.ssafy.ssabway.global.exception.BusinessException;
 import com.ssafy.ssabway.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;

@@ -2,6 +2,7 @@ package com.ssafy.ssabway_webrtc.domain.controller;
 
 import com.ssafy.ssabway_webrtc.common.response.ApiResponse;
 import com.ssafy.ssabway_webrtc.domain.dto.*;
+import com.ssafy.ssabway_webrtc.domain.service.ConsultationEndService;
 import com.ssafy.ssabway_webrtc.domain.service.OpenViduService;
 import io.openvidu.java.client.OpenViduHttpException;
 import io.openvidu.java.client.OpenViduJavaClientException;
@@ -16,6 +17,8 @@ import org.springframework.web.bind.annotation.*;
 public class OpenViduController {
 
     private final OpenViduService openViduService;
+
+    private final ConsultationEndService consultationEndService;
 
     @PostMapping("/sessions")
     public ApiResponse<SessionCreateResponse> createSession(
@@ -100,6 +103,21 @@ public class OpenViduController {
                 recording.getStatus().name()
             )
         );
+    }
+
+
+    @PostMapping("/sessions/{sessionId}/end")
+    public ApiResponse<ConsultationEndResponse> endConsultation(
+        @PathVariable String sessionId,
+        @Valid @RequestBody ConsultationEndRequest request
+    ) throws OpenViduJavaClientException, OpenViduHttpException {
+
+        ConsultationEndResponse response = consultationEndService.endConsultation(
+            sessionId,
+            request.getRecordingId()
+        );
+
+        return  ApiResponse.ok(response);
     }
 
 }
