@@ -144,10 +144,10 @@
       "denied": "괜찮아요! 표지판 촬영으로 위치를 인식할 수 있어요",
       "statusAllowed": "위치 정보 사용에 동의했어요",
       "statusDenied": "표지판 촬영으로 위치를 인식해요",
-      "change": "다시 선택",
       "requesting": "확인 중…",
       "unavailable": "위치를 찾을 수 없어요 · 표지판 촬영으로 진행할 수 있어요",
-      "nearStation": "가까운 역: {{station}}"
+      "nearStation": "가까운 역: {{station}}",
+      "switchToAllow": "동의로 바꾸기"
     }
   },
   "signCapture": {

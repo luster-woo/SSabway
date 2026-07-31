@@ -66,4 +66,22 @@ public interface ConsultationRepository extends JpaRepository<Consultation, Long
         @Param("currentStatus") ConsultationStatus currentStatus,
         @Param("nextStatus") ConsultationStatus nextStatus
     );
+
+
+    @Transactional
+    @Modifying(
+        clearAutomatically = true,
+        flushAutomatically = true
+    )
+    @Query("""
+        UPDATE Consultation c
+        SET c.status = :nextStatus
+        WHERE c.id = :consultationId
+            AND c.status = :currentStatus
+    """)
+    int cancelConsultation(
+        @Param("consultationId") Long consultationId,
+        @Param("currentStatus") ConsultationStatus currentStatus,
+        @Param("nextStatus") ConsultationStatus nextStatus
+    );
 }
