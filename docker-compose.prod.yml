@@ -7,3 +7,12 @@ services:
       - "127.0.0.1:5442:80"
     depends_on: [frontend, api, signaling]
     restart: unless-stopped
+  ai:
+    build: ./ai/serve
+    environment:
+      TORCH_THREADS: "2"
+      MAX_SIDE: "1280"
+      TZ: Asia/Seoul
+    volumes:
+      - /opt/models:/models:ro
+    restart: unless-stopped
