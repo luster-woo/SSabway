@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
+import { toSessionId } from '@/shared/api/openvidu'
 import { useConsultationSessionStore } from '@/shared/lib/store/useConsultationSessionStore'
 import { PARTICIPANT_ROLE } from '@/shared/types'
 import {
+  OV_STATUS,
   useOpenViduSession,
   type OpenViduStatus,
 } from '@/shared/webrtc/useOpenViduSession'
@@ -20,7 +22,7 @@ export interface UseConsultationRoomResult {
   isRestoring: boolean
   /** 복구조차 실패 — 상담이 이미 끝났거나 서버 문제 */
   isRestoreFailed: boolean
-  /** 녹음이 돌고 있는지. 수락 시 녹음 시작에 실패했으면 false */
+  /** 녹음이 돌고 있는지 (start 성공 여부) */
   isRecording: boolean
 }
 
@@ -31,10 +33,12 @@ export interface UseConsultationRoomResult {
  * 보면서 음성으로 안내하는 구조라 역무원 쪽 카메라는 필요가 없다.
  * 따라서 audio 만 발행하고 video 는 구독만 한다.
  *
+ * 녹음(start)은 사용자 스트림이 도착한 순간 이쪽에서 시작한다 — 팀 합의(7/31):
+ * "상담원과 유저가 모두 접속된 이후 녹음 시작". start 는 WAITING→IN_PROGRESS
+ * 전이까지 겸하고 멱등이라, 새로고침 후 다시 불러도 REC 배지가 복원된다.
+ *
  * 새로고침하면 스토어가 비므로 세션 ID 규칙으로 복원해 다시 커넥션을 받는다.
- * 이때 recordingId 는 되찾을 수 없어 녹음 배지가 꺼진다 — 녹음 자체는 서버에서
- * 계속 돌고 있으므로 표시만 안 되는 것이다.
- * TODO: 상담 조회 API 가 생기면 recordingId 를 응답으로 받아 복원한다.
+ * 같은 participantId(staffCode) 재접속은 서버가 이전 커넥션을 끊고 처리한다.
  */
 export function useConsultationRoom(
   consultationId: number,
@@ -45,6 +49,7 @@ export function useConsultationRoom(
 
   const [isRestoring, setIsRestoring] = useState(false)
   const [isRestoreFailed, setIsRestoreFailed] = useState(false)
+  const [isRecording, setIsRecording] = useState(false)
 
   // 다른 상담의 세션이 남아 있을 수 있으므로 ID 가 맞을 때만 쓴다
   const currentSession =
@@ -90,11 +95,42 @@ export function useConsultationRoom(
     publish: { audio: true, video: false },
   })
 
+  /*
+    사용자 접속을 확인한 순간 녹음을 시작한다.
+
+    실패해도 통화는 끊지 않는다(명세 NFR-REL-003 5번) — REC 배지만 꺼진 채
+    진행되고, 사용자 스트림이 재생성되는 재연결 시점에 자연히 재시도된다.
+    started 응답이 오기 전 화면을 떠나는 경우를 위해 abort 표식을 둔다.
+  */
+  const isStartRequestedRef = useRef(false)
+
+  useEffect(() => {
+    if (status !== OV_STATUS.CONNECTED || remoteStream === null) return
+    if (isStartRequestedRef.current || consultationId <= 0) return
+
+    isStartRequestedRef.current = true
+    let isCurrent = true
+
+    openviduApi
+      .startConsultation(toSessionId(consultationId))
+      .then((started) => {
+        if (isCurrent) setIsRecording(started)
+      })
+      .catch(() => {
+        // 다음 스트림 이벤트에서 다시 시도할 수 있게 표식을 되돌린다
+        isStartRequestedRef.current = false
+      })
+
+    return () => {
+      isCurrent = false
+    }
+  }, [consultationId, remoteStream, status])
+
   return {
     status,
     userStream: remoteStream,
     isRestoring,
     isRestoreFailed,
-    isRecording: currentSession?.recordingId != null,
+    isRecording,
   }
 }

@@ -15,7 +15,7 @@ pipeline {
         booleanParam(
             name: 'DEPLOY_ALL',
             defaultValue: false,
-            description: '변경 감지를 무시하고 세 서비스를 모두 재배포'
+            description: '변경 감지를 무시하고 모든 서비스를 재배포'
         )
     }
 
@@ -26,7 +26,7 @@ pipeline {
 
     environment {
         APP_DIR     = '/home/ubuntu/app'
-        DOMAIN      = 'i15d104.p.ssafy.io'   // ← 실제 도메인 확인 후 수정
+        DOMAIN      = 'i15d104.p.ssafy.io'
         MIN_FREE_MB = '2500'
 
         // 서버에서 쓰는 dcp 별칭과 동일한 조합
@@ -90,18 +90,24 @@ pipeline {
                         echo "변경된 파일:\n${changed}"
                     }
 
-                    def all = (changed == 'ALL')
+                    // compose 파일 변경은 어느 서비스가 영향받는지 경로만으로 알 수 없어
+                    // 전체 재배포로 처리. up -d 는 변경 없는 컨테이너를 건드리지 않으므로 안전.
+                    // (override.yml 은 로컬 전용이라 서버 배포와 무관 — 감지 대상에서 제외)
+                    def composeChanged = changed.contains('docker-compose.yml')
+                                      || changed.contains('docker-compose.prod.yml')
+
+                    def all = (changed == 'ALL' || composeChanged)
                     env.BUILD_API      = (all || changed.contains('backend/ssabway/')).toString()
                     env.BUILD_SIGNAL   = (all || changed.contains('backend/ssabway_webrtc/')).toString()
                     env.BUILD_FRONTEND = (all || changed.contains('frontend/')).toString()
-                    env.BUILD_AI = (all || changed.contains('ai/serve/')).toString()
+                    env.BUILD_AI       = (all || changed.contains('ai/serve/')).toString()
                     env.TOUCH_NGINX    = (all || changed.contains('deploy/nginx.conf')).toString()
 
                     echo "api=${env.BUILD_API} signaling=${env.BUILD_SIGNAL} frontend=${env.BUILD_FRONTEND} ai=${env.BUILD_AI} nginx설정=${env.TOUCH_NGINX}"
 
                     if (env.BUILD_API == 'false' && env.BUILD_SIGNAL == 'false'
-                        && env.BUILD_FRONTEND == 'false' && env.TOUCH_NGINX == 'false'
-                        && env.BUILD_AI == 'false') {
+                        && env.BUILD_FRONTEND == 'false' && env.BUILD_AI == 'false'
+                        && env.TOUCH_NGINX == 'false') {
                         currentBuild.result = 'SUCCESS'
                         currentBuild.description = '배포 대상 없음'
                         error('배포할 변경사항이 없습니다.')
@@ -135,6 +141,7 @@ pipeline {
         stage('ai 배포') {
             when { environment name: 'BUILD_AI', value: 'true' }
             steps {
+                // 첫 빌드는 torch CPU 휠 다운로드 때문에 수 분 걸림 (이후는 레이어 캐시)
                 sh 'cd "$APP_DIR" && $DC up -d --build ai'
             }
         }
@@ -176,8 +183,6 @@ pipeline {
                 '''
             }
         }
-
-
     }
 
     post {
@@ -187,12 +192,18 @@ pipeline {
             echo "===== 실패 직전 로그 ====="
             $DC logs --since 5m --tail 80 api        || true
             $DC logs --since 5m --tail 40 signaling  || true
+            $DC logs --since 5m --tail 40 ai         || true
             $DC logs --since 5m --tail 40 nginx      || true
             echo "===== 되돌리기 ====="
-            echo "cd ~/app && git checkout \\$(cat ~/last-good.txt) && dcp up -d --build api"
+            echo "마지막 성공 커밋 확인:"
+            echo "  docker compose -f /opt/jenkins/docker-compose.yml exec jenkins cat /var/jenkins_home/last-good.txt"
+            echo "되돌리기:"
+            echo "  cd ~/app && git checkout <해시> && dcp up -d --build api"
             '''
         }
         success {
+            // Jenkins 컨테이너는 마운트된 경로 밖에 파일을 쓸 수 없으므로
+            // named volume 안(/var/jenkins_home)에 기록합니다.
             sh 'cd "$APP_DIR" && git rev-parse --short HEAD > /var/jenkins_home/last-good.txt'
             echo '배포 성공 — last-good.txt 갱신'
         }
