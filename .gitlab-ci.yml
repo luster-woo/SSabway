@@ -15,7 +15,7 @@ workflow:
   rules:
     # develop 대상 MR 일 때만 파이프라인 생성
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "develop"'
-    # 그 외(브랜치 push, main 병합 등)는 아무것도 하지 않음
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"'
     - when: never
 
 # ─────────────────────────────────────────────────────────
@@ -78,6 +78,8 @@ backend-ssabway:
       - .gradle/caches
       - .gradle/wrapper
   rules:
+    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME != "develop"'
+      when: never
     - changes:
         - backend/ssabway/**/*
         - .gitlab-ci.yml
@@ -96,6 +98,8 @@ backend-signaling:
       - .gradle/caches
       - .gradle/wrapper
   rules:
+    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME != "develop"'
+      when: never
     - changes:
         - backend/ssabway_webrtc/**/*
         - .gitlab-ci.yml
@@ -128,6 +132,8 @@ frontend:
     paths:
       - frontend/.npm
   rules:
+    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME != "develop"'
+      when: never
     - changes:
         - frontend/**/*
         - .gitlab-ci.yml
