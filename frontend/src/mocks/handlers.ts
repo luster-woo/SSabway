@@ -81,41 +81,67 @@ export const handlers: RequestHandler[] = [
     )
   }),
 
-  // 재설정용 인증 메일 발송 (BE 신규 예정 — endpoints.users.passwordEmailRequest 가정값)
+  // 재설정용 인증 메일 발송 (BE PasswordController, 개발완료)
   //
   // 회원가입 발송과 판정이 정반대다: 가입된 이메일이어야 정상이고,
-  // 가입되지 않은 이메일이면 404 를 준다. 응답 형식은 회원가입 발송과 동일.
+  // 가입되지 않은 이메일이면 404 USER_NOT_FOUND. 응답 형식은 회원가입 발송과 동일.
   http.post(`${BASE}/users/password/email/requests`, async ({ request }) => {
     const { email } = (await request.json()) as { email?: string }
 
     if (email === RATE_LIMITED_EMAIL) {
-      return HttpResponse.json(errorBody('요청 횟수를 초과했습니다.'), {
-        status: 429,
-      })
+      return HttpResponse.json(
+        errorBody('요청 횟수를 초과했습니다.', 'EMAIL_SEND_LIMIT_EXCEEDED'),
+        { status: 429 },
+      )
     }
 
     if (!email?.includes('@')) {
-      return HttpResponse.json(errorBody('잘못된 형식의 요청 값입니다.'), {
-        status: 400,
-      })
+      return HttpResponse.json(
+        errorBody('잘못된 형식의 요청 값입니다.', 'INVALID_INPUT_VALUE'),
+        { status: 400 },
+      )
     }
 
     // 만료 재현용 계정(VERIFICATION_EXPIRED_EMAIL)도 가입된 것으로 취급해
-    // 발송·인증을 통과시키고, 마지막 PUT /users 에서 401 을 받게 한다.
+    // 발송·인증을 통과시키고, 마지막 PATCH /users/password 에서
+    // 400 EMAIL_NOT_VERIFIED 를 받게 한다.
     const isRegistered =
       TAKEN_EMAILS.includes(email.toLowerCase()) ||
       email === VERIFICATION_EXPIRED_EMAIL
 
     if (!isRegistered) {
-      return HttpResponse.json(errorBody('가입되지 않은 이메일입니다.'), {
-        status: 404,
-      })
+      return HttpResponse.json(
+        errorBody('가입되지 않은 이메일입니다.', 'USER_NOT_FOUND'),
+        { status: 404 },
+      )
     }
 
     return HttpResponse.json(
-      okBody('인증 코드가 발송되었습니다.', { timeLimit: CODE_TIME_LIMIT_SEC }),
+      okBody('인증 메일이 발송되었습니다.', { timeLimit: CODE_TIME_LIMIT_SEC }),
     )
   }),
+
+  // 재설정용 인증코드 확인 (BE PasswordController, 개발완료)
+  //
+  // 회원가입용 인증코드 확인과 URL 만 다르고 요청·응답 형식은 같다.
+  // BE 는 두 흐름의 인증 상태를 별도 저장소(verify:* / reset:*)에 두므로
+  // 목도 엔드포인트를 분리해 프론트가 올바른 쪽을 부르는지 검증한다.
+  http.post(
+    `${BASE}/users/password/email/verification`,
+    async ({ request }) => {
+      const { code } = (await request.json()) as { code?: string }
+
+      // 서버가 trim + 대문자 변환 후 비교한다 (BE PasswordResetService)
+      if ((code ?? '').trim().toUpperCase() !== VALID_CODE) {
+        return HttpResponse.json(
+          errorBody('인증 코드가 일치하지 않습니다.', 'VERIFICATION_CODE_MISMATCH'),
+          { status: 400 },
+        )
+      }
+
+      return HttpResponse.json(okBodyWithoutData('인증이 완료되었습니다.'))
+    },
+  ),
 
   // 인증 코드 검증
   http.post(`${BASE}/users/email/verification`, async ({ request }) => {
@@ -157,36 +183,36 @@ export const handlers: RequestHandler[] = [
     })
   }),
 
-  // 비밀번호 재설정 (이메일 인증 후 새 비밀번호 설정)
+  // 비밀번호 재설정 실행 (BE: PATCH /users/password, 인증 토큰 불필요)
   //
-  // 회원가입과 같은 /users 경로지만 메서드(PUT)로 구분된다.
-  // BE 확인: 원래 "로그인한 회원의 비밀번호 변경"으로 구현됐다가
-  // 재설정(비로그인 + 이메일 인증 기반)으로 수정 예정. 본문 형식은 유지.
+  // 같은 400 이라도 의미가 둘이라 code 필드가 필수다.
+  //   EMAIL_NOT_VERIFIED  — 인증 안 됨·만료 (프론트: "인증이 만료됐어요")
+  //   INVALID_INPUT_VALUE — 비밀번호 형식 위반 (프론트: "형식이 올바르지 않아요")
+  // usePasswordReset 의 toResetErrorKey 가 이 code 로 문구를 가른다.
   //
-  // 실제 서버는 "이 이메일이 인증됐고 30분 안이다"를 검사한다.
-  // 목은 상태를 들고 있지 않으므로 인증 여부는 검사하지 못하고,
-  // 만료 흐름은 VERIFICATION_EXPIRED_EMAIL 로만 재현한다.
-  http.put(`${BASE}/users`, async ({ request }) => {
+  // 실제 서버는 "이 이메일이 인증됐고 30분 안이다"(reset:done 키)를 검사한다.
+  // 목은 상태를 들고 있지 않으므로 만료 흐름을 VERIFICATION_EXPIRED_EMAIL 로 재현한다.
+  http.patch(`${BASE}/users/password`, async ({ request }) => {
     const { email, newPassword } = (await request.json()) as {
       email?: string
       newPassword?: string
     }
 
-    // 인증 유효 시간(30분) 만료를 재현. 명세의 401 에 해당한다.
     if (email === VERIFICATION_EXPIRED_EMAIL) {
       return HttpResponse.json(
-        errorBody('인증이 만료되었습니다. 처음부터 다시 시도해주세요.'),
-        { status: 401 },
+        errorBody('이메일 인증이 필요합니다.', 'EMAIL_NOT_VERIFIED'),
+        { status: 400 },
       )
     }
 
     if (!newPassword || newPassword.length < MIN_PASSWORD_LENGTH) {
-      return HttpResponse.json(errorBody('잘못된 형식의 요청 값입니다.'), {
-        status: 400,
-      })
+      return HttpResponse.json(
+        errorBody('잘못된 형식의 요청 값입니다.', 'INVALID_INPUT_VALUE'),
+        { status: 400 },
+      )
     }
 
-    return HttpResponse.json(okBodyWithoutData('비밀번호 변경 성공'))
+    return HttpResponse.json(okBodyWithoutData('비밀번호가 변경되었습니다.'))
   }),
 
   // 회원 탈퇴 (Soft Delete)

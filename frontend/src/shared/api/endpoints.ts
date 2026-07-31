@@ -7,21 +7,22 @@ const auth = {
 /** 사용자 */
 const users = {
   signup: '/users',
-  changePassword: '/users',
-  withdraw: '/users',
+  withdraw: '/users', // PATCH — 같은 경로의 POST 는 회원가입
   login: '/users/login',
   googleLogin: '/users/login/google', // 보류
+  /** 회원가입용 이메일 인증. 가입된 이메일이면 409 — 재설정에는 못 쓴다. */
   emailRequest: '/users/email/requests',
+  emailVerification: '/users/email/verification',
   /**
-   * 비밀번호 재설정용 인증 메일 발송.
+   * 비밀번호 재설정 3종 (BE PasswordController, 개발완료).
    *
-   * 기존 emailRequest 는 가입된 이메일이면 409(중복)를 반환해 재설정에 쓸 수 없다.
-   * (재설정은 가입된 이메일이어야 정상이라 정반대) BE 가 전용 API 를 새로 만들
-   * 예정이며 주소는 미확정 — 아래는 가정값이다. 확정되면 이 한 줄만 바꾼다.
-   * 요청·응답 형식은 emailRequest 와 동일 (BE 확인).
+   * 회원가입용 인증과 URL 트리부터 분리되어 있고 서버 저장소(Redis 키)도 다르다.
+   * 발송·확인·실행 셋 다 재설정용을 써야 한다 — 하나라도 회원가입용과 섞으면
+   * 서버가 인증 상태를 못 찾아 코드 불일치/미인증으로 실패한다.
    */
   passwordEmailRequest: '/users/password/email/requests',
-  emailVerification: '/users/email/verification',
+  passwordEmailVerification: '/users/password/email/verification',
+  passwordReset: '/users/password', // PATCH, body { email, newPassword }
   exists: (email: string) => `/users/exists?email=${encodeURIComponent(email)}`,
 } as const
 
