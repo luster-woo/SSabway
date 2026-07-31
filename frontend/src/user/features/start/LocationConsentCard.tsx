@@ -5,6 +5,8 @@ import { Button, Card } from '@/shared/ui'
 export interface LocationConsentCardProps {
   onAllow: () => void
   onDeny: () => void
+  /** 위치를 잡는 중. 지하에서는 몇 초 걸리므로 중복 요청을 막는다. */
+  isRequesting?: boolean
 }
 
 function ConsentBullet({ children }: { children: string }) {
@@ -25,6 +27,7 @@ function ConsentBullet({ children }: { children: string }) {
 export function LocationConsentCard({
   onAllow,
   onDeny,
+  isRequesting = false,
 }: LocationConsentCardProps) {
   const { t } = useTranslation()
 
@@ -48,10 +51,17 @@ export function LocationConsentCard({
       </ul>
 
       <div className="mt-5 flex gap-3">
-        <Button className="flex-1" onClick={onAllow}>
-          {t('start.consent.allow')}
+        <Button className="flex-1" disabled={isRequesting} onClick={onAllow}>
+          {isRequesting
+            ? t('start.consent.requesting')
+            : t('start.consent.allow')}
         </Button>
-        <Button variant="secondary" className="flex-1" onClick={onDeny}>
+        <Button
+          variant="secondary"
+          className="flex-1"
+          disabled={isRequesting}
+          onClick={onDeny}
+        >
           {t('start.consent.deny')}
         </Button>
       </div>

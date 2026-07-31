@@ -144,7 +144,10 @@
       "denied": "大丈夫です！標識の撮影で位置を認識できます",
       "statusAllowed": "位置情報の利用に同意しました",
       "statusDenied": "標識の撮影で位置を認識します",
-      "change": "選び直す"
+      "change": "選び直す",
+      "requesting": "確認中…",
+      "unavailable": "位置を取得できません · 標識の撮影で進められます",
+      "nearStation": "最寄り駅: {{station}}"
     }
   },
   "signCapture": {

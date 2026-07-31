@@ -70,6 +70,12 @@ export const USER_ACCOUNT = {
 export const USER_LANGUAGE = 'EN'
 
 /**
+ * GPS 조회가 돌려줄 역 이름. 명세의 예시값을 그대로 쓴다.
+ * 목은 좌표를 보지 않으므로 어디서 실행해도 이 역이 나온다.
+ */
+export const NEARBY_STATION = '대구역'
+
+/**
  * 리프레시 토큰 쿠키.
  *
  * 실제 서버는 HttpOnly 로 내려주므로 자바스크립트가 읽을 수 없지만,

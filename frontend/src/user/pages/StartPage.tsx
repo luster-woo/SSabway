@@ -23,6 +23,8 @@ import { WithdrawDialog } from '@/user/features/auth/WithdrawDialog'
 import { LanguageSelector } from '@/user/features/start/LanguageSelector'
 import { LocationConsentCard } from '@/user/features/start/LocationConsentCard'
 import { LocationConsentStatus } from '@/user/features/start/LocationConsentStatus'
+import { useNearbyStation } from '@/user/features/start/useNearbyStation'
+import { requestLocation } from '@/user/features/start/lib/requestLocation'
 
 const LANGUAGE_LABEL_ID = 'start-language-label'
 
@@ -53,14 +55,56 @@ export default function StartPage() {
     showToast(t('language.changed', { lng: next }))
   }
 
-  const allowLocation = () => {
-    setConsent(LOCATION_CONSENT.GRANTED)
-    showToast(t('start.consent.allowed'))
+  /**
+   * 위치를 잡는 동안 버튼을 잠근다.
+   *
+   * 지하에서는 타임아웃(10초)까지 걸릴 수 있어 그동안 반응이 없으면
+   * 사용자가 버튼을 연타한다. 다른 화면이 알 필요는 없어 로컬 상태로 둔다.
+   */
+  const [isRequestingLocation, setIsRequestingLocation] = useState(false)
+
+  const { station, findStation, clear: clearStation } = useNearbyStation()
+
+  /**
+   * 실제 브라우저 권한을 요청하고, 좌표를 받으면 가까운 역까지 조회한다.
+   *
+   * 좌표를 못 받아도 consent 는 DENIED 로 확정한다. null(선택 전)로 두면
+   * startGuide 의 가드에 걸려 「안내 시작」 을 누를 수 없는데, 지하철역은
+   * GPS 가 안 잡히는 게 정상인 곳이라 그대로 두면 진행이 막힌다.
+   * DENIED 는 "표지판 촬영으로 간다" 는 뜻이고 그게 이때 맞는 경로다.
+   * 다시 시도하고 싶으면 「다시 선택」 → 「동의」 로 돌아올 수 있다.
+   */
+  const allowLocation = async () => {
+    setIsRequestingLocation(true)
+
+    try {
+      const coords = await requestLocation()
+
+      if (coords === null) {
+        setConsent(LOCATION_CONSENT.DENIED)
+        showToast(t('start.consent.unavailable'))
+        return
+      }
+
+      setConsent(LOCATION_CONSENT.GRANTED)
+      showToast(t('start.consent.allowed'))
+
+      // 역 조회는 부가 정보라 실패해도 동의 상태를 되돌리지 않는다.
+      await findStation(coords)
+    } finally {
+      setIsRequestingLocation(false)
+    }
   }
 
   const denyLocation = () => {
     setConsent(LOCATION_CONSENT.DENIED)
     showToast(t('start.consent.denied'))
+  }
+
+  /** 다시 선택하면 이전 좌표로 찾은 역 이름도 버린다. */
+  const changeConsent = () => {
+    resetConsent()
+    clearStation()
   }
 
   const startGuide = () => {
@@ -138,11 +182,16 @@ export default function StartPage() {
 
       <section className="mt-[clamp(16px,3vh,26px)] pb-4">
         {consent === null ? (
-          <LocationConsentCard onAllow={allowLocation} onDeny={denyLocation} />
+          <LocationConsentCard
+            onAllow={() => void allowLocation()}
+            onDeny={denyLocation}
+            isRequesting={isRequestingLocation}
+          />
         ) : (
           <LocationConsentStatus
             granted={consent === LOCATION_CONSENT.GRANTED}
-            onChange={resetConsent}
+            station={station}
+            onChange={changeConsent}
           />
         )}
       </section>
