@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.core.JacksonException;
+import com.ssafy.ssabway_webrtc.common.exception.BusinessException;
+import com.ssafy.ssabway_webrtc.common.exception.ErrorCode;
 
 import java.util.Locale;
 
@@ -35,7 +37,7 @@ public class OpenViduService {
         openVidu.fetch();
         Session session = openVidu.getActiveSession(sessionId);
         if(session == null){
-            throw new  IllegalStateException("존재하지 않는 상담 세션");
+            throw new BusinessException(ErrorCode.OPENVIDU_SESSION_NOT_FOUND);
         }
 
         // 프론트에서 전달한 역할을 USER 또는 STAFF 형식으로 통일
@@ -43,7 +45,7 @@ public class OpenViduService {
 
         if (!USER.equals(normalizedType) &&
             !STAFF.equals(normalizedType)) {
-            throw new IllegalArgumentException("참여자 역할은 USER 또는 STAFF만 가능합니다.");
+            throw new BusinessException(ErrorCode.INVALID_PARTICIPANT_ROLE);
         }
 
         int userCount = 0;
@@ -57,14 +59,14 @@ public class OpenViduService {
             String existingParticipantId = getMetadataValue(existingConnection, "participantId");
 
             if(existingType == null || existingParticipantId == null){
-                throw new IllegalStateException("기존 참여자의 연결 정보를 확인할 수 없습니다.");
+                throw new BusinessException(ErrorCode.CONNECTION_METADATA_INVALID);
             }
             existingType = existingType.toUpperCase(Locale.ROOT);
 
             // 같은 역할의 동일 참여자는 재접속 대상으로 처리
             if(normalizedType.equals(existingType)){
                 if(!participantId.equals(existingParticipantId)){
-                    throw new IllegalStateException(normalizedType + " 역할의 참여자가 이미 연결되어 있습니다.");
+                    throw new BusinessException(ErrorCode.PARTICIPANT_ALREADY_CONNECTED);
                 }
                 reconnectTarget = existingConnection;
                 continue;
@@ -76,7 +78,7 @@ public class OpenViduService {
             } else if(STAFF.equals(existingType)){
                 staffCount++;
             } else{
-                throw new IllegalStateException("알수 없는 참여자 역할입니다.");
+                throw new BusinessException(ErrorCode.CONNECTION_METADATA_INVALID);
             }
         }
 
@@ -89,9 +91,7 @@ public class OpenViduService {
 
         // USER 1명 또는 STAFF 1명을 초과하면 연결을 거절
         if (userCount > 1 || staffCount > 1) {
-            throw new IllegalStateException(
-                "화상 상담은 사용자 1명과 역무원 1명만 참여할 수 있습니다."
-            );
+            throw new BusinessException(ErrorCode.PARTICIPANT_LIMIT_EXCEEDED);
         }
 
         // 모든 검증을 통과한 후 기존 재접속 연결을 제거
@@ -138,21 +138,12 @@ public class OpenViduService {
 
             return value.asText();
         } catch (JacksonException exception){
-            throw new IllegalStateException("참여자 연결 정보를 읽을 수 없습니다.", exception);
+            throw new BusinessException(
+                ErrorCode.CONNECTION_METADATA_INVALID,
+                exception
+            );
         }
     }
-
-    public void closeSession(String sessionId) throws OpenViduJavaClientException, OpenViduHttpException{
-        openVidu.fetch();
-
-        Session session = openVidu.getActiveSession(sessionId);
-
-        if(session == null){
-            throw new IllegalStateException("존재하지 않는 상담 세션입니다.");
-        }
-        session.close();
-    }
-
 
     // 화면 녹화 후 음성데이터 받아오는 메서드
     public Recording startAudioRecording(String sessionId) throws OpenViduJavaClientException, OpenViduHttpException{
@@ -160,7 +151,7 @@ public class OpenViduService {
 
         Session session = openVidu.getActiveSession(sessionId);
         if(session == null){
-            throw new IllegalStateException("존재하지 않는 상담 세션입니다.");
+            throw new BusinessException(ErrorCode.OPENVIDU_SESSION_NOT_FOUND);
         }
 
         RecordingProperties properties = new RecordingProperties.Builder()

@@ -1,5 +1,7 @@
 package com.ssafy.ssabway_webrtc.domain.service;
 
+import com.ssafy.ssabway_webrtc.common.exception.BusinessException;
+import com.ssafy.ssabway_webrtc.common.exception.ErrorCode;
 import com.ssafy.ssabway_webrtc.domain.dto.OpenViduWebhookRequest;
 import io.openvidu.java.client.OpenVidu;
 import io.openvidu.java.client.OpenViduHttpException;
@@ -30,7 +32,7 @@ public class OpenViduWebhookService {
         }
 
         if (request.getId() == null || request.getId().isBlank()) {
-            throw new IllegalArgumentException("녹화 ID가 없습니다.");
+            throw new BusinessException(ErrorCode.INVALID_WEBHOOK_REQUEST);
         }
 
         try {
@@ -52,7 +54,10 @@ public class OpenViduWebhookService {
             );
 
         } catch (OpenViduJavaClientException | OpenViduHttpException exception) {
-            throw new IllegalStateException("완료된 녹음 정보를 조회할 수 없습니다.", exception);
+            throw new BusinessException(
+                ErrorCode.OPENVIDU_COMMUNICATION_FAILED,
+                exception
+            );
         }
 
     }

@@ -1,5 +1,7 @@
 package com.ssafy.ssabway_webrtc.domain.service;
 
+import com.ssafy.ssabway_webrtc.common.exception.BusinessException;
+import com.ssafy.ssabway_webrtc.common.exception.ErrorCode;
 import com.ssafy.ssabway_webrtc.domain.repository.ConsultationRepository;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -36,9 +38,7 @@ public class ConsultationRecordingService {
         }
 
         if(!consultationRepository.existsById(consultationId)){
-            throw new IllegalStateException(
-                "상담 정보를 찾을 수 없습니다."
-            );
+            throw new BusinessException(ErrorCode.CONSULTATION_NOT_FOUND);
         }
 
         // 동일한 웹훅이 중복 수신되면 기존 값을 유지
@@ -50,9 +50,7 @@ public class ConsultationRecordingService {
 
     private Long extractConsultationId(String sessionId) {
         if(sessionId == null || !sessionId.startsWith(SESSION_PREFIX)){
-            throw new IllegalStateException(
-                "잘못된 상담 세션 ID입니다."
-            );
+            throw new BusinessException(ErrorCode.INVALID_SESSION_ID);
         }
 
         try{
@@ -60,8 +58,8 @@ public class ConsultationRecordingService {
                 sessionId.substring(SESSION_PREFIX.length())
             );
         } catch (NumberFormatException exception){
-            throw new IllegalStateException(
-                "상담 세션 ID에서 상담 ID를 확인할 수 없습니다.",
+            throw new BusinessException(
+                ErrorCode.INVALID_SESSION_ID,
                 exception
             );
         }

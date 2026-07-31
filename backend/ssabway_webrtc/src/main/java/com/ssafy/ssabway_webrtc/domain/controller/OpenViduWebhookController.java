@@ -1,10 +1,11 @@
 package com.ssafy.ssabway_webrtc.domain.controller;
 
+import com.ssafy.ssabway_webrtc.common.exception.BusinessException;
+import com.ssafy.ssabway_webrtc.common.exception.ErrorCode;
 import com.ssafy.ssabway_webrtc.domain.dto.OpenViduWebhookRequest;
 import com.ssafy.ssabway_webrtc.domain.service.OpenViduWebhookService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,7 +26,7 @@ public class OpenViduWebhookController {
         @RequestBody OpenViduWebhookRequest request) {
 
         if(!webhookSecret.equals(requestSecret)){
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            throw new BusinessException(ErrorCode.INVALID_WEBHOOK_SECRET);
         }
 
         openViduWebhookService.handle(request);
