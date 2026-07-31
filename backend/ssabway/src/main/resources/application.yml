@@ -43,6 +43,13 @@ spring:
           timeout: 5000
           writetimeout: 5000
 
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: 719352113387-r5stvku567sapsg850mpjfet14cq5vvr.apps.googleusercontent.com
+
 jwt:
   access-token-expiration: 1800000      # 30분
   refresh-token-expiration: 1209600000  # 14일
