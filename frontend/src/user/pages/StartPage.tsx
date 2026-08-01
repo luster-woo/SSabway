@@ -24,6 +24,7 @@ import { LanguageSelector } from '@/user/features/start/LanguageSelector'
 import { LocationConsentCard } from '@/user/features/start/LocationConsentCard'
 import { LocationConsentStatus } from '@/user/features/start/LocationConsentStatus'
 import { useNearbyStation } from '@/user/features/start/useNearbyStation'
+import { useSyncLanguageOnLeave } from '@/user/features/start/useSyncLanguageOnLeave'
 import { requestLocation } from '@/user/features/start/lib/requestLocation'
 
 const LANGUAGE_LABEL_ID = 'start-language-label'
@@ -34,6 +35,9 @@ export default function StartPage() {
   const navigate = useNavigate()
   const { showToast } = useToast()
   const { language, changeLanguage } = useLanguage()
+
+  // 페이지를 벗어날 때, 로그인 상태에서 언어가 바뀌었다면 서버에 저장한다.
+  useSyncLanguageOnLeave()
 
   /*
     'idle' 은 비로그인이 아니라 "아직 모름" 이다. (UserApp 의 useRestoreSession)
