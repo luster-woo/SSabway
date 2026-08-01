@@ -31,7 +31,7 @@ export interface UseDestinationMapOptions {
  * 컨테이너에 Google 지도를 띄우고, 선택된 목적지 마커와 "내 위치" 마커를 관리한다.
  *
  * 지도 인스턴스는 ref로만 들고 있는다 — state에 넣으면 지도 내부 상태가 바뀔 때마다
- * 리렌더가 돌면서 타일이 다시 그려진다. (네이버 useDestinationMap 과 같은 구조)
+ * 리렌더가 돌면서 타일이 다시 그려진다.
  */
 export function useGoogleDestinationMap(
   containerRef: RefObject<HTMLDivElement | null>,

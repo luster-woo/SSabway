@@ -2,7 +2,7 @@
  * Google Maps JS API 앰비언트 타입.
  *
  * 공식 @types/google.maps 패키지 대신, 이 프로젝트에서 실제로 쓰는 범위만 선언한다.
- * (기존 naverMaps.d.ts 와 같은 방식 — devDependency·package-lock 을 건드리지 않기 위함)
+ * (devDependency·package-lock 을 건드리지 않기 위함)
  * 새 API를 쓰게 되면 여기에 시그니처를 추가할 것. (any 남발 금지)
  *
  * ⚠️ window.google 은 이미 shared/types/google.d.ts 가 Google 로그인(GIS)용으로

@@ -12,9 +12,8 @@ import { env } from '@/shared/lib/env'
  *   사용자는 시작 화면에서 언어를 고른 뒤 이 화면에 오므로 첫 로드 언어 = 선택 언어다.
  *   (로드 이후 언어를 바꾸면 지도 표기는 새로고침 전까지 이전 언어로 남는다.)
  *
- * index.html 에 넣지 않고 여기서 동적 로드하는 이유는 loadNaverMaps 와 같다 —
- * 지도는 목적지 설정 화면에서만 쓰는데 모든 진입 경로에서 매번 외부 스크립트를
- * 받으면 첫 화면 로딩이 그만큼 늦어진다.
+ * index.html 에 넣지 않고 여기서 동적 로드하는 이유: 지도는 목적지 설정 화면에서만
+ * 쓰는데 모든 진입 경로에서 매번 외부 스크립트를 받으면 첫 화면 로딩이 그만큼 늦어진다.
  *
  * window.google 은 Google 로그인(GIS)용으로 이미 타입이 잡혀 있어(shared/types/google.d.ts)
  * 여기서는 전역 `google.maps` 네임스페이스를 직접 참조한다.
@@ -51,7 +50,7 @@ export class GoogleMapsLoadError extends Error {
  *
  * Google SDK 는 인증에 실패해도 스크립트 로드는 성공시키고, 나중에 전역 콜백
  * `gm_authFailure` 만 호출한다. 즉 load 이벤트만 봐서는 "지도가 안 뜨는 이유"를
- * 알 수 없어서 따로 받는다. (네이버의 navermap_authFailure 와 같은 구조)
+ * 알 수 없어서 따로 받는다.
  */
 type AuthFailureListener = () => void
 const authFailureListeners = new Set<AuthFailureListener>()

@@ -46,9 +46,9 @@ function toPlace(result: google.maps.places.PlaceResult): Place | null {
 /**
  * 키워드로 목적지 후보를 찾는다.
  *
- * Google Places 의 Text Search 를 쓴다. 네이버 geocode(주소 전용)와 달리
- * "명동성당" 같은 POI 이름도 잡히고, 표기 언어는 SDK 로드 시점 언어를 따른다
- * (사용자가 시작 화면에서 고른 언어). 백엔드 프록시 없이 프론트에서 바로 검색한다.
+ * Google Places 의 Text Search 를 쓴다. 주소뿐 아니라 "명동성당" 같은 POI 이름도
+ * 잡히고, 표기 언어는 SDK 로드 시점 언어를 따른다(사용자가 시작 화면에서 고른 언어).
+ * 백엔드 프록시 없이 프론트에서 바로 검색한다.
  */
 export async function searchPlaces(
   query: string,

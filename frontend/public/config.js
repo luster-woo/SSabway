@@ -9,11 +9,7 @@ window.__ENV__ = {
   // 배포 환경에서 사용자 브라우저의 localhost 를 가리켜 깨진다.
   // 붙일 백엔드를 바꾸려면 frontend/.env.local 의 VITE_PROXY_TARGET 을 쓴다.
   API_BASE_URL: '',
-  // 네이버 클라우드 플랫폼 > Maps 애플리케이션의 Client ID.
-  // Client Secret은 서버 전용이므로 여기에 넣지 않는다.
-  // 콘솔의 Web 서비스 URL 에 접속 도메인이 등록돼 있어야 지도가 뜬다.
-  // (S15P11D104-322 에서 목적지 지도는 구글로 교체 — 네이버 코드는 롤백용 보존)
-  NAVER_MAP_CLIENT_ID: 'pumqt2h9m1',
+
   // Google Maps Platform API 키 (Maps JavaScript API + Places API 활성화 필요).
   // 프론트에 노출되는 public 값이며, 실제 방어선은 콘솔의 HTTP 리퍼러 제한이다.
   // 허용 리퍼러에 접속 도메인(로컬은 http://localhost:5173/*)을 등록할 것.
