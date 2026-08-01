@@ -244,6 +244,27 @@ export const handlers: RequestHandler[] = [
     })
   }),
 
+  // 회원 선호 언어 설정 (BE 개발완료)
+  //
+  // 시작 페이지 이탈 시 fire-and-forget 으로 나가는 요청이라 화면에 결과가
+  // 보이지 않는다. 목의 역할은 devtools Network 탭에서 "언제 나가는지"를
+  // 확인시켜 주는 것이다. (칩 클릭마다 나가면 잘못 붙인 것)
+  http.patch(`${BASE}/users/language`, async ({ request }) => {
+    if (!request.headers.get('Authorization')) {
+      return HttpResponse.json(errorBody('인증이 필요합니다.'), { status: 401 })
+    }
+
+    const { language } = (await request.json()) as { language?: string }
+
+    if (!language || !['KO', 'EN', 'JA', 'ZH'].includes(language)) {
+      return HttpResponse.json(errorBody('잘못된 형식의 요청 값입니다.'), {
+        status: 400,
+      })
+    }
+
+    return HttpResponse.json(okBodyWithoutData('언어 설정 완료했습니다.'))
+  }),
+
   /* ---------------------------------------------------------------- *
    * 인증
    * ---------------------------------------------------------------- */

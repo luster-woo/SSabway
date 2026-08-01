@@ -23,6 +23,11 @@ const users = {
   passwordEmailRequest: '/users/password/email/requests',
   passwordEmailVerification: '/users/password/email/verification',
   passwordReset: '/users/password', // PATCH, body { email, newPassword }
+  /**
+   * 선호 언어 변경 (PATCH, 인증 필요). body { language: 'KO'|'EN'|'JA'|'ZH' }
+   * 시작 페이지를 벗어날 때 변경분만 보낸다 — useSyncLanguageOnLeave 참고.
+   */
+  language: '/users/language',
   exists: (email: string) => `/users/exists?email=${encodeURIComponent(email)}`,
 } as const
 
