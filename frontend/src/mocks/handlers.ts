@@ -1,4 +1,6 @@
-import { http, HttpResponse, type RequestHandler } from 'msw'
+import { http, HttpResponse, type HttpHandler, type RequestHandler } from 'msw'
+
+import { MOCK_SWITCH, type MockSwitchKey } from '@/mocks/mockSwitch'
 
 import {
   CODE_TIME_LIMIT_SEC,
@@ -23,7 +25,8 @@ import {
  * 요청을 가로채는 규칙.
  *
  * 응답 값은 data.ts 에 모아두고 여기서는 규칙만 다룬다.
- * BE 연동이 끝난 엔드포인트는 이 배열에서 지우면 실제 서버로 넘어간다.
+ * 실서버로 보낼 엔드포인트는 이 배열에서 지우지 말고 mockSwitch.ts 에서 끈다.
+ * 꺼진 핸들러는 등록되지 않아 실제 서버로 넘어간다.
  * (browser.ts 의 onUnhandledRequest: 'bypass')
  *
  * 경로는 client.ts 의 baseURL 과 맞춰 절대 경로로 적는다.
@@ -31,7 +34,7 @@ import {
 export const BASE = '*/api/v1'
 
 /** 상태를 들고 있지 않으므로 새로고침하면 처음부터 다시 시작한다. */
-export const handlers: RequestHandler[] = [
+const mockHandlers: HttpHandler[] = [
   // 이메일 중복 확인
   // 조회 자체는 성공이므로 중복이어도 200 이다. (BE UserController 와 동일)
   http.get(`${BASE}/users/exists`, ({ request }) => {
@@ -382,3 +385,28 @@ export const handlers: RequestHandler[] = [
     )
   }),
 ]
+
+/** 핸들러의 method + path 를 mockSwitch.ts 의 키 형식으로 바꾼다. */
+function toSwitchKey(handler: HttpHandler): string {
+  const { method, path } = handler.info
+  return `${String(method)} ${String(path).replace(BASE, '')}`
+}
+
+/**
+ * 실제로 등록되는 핸들러 — MOCK_SWITCH 에서 켜진 것만.
+ *
+ * 꺼진 엔드포인트는 워커에 등록되지 않으므로 bypass 로 실서버에 나간다.
+ * 실서버 쪽 오류로 테스트가 막히면 스위치만 되돌리면 된다.
+ */
+export const handlers: RequestHandler[] = mockHandlers.filter((handler) => {
+  const key = toSwitchKey(handler)
+
+  if (!(key in MOCK_SWITCH)) {
+    // 핸들러를 새로 만들고 스위치 추가를 잊은 경우다. 목을 유지하는 쪽이
+    // 안전하므로(실서버 강제 노출 방지) 경고만 남기고 등록한다.
+    console.warn(`[mocks] mockSwitch.ts 에 항목이 없습니다: '${key}'`)
+    return true
+  }
+
+  return MOCK_SWITCH[key as MockSwitchKey]
+})

@@ -21,6 +21,8 @@ window.__ENV__ = {
     '719352113387-r5stvku567sapsg850mpjfet14cq5vvr.apps.googleusercontent.com',
   // MSW 목 서버 사용 여부 (개발 모드에서만 동작).
   // BE 미완성 API를 프론트 단독으로 확인할 때 true.
-  // 실제 서버로 붙여볼 때, PWA 동작을 확인할 때는 false 로 되돌린다.
+  // 전부 실제 서버로 붙여볼 때, PWA 동작을 확인할 때는 false 로 되돌린다.
+  // 특정 엔드포인트만 실서버로 보내려면(부분 연동 테스트) 이 값은 true 로 두고
+  // src/mocks/mockSwitch.ts 에서 해당 엔드포인트만 끈다.
   USE_MSW: true,
 }
