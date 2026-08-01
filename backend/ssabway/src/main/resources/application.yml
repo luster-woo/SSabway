@@ -57,6 +57,13 @@ jwt:
   access-token-expiration: 1800000      # 30분
   refresh-token-expiration: 1209600000  # 14일
 
+aws:
+  region: ${AWS_REGION:ap-northeast-2}
+  access-key: ${AWS_ACCESS_KEY_ID}
+  secret-key: ${AWS_SECRET_ACCESS_KEY}
+  s3:
+    bucket: ${AWS_S3_BUCKET}
+
 logging:
   level:
     org.hibernate.SQL: debug
