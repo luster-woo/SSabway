@@ -11,6 +11,7 @@ import com.ssafy.ssabway.domain.user.repository.UserRepository;
 import com.ssafy.ssabway.domain.user.util.PasswordResetMailSender;
 import com.ssafy.ssabway.global.exception.BusinessException;
 import com.ssafy.ssabway.global.exception.ErrorCode;
+import com.ssafy.ssabway.global.jwt.TokenType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -162,6 +163,6 @@ public class PasswordResetService {
         redisTemplate.delete(DONE_KEY_PREFIX + email);
 
         // 리프레시 토큰 삭제시켜서 다시 로그인 유도
-        refreshTokenService.delete(user.getId());
+        refreshTokenService.delete(TokenType.USER, user.getId());
     }
 }
