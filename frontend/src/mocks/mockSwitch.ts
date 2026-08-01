@@ -41,6 +41,28 @@ const SWITCH = {
 
   // 경로
   'GET /routes/gps': true,
+
+  // 상담 대기열 (BE 미구현 — 배포되면 셋을 함께 끄고 실연동 검증)
+  'POST /consultations': true,
+  'GET /consultations/:consultationId': true,
+  'POST /consultations/:consultationId/token': true,
+
+  // 관리자 — 상담 대기 목록 (BE 미구현. BACKEND_READY.ADMIN_QUEUE 를 켜야 호출됨)
+  'GET /admin/consultations': true,
+
+  /*
+    화상연결(signaling) — ✅ BE 개발완료라 기본 OFF (실서버로 나간다).
+
+    한 컴퓨터 user + admin 매칭 실험 때만 다섯 개를 함께 true 로 켠다.
+    실험 절차는 handlers.ts 의 「화상연결(signaling)」 섹션 주석 참고.
+    실험 후 반드시 false 로 되돌릴 것 — 켠 채로 두면 실서버 화상 테스트가
+    조용히 가짜 토큰을 받는다.
+  */
+  'POST /openvidu/sessions': false,
+  'POST /openvidu/sessions/:sessionId/connections': false,
+  'POST /openvidu/sessions/:sessionId/start': false,
+  'POST /openvidu/sessions/:sessionId/end': false,
+  'DELETE /openvidu/sessions/:sessionId': false,
 }
 
 export type MockSwitchKey = keyof typeof SWITCH
