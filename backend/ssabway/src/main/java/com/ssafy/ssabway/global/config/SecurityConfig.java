@@ -65,6 +65,13 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/users/login/google").permitAll()
                         .requestMatchers("/api/v1/auth/**").permitAll()
 
+                        // 관리자 로그인은 인증 전에 호출되므로 /admins/** 규칙보다 먼저 열어야 함
+                        .requestMatchers("/api/v1/admins/login").permitAll()
+
+                        // users와 staff 권한 구분
+                        .requestMatchers("/api/v1/users/**").hasAuthority("USER")
+                        .requestMatchers("/api/v1/admins/**").hasAuthority("STAFF")
+
                         // 나머지는 모두 인증 필요함
                         .anyRequest().authenticated()
                 )

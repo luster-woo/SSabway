@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -47,12 +48,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         try {
             Claims claims = jwtProvider.parseClaims(token);
-            Long userId = Long.valueOf(claims.getSubject());
+            Long id = jwtProvider.getId(claims);
+            TokenType type = jwtProvider.getTokenType(claims);
 
             // 인증 정보를 SecurityContext에 저장
-            // principal에 userId를 담아, 이후 컨트롤러가 "누가 요청했는지" 알 수 있게 한다.
+            // principal에 id를 담아, 이후 컨트롤러가 "누가 요청했는지" 알 수 있게 함
+            // 권한에 type을 담아야 SecurityConfig가 USER/STAFF를 구분할 수 있음
+            // 별도 테이블이라 id가 겹쳐서, 이게 없으면 STAFF 토큰으로 유저 API가 통과한다.
             UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(userId, null, List.of());
+                    new UsernamePasswordAuthenticationToken(id, null,
+                                                            List.of(new SimpleGrantedAuthority(type.name())));
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
 

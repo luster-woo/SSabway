@@ -53,7 +53,7 @@ public class AuthService {
 
             return new RefreshTokenInfo(
                     jwtProvider.getTokenType(claims),
-                    jwtProvider.getUserId(claims)
+                    jwtProvider.getId(claims)
             );
         } catch (ExpiredJwtException e) {
             throw new BusinessException(ErrorCode.REFRESH_TOKEN_EXPIRED);

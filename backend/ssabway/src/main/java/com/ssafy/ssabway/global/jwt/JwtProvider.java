@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -14,6 +15,7 @@ import java.util.Date;
 public class JwtProvider {
     private final SecretKey secretKey;
     private final long accessTokenExpiration;
+    @Getter
     private final long refreshTokenExpiration;
 
     // sub만으로는 users/staffs의 id가 겹쳐(테이블이 다름) 주체를 구분할 수 없어 type 클레임을 넣음
@@ -60,7 +62,7 @@ public class JwtProvider {
                 .getPayload();
     }
 
-    public Long getUserId(Claims claims) {
+    public Long getId(Claims claims) {
         return Long.valueOf(claims.getSubject());
     }
 
@@ -72,10 +74,5 @@ public class JwtProvider {
         if (type == null) throw new IllegalArgumentException("type 클레임 없음");
 
         return TokenType.valueOf(type);
-    }
-
-    // 쿠키 Max-Age와 Redis TTL이 리프레시 만료와 같아야 하므로 등록
-    public long getRefreshTokenExpiration() {
-        return refreshTokenExpiration;
     }
 }
