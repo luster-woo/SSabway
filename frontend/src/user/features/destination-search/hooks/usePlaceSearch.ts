@@ -3,12 +3,20 @@ import { useQuery } from '@tanstack/react-query'
 import { queryKeys } from '@/shared/lib/queryKeys'
 import { useLanguage } from '@/shared/lib/useLanguage'
 import type { Place } from '@/shared/types/place'
+// 🔁 S15P11D104-322: 목적지 검색 소스를 네이버 → 구글 Places 로 교체.
+//    기존 네이버 searchPlaces import 는 롤백용으로 주석 보관한다.
+// import {
+//   PlaceSearchError,
+//   SEARCH_ERROR,
+//   searchPlaces,
+//   type SearchErrorType,
+// } from '@/user/features/destination-search/lib/searchPlaces'
 import {
   PlaceSearchError,
   SEARCH_ERROR,
   searchPlaces,
   type SearchErrorType,
-} from '@/user/features/destination-search/lib/searchPlaces'
+} from '@/user/features/destination-search/lib/searchGooglePlaces'
 
 /** 같은 키워드를 다시 눌렀을 때 외부 API를 또 때리지 않도록 5분 캐싱한다. */
 const STALE_MS = 5 * 60 * 1000
@@ -32,7 +40,9 @@ export function usePlaceSearch(submittedQuery: string): UsePlaceSearchResult {
 
   const { data, isFetching, error, isFetched } = useQuery({
     queryKey: queryKeys.place.search(query, language),
-    queryFn: () => searchPlaces(query, { useEnglish: language !== 'ko' }),
+    // 🔁 searchPlaces(query, { useEnglish: language !== 'ko' })  (네이버)
+    //    구글은 언어 코드(ko/en/ja/zh)를 그대로 넘겨 다국어 검색 결과를 받는다.
+    queryFn: () => searchPlaces(query, { language }),
     enabled: query.length > 0,
     staleTime: STALE_MS,
     retry: false,

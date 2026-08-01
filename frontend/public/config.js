@@ -12,7 +12,13 @@ window.__ENV__ = {
   // 네이버 클라우드 플랫폼 > Maps 애플리케이션의 Client ID.
   // Client Secret은 서버 전용이므로 여기에 넣지 않는다.
   // 콘솔의 Web 서비스 URL 에 접속 도메인이 등록돼 있어야 지도가 뜬다.
+  // (S15P11D104-322 에서 목적지 지도는 구글로 교체 — 네이버 코드는 롤백용 보존)
   NAVER_MAP_CLIENT_ID: 'pumqt2h9m1',
+  // Google Maps Platform API 키 (Maps JavaScript API + Places API 활성화 필요).
+  // 프론트에 노출되는 public 값이며, 실제 방어선은 콘솔의 HTTP 리퍼러 제한이다.
+  // 허용 리퍼러에 접속 도메인(로컬은 http://localhost:5173/*)을 등록할 것.
+  // ⚠️ 아래 따옴표 안에 발급받은 키를 붙여넣으세요. 비어 있으면 지도가 안 뜹니다.
+  GOOGLE_MAPS_API_KEY: 'AIzaSyAXZclOQXwLQTQsWbduijK1cWx-VNMPeDM',
   // Google Cloud Console > 사용자 인증 정보 > OAuth 클라이언트 ID (웹 애플리케이션).
   // 프론트에 노출되는 public 값이다. Client Secret 은 서버 전용이라 여기에 넣지 않는다.
   // 콘솔의 "승인된 자바스크립트 원본"에 접속 오리진이 등록돼 있어야 동작한다.
