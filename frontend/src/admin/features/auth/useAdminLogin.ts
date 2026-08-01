@@ -1,6 +1,10 @@
 import { useCallback, useState } from 'react'
+import axios from 'axios'
 
+import { adminApi } from '@/shared/api/client'
+import { endpoints } from '@/shared/api/endpoints'
 import { useAuthStore } from '@/shared/lib/store/useAuthStore'
+import type { ApiResponse } from '@/shared/types/api'
 import { useAdminProfileStore } from '@/admin/features/auth/useAdminProfileStore'
 
 export interface AdminLoginRequest {
@@ -14,71 +18,45 @@ export interface AdminLoginResult {
 }
 
 /**
- * BE 개발 전이라 목 응답을 사용한다.
- * 연동 시 requestAdminLogin 본문만 교체하고 아래 상수는 삭제한다.
+ * 관리자 로그인 응답의 data 부분. (API 명세 기준)
+ * 응답 봉투는 { success, message, data } 이고, data 에 토큰이 평평하게 담긴다.
  */
-const MOCK_STAFF_CODE = 'fjhiuozasld'
-const MOCK_STAFF_PASSWORD = '12345'
-const MOCK_LATENCY_MS = 600
+interface AdminLoginData {
+  accessToken: string
+  staffCode: string
+}
 
 /**
- * 로그인에서 마주칠 전역 에러코드 → 화면 문구.
+ * 로그인에서 마주칠 전역 에러코드 → 화면 문구. HTTP 상태코드로 분기한다.
  * (API 명세서 상단 에러코드 표: 401 UNAUTHORIZED, 403 FORBIDDEN)
  *
- * shared/types/api.ts 의 API_ERROR_CODE 는 화상 상담 전용 코드만 담고 있어
- * 전역 코드가 없다. 로그인에서 쓰는 두 개만 여기서 정의한다.
+ * 실패 응답 본문에 code 필드가 없어 상태코드로 구분한다 — useUserLogin 과 같은 방식.
  */
-const LOGIN_ERROR_CODE = {
-  UNAUTHORIZED: 'UNAUTHORIZED',
-  FORBIDDEN: 'FORBIDDEN',
-} as const
-
-const ERROR_MESSAGE: Record<string, string> = {
-  [LOGIN_ERROR_CODE.UNAUTHORIZED]:
-    '관리자 코드 또는 비밀번호가 올바르지 않습니다.',
-  [LOGIN_ERROR_CODE.FORBIDDEN]: '관리자 권한이 없습니다.',
+const ERROR_MESSAGE: Record<number, string> = {
+  401: '관리자 코드 또는 비밀번호가 올바르지 않습니다.',
+  403: '관리자 권한이 없습니다.',
 }
 
 const FALLBACK_MESSAGE = '로그인에 실패했습니다. 잠시 후 다시 시도해 주세요.'
 
-/** 에러의 code 를 화면 문구로 바꾼다. 모르는 코드면 공통 문구를 쓴다. */
+/** axios 에러의 HTTP 상태를 화면 문구로 바꾼다. 모르는 상태면 공통 문구를 쓴다. */
 function toErrorMessage(error: unknown): string {
-  const code = error instanceof Error ? error.message : ''
-  return ERROR_MESSAGE[code] ?? FALLBACK_MESSAGE
-}
-
-function delay(ms: number): Promise<void> {
-  return new Promise((resolve) => {
-    window.setTimeout(resolve, ms)
-  })
+  const status = axios.isAxiosError(error) ? error.response?.status : undefined
+  const message = status === undefined ? undefined : ERROR_MESSAGE[status]
+  return message ?? FALLBACK_MESSAGE
 }
 
 async function requestAdminLogin(
   body: AdminLoginRequest,
 ): Promise<AdminLoginResult> {
-  // TODO: BE 연동 시 아래 목 처리를 실제 호출로 교체.
-  //   사용자 로그인(useUserLogin)은 MSW 목 서버 + 실제 axios 호출로 옮겼다.
-  //   관리자도 같은 방식으로 간다. handlers.ts 에 admins/login 핸들러를 추가하고
-  //   여기서는 adminApi 를 호출하면 된다.
-  //   주의: 응답 형태가 사용자와 다르다. 토큰이 data.token.accessToken 에 있다.
-  //   const res = await adminApi.post<
-  //     ApiResponse<{ token: { accessToken: string }; staffCode: string }>
-  //   >(endpoints.admin.login, body)
-  //   return {
-  //     accessToken: res.data.data.token.accessToken,
-  //     staffCode: res.data.data.staffCode,
-  //   }
-  await delay(MOCK_LATENCY_MS)
-
-  const isValid =
-    body.staffCode === MOCK_STAFF_CODE &&
-    body.staffPassword === MOCK_STAFF_PASSWORD
-
-  if (!isValid) throw new Error(LOGIN_ERROR_CODE.UNAUTHORIZED)
-
+  // 명세상 요청 본문 필드는 { staffCode, password } 다. (staffPassword 가 아니다)
+  const res = await adminApi.post<ApiResponse<AdminLoginData>>(
+    endpoints.admin.login,
+    { staffCode: body.staffCode, password: body.staffPassword },
+  )
   return {
-    accessToken: `mock.${String(Date.now())}`,
-    staffCode: body.staffCode,
+    accessToken: res.data.data.accessToken,
+    staffCode: res.data.data.staffCode,
   }
 }
 
@@ -94,7 +72,8 @@ export interface UseAdminLoginResult {
  *
  * 로그인은 캐시하거나 재조회할 서버 상태가 아니라 토큰을 받아오는 일회성 명령이므로
  * TanStack Query 를 쓰지 않는다. 요청 진행 상태만 로컬로 들고,
- * 결과인 액세스 토큰은 Zustand(useAuthStore) 에 저장한다.
+ * 결과인 액세스 토큰은 Zustand(useAuthStore) 의 admin 슬롯에 저장한다.
+ * (사용자 쪽 useUserLogin 과 같은 구조)
  */
 export function useAdminLogin(): UseAdminLoginResult {
   const setAccessToken = useAuthStore((s) => s.setAccessToken)

@@ -102,7 +102,7 @@ const openvidu = {
 
 /** 관리자 */
 const admin = {
-  login: '/admins/login',
+  login: '/staffs/login',
   /**
    * 상담 대기 목록.
    *
