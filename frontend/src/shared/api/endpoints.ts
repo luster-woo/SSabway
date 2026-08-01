@@ -54,8 +54,16 @@ const consultations = {
   create: '/consultations',
   /** 상태 폴링 (3초). STOMP 가 붙으면 폴백으로 남는다 */
   detail: (id: number) => `/consultations/${id}`,
-  /** 대기 취소 (WAITING 에서만) */
-  cancel: (id: number) => `/consultations/${id}`,
+  /**
+   * 대기 취소 — ✅ BE 구현됨 (webrtc ConsultationController, 8/1 코드 확인).
+   * POST 이고 /cancel 이 붙는다 (초기안 DELETE /consultations/{id} 에서 변경).
+   * WAITING 에서만 취소 가능(그 외 409 CONSULTATION_CANCEL_NOT_ALLOWED),
+   * 이미 취소된 상담은 재요청해도 성공. 응답 { consultationId, status }.
+   * ⚠️ webrtc 서버 구현이므로 nginx 가 /api/v1/consultations/ 를
+   *    signaling 으로 보내야 한다 (아래 consultations 블록 주석과 같은 이슈).
+   */
+  cancel: (id: number) => `/consultations/${id}/cancel`,
+  /** ⚠️ BE 미구현 */
   leave: (id: number) => `/consultations/${id}/leave`,
   /** 접속 토큰 발급·재발급 */
   token: (id: number) => `/consultations/${id}/token`,

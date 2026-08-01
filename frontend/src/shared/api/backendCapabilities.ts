@@ -32,8 +32,20 @@ export const BACKEND_READY: BackendReadyFlags = {
    * `POST /api/v1/consultations` + `GET /api/v1/consultations/{id}`
    * 상담 요청과 상태 조회. 대기 순번(queuePosition)이 여기서 온다.
    *
-   * 켜면 지울 것 — useConsultationMatch 의 세션 폴링 분기,
-   *              ConsultationPage 의 ?consultationId= 쿼리 파싱
+   * 목 준비됨 — mocks/consultationQueue.ts (8/1).
+   * 로컬에서 이 플래그를 true 로 켜면 MSW 만으로 요청 → 순번 감소 → 매칭 →
+   * 토큰 발급까지 확인할 수 있다. (가짜 토큰이라 화상 접속은 실패가 정상)
+   *
+   * BE 배포 시 실연동 절차:
+   *   1. .env.local 에 VITE_PROXY_TARGET 지정
+   *   2. mockSwitch.ts 의 상담 3종을 false 로
+   *   3. 이 플래그를 true 로
+   *
+   * ⚠️ 이 플래그를 켠 채 커밋하려면(=BE 실배포 후) 아래 임시 코드를 함께 지울 것 —
+   *    useConsultationMatch 의 세션 폴링 분기,
+   *    ConsultationPage 의 ?consultationId= 쿼리 파싱.
+   *    그 전까지 false 로 두는 이유: 배포 환경에는 MSW 가 없어서, 켜 두면
+   *    실서버 404 로 상담 요청이 전부 실패 화면으로 빠진다.
    */
   CONSULTATION_STATUS: false,
 

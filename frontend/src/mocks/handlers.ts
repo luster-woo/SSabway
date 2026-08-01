@@ -1,5 +1,16 @@
 import { http, HttpResponse, type HttpHandler, type RequestHandler } from 'msw'
 
+import {
+  closeMockSession,
+  createMockConnection,
+  createMockConsultation,
+  endMockConsultation,
+  issueMockConsultationToken,
+  listMockWaitingConsultations,
+  openMockSession,
+  pollMockConsultation,
+  startMockConsultation,
+} from '@/mocks/consultationQueue'
 import { MOCK_SWITCH, type MockSwitchKey } from '@/mocks/mockSwitch'
 
 import {
@@ -383,6 +394,214 @@ const mockHandlers: HttpHandler[] = [
     return HttpResponse.json(
       okBody('근처 역 조회 성공', { station: NEARBY_STATION }),
     )
+  }),
+
+  /* ---------------------------------------------------------------- *
+   * 상담 대기열 — ⚠️ BE 미구현 (BACKEND_READY.CONSULTATION_STATUS)
+   *
+   * 이 목이 있는 동안에는 플래그를 true 로 켜면 MSW 만으로
+   * "요청 → 대기 순번 감소 → 매칭 → 토큰 발급" 흐름을 확인할 수 있다.
+   * 상태는 consultationQueue.ts 가 들고 있다.
+   * BE 가 배포되면 mockSwitch 에서 상담 3종을 끄고 실서버로 검증한다.
+   * ---------------------------------------------------------------- */
+
+  // 상담 요청 → 대기열 등록
+  http.post(`${BASE}/consultations`, ({ request }) => {
+    if (!request.headers.get('Authorization')) {
+      return HttpResponse.json(errorBody('인증이 필요합니다.'), { status: 401 })
+    }
+
+    const result = createMockConsultation()
+
+    if (result === 'DUPLICATED') {
+      return HttpResponse.json(
+        errorBody('중복된 상담요청입니다.', 'CONSULTATION_DUPLICATED'),
+        { status: 409 },
+      )
+    }
+
+    return HttpResponse.json(okBody('상담이 요청되었습니다.', result), {
+      status: 201,
+    })
+  }),
+
+  // 상담 상태 조회 — useConsultationMatch 가 3초 간격으로 폴링한다
+  http.get(`${BASE}/consultations/:consultationId`, ({ request, params }) => {
+    if (!request.headers.get('Authorization')) {
+      return HttpResponse.json(errorBody('인증이 필요합니다.'), { status: 401 })
+    }
+
+    const snapshot = pollMockConsultation(Number(params.consultationId))
+
+    if (!snapshot) {
+      return HttpResponse.json(
+        errorBody('존재하지 않는 상담입니다.', 'RESOURCE_NOT_FOUND'),
+        { status: 404 },
+      )
+    }
+
+    return HttpResponse.json(okBody('상담 상태 조회 성공', snapshot))
+  }),
+
+  // 접속 토큰 발급 — MATCHED 확인 후 1회 호출된다
+  http.post(
+    `${BASE}/consultations/:consultationId/token`,
+    ({ request, params }) => {
+      if (!request.headers.get('Authorization')) {
+        return HttpResponse.json(errorBody('인증이 필요합니다.'), {
+          status: 401,
+        })
+      }
+
+      const result = issueMockConsultationToken(Number(params.consultationId))
+
+      if (result === 'NOT_FOUND') {
+        return HttpResponse.json(
+          errorBody('존재하지 않는 상담입니다.', 'RESOURCE_NOT_FOUND'),
+          { status: 404 },
+        )
+      }
+
+      // 매칭 전 발급 요청. 정상 흐름에서는 오지 않는다 — BE 확정 시 코드 맞출 것.
+      if (result === 'NOT_MATCHED') {
+        return HttpResponse.json(
+          errorBody('아직 매칭되지 않은 상담입니다.', 'CONSULTATION_NOT_MATCHED'),
+          { status: 409 },
+        )
+      }
+
+      return HttpResponse.json(okBody('토큰이 발급되었습니다.', result))
+    },
+  ),
+
+  /* ---------------------------------------------------------------- *
+   * 관리자 — 상담 대기 목록 (BE 미구현, BACKEND_READY.ADMIN_QUEUE 참고)
+   *
+   * ADMIN_QUEUE 플래그를 켜면 useWaitingConsultations 가 이 목으로 온다.
+   * 목록은 consultationQueue 의 공유 상태(localStorage)에서 읽으므로,
+   * user 탭이 요청한 상담이 admin 탭 목록에 그대로 나타난다.
+   * ---------------------------------------------------------------- */
+  http.get(`${BASE}/admin/consultations`, ({ request }) => {
+    if (!request.headers.get('Authorization')) {
+      return HttpResponse.json(errorBody('인증이 필요합니다.'), { status: 401 })
+    }
+
+    // status=WAITING 만 지원한다. 다른 값은 목이 다루지 않는 영역이라 빈 목록.
+    const status = new URL(request.url).searchParams.get('status')
+    const content = status === 'WAITING' ? listMockWaitingConsultations() : []
+
+    return HttpResponse.json(
+      okBody('상담 대기 목록 조회 성공', {
+        content,
+        // admin/lib/paging.ts 의 PageMeta 와 같은 모양 (목은 한 페이지뿐)
+        page: {
+          number: 0,
+          size: 20,
+          totalElements: content.length,
+          totalPages: 1,
+          first: true,
+          last: true,
+        },
+      }),
+    )
+  }),
+
+  /* ---------------------------------------------------------------- *
+   * 화상연결(signaling) — ✅ BE 개발완료
+   *
+   * 실서버가 있으므로 mockSwitch 기본값이 false 다(등록 안 됨 → 실서버로).
+   * 한 컴퓨터에서 user + admin 매칭 실험을 할 때만 다섯 개를 함께 켠다.
+   * 켜면: admin 수락(세션 생성)이 공유 상태를 MATCHED 로 바꾸고,
+   * user 의 커넥션 폴링(joinSession)이 404 → 토큰 발급으로 풀린다.
+   * 응답 모양은 BE 실코드(OpenViduController, 8/1) 기준.
+   * ---------------------------------------------------------------- */
+
+  // 세션 생성 (= 역무원 수락)
+  http.post(`${BASE}/openvidu/sessions`, async ({ request }) => {
+    const { consultationId } = (await request.json()) as {
+      consultationId?: number
+    }
+
+    if (typeof consultationId !== 'number') {
+      return HttpResponse.json(
+        errorBody('잘못된 형식의 요청 값입니다.', 'INVALID_INPUT_VALUE'),
+        { status: 400 },
+      )
+    }
+
+    return HttpResponse.json(
+      okBody('세션이 생성되었습니다.', {
+        sessionId: openMockSession(consultationId),
+      }),
+    )
+  }),
+
+  // 커넥션(접속 토큰) 발급 — 세션이 없으면 404 (사용자 폴링이 이 404 에 기댄다)
+  http.post(
+    `${BASE}/openvidu/sessions/:sessionId/connections`,
+    async ({ request, params }) => {
+      const { participantId } = (await request.json()) as {
+        participantId?: string
+      }
+
+      const result = createMockConnection(
+        String(params.sessionId),
+        participantId ?? 'unknown',
+      )
+
+      if (!result) {
+        return HttpResponse.json(
+          errorBody(
+            '존재하지 않는 화상 상담 세션입니다.',
+            'OPENVIDU_SESSION_NOT_FOUND',
+          ),
+          { status: 404 },
+        )
+      }
+
+      return HttpResponse.json(okBody('커넥션이 생성되었습니다.', result))
+    },
+  ),
+
+  // 상담 시작 — BE 실응답은 { sessionId, status } (started 아님)
+  http.post(`${BASE}/openvidu/sessions/:sessionId/start`, ({ params }) => {
+    const sessionId = String(params.sessionId)
+    const status = startMockConsultation(sessionId)
+
+    if (!status) {
+      return HttpResponse.json(
+        errorBody(
+          '존재하지 않는 화상 상담 세션입니다.',
+          'OPENVIDU_SESSION_NOT_FOUND',
+        ),
+        { status: 404 },
+      )
+    }
+
+    return HttpResponse.json(
+      okBody('상담이 시작되었습니다.', { sessionId, status }),
+    )
+  }),
+
+  // 상담 종료 — BE 실응답은 { sessionId, recordingId, status }. 재요청에 멱등.
+  http.post(`${BASE}/openvidu/sessions/:sessionId/end`, ({ params }) => {
+    const sessionId = String(params.sessionId)
+    const { recordingId } = endMockConsultation(sessionId)
+
+    return HttpResponse.json(
+      okBody('상담이 종료되었습니다.', {
+        sessionId,
+        recordingId,
+        status: 'ENDED',
+      }),
+    )
+  }),
+
+  // 세션 정리(수락 실패 롤백) — ⚠️ BE 는 미구현(재추가 합의 상태)이지만
+  // FE 롤백 경로를 목에서라도 통과시키기 위해 둔다.
+  http.delete(`${BASE}/openvidu/sessions/:sessionId`, ({ params }) => {
+    closeMockSession(String(params.sessionId))
+    return HttpResponse.json(okBodyWithoutData('세션이 정리되었습니다.'))
   }),
 ]
 
