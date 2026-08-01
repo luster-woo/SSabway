@@ -9,17 +9,26 @@ import { DestinationSearchBar } from '@/user/features/destination-search/Destina
 import { MapLoadErrorNotice } from '@/user/features/destination-search/MapLoadErrorNotice'
 import { PlaceResultList } from '@/user/features/destination-search/PlaceResultList'
 import { SelectedPlaceCard } from '@/user/features/destination-search/SelectedPlaceCard'
-import { useDestinationMap } from '@/user/features/destination-search/hooks/useDestinationMap'
+// 🔁 S15P11D104-322: 목적지 지도를 네이버 → 구글로 교체.
+//    기존 네이버 훅 import 는 롤백용으로 주석 보관한다.
+// import { useDestinationMap } from '@/user/features/destination-search/hooks/useDestinationMap'
+// import {
+//   SDK_STATUS,
+//   useNaverMapsSdk,
+// } from '@/user/features/destination-search/hooks/useNaverMapsSdk'
+import { useGoogleDestinationMap } from '@/user/features/destination-search/hooks/useGoogleDestinationMap'
 import {
   SDK_STATUS,
-  useNaverMapsSdk,
-} from '@/user/features/destination-search/hooks/useNaverMapsSdk'
+  useGoogleMapsSdk,
+} from '@/user/features/destination-search/hooks/useGoogleMapsSdk'
+import { useMyLocation } from '@/user/features/destination-search/hooks/useMyLocation'
 import { usePlaceSearch } from '@/user/features/destination-search/hooks/usePlaceSearch'
 
 /**
  * 3. 목적지 설정 — 지도에서 목적지를 확정하는 화면.
  *
- * 진입 직후에는 지도와 검색창만 보인다. 키워드를 검색하면 후보 목록이 뜨고
+ * 진입 직후에는 지도와 검색창만 보인다. GPS 동의가 돼 있으면 내 위치(파란 점)를
+ * 지도에 표시하고 그 위치로 화면을 맞춘다. 키워드를 검색하면 후보 목록이 뜨고
  * 첫 번째 후보가 자동 선택되어 마커가 찍히며 그 위치로 확대 이동한다.
  * 다른 후보를 고르면 마커와 지도 중심이 그 후보로 옮겨간다.
  */
@@ -29,7 +38,8 @@ export default function DestinationPage() {
   const { showToast } = useToast()
 
   const mapContainerRef = useRef<HTMLDivElement>(null)
-  const { status, errorType: sdkErrorType, retry } = useNaverMapsSdk()
+  // 🔁 const { status, errorType: sdkErrorType, retry } = useNaverMapsSdk()
+  const { status, errorType: sdkErrorType, retry } = useGoogleMapsSdk()
 
   const [keyword, setKeyword] = useState('')
   /** 실제로 검색을 실행한 키워드. 입력값과 분리해야 타이핑마다 호출되지 않는다. */
@@ -40,9 +50,14 @@ export default function DestinationPage() {
   const { results, isSearching, hasSearched, errorType } =
     usePlaceSearch(submittedQuery)
 
-  useDestinationMap(mapContainerRef, {
+  // GPS 동의가 돼 있으면 내 위치를 받아온다. (동의 전/거부면 null → 마커 없음)
+  const myLocation = useMyLocation(status === SDK_STATUS.READY)
+
+  // 🔁 useDestinationMap(mapContainerRef, { ... })
+  useGoogleDestinationMap(mapContainerRef, {
     isReady: status === SDK_STATUS.READY,
     selected,
+    myLocation,
   })
 
   // 결과가 도착하면 첫 번째 후보를 기본 선택한다.
@@ -90,7 +105,7 @@ export default function DestinationPage() {
       {/* min-h-viewport: 부모 높이 계산이 틀어져도 지도가 0px로 접히지 않게 하는 보험 */}
       <div
         ref={mapContainerRef}
-        className="naver-map-canvas min-h-viewport absolute inset-0"
+        className="google-map-canvas min-h-viewport absolute inset-0"
       />
 
       {status === SDK_STATUS.LOADING ? (
