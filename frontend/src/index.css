@@ -57,19 +57,9 @@
 }
 
 /*
- * 네이버 지도 내부 DOM은 Tailwind preflight와 충돌한다.
+ * 구글 지도 내부 DOM은 Tailwind preflight와 충돌한다.
  * preflight의 `img { max-width: 100%; height: auto }`가 타일 이미지의
  * 인라인 크기를 덮어써서 타일이 어긋나거나 사라진다. 지도 안쪽만 예외 처리.
- *
- * (S15P11D104-322 에서 목적지 지도는 구글로 교체. 이 네이버 규칙은 롤백용으로 남겨둔다.)
- */
-.naver-map-canvas img {
-  max-width: none;
-  height: auto;
-}
-
-/*
- * 구글 지도 타일도 동일하게 Tailwind preflight 와 충돌하므로 같은 예외를 둔다.
  * 목적지 설정 화면의 지도 컨테이너에 .google-map-canvas 를 붙인다.
  */
 .google-map-canvas img {

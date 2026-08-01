@@ -3,12 +3,6 @@ import { useTranslation } from 'react-i18next'
 import type { Place } from '@/shared/types/place'
 import { CheckIcon } from '@/shared/ui'
 import { PinIcon } from '@/user/features/destination-search/icons'
-// 🔁 S15P11D104-322: SEARCH_ERROR 를 구글 검색 모듈에서 가져온다.
-//    (값·의미는 네이버 버전과 동일 — 롤백 시 아래 주석으로 되돌리면 된다)
-// import {
-//   SEARCH_ERROR,
-//   type SearchErrorType,
-// } from '@/user/features/destination-search/lib/searchPlaces'
 import {
   SEARCH_ERROR,
   type SearchErrorType,

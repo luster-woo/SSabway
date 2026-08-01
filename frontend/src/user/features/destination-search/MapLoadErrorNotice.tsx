@@ -1,12 +1,6 @@
 import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/shared/ui'
-// 🔁 S15P11D104-322: 로드 에러 타입을 구글 로더에서 가져온다.
-//    (LOAD_ERROR 키·의미는 네이버 버전과 동일 — 롤백 시 아래 주석으로 되돌린다)
-// import {
-//   LOAD_ERROR,
-//   type LoadErrorType,
-// } from '@/user/features/destination-search/lib/loadNaverMaps'
 import {
   LOAD_ERROR,
   type LoadErrorType,

@@ -9,13 +9,6 @@ import { DestinationSearchBar } from '@/user/features/destination-search/Destina
 import { MapLoadErrorNotice } from '@/user/features/destination-search/MapLoadErrorNotice'
 import { PlaceResultList } from '@/user/features/destination-search/PlaceResultList'
 import { SelectedPlaceCard } from '@/user/features/destination-search/SelectedPlaceCard'
-// 🔁 S15P11D104-322: 목적지 지도를 네이버 → 구글로 교체.
-//    기존 네이버 훅 import 는 롤백용으로 주석 보관한다.
-// import { useDestinationMap } from '@/user/features/destination-search/hooks/useDestinationMap'
-// import {
-//   SDK_STATUS,
-//   useNaverMapsSdk,
-// } from '@/user/features/destination-search/hooks/useNaverMapsSdk'
 import { useGoogleDestinationMap } from '@/user/features/destination-search/hooks/useGoogleDestinationMap'
 import {
   SDK_STATUS,
@@ -38,7 +31,6 @@ export default function DestinationPage() {
   const { showToast } = useToast()
 
   const mapContainerRef = useRef<HTMLDivElement>(null)
-  // 🔁 const { status, errorType: sdkErrorType, retry } = useNaverMapsSdk()
   const { status, errorType: sdkErrorType, retry } = useGoogleMapsSdk()
 
   const [keyword, setKeyword] = useState('')
@@ -53,7 +45,6 @@ export default function DestinationPage() {
   // GPS 동의가 돼 있으면 내 위치를 받아온다. (동의 전/거부면 null → 마커 없음)
   const myLocation = useMyLocation(status === SDK_STATUS.READY)
 
-  // 🔁 useDestinationMap(mapContainerRef, { ... })
   useGoogleDestinationMap(mapContainerRef, {
     isReady: status === SDK_STATUS.READY,
     selected,
