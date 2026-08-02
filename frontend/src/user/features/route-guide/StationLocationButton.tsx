@@ -7,10 +7,8 @@ export interface StationLocationButtonProps {
 }
 
 /**
- * '역 내에서 현재 위치 보기' — 역 내부 2D 지도는 아직 미구현이라 UI만 둔다.
- *
- * TODO: 역 내부 지도 화면(POINT·EDGE 기반)이 붙으면 onClick을 실제 이동으로 바꾼다.
- *       (관리자 화면의 StationMap과 데이터 소스를 공유할 예정)
+ * '역 내에서 현재 위치 보기' — StationMapOverlay(역 내 지도)를 연다.
+ * 지도는 관리자 화면과 같은 shared/station-map 도면·경로를 쓴다.
  */
 export function StationLocationButton({
   onClick,

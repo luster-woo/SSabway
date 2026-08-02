@@ -7,13 +7,13 @@ import {
 } from 'react'
 
 import { cn } from '@/shared/lib/cn'
-import { StationMap } from '@/admin/features/consultation-room/StationMap'
+import { StationMap } from '@/shared/station-map/StationMap'
 import { StationMapLegend } from '@/admin/features/consultation-room/StationMapLegend'
 import {
   STATION_MAP_SIZE,
   STATION_MAP_VIEWS,
   type StationMapView,
-} from '@/admin/features/consultation-room/stationMapData'
+} from '@/shared/station-map/stationMapData'
 import {
   toPointOnFloor,
   useUserRoute,

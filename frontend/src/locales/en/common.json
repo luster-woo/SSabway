@@ -290,7 +290,23 @@
     "next": "Next",
     "showMyLocation": "See my location inside the station",
     "arrive": "I have arrived",
-    "mapNotReady": "The in-station map is coming soon",
+    "stationMap": {
+      "title": "My location in the station",
+      "close": "Close",
+      "zoomIn": "Zoom in",
+      "zoomOut": "Zoom out",
+      "legend": {
+        "current": "Current location",
+        "prev": "Passed signs",
+        "next": "Upcoming signs"
+      },
+      "views": {
+        "1": "1F",
+        "2A": "2F A",
+        "2B": "2F B",
+        "3": "3F"
+      }
+    },
     "help": "Get help",
     "loading": "Loading the route guide…",
     "failed": "Could not load the route guide\nPlease try again in a moment",

@@ -41,6 +41,7 @@ const SWITCH = {
 
   // 경로
   'GET /routes/gps': true,
+  'POST /routes/navi': true,
 
   // 상담 대기열 (BE 미구현 — 배포되면 셋을 함께 끄고 실연동 검증)
   'POST /consultations': true,

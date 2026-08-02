@@ -290,7 +290,23 @@
     "next": "下一步",
     "showMyLocation": "查看站内当前位置",
     "arrive": "已到达",
-    "mapNotReady": "站内地图正在准备中",
+    "stationMap": {
+      "title": "站内当前位置",
+      "close": "关闭",
+      "zoomIn": "放大",
+      "zoomOut": "缩小",
+      "legend": {
+        "current": "当前位置",
+        "prev": "已经过的指示牌",
+        "next": "接下来的指示牌"
+      },
+      "views": {
+        "1": "1层",
+        "2A": "2层 A",
+        "2B": "2层 B",
+        "3": "3层"
+      }
+    },
     "help": "请求帮助",
     "loading": "正在加载路线导航…",
     "failed": "无法加载路线导航\n请稍后再试",
