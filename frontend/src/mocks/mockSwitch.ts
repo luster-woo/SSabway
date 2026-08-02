@@ -3,7 +3,7 @@
  *
  * 연동 테스트 순서:
  *   1. `frontend/.env.local` 에 붙일 백엔드를 적는다 (커밋되지 않는다)
- *        VITE_PROXY_TARGET=https://k15d104.p.ssafy.io
+ *        VITE_PROXY_TARGET=https://www.ssabway.site
  *   2. 테스트할 엔드포인트만 false 로 끈다 → 그 요청만 실서버로 나간다
  *   3. 실서버 쪽에서 오류가 나면 다시 true 로 되돌린다
  *      — 핸들러는 남아 있으므로 다른 기능 테스트에 영향이 없다

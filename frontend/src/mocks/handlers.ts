@@ -537,17 +537,12 @@ const mockHandlers: HttpHandler[] = [
   }),
 
   // 커넥션(접속 토큰) 발급 — 세션이 없으면 404 (사용자 폴링이 이 404 에 기댄다)
+  // 참여자 식별·역할은 JWT 몫이라 요청 본문이 없다 (BE 8/2 권한 업데이트).
+  // 목은 JWT 를 검증하지 못하므로 인가(403) 분기는 흉내 내지 않는다.
   http.post(
     `${BASE}/openvidu/sessions/:sessionId/connections`,
-    async ({ request, params }) => {
-      const { participantId } = (await request.json()) as {
-        participantId?: string
-      }
-
-      const result = createMockConnection(
-        String(params.sessionId),
-        participantId ?? 'unknown',
-      )
+    ({ params }) => {
+      const result = createMockConnection(String(params.sessionId))
 
       if (!result) {
         return HttpResponse.json(

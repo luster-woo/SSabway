@@ -5,8 +5,6 @@ import { useQueryClient } from '@tanstack/react-query'
 import { BACKEND_READY } from '@/shared/api/backendCapabilities'
 import { queryKeys } from '@/shared/lib/queryKeys'
 import { useConsultationSessionStore } from '@/shared/lib/store/useConsultationSessionStore'
-import { PARTICIPANT_ROLE } from '@/shared/types'
-import { useAdminProfileStore } from '@/admin/features/auth/useAdminProfileStore'
 import {
   isMockAccepted,
   markMockAccepted,
@@ -21,9 +19,6 @@ export const ACCEPT_FAILURE = {
 } as const
 
 export type AcceptFailure = (typeof ACCEPT_FAILURE)[keyof typeof ACCEPT_FAILURE]
-
-/** staffCode 가 없을 때(로그인 미연동) 쓰는 임시 참가자 ID */
-const FALLBACK_STAFF_ID = 'staff'
 
 export interface UseAcceptConsultationResult {
   /** 성공하면 null, 실패하면 사유를 반환한다. */
@@ -50,7 +45,6 @@ export function useAcceptConsultation(): UseAcceptConsultationResult {
   const queryClient = useQueryClient()
   const [pendingId, setPendingId] = useState<number | null>(null)
   const startSession = useConsultationSessionStore((s) => s.startSession)
-  const staffCode = useAdminProfileStore((s) => s.staffCode)
 
   const accept = useCallback(
     async (consultationId: number): Promise<AcceptFailure | null> => {
@@ -68,11 +62,10 @@ export function useAcceptConsultation(): UseAcceptConsultationResult {
           return ACCEPT_FAILURE.ALREADY_ACCEPTED
         }
 
-        const session = await openviduApi.openSession(
-          consultationId,
-          staffCode ?? FALLBACK_STAFF_ID,
-          PARTICIPANT_ROLE.STAFF,
-        )
+        // 역무원 식별·역할은 서버가 JWT 에서 판별한다 (BE 8/2 권한 업데이트).
+        // ⚠️ 따라서 admin 로그인이 목 토큰인 동안에는 실서버에서 401 이다 —
+        //    staffs/login 실연동이 선행되어야 한다.
+        const session = await openviduApi.openSession(consultationId)
 
         startSession(session)
         if (!BACKEND_READY.ADMIN_QUEUE) markMockAccepted(consultationId)
@@ -89,7 +82,7 @@ export function useAcceptConsultation(): UseAcceptConsultationResult {
         })
       }
     },
-    [queryClient, startSession, staffCode],
+    [queryClient, startSession],
   )
 
   return { accept, pendingId }
