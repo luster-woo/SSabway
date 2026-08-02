@@ -1,6 +1,7 @@
 package com.ssafy.ssabway.domain.blacklist.controller;
 
 import com.ssafy.ssabway.domain.blacklist.dto.request.BlacklistRegisterRequest;
+import com.ssafy.ssabway.domain.blacklist.dto.request.BlacklistReleaseRequest;
 import com.ssafy.ssabway.domain.blacklist.dto.response.BlacklistResponse;
 import com.ssafy.ssabway.domain.blacklist.service.BlacklistService;
 import com.ssafy.ssabway.global.common.ApiResponse;
@@ -38,5 +39,15 @@ public class BlacklistController {
 
         return ResponseEntity.ok(
                 ApiResponse.ok("조회에 성공하였습니다.", blacklistService.getBlacklist(staffId, page)));
+    }
+
+    @PostMapping("/release")
+    public ResponseEntity<ApiResponse<Void>> release(
+            @AuthenticationPrincipal Long staffId,
+            @Valid @RequestBody BlacklistReleaseRequest request) {
+
+        blacklistService.release(staffId, request);
+
+        return ResponseEntity.ok(ApiResponse.ok("블랙리스트 해제 성공"));
     }
 }

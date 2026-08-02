@@ -39,6 +39,7 @@ public enum ErrorCode {
 
     // 블랙리스트
     BLACKLIST_DUPLICATED(HttpStatus.CONFLICT, "이미 블랙리스트에 등록된 사용자입니다."),
+    BLACKLIST_NOT_FOUND(HttpStatus.NOT_FOUND, "블랙리스트에 등록되지 않은 사용자입니다."),
 
     // 상담
     CONSULTATION_DUPLICATED(HttpStatus.CONFLICT, "중복된 상담 요청입니다."); // 409

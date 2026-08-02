@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Optional;
+
 public interface BlacklistRepository extends JpaRepository<Blacklist, Long> {
 
     // 자신이 블랙한 유저만 검색 가능
@@ -24,4 +26,7 @@ public interface BlacklistRepository extends JpaRepository<Blacklist, Long> {
             ORDER BY b.registeredAt DESC
             """)
     Page<BlacklistResponse> findActiveByStaffId(@Param("staffId") Long staffId, Pageable pageable);
+
+    // ReleasedAtIsNull 조건이 곧 중복 해제 방어 이미 해제된 행은 조회 x
+    Optional<Blacklist> findByUserIdAndStaffIdAndReleasedAtIsNull(Long userId, Long staffId);
 }
