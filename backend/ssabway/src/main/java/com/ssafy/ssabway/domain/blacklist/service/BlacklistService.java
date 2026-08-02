@@ -1,6 +1,7 @@
 package com.ssafy.ssabway.domain.blacklist.service;
 
 import com.ssafy.ssabway.domain.blacklist.dto.request.BlacklistRegisterRequest;
+import com.ssafy.ssabway.domain.blacklist.dto.request.BlacklistReleaseRequest;
 import com.ssafy.ssabway.domain.blacklist.dto.response.BlacklistResponse;
 import com.ssafy.ssabway.domain.blacklist.entity.Blacklist;
 import com.ssafy.ssabway.domain.blacklist.repository.BlacklistRepository;
@@ -44,5 +45,21 @@ public class BlacklistService {
 
         // 역 1개당 계정 1개 전제라 등록자 기준 필터가 곧 역 기준 필터
         return PageResponse.from(blacklistRepository.findActiveByStaffId(staffId, pageable));
+    }
+
+    @Transactional
+    public void release(Long staffId, BlacklistReleaseRequest request){
+
+        String email = request.userEmail().trim().toLowerCase();
+
+        User user = userRepository.findByEmailAndDeletedAtIsNull(email)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        // staffId 조건이 없으면 다른 역의 차단 기록을 해제하게 됨
+        Blacklist blacklist = blacklistRepository.findByUserIdAndStaffIdAndReleasedAtIsNull(user.getId(), staffId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.BLACKLIST_NOT_FOUND));
+
+        // 변경 감지가 UPDATE 자동 수행
+        blacklist.release();
     }
 }
