@@ -13,6 +13,7 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.stream.Collectors;
@@ -109,6 +110,20 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleMissingParameter(MissingServletRequestParameterException e) {
         ErrorCode errorCode = ErrorCode.INVALID_INPUT_VALUE;
         log.warn("필수 파라미터 누락: {} - {}", errorCode.name(), e.getParameterName());
+
+        return ResponseEntity.status(errorCode.getHttpStatus())
+                .body(ApiResponse.error(errorCode));
+    }
+
+    /*
+       [INVALID_INPUT_VALUE 400]
+       쿼리 파라미터의 타입이 맞지 않는 경우
+       예: /staffs/blacklist?page=abc (int에 문자열)
+    */
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ApiResponse<Void>> handleTypeMismatch(MethodArgumentTypeMismatchException e) {
+        ErrorCode errorCode = ErrorCode.INVALID_INPUT_VALUE;
+        log.warn("파라미터 타입 불일치: {} - {}", errorCode.name(), e.getName());
 
         return ResponseEntity.status(errorCode.getHttpStatus())
                 .body(ApiResponse.error(errorCode));
