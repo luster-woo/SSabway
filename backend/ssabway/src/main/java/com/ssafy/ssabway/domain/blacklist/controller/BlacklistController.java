@@ -1,5 +1,6 @@
 package com.ssafy.ssabway.domain.blacklist.controller;
 
+import com.ssafy.ssabway.domain.blacklist.dto.request.BlacklistReasonUpdateRequest;
 import com.ssafy.ssabway.domain.blacklist.dto.request.BlacklistRegisterRequest;
 import com.ssafy.ssabway.domain.blacklist.dto.request.BlacklistReleaseRequest;
 import com.ssafy.ssabway.domain.blacklist.dto.response.BlacklistResponse;
@@ -49,5 +50,15 @@ public class BlacklistController {
         blacklistService.release(staffId, request);
 
         return ResponseEntity.ok(ApiResponse.ok("블랙리스트 해제 성공"));
+    }
+
+    @PatchMapping
+    public ResponseEntity<ApiResponse<Void>> changeReasons(
+            @AuthenticationPrincipal Long staffId,
+            @Valid @RequestBody BlacklistReasonUpdateRequest request) {
+
+        blacklistService.changeReasons(staffId, request);
+
+        return ResponseEntity.ok(ApiResponse.ok("블랙리스트 사유 수정 성공"));
     }
 }
