@@ -1,17 +1,17 @@
 package com.ssafy.ssabway.domain.blacklist.controller;
 
 import com.ssafy.ssabway.domain.blacklist.dto.request.BlacklistRegisterRequest;
+import com.ssafy.ssabway.domain.blacklist.dto.response.BlacklistResponse;
 import com.ssafy.ssabway.domain.blacklist.service.BlacklistService;
 import com.ssafy.ssabway.global.common.ApiResponse;
+import com.ssafy.ssabway.global.common.PageResponse;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -29,5 +29,14 @@ public class BlacklistController {
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.ok("블랙리스트에 등록되었습니다."));
+    }
+
+    @GetMapping
+    public ResponseEntity<ApiResponse<PageResponse<BlacklistResponse>>> getBlacklist(
+            @AuthenticationPrincipal Long staffId,
+            @RequestParam(defaultValue = "1") @Min(1) int page) {
+
+        return ResponseEntity.ok(
+                ApiResponse.ok("조회에 성공하였습니다.", blacklistService.getBlacklist(staffId, page)));
     }
 }
