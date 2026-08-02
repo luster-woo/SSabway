@@ -8,7 +8,7 @@ import {
   SEARCH_ERROR,
   searchPlaces,
   type SearchErrorType,
-} from '@/user/features/destination-search/lib/searchPlaces'
+} from '@/user/features/destination-search/lib/searchGooglePlaces'
 
 /** 같은 키워드를 다시 눌렀을 때 외부 API를 또 때리지 않도록 5분 캐싱한다. */
 const STALE_MS = 5 * 60 * 1000
@@ -32,7 +32,8 @@ export function usePlaceSearch(submittedQuery: string): UsePlaceSearchResult {
 
   const { data, isFetching, error, isFetched } = useQuery({
     queryKey: queryKeys.place.search(query, language),
-    queryFn: () => searchPlaces(query, { useEnglish: language !== 'ko' }),
+    // 구글 Places 에 언어 코드(ko/en/ja/zh)를 그대로 넘겨 다국어 검색 결과를 받는다.
+    queryFn: () => searchPlaces(query, { language }),
     enabled: query.length > 0,
     staleTime: STALE_MS,
     retry: false,

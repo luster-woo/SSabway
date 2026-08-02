@@ -4,7 +4,7 @@ import { Button } from '@/shared/ui'
 import {
   LOAD_ERROR,
   type LoadErrorType,
-} from '@/user/features/destination-search/lib/loadNaverMaps'
+} from '@/user/features/destination-search/lib/loadGoogleMaps'
 
 export interface MapLoadErrorNoticeProps {
   errorType: LoadErrorType

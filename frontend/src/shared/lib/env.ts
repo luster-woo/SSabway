@@ -1,11 +1,14 @@
 export interface AppEnv {
   API_BASE_URL: string
   /**
-   * 네이버 클라우드 플랫폼 Maps의 Client ID.
-   * Client Secret은 서버 전용이므로 여기에 넣지 않는다.
-   * 콘솔의 Web 서비스 URL에 접속 도메인이 등록돼 있어야 지도가 뜬다.
+   * Google Maps Platform API 키 (Maps JavaScript API + Places API).
+   *
+   * 프론트에 노출되는 public 값이다. 실제 방어선은 Google Cloud Console 의
+   * "HTTP 리퍼러 제한"이므로, 허용 리퍼러에 접속 도메인(로컬은
+   * http://localhost:5173/*)이 등록돼 있어야 지도가 뜬다.
+   * 키가 비어 있으면 목적지 화면이 MISSING_KEY 안내로 뜬다.
    */
-  NAVER_MAP_CLIENT_ID: string
+  GOOGLE_MAPS_API_KEY: string
   /**
    * Google Identity Services 의 OAuth 클라이언트 ID.
    *
@@ -36,7 +39,7 @@ const FALLBACK: AppEnv = {
   // 절대 주소를 기본값으로 두면 config.js 로드가 실패했을 때 조용히
   // 엉뚱한 오리진으로 요청이 나가므로 여기서도 상대 경로를 기본으로 한다.
   API_BASE_URL: '',
-  NAVER_MAP_CLIENT_ID: '',
+  GOOGLE_MAPS_API_KEY: '',
   GOOGLE_CLIENT_ID: '',
   USE_MSW: false,
 }

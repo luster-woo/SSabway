@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
+import { useLanguage } from '@/shared/lib/useLanguage'
 import {
   LOAD_ERROR,
-  loadNaverMaps,
-  NaverMapsLoadError,
-  onNaverMapsAuthFailure,
+  loadGoogleMaps,
+  GoogleMapsLoadError,
+  onGoogleMapsAuthFailure,
   type LoadErrorType,
-} from '@/user/features/destination-search/lib/loadNaverMaps'
+} from '@/user/features/destination-search/lib/loadGoogleMaps'
 
 export const SDK_STATUS = {
   LOADING: 'LOADING',
@@ -15,14 +16,15 @@ export const SDK_STATUS = {
 } as const
 export type SdkStatus = (typeof SDK_STATUS)[keyof typeof SDK_STATUS]
 
-export interface UseNaverMapsSdkResult {
+export interface UseGoogleMapsSdkResult {
   status: SdkStatus
   errorType: LoadErrorType | null
   retry: () => void
 }
 
-/** 네이버 지도 SDK 로딩 상태를 컴포넌트에서 다루기 쉽게 감싼 훅. */
-export function useNaverMapsSdk(): UseNaverMapsSdkResult {
+/** Google 지도 SDK 로딩 상태를 컴포넌트에서 다루기 쉽게 감싼 훅. */
+export function useGoogleMapsSdk(): UseGoogleMapsSdkResult {
+  const { language } = useLanguage()
   const [status, setStatus] = useState<SdkStatus>(SDK_STATUS.LOADING)
   const [errorType, setErrorType] = useState<LoadErrorType | null>(null)
   // 언마운트 이후 늦게 resolve된 프라미스가 setState를 호출하지 않도록 막는다.
@@ -37,13 +39,13 @@ export function useNaverMapsSdk(): UseNaverMapsSdkResult {
     setErrorType(null)
 
     // 인증 실패는 load 이벤트 뒤에 별도 콜백으로 오므로 따로 구독한다.
-    const unsubscribe = onNaverMapsAuthFailure(() => {
+    const unsubscribe = onGoogleMapsAuthFailure(() => {
       if (!aliveRef.current) return
       setErrorType(LOAD_ERROR.AUTH_FAILED)
       setStatus(SDK_STATUS.ERROR)
     })
 
-    loadNaverMaps()
+    loadGoogleMaps(language)
       .then(() => {
         if (!aliveRef.current) return
         setStatus(SDK_STATUS.READY)
@@ -51,7 +53,7 @@ export function useNaverMapsSdk(): UseNaverMapsSdkResult {
       .catch((error: unknown) => {
         if (!aliveRef.current) return
         setErrorType(
-          error instanceof NaverMapsLoadError
+          error instanceof GoogleMapsLoadError
             ? error.reason
             : LOAD_ERROR.SCRIPT_ERROR,
         )
@@ -62,7 +64,7 @@ export function useNaverMapsSdk(): UseNaverMapsSdkResult {
       aliveRef.current = false
       unsubscribe()
     }
-  }, [attempt])
+  }, [attempt, language])
 
   const retry = useCallback(() => setAttempt((prev) => prev + 1), [])
 

@@ -70,9 +70,9 @@ public class UserService {
         if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) throw new BusinessException(ErrorCode.LOGIN_FAILED);
 
         String accessToken = jwtProvider.createAccessToken(user.getId(), TokenType.USER);
-        String refreshToken = jwtProvider.createRefreshToken(user.getId());
+        String refreshToken = jwtProvider.createRefreshToken(user.getId(), TokenType.USER);
 
-        refreshTokenService.save(user.getId(), refreshToken, jwtProvider.getRefreshTokenExpiration());
+        refreshTokenService.save(TokenType.USER, user.getId(), refreshToken, jwtProvider.getRefreshTokenExpiration());
 
         return new LoginResult(accessToken, refreshToken, user.getLanguage());
     }
@@ -92,7 +92,7 @@ public class UserService {
 
         user.withdraw();
 
-        refreshTokenService.delete(userId);
+        refreshTokenService.delete(TokenType.USER, userId);
     }
 
     @Transactional
@@ -105,9 +105,9 @@ public class UserService {
                 .orElseGet(() -> register(googleUser, request.language()));
 
         String accessToken = jwtProvider.createAccessToken(user.getId(), TokenType.USER);
-        String refreshToken =  jwtProvider.createRefreshToken(user.getId());
+        String refreshToken =  jwtProvider.createRefreshToken(user.getId(), TokenType.USER);
 
-        refreshTokenService.save(user.getId(), refreshToken, jwtProvider.getRefreshTokenExpiration());
+        refreshTokenService.save(TokenType.USER, user.getId(), refreshToken, jwtProvider.getRefreshTokenExpiration());
 
         return new LoginResult(accessToken, refreshToken, user.getLanguage());
     }

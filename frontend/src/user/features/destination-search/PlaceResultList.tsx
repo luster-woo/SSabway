@@ -6,7 +6,7 @@ import { PinIcon } from '@/user/features/destination-search/icons'
 import {
   SEARCH_ERROR,
   type SearchErrorType,
-} from '@/user/features/destination-search/lib/searchPlaces'
+} from '@/user/features/destination-search/lib/searchGooglePlaces'
 
 export interface PlaceResultListProps {
   results: Place[]

@@ -1,4 +1,17 @@
-import { http, HttpResponse, type RequestHandler } from 'msw'
+import { http, HttpResponse, type HttpHandler, type RequestHandler } from 'msw'
+
+import {
+  closeMockSession,
+  createMockConnection,
+  createMockConsultation,
+  endMockConsultation,
+  issueMockConsultationToken,
+  listMockWaitingConsultations,
+  openMockSession,
+  pollMockConsultation,
+  startMockConsultation,
+} from '@/mocks/consultationQueue'
+import { MOCK_SWITCH, type MockSwitchKey } from '@/mocks/mockSwitch'
 
 import {
   CODE_TIME_LIMIT_SEC,
@@ -23,7 +36,8 @@ import {
  * 요청을 가로채는 규칙.
  *
  * 응답 값은 data.ts 에 모아두고 여기서는 규칙만 다룬다.
- * BE 연동이 끝난 엔드포인트는 이 배열에서 지우면 실제 서버로 넘어간다.
+ * 실서버로 보낼 엔드포인트는 이 배열에서 지우지 말고 mockSwitch.ts 에서 끈다.
+ * 꺼진 핸들러는 등록되지 않아 실제 서버로 넘어간다.
  * (browser.ts 의 onUnhandledRequest: 'bypass')
  *
  * 경로는 client.ts 의 baseURL 과 맞춰 절대 경로로 적는다.
@@ -31,7 +45,7 @@ import {
 export const BASE = '*/api/v1'
 
 /** 상태를 들고 있지 않으므로 새로고침하면 처음부터 다시 시작한다. */
-export const handlers: RequestHandler[] = [
+const mockHandlers: HttpHandler[] = [
   // 이메일 중복 확인
   // 조회 자체는 성공이므로 중복이어도 200 이다. (BE UserController 와 동일)
   http.get(`${BASE}/users/exists`, ({ request }) => {
@@ -244,6 +258,27 @@ export const handlers: RequestHandler[] = [
     })
   }),
 
+  // 회원 선호 언어 설정 (BE 개발완료)
+  //
+  // 시작 페이지 이탈 시 fire-and-forget 으로 나가는 요청이라 화면에 결과가
+  // 보이지 않는다. 목의 역할은 devtools Network 탭에서 "언제 나가는지"를
+  // 확인시켜 주는 것이다. (칩 클릭마다 나가면 잘못 붙인 것)
+  http.patch(`${BASE}/users/language`, async ({ request }) => {
+    if (!request.headers.get('Authorization')) {
+      return HttpResponse.json(errorBody('인증이 필요합니다.'), { status: 401 })
+    }
+
+    const { language } = (await request.json()) as { language?: string }
+
+    if (!language || !['KO', 'EN', 'JA', 'ZH'].includes(language)) {
+      return HttpResponse.json(errorBody('잘못된 형식의 요청 값입니다.'), {
+        status: 400,
+      })
+    }
+
+    return HttpResponse.json(okBodyWithoutData('언어 설정 완료했습니다.'))
+  }),
+
   /* ---------------------------------------------------------------- *
    * 인증
    * ---------------------------------------------------------------- */
@@ -360,4 +395,237 @@ export const handlers: RequestHandler[] = [
       okBody('근처 역 조회 성공', { station: NEARBY_STATION }),
     )
   }),
+
+  /* ---------------------------------------------------------------- *
+   * 상담 대기열 — ⚠️ BE 미구현 (BACKEND_READY.CONSULTATION_STATUS)
+   *
+   * 이 목이 있는 동안에는 플래그를 true 로 켜면 MSW 만으로
+   * "요청 → 대기 순번 감소 → 매칭 → 토큰 발급" 흐름을 확인할 수 있다.
+   * 상태는 consultationQueue.ts 가 들고 있다.
+   * BE 가 배포되면 mockSwitch 에서 상담 3종을 끄고 실서버로 검증한다.
+   * ---------------------------------------------------------------- */
+
+  // 상담 요청 → 대기열 등록
+  http.post(`${BASE}/consultations`, ({ request }) => {
+    if (!request.headers.get('Authorization')) {
+      return HttpResponse.json(errorBody('인증이 필요합니다.'), { status: 401 })
+    }
+
+    const result = createMockConsultation()
+
+    if (result === 'DUPLICATED') {
+      return HttpResponse.json(
+        errorBody('중복된 상담요청입니다.', 'CONSULTATION_DUPLICATED'),
+        { status: 409 },
+      )
+    }
+
+    return HttpResponse.json(okBody('상담이 요청되었습니다.', result), {
+      status: 201,
+    })
+  }),
+
+  // 상담 상태 조회 — useConsultationMatch 가 3초 간격으로 폴링한다
+  http.get(`${BASE}/consultations/:consultationId`, ({ request, params }) => {
+    if (!request.headers.get('Authorization')) {
+      return HttpResponse.json(errorBody('인증이 필요합니다.'), { status: 401 })
+    }
+
+    const snapshot = pollMockConsultation(Number(params.consultationId))
+
+    if (!snapshot) {
+      return HttpResponse.json(
+        errorBody('존재하지 않는 상담입니다.', 'RESOURCE_NOT_FOUND'),
+        { status: 404 },
+      )
+    }
+
+    return HttpResponse.json(okBody('상담 상태 조회 성공', snapshot))
+  }),
+
+  // 접속 토큰 발급 — MATCHED 확인 후 1회 호출된다
+  http.post(
+    `${BASE}/consultations/:consultationId/token`,
+    ({ request, params }) => {
+      if (!request.headers.get('Authorization')) {
+        return HttpResponse.json(errorBody('인증이 필요합니다.'), {
+          status: 401,
+        })
+      }
+
+      const result = issueMockConsultationToken(Number(params.consultationId))
+
+      if (result === 'NOT_FOUND') {
+        return HttpResponse.json(
+          errorBody('존재하지 않는 상담입니다.', 'RESOURCE_NOT_FOUND'),
+          { status: 404 },
+        )
+      }
+
+      // 매칭 전 발급 요청. 정상 흐름에서는 오지 않는다 — BE 확정 시 코드 맞출 것.
+      if (result === 'NOT_MATCHED') {
+        return HttpResponse.json(
+          errorBody('아직 매칭되지 않은 상담입니다.', 'CONSULTATION_NOT_MATCHED'),
+          { status: 409 },
+        )
+      }
+
+      return HttpResponse.json(okBody('토큰이 발급되었습니다.', result))
+    },
+  ),
+
+  /* ---------------------------------------------------------------- *
+   * 관리자 — 상담 대기 목록 (BE 미구현, BACKEND_READY.ADMIN_QUEUE 참고)
+   *
+   * ADMIN_QUEUE 플래그를 켜면 useWaitingConsultations 가 이 목으로 온다.
+   * 목록은 consultationQueue 의 공유 상태(localStorage)에서 읽으므로,
+   * user 탭이 요청한 상담이 admin 탭 목록에 그대로 나타난다.
+   * ---------------------------------------------------------------- */
+  http.get(`${BASE}/admin/consultations`, ({ request }) => {
+    if (!request.headers.get('Authorization')) {
+      return HttpResponse.json(errorBody('인증이 필요합니다.'), { status: 401 })
+    }
+
+    // status=WAITING 만 지원한다. 다른 값은 목이 다루지 않는 영역이라 빈 목록.
+    const status = new URL(request.url).searchParams.get('status')
+    const content = status === 'WAITING' ? listMockWaitingConsultations() : []
+
+    return HttpResponse.json(
+      okBody('상담 대기 목록 조회 성공', {
+        content,
+        // admin/lib/paging.ts 의 PageMeta 와 같은 모양 (목은 한 페이지뿐)
+        page: {
+          number: 0,
+          size: 20,
+          totalElements: content.length,
+          totalPages: 1,
+          first: true,
+          last: true,
+        },
+      }),
+    )
+  }),
+
+  /* ---------------------------------------------------------------- *
+   * 화상연결(signaling) — ✅ BE 개발완료
+   *
+   * 실서버가 있으므로 mockSwitch 기본값이 false 다(등록 안 됨 → 실서버로).
+   * 한 컴퓨터에서 user + admin 매칭 실험을 할 때만 다섯 개를 함께 켠다.
+   * 켜면: admin 수락(세션 생성)이 공유 상태를 MATCHED 로 바꾸고,
+   * user 의 커넥션 폴링(joinSession)이 404 → 토큰 발급으로 풀린다.
+   * 응답 모양은 BE 실코드(OpenViduController, 8/1) 기준.
+   * ---------------------------------------------------------------- */
+
+  // 세션 생성 (= 역무원 수락)
+  http.post(`${BASE}/openvidu/sessions`, async ({ request }) => {
+    const { consultationId } = (await request.json()) as {
+      consultationId?: number
+    }
+
+    if (typeof consultationId !== 'number') {
+      return HttpResponse.json(
+        errorBody('잘못된 형식의 요청 값입니다.', 'INVALID_INPUT_VALUE'),
+        { status: 400 },
+      )
+    }
+
+    return HttpResponse.json(
+      okBody('세션이 생성되었습니다.', {
+        sessionId: openMockSession(consultationId),
+      }),
+    )
+  }),
+
+  // 커넥션(접속 토큰) 발급 — 세션이 없으면 404 (사용자 폴링이 이 404 에 기댄다)
+  http.post(
+    `${BASE}/openvidu/sessions/:sessionId/connections`,
+    async ({ request, params }) => {
+      const { participantId } = (await request.json()) as {
+        participantId?: string
+      }
+
+      const result = createMockConnection(
+        String(params.sessionId),
+        participantId ?? 'unknown',
+      )
+
+      if (!result) {
+        return HttpResponse.json(
+          errorBody(
+            '존재하지 않는 화상 상담 세션입니다.',
+            'OPENVIDU_SESSION_NOT_FOUND',
+          ),
+          { status: 404 },
+        )
+      }
+
+      return HttpResponse.json(okBody('커넥션이 생성되었습니다.', result))
+    },
+  ),
+
+  // 상담 시작 — BE 실응답은 { sessionId, status } (started 아님)
+  http.post(`${BASE}/openvidu/sessions/:sessionId/start`, ({ params }) => {
+    const sessionId = String(params.sessionId)
+    const status = startMockConsultation(sessionId)
+
+    if (!status) {
+      return HttpResponse.json(
+        errorBody(
+          '존재하지 않는 화상 상담 세션입니다.',
+          'OPENVIDU_SESSION_NOT_FOUND',
+        ),
+        { status: 404 },
+      )
+    }
+
+    return HttpResponse.json(
+      okBody('상담이 시작되었습니다.', { sessionId, status }),
+    )
+  }),
+
+  // 상담 종료 — BE 실응답은 { sessionId, recordingId, status }. 재요청에 멱등.
+  http.post(`${BASE}/openvidu/sessions/:sessionId/end`, ({ params }) => {
+    const sessionId = String(params.sessionId)
+    const { recordingId } = endMockConsultation(sessionId)
+
+    return HttpResponse.json(
+      okBody('상담이 종료되었습니다.', {
+        sessionId,
+        recordingId,
+        status: 'ENDED',
+      }),
+    )
+  }),
+
+  // 세션 정리(수락 실패 롤백) — ⚠️ BE 는 미구현(재추가 합의 상태)이지만
+  // FE 롤백 경로를 목에서라도 통과시키기 위해 둔다.
+  http.delete(`${BASE}/openvidu/sessions/:sessionId`, ({ params }) => {
+    closeMockSession(String(params.sessionId))
+    return HttpResponse.json(okBodyWithoutData('세션이 정리되었습니다.'))
+  }),
 ]
+
+/** 핸들러의 method + path 를 mockSwitch.ts 의 키 형식으로 바꾼다. */
+function toSwitchKey(handler: HttpHandler): string {
+  const { method, path } = handler.info
+  return `${String(method)} ${String(path).replace(BASE, '')}`
+}
+
+/**
+ * 실제로 등록되는 핸들러 — MOCK_SWITCH 에서 켜진 것만.
+ *
+ * 꺼진 엔드포인트는 워커에 등록되지 않으므로 bypass 로 실서버에 나간다.
+ * 실서버 쪽 오류로 테스트가 막히면 스위치만 되돌리면 된다.
+ */
+export const handlers: RequestHandler[] = mockHandlers.filter((handler) => {
+  const key = toSwitchKey(handler)
+
+  if (!(key in MOCK_SWITCH)) {
+    // 핸들러를 새로 만들고 스위치 추가를 잊은 경우다. 목을 유지하는 쪽이
+    // 안전하므로(실서버 강제 노출 방지) 경고만 남기고 등록한다.
+    console.warn(`[mocks] mockSwitch.ts 에 항목이 없습니다: '${key}'`)
+    return true
+  }
+
+  return MOCK_SWITCH[key as MockSwitchKey]
+})

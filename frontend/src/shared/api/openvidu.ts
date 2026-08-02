@@ -1,13 +1,15 @@
 import axios, { type AxiosInstance } from 'axios'
 
 import { endpoints } from '@/shared/api/endpoints'
-import type {
-  ApiResponse,
-  ConsultationSession,
-  ConsultationSnapshot,
-  EndResult,
-  ParticipantRole,
-  WebrtcApiResponse,
+import {
+  CONSULTATION_STATUS,
+  type ApiResponse,
+  type ConsultationSession,
+  type ConsultationSnapshot,
+  type ConsultationStatus,
+  type EndResult,
+  type ParticipantRole,
+  type WebrtcApiResponse,
 } from '@/shared/types'
 
 /**
@@ -44,15 +46,21 @@ interface ConnectionCreated {
   token: string
 }
 
+/**
+ * BE 실제 DTO (ConsultationStartResponse / ConsultationEndResponse — 8/1 코드 확인).
+ *
+ * 노션 초기 명세의 started/ended: boolean 이 아니라 status 를 내려준다.
+ * boolean 판정은 아래 startConsultation / endConsultation 이 status 로 계산한다.
+ */
 interface ConsultationStarted {
   sessionId: string
-  started: boolean
+  status: ConsultationStatus
 }
 
 interface ConsultationEnded {
   sessionId: string
   recordingId: string
-  ended: boolean
+  status: ConsultationStatus
 }
 
 export interface JoinSessionOptions {
@@ -205,7 +213,8 @@ export function createOpenViduApi(api: AxiosInstance) {
     const res = await api.post<WebrtcApiResponse<ConsultationStarted>>(
       endpoints.openvidu.start(sessionId),
     )
-    return res.data.data.started
+    // BE 는 started 가 아니라 status 를 준다. 시작됐다 = IN_PROGRESS.
+    return res.data.data.status === CONSULTATION_STATUS.IN_PROGRESS
   }
 
   /**
@@ -225,7 +234,8 @@ export function createOpenViduApi(api: AxiosInstance) {
     return {
       consultationId,
       sessionId: res.data.data.sessionId,
-      ended: res.data.data.ended,
+      // BE 는 ended 가 아니라 status 를 준다. 종료됐다 = ENDED.
+      ended: res.data.data.status === CONSULTATION_STATUS.ENDED,
     }
   }
 
