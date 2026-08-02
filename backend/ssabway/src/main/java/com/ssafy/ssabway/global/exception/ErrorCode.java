@@ -37,6 +37,9 @@ public enum ErrorCode {
     INVALID_GOOGLE_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 구글 토큰입니다."), // 401
     LOCAL_LOGIN_REQUIRED(HttpStatus.UNAUTHORIZED, "이미 가입된 이메일입니다. 일반 로그인을 이용해주세요."), // 401
 
+    // 블랙리스트
+    BLACKLIST_DUPLICATED(HttpStatus.CONFLICT, "이미 블랙리스트에 등록된 사용자입니다."),
+
     // 상담
     CONSULTATION_DUPLICATED(HttpStatus.CONFLICT, "중복된 상담 요청입니다."); // 409
 
