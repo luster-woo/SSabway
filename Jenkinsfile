@@ -105,12 +105,15 @@ pipeline {
 
                     echo "api=${env.BUILD_API} signaling=${env.BUILD_SIGNAL} frontend=${env.BUILD_FRONTEND} ai=${env.BUILD_AI} nginx설정=${env.TOUCH_NGINX}"
 
-                    if (env.BUILD_API == 'false' && env.BUILD_SIGNAL == 'false'
-                        && env.BUILD_FRONTEND == 'false' && env.BUILD_AI == 'false'
-                        && env.TOUCH_NGINX == 'false') {
-                        currentBuild.result = 'SUCCESS'
+                    // 배포 대상이 하나라도 있는지. 없으면 이후 스테이지가 전부 스킵되고
+                    // 빌드는 초록불로 끝난다 (error()는 결과를 FAILURE로 덮어써서 쓰지 않음)
+                    env.DEPLOY_ANY = (env.BUILD_API == 'true' || env.BUILD_SIGNAL == 'true' ||
+                        env.BUILD_FRONTEND == 'true' || env.BUILD_AI == 'true' ||
+                        env.TOUCH_NGINX == 'true').toString()
+
+                    if (env.DEPLOY_ANY == 'false') {
                         currentBuild.description = '배포 대상 없음'
-                        error('배포할 변경사항이 없습니다.')
+                        echo '배포할 변경사항이 없습니다. 이후 스테이지를 건너뜁니다.'
                     }
                 }
             }
@@ -147,6 +150,7 @@ pipeline {
         }
 
         stage('nginx 재시작') {
+            when { environment name: 'DEPLOY_ANY', value: 'true' }
             steps {
                 // nginx.conf는 볼륨 마운트라 --build가 아니라 restart.
                 // 또한 컨테이너가 재생성되면 IP가 바뀌는데 nginx가 옛 IP를 캐시해
@@ -156,6 +160,7 @@ pipeline {
         }
 
         stage('검증') {
+            when { environment name: 'DEPLOY_ANY', value: 'true' }
             steps {
                 sh '''#!/bin/bash
                 set -e
