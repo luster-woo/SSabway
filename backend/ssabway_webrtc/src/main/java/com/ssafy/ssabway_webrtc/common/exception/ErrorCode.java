@@ -39,6 +39,12 @@ public enum ErrorCode {
         "상담 시작 상태를 저장하지 못했습니다."),
     CONSULTATION_END_FAILED(HttpStatus.INTERNAL_SERVER_ERROR,
         "상담 종료 상태를 저장하지 못했습니다."),
+    CONSULTATION_DUPLICATED(HttpStatus.CONFLICT,
+        "이미 대기 중이거나 진행 중인 상담이 있습니다."),
+    BLACKLISTED_USER(HttpStatus.FORBIDDEN,
+        "서비스 이용이 제한된 사용자입니다."),
+    CONSULTATION_NOT_MATCHED(HttpStatus.CONFLICT,
+        "역무원이 배정된 상담만 시작할 수 있습니다."),
 
     // 상담 오류
     CONSULTATION_CANCEL_NOT_ALLOWED(HttpStatus.CONFLICT,
@@ -81,6 +87,7 @@ public enum ErrorCode {
         "잘못된 OpenVidu 웹훅 요청입니다."),
     INVALID_WEBHOOK_SECRET(HttpStatus.UNAUTHORIZED,
         "유효하지 않은 웹훅 인증 정보입니다.");
+
 
     private final HttpStatus httpStatus;
     private final String message;
