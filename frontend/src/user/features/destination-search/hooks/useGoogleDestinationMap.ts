@@ -1,4 +1,4 @@
-import { useEffect, useRef, type RefObject } from 'react'
+import { useCallback, useEffect, useRef, type RefObject } from 'react'
 
 import { IS_DEV } from '@/shared/lib/env'
 import type { Place } from '@/shared/types/place'
@@ -27,6 +27,12 @@ export interface UseDestinationMapOptions {
   myLocation: { latitude: number; longitude: number } | null
 }
 
+export interface UseDestinationMapResult {
+  mapRef: RefObject<google.maps.Map | null>
+  /** 지도를 현재 위치(파란 점)로 다시 맞춘다. 좌표가 없으면 아무것도 안 한다. */
+  recenterToMyLocation: () => void
+}
+
 /**
  * 컨테이너에 Google 지도를 띄우고, 선택된 목적지 마커와 "내 위치" 마커를 관리한다.
  *
@@ -36,7 +42,7 @@ export interface UseDestinationMapOptions {
 export function useGoogleDestinationMap(
   containerRef: RefObject<HTMLDivElement | null>,
   { isReady, selected, myLocation }: UseDestinationMapOptions,
-) {
+): UseDestinationMapResult {
   const mapRef = useRef<google.maps.Map | null>(null)
   const markerRef = useRef<google.maps.Marker | null>(null)
   const myMarkerRef = useRef<google.maps.Marker | null>(null)
@@ -73,7 +79,7 @@ export function useGoogleDestinationMap(
     }
   }, [containerRef, isReady])
 
-  // "내 위치" 마커: GPS 동의로 좌표를 받으면 파란 점을 찍는다.
+  // "내 위치" 마커: GPS 동의로 좌표를 받으면 파란 점(원)을 찍는다.
   // 아직 목적지를 안 골랐으면 내 위치로 화면을 맞춰 사용자가 자기 위치를 보게 한다.
   useEffect(() => {
     const map = isReady ? mapRef.current : null
@@ -146,5 +152,13 @@ export function useGoogleDestinationMap(
     map.setZoom(FOCUS_ZOOM)
   }, [isReady, selected])
 
-  return mapRef
+  // "현재 위치로 이동" 버튼이 부른다. 마지막으로 받은 내 좌표로 지도를 다시 맞춘다.
+  const recenterToMyLocation = useCallback(() => {
+    const map = mapRef.current
+    if (!map || !myLocation) return
+    map.panTo({ lat: myLocation.latitude, lng: myLocation.longitude })
+    map.setZoom(MY_LOCATION_ZOOM)
+  }, [myLocation])
+
+  return { mapRef, recenterToMyLocation }
 }
