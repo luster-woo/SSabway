@@ -1,5 +1,6 @@
 package com.ssafy.ssabway.domain.blacklist.service;
 
+import com.ssafy.ssabway.domain.blacklist.dto.request.BlacklistReasonUpdateRequest;
 import com.ssafy.ssabway.domain.blacklist.dto.request.BlacklistRegisterRequest;
 import com.ssafy.ssabway.domain.blacklist.dto.request.BlacklistReleaseRequest;
 import com.ssafy.ssabway.domain.blacklist.dto.response.BlacklistResponse;
@@ -61,5 +62,19 @@ public class BlacklistService {
 
         // 변경 감지가 UPDATE 자동 수행
         blacklist.release();
+    }
+
+    @Transactional
+    public void changeReasons(Long staffId, BlacklistReasonUpdateRequest request) {
+
+        String email = request.userEmail().trim().toLowerCase();
+
+        User user = userRepository.findByEmailAndDeletedAtIsNull(email)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        Blacklist blacklist = blacklistRepository.findByUserIdAndStaffIdAndReleasedAtIsNull(user.getId(), staffId)
+                .orElseThrow( () -> new BusinessException(ErrorCode.BLACKLIST_NOT_FOUND));
+
+        blacklist.changeReasons(request.reasons());
     }
 }

@@ -50,4 +50,9 @@ public class Blacklist {
     public void release() {
         this.releasedAt = LocalDateTime.now();
     }
+
+    // 블랙리스트 사유 통째로 교체
+    public void changeReasons(Set<BlacklistReason> reasons){
+        this.reasons = reasons;
+    }
 }

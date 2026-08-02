@@ -28,5 +28,6 @@ public interface BlacklistRepository extends JpaRepository<Blacklist, Long> {
     Page<BlacklistResponse> findActiveByStaffId(@Param("staffId") Long staffId, Pageable pageable);
 
     // ReleasedAtIsNull 조건이 곧 중복 해제 방어 이미 해제된 행은 조회 x
+    // 해제 및 블랙리스트 등록 이유 수정에 사용
     Optional<Blacklist> findByUserIdAndStaffIdAndReleasedAtIsNull(Long userId, Long staffId);
 }
