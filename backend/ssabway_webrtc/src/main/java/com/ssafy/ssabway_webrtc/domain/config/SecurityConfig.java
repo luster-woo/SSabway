@@ -52,7 +52,7 @@ public class SecurityConfig {
                 .hasAuthority("USER")
 
                 // 역무원 API는 STAFF만 접근 가능
-                .requestMatchers("/api/v1/admin/**")
+                .requestMatchers("/api/v1/staffs/**")
                 .hasAuthority("STAFF")
                 .requestMatchers("/api/v1/**")
                 .authenticated()
