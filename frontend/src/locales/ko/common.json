@@ -290,7 +290,23 @@
     "next": "다음",
     "showMyLocation": "역 내에서 현재 위치 보기",
     "arrive": "도착 완료",
-    "mapNotReady": "역 내부 지도는 준비 중이에요",
+    "stationMap": {
+      "title": "역 내 현재 위치",
+      "close": "닫기",
+      "zoomIn": "확대",
+      "zoomOut": "축소",
+      "legend": {
+        "current": "현재 위치",
+        "prev": "지나온 표지판",
+        "next": "다음 표지판"
+      },
+      "views": {
+        "1": "1층",
+        "2A": "2층 A",
+        "2B": "2층 B",
+        "3": "3층"
+      }
+    },
     "help": "도움 요청",
     "loading": "경로 안내를 불러오는 중이에요…",
     "failed": "경로 안내를 불러오지 못했어요\n잠시 후 다시 시도해 주세요",

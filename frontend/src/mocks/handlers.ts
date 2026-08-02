@@ -12,6 +12,9 @@ import {
   startMockConsultation,
 } from '@/mocks/consultationQueue'
 import { MOCK_SWITCH, type MockSwitchKey } from '@/mocks/mockSwitch'
+// 목 데이터가 화면 목과 어긋나면 안 되어 user 쪽 원본을 그대로 쓴다.
+// (mocks 는 개발 전용이라 user 레이어 참조가 번들 분리를 해치지 않는다)
+import { MOCK_ROUTE_GUIDE } from '@/user/features/route-guide/lib/mockRouteGuide'
 
 import {
   CODE_TIME_LIMIT_SEC,
@@ -395,6 +398,16 @@ const mockHandlers: HttpHandler[] = [
       okBody('근처 역 조회 성공', { station: NEARBY_STATION }),
     )
   }),
+
+  // 역 내 경로 제공 (명세 「경로」 카테고리, BE 개발전)
+  //
+  // 응답의 steps[].point(도면 좌표)는 명세 제안 필드다 — 현재 노션 명세에는
+  // 좌표가 없어 "역 내 현재 위치" 지도를 그릴 수 없다. FE 가 형태를 먼저
+  // 굳혀 BE 에 요청한 상태 (shared/types/routeGuide.ts 의 GuidePoint 참고).
+  // 비로그인에도 길안내는 동작해야 하므로 인증을 요구하지 않는다.
+  http.post(`${BASE}/routes/navi`, () =>
+    HttpResponse.json(okBody('경로 안내 조회 성공', MOCK_ROUTE_GUIDE)),
+  ),
 
   /* ---------------------------------------------------------------- *
    * 상담 대기열 — ⚠️ BE 미구현 (BACKEND_READY.CONSULTATION_STATUS)

@@ -1,55 +1,27 @@
 import { useQuery } from '@tanstack/react-query'
 
 import { queryKeys } from '@/shared/lib/queryKeys'
+import {
+  PROTOTYPE_STATION_ROUTE,
+  type UserRouteStep,
+} from '@/shared/station-map/stationRoute'
 
-/** 층간 이동 지점이 도착하는 반대편 층의 좌표 */
-export interface RouteStepLink {
-  floor: string
-  view: string
-  x: number
-  y: number
-}
+/*
+  타입(UserRouteStep)·toPointOnFloor·경로 목은 shared/station-map 으로
+  승격됐다 (8/3) — 사용자 앱의 "현재 위치 보기"와 같은 지도·경로를 공유한다.
+  이 파일에는 관리자용 조회 훅만 남는다.
 
-/**
- * 사용자가 안내받는 역 내 경로의 한 단계.
- *
- * 명세의 GET /routes/navi 응답(order·nextPointType·signImage·text)에는 좌표·층이 없어
- * 지도에 번호를 찍을 수 없다. 또 그 API 는 요청 파라미터가 사용자 입력값
- * (hasTrafficCard·payment·hasCash)이라 역무원이 호출할 수도 없다.
- *
- * TODO: 아래 형태로 상담별 경로 조회 API 신설을 요청한다.
- *       GET /api/v1/admins/consultations/{consultationId}/route
- */
-export interface UserRouteStep {
-  /** 표지판·시설 ID (S1_04, ST-12, EX-3 …) */
-  id: string
-  floor: string
-  /** 이 단계를 보여줄 뷰 */
-  view: string
-  x: number
-  y: number
-  /** 지점 이름 */
-  name: string
-  /** 표지판에 적힌 문구 */
-  sign: string
-  /** 이동 수단 (에스컬레이터 등) */
-  via?: string
-  /** 층을 넘는 지점이면 반대편 층 좌표 */
-  up?: RouteStepLink
-}
+  TODO: 상담별 경로 조회 API 신설 요청은 유효하다.
+        GET /api/v1/admins/consultations/{consultationId}/route
+        (GET /routes/navi 는 요청 파라미터가 사용자 입력값이라 역무원이 호출 불가)
+*/
 
-/**
- * 이 단계가 해당 층에서 어디인지 반환한다. 그 층에 없으면 null.
- * 층간 이동 지점은 반대편 층(up)에도 연결점으로 나타난다.
- */
-export function toPointOnFloor(
-  step: UserRouteStep,
-  floor: string,
-): { x: number; y: number } | null {
-  if (step.floor === floor) return { x: step.x, y: step.y }
-  if (step.up?.floor === floor) return { x: step.up.x, y: step.up.y }
-  return null
-}
+// 기존 import 경로 호환용 재수출. admin 쪽 다음 작업에서 shared 직접 참조로 바꿔 달라.
+export {
+  toPointOnFloor,
+  type RouteStepLink,
+  type UserRouteStep,
+} from '@/shared/station-map/stationRoute'
 
 const MOCK_LATENCY_MS = 400
 
@@ -58,60 +30,6 @@ function delay(ms: number): Promise<void> {
     window.setTimeout(resolve, ms)
   })
 }
-
-/**
- * BE 개발 전이라 목 응답을 사용한다. 프로토타입의 경로 데이터를 그대로 옮겼다.
- * 연동 시 fetchUserRoute 본문만 교체하고 아래 상수는 삭제한다.
- */
-const MOCK_ROUTE: readonly UserRouteStep[] = [
-  {
-    id: 'S1_04',
-    floor: '1',
-    view: '1',
-    x: 800,
-    y: 857,
-    name: '1층 승강장',
-    sign: '출구 · 대합실 2F ↑',
-  },
-  {
-    id: 'S1_02',
-    floor: '1',
-    view: '1',
-    x: 1371,
-    y: 857,
-    name: '개찰구 앞',
-    sign: '1 · 2 출구 →   3 · 4 출구 ←',
-  },
-  {
-    id: 'ST-12',
-    floor: '1',
-    view: '1',
-    x: 1286,
-    y: 600,
-    name: '에스컬레이터 (1층 → 2층)',
-    sign: '대합실 2F · 롯데백화점 3F',
-    via: '에스컬레이터',
-    up: { floor: '2', view: '2A', x: 723, y: 793 },
-  },
-  {
-    id: 'S2_09',
-    floor: '2',
-    view: '2A',
-    x: 360.8,
-    y: 937.9,
-    name: '3 · 4번 출구 방면',
-    sign: '3 · 4 출구 ←',
-  },
-  {
-    id: 'EX-3',
-    floor: '2',
-    view: '2A',
-    x: 174.4,
-    y: 927.5,
-    name: '대구역 3번 출구',
-    sign: '3 출구',
-  },
-]
 
 async function fetchUserRoute(
   consultationId: number,
@@ -127,7 +45,8 @@ async function fetchUserRoute(
     throw new Error('잘못된 상담 ID입니다.')
   }
 
-  return [...MOCK_ROUTE]
+  // 사용자 지도와 같은 목 경로 (shared). BE 연동 시 실제 호출로 교체한다.
+  return [...PROTOTYPE_STATION_ROUTE]
 }
 
 /**
