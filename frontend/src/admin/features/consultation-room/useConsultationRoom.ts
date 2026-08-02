@@ -2,17 +2,13 @@ import { useEffect, useRef, useState } from 'react'
 
 import { toSessionId } from '@/shared/api/openvidu'
 import { useConsultationSessionStore } from '@/shared/lib/store/useConsultationSessionStore'
-import { PARTICIPANT_ROLE } from '@/shared/types'
 import {
   OV_STATUS,
   useOpenViduSession,
   type OpenViduStatus,
 } from '@/shared/webrtc/useOpenViduSession'
-import { useAdminProfileStore } from '@/admin/features/auth/useAdminProfileStore'
 import { openviduApi } from '@/admin/lib/openviduApi'
 import type { StreamManager } from 'openvidu-browser'
-
-const FALLBACK_STAFF_ID = 'staff'
 
 export interface UseConsultationRoomResult {
   status: OpenViduStatus
@@ -38,14 +34,13 @@ export interface UseConsultationRoomResult {
  * 전이까지 겸하고 멱등이라, 새로고침 후 다시 불러도 REC 배지가 복원된다.
  *
  * 새로고침하면 스토어가 비므로 세션 ID 규칙으로 복원해 다시 커넥션을 받는다.
- * 같은 participantId(staffCode) 재접속은 서버가 이전 커넥션을 끊고 처리한다.
+ * 같은 계정(JWT) 재접속은 서버가 이전 커넥션을 끊고 처리한다 (8/2 권한 업데이트).
  */
 export function useConsultationRoom(
   consultationId: number,
 ): UseConsultationRoomResult {
   const session = useConsultationSessionStore((s) => s.session)
   const startSession = useConsultationSessionStore((s) => s.startSession)
-  const staffCode = useAdminProfileStore((s) => s.staffCode)
 
   const [isRestoring, setIsRestoring] = useState(false)
   const [isRestoreFailed, setIsRestoreFailed] = useState(false)
@@ -67,12 +62,9 @@ export function useConsultationRoom(
 
     async function restore() {
       try {
-        const restored = await openviduApi.joinSession(
-          consultationId,
-          staffCode ?? FALLBACK_STAFF_ID,
-          PARTICIPANT_ROLE.STAFF,
-          { signal: controller.signal },
-        )
+        const restored = await openviduApi.joinSession(consultationId, {
+          signal: controller.signal,
+        })
         if (controller.signal.aborted) return
         startSession(restored)
       } catch {
@@ -88,7 +80,7 @@ export function useConsultationRoom(
     return () => {
       controller.abort()
     }
-  }, [consultationId, staffCode, startSession, token])
+  }, [consultationId, startSession, token])
 
   const { status, remoteStream } = useOpenViduSession({
     token,

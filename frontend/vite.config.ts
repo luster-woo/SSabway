@@ -23,7 +23,7 @@ export default defineConfig(({ mode }) => {
    * (`.gitignore`의 `*.local`에 걸리므로 커밋되지 않는다.)
    *
    *   # 배포된 백엔드 — nginx가 /api 와 /signal 을 모두 라우팅하므로 한 줄로 끝난다
-   *   VITE_PROXY_TARGET=https://k15d104.p.ssafy.io
+   *   VITE_PROXY_TARGET=https://www.ssabway.site
    *
    *   # docker compose 로 띄운 api 컨테이너 (override.yml 에서 127.0.0.1:8081)
    *   VITE_PROXY_TARGET=http://localhost:8081
