@@ -23,6 +23,10 @@ public enum ErrorCode {
         "지원하지 않는 형식입니다."),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,
         "서버 오류가 발생했습니다."),
+    ACCESS_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED,
+        "액세스 토큰이 만료되었습니다."),
+    INVALID_TOKEN(HttpStatus.UNAUTHORIZED,
+        "유효하지 않은 토큰입니다."),
 
     // 상담
     CONSULTATION_NOT_FOUND(HttpStatus.NOT_FOUND,
@@ -77,7 +81,6 @@ public enum ErrorCode {
         "잘못된 OpenVidu 웹훅 요청입니다."),
     INVALID_WEBHOOK_SECRET(HttpStatus.UNAUTHORIZED,
         "유효하지 않은 웹훅 인증 정보입니다.");
-
 
     private final HttpStatus httpStatus;
     private final String message;
