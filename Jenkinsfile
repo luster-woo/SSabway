@@ -26,7 +26,7 @@ pipeline {
 
     environment {
         APP_DIR     = '/home/ubuntu/app'
-        DOMAIN      = 'i15d104.p.ssafy.io'
+        DOMAIN      = 'ssabway.site'
         MIN_FREE_MB = '2500'
 
         // 서버에서 쓰는 dcp 별칭과 동일한 조합
