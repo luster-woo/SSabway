@@ -106,4 +106,31 @@ public interface ConsultationRepository extends JpaRepository<Consultation, Long
     long countByStatus(
         ConsultationStatus status
     );
+
+    /**
+     * 대기 중인 상담을 특정 역무원에게 배정합니다.
+     *
+     * 상담 상태가 WAITING이고 아직 역무원이 배정되지 않은 경우에만
+     * 수정되므로 여러 역무원이 동시에 수락하더라도 한 명만 성공합니다.
+     *
+     * @return 배정 성공 시 1, 이미 배정됐거나 대기 상태가 아니면 0
+     */
+    @Modifying(
+        clearAutomatically = true,
+        flushAutomatically = true
+    )
+    @Query("""
+        UPDATE Consultation c
+        SET c.staffId = :staffId,
+            c.status = :nextStatus
+        WHERE c.id = :consultationId
+          AND c.status = :currentStatus
+          AND c.staffId IS NULL
+    """)
+    int acceptConsultation(
+        @Param("consultationId") Long consultationId,
+        @Param("staffId") Long staffId,
+        @Param("currentStatus") ConsultationStatus currentStatus,
+        @Param("nextStatus") ConsultationStatus nextStatus
+    );
 }
