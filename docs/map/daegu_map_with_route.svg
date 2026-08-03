@@ -359,6 +359,15 @@
   <rect x="1539" y="2219" width="42" height="42" rx="8" fill="#1976d2"/>
   <text x="1560" y="2233" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🚻</text>
   <text x="1560" y="2252" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">TO</text>
+  <rect x="-3321" y="4419" width="42" height="42" rx="8" fill="#455a64"/>
+  <text x="-3300" y="4433" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🎫</text>
+  <text x="-3300" y="4452" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">BO</text>
+  <rect x="-3321" y="4899" width="42" height="42" rx="8" fill="#455a64"/>
+  <text x="-3300" y="4913" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🎫</text>
+  <text x="-3300" y="4932" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">BO</text>
+  <rect x="-2541" y="3659" width="42" height="42" rx="8" fill="#455a64"/>
+  <text x="-2520" y="3673" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🎫</text>
+  <text x="-2520" y="3692" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">BO</text>
   <circle cx="-1060" cy="4140" r="19" fill="#ffb300" stroke="#e65100" stroke-width="2.5"/>
   <text x="-1060" y="4141" font-size="19" font-weight="bold" fill="#4e2600" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S</text>
   <rect x="-1089.5" y="4164" width="59" height="24" rx="5" fill="#fff" stroke="#e65100" stroke-width="1.5"/>
@@ -647,6 +656,22 @@
   <polyline points="-1440,2560 -360,2560" fill="none" stroke="#00897b" stroke-width="3.5" stroke-dasharray="10 7" stroke-linejoin="round" stroke-linecap="round"/>
   <polyline points="-880,3420 -1520,4400" fill="none" stroke="#00897b" stroke-width="3.5" stroke-dasharray="10 7" stroke-linejoin="round" stroke-linecap="round"/>
   <polyline points="-680,3940 -1520,4960" fill="none" stroke="#00897b" stroke-width="3.5" stroke-dasharray="10 7" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="-1400,3300 -1400,3420" fill="none" stroke="#00897b" stroke-width="3.5" stroke-dasharray="10 7" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="-1400,3300 -1940,3160" fill="none" stroke="#00897b" stroke-width="3.5" stroke-dasharray="10 7" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="-1400,3300 -1940,2980" fill="none" stroke="#00897b" stroke-width="3.5" stroke-dasharray="10 7" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="-2180,3640 -2520,3680" fill="none" stroke="#00897b" stroke-width="3.5" stroke-dasharray="10 7" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="-1940,2860 -1400,3300" fill="none" stroke="#00897b" stroke-width="3.5" stroke-dasharray="10 7" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="-1940,2860 -1940,2980" fill="none" stroke="#00897b" stroke-width="3.5" stroke-dasharray="10 7" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="-1940,2980 -1940,3160" fill="none" stroke="#00897b" stroke-width="3.5" stroke-dasharray="10 7" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="300,3700 400,3880" fill="none" stroke="#00897b" stroke-width="3.5" stroke-dasharray="10 7" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="400,3880 400,3940" fill="none" stroke="#00897b" stroke-width="3.5" stroke-dasharray="10 7" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="1140,2520 1180,2600" fill="none" stroke="#00897b" stroke-width="3.5" stroke-dasharray="10 7" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="1180,2600 1220,2560" fill="none" stroke="#00897b" stroke-width="3.5" stroke-dasharray="10 7" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="1380,2020 1320,1960" fill="none" stroke="#00897b" stroke-width="3.5" stroke-dasharray="10 7" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="1320,1960 1280,2000" fill="none" stroke="#00897b" stroke-width="3.5" stroke-dasharray="10 7" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="1280,2000 1380,2020" fill="none" stroke="#00897b" stroke-width="3.5" stroke-dasharray="10 7" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="1140,2520 1220,2560" fill="none" stroke="#00897b" stroke-width="3.5" stroke-dasharray="10 7" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="-1940,3160 -1400,3420" fill="none" stroke="#00897b" stroke-width="3.5" stroke-dasharray="10 7" stroke-linejoin="round" stroke-linecap="round"/>
   <rect x="-1533" y="4387" width="26" height="26" fill="#6a1b9a" stroke="#fff" stroke-width="2.5"/>
   <rect x="-1547.5" y="4365" width="55" height="17" rx="4" fill="#ffffff" fill-opacity="0.92" stroke="#6a1b9a" stroke-width="1.2"/>
   <text x="-1520" y="4374" font-size="12" font-weight="bold" fill="rgb(58,15,85)" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">EV2_02</text>
@@ -833,5 +858,38 @@
   <polygon points="-1120,4125 -1105,4140 -1120,4155 -1135,4140" fill="#ad1457" stroke="#fff" stroke-width="2.5"/>
   <rect x="-1147.5" y="4105" width="55" height="17" rx="4" fill="#ffffff" fill-opacity="0.92" stroke="#ad1457" stroke-width="1.2"/>
   <text x="-1120" y="4114" font-size="12" font-weight="bold" fill="rgb(95,11,48)" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">EX0_06</text>
+  <circle cx="-1940" cy="3160" r="13" fill="#ef6c00" stroke="#fff" stroke-width="2.5"/>
+  <rect x="-1967.5" y="3125" width="55" height="17" rx="4" fill="#ffffff" fill-opacity="0.92" stroke="#ef6c00" stroke-width="1.2"/>
+  <text x="-1940" y="3134" font-size="12" font-weight="bold" fill="rgb(131,59,0)" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">BO0_01</text>
+  <circle cx="-1940" cy="2980" r="13" fill="#ef6c00" stroke="#fff" stroke-width="2.5"/>
+  <rect x="-1967.5" y="2945" width="55" height="17" rx="4" fill="#ffffff" fill-opacity="0.92" stroke="#ef6c00" stroke-width="1.2"/>
+  <text x="-1940" y="2954" font-size="12" font-weight="bold" fill="rgb(131,59,0)" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">TI0_01</text>
+  <circle cx="-2520" cy="3680" r="13" fill="#ef6c00" stroke="#fff" stroke-width="2.5"/>
+  <rect x="-2547.5" y="3645" width="55" height="17" rx="4" fill="#ffffff" fill-opacity="0.92" stroke="#ef6c00" stroke-width="1.2"/>
+  <text x="-2520" y="3654" font-size="12" font-weight="bold" fill="rgb(131,59,0)" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">BO0_02</text>
+  <circle cx="-1400" cy="3300" r="13" fill="#ef6c00" stroke="#fff" stroke-width="2.5"/>
+  <rect x="-1427.5" y="3265" width="55" height="17" rx="4" fill="#ffffff" fill-opacity="0.92" stroke="#ef6c00" stroke-width="1.2"/>
+  <text x="-1400" y="3274" font-size="12" font-weight="bold" fill="rgb(131,59,0)" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">AT0_01</text>
+  <circle cx="400" cy="3880" r="13" fill="#ef6c00" stroke="#fff" stroke-width="2.5"/>
+  <rect x="372.5" y="3845" width="55" height="17" rx="4" fill="#ffffff" fill-opacity="0.92" stroke="#ef6c00" stroke-width="1.2"/>
+  <text x="400" y="3854" font-size="12" font-weight="bold" fill="rgb(131,59,0)" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">AT0_02</text>
+  <circle cx="400" cy="3940" r="13" fill="#ef6c00" stroke="#fff" stroke-width="2.5"/>
+  <rect x="372.5" y="3905" width="55" height="17" rx="4" fill="#ffffff" fill-opacity="0.92" stroke="#ef6c00" stroke-width="1.2"/>
+  <text x="400" y="3914" font-size="12" font-weight="bold" fill="rgb(131,59,0)" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">CO0_01</text>
+  <circle cx="1220" cy="2560" r="13" fill="#ef6c00" stroke="#fff" stroke-width="2.5"/>
+  <rect x="1192.5" y="2525" width="55" height="17" rx="4" fill="#ffffff" fill-opacity="0.92" stroke="#ef6c00" stroke-width="1.2"/>
+  <text x="1220" y="2534" font-size="12" font-weight="bold" fill="rgb(131,59,0)" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">TI0_02</text>
+  <circle cx="1180" cy="2600" r="13" fill="#ef6c00" stroke="#fff" stroke-width="2.5"/>
+  <rect x="1152.5" y="2565" width="55" height="17" rx="4" fill="#ffffff" fill-opacity="0.92" stroke="#ef6c00" stroke-width="1.2"/>
+  <text x="1180" y="2574" font-size="12" font-weight="bold" fill="rgb(131,59,0)" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">BO0_03</text>
+  <circle cx="1280" cy="2000" r="13" fill="#ef6c00" stroke="#fff" stroke-width="2.5"/>
+  <rect x="1252.5" y="1965" width="55" height="17" rx="4" fill="#ffffff" fill-opacity="0.92" stroke="#ef6c00" stroke-width="1.2"/>
+  <text x="1280" y="1974" font-size="12" font-weight="bold" fill="rgb(131,59,0)" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">BO0_04</text>
+  <circle cx="1320" cy="1960" r="13" fill="#ef6c00" stroke="#fff" stroke-width="2.5"/>
+  <rect x="1292.5" y="1925" width="55" height="17" rx="4" fill="#ffffff" fill-opacity="0.92" stroke="#ef6c00" stroke-width="1.2"/>
+  <text x="1320" y="1934" font-size="12" font-weight="bold" fill="rgb(131,59,0)" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">TI0_03</text>
+  <circle cx="-1940" cy="2860" r="13" fill="#ef6c00" stroke="#fff" stroke-width="2.5"/>
+  <rect x="-1967.5" y="2825" width="55" height="17" rx="4" fill="#ffffff" fill-opacity="0.92" stroke="#ef6c00" stroke-width="1.2"/>
+  <text x="-1940" y="2834" font-size="12" font-weight="bold" fill="rgb(131,59,0)" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">CO0_02</text>
 </g>
 </svg>

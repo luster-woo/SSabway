@@ -54,4 +54,24 @@ public class Consultation {
 
     @Column
     private String summary;
+
+    // 로그인 사용자와 출발역 담당 역무원을 이용해
+    // WAITING 상태의 상담 요청을 생성.
+    public static Consultation createWaiting(
+            Long requesterUserId,
+            Long staffId,
+            String departure,
+            String destination
+    ) {
+        Consultation consultation = new Consultation();
+
+        consultation.requesterUserId = requesterUserId;
+        consultation.staffId = staffId;
+        consultation.departure = departure;
+        consultation.destination = destination;
+        consultation.status = ConsultationStatus.WAITING;
+        consultation.requestedAt = LocalDateTime.now();
+
+        return consultation;
+    }
 }

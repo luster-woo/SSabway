@@ -15,11 +15,11 @@ export const BLACKLIST_REASONS = [
 export type BlacklistReason = (typeof BLACKLIST_REASONS)[number]
 
 /**
- * 선택한 사유들을 API 의 reason 문자열 하나로 합친다.
+ * 선택한 사유들을 화면 표시용 문자열 하나로 합친다.
  * 목록 정의 순서를 유지해서 같은 조합이면 항상 같은 문자열이 되도록 한다.
  *
- * TODO: API 의 reason 이 String 단일 필드라 여러 사유를 콤마로 이어 보낸다.
- *       BE 와 배열 전달 방식을 합의하면 이 함수를 제거한다.
+ * 서버가 reasons 를 Set 으로 주기 때문에 배열 순서가 보장되지 않는다.
+ * 이 정렬이 없으면 같은 사유 조합이 조회마다 다른 순서로 표시된다.
  */
 export function joinReasons(reasons: readonly BlacklistReason[]): string {
   return BLACKLIST_REASONS.filter((reason) => reasons.includes(reason)).join(

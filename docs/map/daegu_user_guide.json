@@ -47,6 +47,38 @@
    "zh": "大庆线1号出口"
   }
  },
+ "poiNames": {
+  "STORE": {
+   "ko": "편의점",
+   "en": "convenience store",
+   "ja": "コンビニ",
+   "zh": "便利店"
+  },
+  "ATM": {
+   "ko": "ATM",
+   "en": "ATM",
+   "ja": "ATM",
+   "zh": "自动取款机"
+  },
+  "TICKET_OFFICE": {
+   "ko": "매표소",
+   "en": "ticket office",
+   "ja": "切符売り場",
+   "zh": "售票处"
+  },
+  "TICKET_MACHINE": {
+   "ko": "발매기",
+   "en": "ticket machine",
+   "ja": "券売機",
+   "zh": "售票机"
+  },
+  "TOILET": {
+   "ko": "화장실",
+   "en": "restroom",
+   "ja": "トイレ",
+   "zh": "洗手间"
+  }
+ },
  "templates": {
   "prefix": {
    "fromElevator": {
@@ -133,6 +165,13 @@
     "en": "continue {d} m and go through the ticket gate\ngo {d} m to the ticket gate",
     "ja": "{d}m進んで改札口を通ってください\n改札口まで{d}m進んでください",
     "zh": "前行{d}米通过检票口\n前行{d}米到检票口"
+   },
+   "toPOI": {
+    "label": "편의시설",
+    "ko": "{poi}까지 {d}m 이동하세요\n{poi} 방향으로 {d}m 이동하세요",
+    "en": "go {d} m to the {poi}\nhead toward the {poi} for {d} m",
+    "ja": "{poi}まで{d}m進んでください\n{poi}方面へ{d}m進んでください",
+    "zh": "前行{d}米到{poi}\n朝{poi}方向前行{d}米"
    }
   }
  },
@@ -2806,6 +2845,486 @@
     "zh": "乘电梯上到3楼。"
    },
    "translatedFrom": "엘리베이터를 통해 3층으로 올라가세요"
+  },
+  "E090:AT0_01": {
+   "from": "S3_06",
+   "to": "AT0_01",
+   "edgeId": "E090",
+   "pattern": "toPOI",
+   "distanceM": 5,
+   "status": "reviewed",
+   "text": {
+    "ko": "ATM 방향으로 5m 이동하세요",
+    "en": "Head toward the ATM for 5 m.",
+    "ja": "ATM方面へ5m進んでください。",
+    "zh": "朝自动取款机方向前行5米。"
+   },
+   "translatedFrom": "ATM 방향으로 5m 이동하세요"
+  },
+  "E090:S3_06": {
+   "from": "AT0_01",
+   "to": "S3_06",
+   "edgeId": "E090",
+   "pattern": "straightShort",
+   "distanceM": 5,
+   "status": "reviewed",
+   "text": {
+    "ko": "5m 앞 표지판까지 걸어가세요",
+    "en": "Walk to the sign 5 m ahead.",
+    "ja": "5m先の案内板まで歩いてください。",
+    "zh": "走到前方5米处的指示牌。"
+   },
+   "translatedFrom": "5m 앞 표지판까지 걸어가세요"
+  },
+  "E091:AT0_01": {
+   "from": "BO0_01",
+   "to": "AT0_01",
+   "edgeId": "E091",
+   "pattern": "toPOI",
+   "distanceM": 21,
+   "status": "reviewed",
+   "text": {
+    "ko": "ATM까지 20m 이동하세요",
+    "en": "Go 20 m to the ATM.",
+    "ja": "ATMまで20m進んでください。",
+    "zh": "前行20米到自动取款机。"
+   },
+   "translatedFrom": "ATM까지 20m 이동하세요"
+  },
+  "E091:BO0_01": {
+   "from": "AT0_01",
+   "to": "BO0_01",
+   "edgeId": "E091",
+   "pattern": "toPOI",
+   "distanceM": 21,
+   "status": "reviewed",
+   "text": {
+    "ko": "발매기까지 20m 이동하세요",
+    "en": "Go 20 m to the ticket machine.",
+    "ja": "券売機まで20m進んでください。",
+    "zh": "前行20米到售票机。"
+   },
+   "translatedFrom": "발매기까지 20m 이동하세요"
+  },
+  "E092:AT0_01": {
+   "from": "TI0_01",
+   "to": "AT0_01",
+   "edgeId": "E092",
+   "pattern": "toPOI",
+   "distanceM": 24,
+   "status": "reviewed",
+   "text": {
+    "ko": "ATM 방향으로 25m 이동하세요",
+    "en": "Head toward the ATM for 25 m.",
+    "ja": "ATM方面へ25m進んでください。",
+    "zh": "朝自动取款机方向前行25米。"
+   },
+   "translatedFrom": "ATM 방향으로 25m 이동하세요"
+  },
+  "E092:TI0_01": {
+   "from": "AT0_01",
+   "to": "TI0_01",
+   "edgeId": "E092",
+   "pattern": "toPOI",
+   "distanceM": 24,
+   "status": "reviewed",
+   "text": {
+    "ko": "매표소 방향으로 25m 이동하세요",
+    "en": "Head toward the ticket office for 25 m.",
+    "ja": "切符売り場方面へ25m進んでください。",
+    "zh": "朝售票处方向前行25米。"
+   },
+   "translatedFrom": "매표소 방향으로 25m 이동하세요"
+  },
+  "E093:BO0_02": {
+   "from": "S3_08",
+   "to": "BO0_02",
+   "edgeId": "E093",
+   "pattern": "toPOI",
+   "distanceM": 13,
+   "status": "reviewed",
+   "text": {
+    "ko": "발매기 방향으로 10m 이동하세요",
+    "en": "Head toward the ticket machine for 10 m.",
+    "ja": "券売機方面へ10m進んでください。",
+    "zh": "朝售票机方向前行10米。"
+   },
+   "translatedFrom": "발매기 방향으로 10m 이동하세요"
+  },
+  "E093:S3_08": {
+   "from": "BO0_02",
+   "to": "S3_08",
+   "edgeId": "E093",
+   "pattern": "straight",
+   "distanceM": 13,
+   "status": "reviewed",
+   "text": {
+    "ko": "사진 속 표지판까지 10m 직진하세요",
+    "en": "Go straight 10 m to the sign shown in the photo.",
+    "ja": "写真の案内板まで10m直進してください。",
+    "zh": "直行10米至照片中的指示牌。"
+   },
+   "translatedFrom": "사진 속 표지판까지 10m 직진하세요"
+  },
+  "E094:AT0_01": {
+   "from": "CO0_02",
+   "to": "AT0_01",
+   "edgeId": "E094",
+   "pattern": "toPOI",
+   "distanceM": 27,
+   "status": "reviewed",
+   "text": {
+    "ko": "ATM 방향으로 25m 이동하세요",
+    "en": "Head toward the ATM for 25 m.",
+    "ja": "ATM方面へ25m進んでください。",
+    "zh": "朝自动取款机方向前行25米。"
+   },
+   "translatedFrom": "ATM 방향으로 25m 이동하세요"
+  },
+  "E094:CO0_02": {
+   "from": "AT0_01",
+   "to": "CO0_02",
+   "edgeId": "E094",
+   "pattern": "toPOI",
+   "distanceM": 27,
+   "status": "reviewed",
+   "text": {
+    "ko": "편의점 방향으로 25m 이동하세요",
+    "en": "Head toward the convenience store for 25 m.",
+    "ja": "コンビニ方面へ25m進んでください。",
+    "zh": "朝便利店方向前行25米。"
+   },
+   "translatedFrom": "편의점 방향으로 25m 이동하세요"
+  },
+  "E095:CO0_02": {
+   "from": "TI0_01",
+   "to": "CO0_02",
+   "edgeId": "E095",
+   "pattern": "toPOI",
+   "distanceM": 5,
+   "status": "reviewed",
+   "text": {
+    "ko": "편의점까지 5m 이동하세요",
+    "en": "Go 5 m to the convenience store.",
+    "ja": "コンビニまで5m進んでください。",
+    "zh": "前行5米到便利店。"
+   },
+   "translatedFrom": "편의점까지 5m 이동하세요"
+  },
+  "E095:TI0_01": {
+   "from": "CO0_02",
+   "to": "TI0_01",
+   "edgeId": "E095",
+   "pattern": "toPOI",
+   "distanceM": 5,
+   "status": "reviewed",
+   "text": {
+    "ko": "매표소까지 5m 이동하세요",
+    "en": "Go 5 m to the ticket office.",
+    "ja": "切符売り場まで5m進んでください。",
+    "zh": "前行5米到售票处。"
+   },
+   "translatedFrom": "매표소까지 5m 이동하세요"
+  },
+  "E096:BO0_01": {
+   "from": "TI0_01",
+   "to": "BO0_01",
+   "edgeId": "E096",
+   "pattern": "toPOI",
+   "distanceM": 7,
+   "status": "reviewed",
+   "text": {
+    "ko": "발매기 방향으로 5m 이동하세요",
+    "en": "Head toward the ticket machine for 5 m.",
+    "ja": "券売機方面へ5m進んでください。",
+    "zh": "朝售票机方向前行5米。"
+   },
+   "translatedFrom": "발매기 방향으로 5m 이동하세요"
+  },
+  "E096:TI0_01": {
+   "from": "BO0_01",
+   "to": "TI0_01",
+   "edgeId": "E096",
+   "pattern": "toPOI",
+   "distanceM": 7,
+   "status": "reviewed",
+   "text": {
+    "ko": "매표소 방향으로 5m 이동하세요",
+    "en": "Head toward the ticket office for 5 m.",
+    "ja": "切符売り場方面へ5m進んでください。",
+    "zh": "朝售票处方向前行5米。"
+   },
+   "translatedFrom": "매표소 방향으로 5m 이동하세요"
+  },
+  "E097:AT0_02": {
+   "from": "S2_06",
+   "to": "AT0_02",
+   "edgeId": "E097",
+   "pattern": "toPOI",
+   "distanceM": 8,
+   "status": "reviewed",
+   "text": {
+    "ko": "ATM 방향으로 10m 이동하세요",
+    "en": "Head toward the ATM for 10 m.",
+    "ja": "ATM方面へ10m進んでください。",
+    "zh": "朝自动取款机方向前行10米。"
+   },
+   "translatedFrom": "ATM 방향으로 10m 이동하세요"
+  },
+  "E097:S2_06": {
+   "from": "AT0_02",
+   "to": "S2_06",
+   "edgeId": "E097",
+   "pattern": "straight",
+   "distanceM": 8,
+   "status": "reviewed",
+   "text": {
+    "ko": "사진 속 표지판까지 10m 직진하세요",
+    "en": "Go straight 10 m to the sign shown in the photo.",
+    "ja": "写真の案内板まで10m直進してください。",
+    "zh": "直行10米至照片中的指示牌。"
+   },
+   "translatedFrom": "사진 속 표지판까지 10m 직진하세요"
+  },
+  "E098:AT0_02": {
+   "from": "CO0_01",
+   "to": "AT0_02",
+   "edgeId": "E098",
+   "pattern": "toPOI",
+   "distanceM": 2,
+   "status": "reviewed",
+   "text": {
+    "ko": "ATM까지 이동하세요",
+    "en": "Head to the ATM.",
+    "ja": "ATMまで進んでください。",
+    "zh": "请前往自动取款机。"
+   },
+   "translatedFrom": "ATM까지 이동하세요"
+  },
+  "E098:CO0_01": {
+   "from": "AT0_02",
+   "to": "CO0_01",
+   "edgeId": "E098",
+   "pattern": "toPOI",
+   "distanceM": 2,
+   "status": "reviewed",
+   "text": {
+    "ko": "편의점까지 이동하세요",
+    "en": "Head to the convenience store.",
+    "ja": "コンビニまで進んでください。",
+    "zh": "请前往便利店。"
+   },
+   "translatedFrom": "편의점까지 이동하세요"
+  },
+  "E099:BO0_03": {
+   "from": "S1_10",
+   "to": "BO0_03",
+   "edgeId": "E099",
+   "pattern": "toPOI",
+   "distanceM": 3,
+   "status": "reviewed",
+   "text": {
+    "ko": "발매기까지 이동하세요",
+    "en": "Head to the ticket machine.",
+    "ja": "券売機まで進んでください。",
+    "zh": "请前往售票机。"
+   },
+   "translatedFrom": "발매기까지 이동하세요"
+  },
+  "E099:S1_10": {
+   "from": "BO0_03",
+   "to": "S1_10",
+   "edgeId": "E099",
+   "pattern": "straightShort",
+   "distanceM": 3,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판 앞까지 이동하세요",
+    "en": "Go to the sign.",
+    "ja": "案内板の前まで進んでください。",
+    "zh": "请前行至指示牌前。"
+   },
+   "translatedFrom": "표지판 앞까지 이동하세요"
+  },
+  "E100:BO0_03": {
+   "from": "TI0_02",
+   "to": "BO0_03",
+   "edgeId": "E100",
+   "pattern": "toPOI",
+   "distanceM": 2,
+   "status": "reviewed",
+   "text": {
+    "ko": "발매기 방향으로 이동하세요",
+    "en": "Head toward the ticket machine.",
+    "ja": "券売機方面へ進んでください。",
+    "zh": "请朝售票机方向前行。"
+   },
+   "translatedFrom": "발매기 방향으로 이동하세요"
+  },
+  "E100:TI0_02": {
+   "from": "BO0_03",
+   "to": "TI0_02",
+   "edgeId": "E100",
+   "pattern": "toPOI",
+   "distanceM": 2,
+   "status": "reviewed",
+   "text": {
+    "ko": "매표소까지 이동하세요",
+    "en": "Head to the ticket office.",
+    "ja": "切符売り場まで進んでください。",
+    "zh": "请前往售票处。"
+   },
+   "translatedFrom": "매표소까지 이동하세요"
+  },
+  "E101:S1_01": {
+   "from": "TI0_03",
+   "to": "S1_01",
+   "edgeId": "E101",
+   "pattern": "straightShort",
+   "distanceM": 3,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판 앞까지 이동하세요",
+    "en": "Go to the sign.",
+    "ja": "案内板の前まで進んでください。",
+    "zh": "请前行至指示牌前。"
+   },
+   "translatedFrom": "표지판 앞까지 이동하세요"
+  },
+  "E101:TI0_03": {
+   "from": "S1_01",
+   "to": "TI0_03",
+   "edgeId": "E101",
+   "pattern": "toPOI",
+   "distanceM": 3,
+   "status": "reviewed",
+   "text": {
+    "ko": "매표소까지 이동하세요",
+    "en": "Head to the ticket office.",
+    "ja": "切符売り場まで進んでください。",
+    "zh": "请前往售票处。"
+   },
+   "translatedFrom": "매표소까지 이동하세요"
+  },
+  "E102:BO0_04": {
+   "from": "TI0_03",
+   "to": "BO0_04",
+   "edgeId": "E102",
+   "pattern": "toPOI",
+   "distanceM": 2,
+   "status": "reviewed",
+   "text": {
+    "ko": "발매기까지 이동하세요",
+    "en": "Head to the ticket machine.",
+    "ja": "券売機まで進んでください。",
+    "zh": "请前往售票机。"
+   },
+   "translatedFrom": "발매기까지 이동하세요"
+  },
+  "E102:TI0_03": {
+   "from": "BO0_04",
+   "to": "TI0_03",
+   "edgeId": "E102",
+   "pattern": "toPOI",
+   "distanceM": 2,
+   "status": "reviewed",
+   "text": {
+    "ko": "매표소 방향으로 이동하세요",
+    "en": "Head toward the ticket office.",
+    "ja": "切符売り場方面へ進んでください。",
+    "zh": "请朝售票处方向前行。"
+   },
+   "translatedFrom": "매표소 방향으로 이동하세요"
+  },
+  "E103:BO0_04": {
+   "from": "S1_01",
+   "to": "BO0_04",
+   "edgeId": "E103",
+   "pattern": "toPOI",
+   "distanceM": 4,
+   "status": "reviewed",
+   "text": {
+    "ko": "발매기 방향으로 이동하세요",
+    "en": "Head toward the ticket machine.",
+    "ja": "券売機方面へ進んでください。",
+    "zh": "请朝售票机方向前行。"
+   },
+   "translatedFrom": "발매기 방향으로 이동하세요"
+  },
+  "E103:S1_01": {
+   "from": "BO0_04",
+   "to": "S1_01",
+   "edgeId": "E103",
+   "pattern": "straightShort",
+   "distanceM": 4,
+   "status": "reviewed",
+   "text": {
+    "ko": "바로 앞 표지판까지 이동하세요",
+    "en": "Go to the sign just ahead.",
+    "ja": "すぐ前の案内板まで進んでください。",
+    "zh": "请前往前方的指示牌处。"
+   },
+   "translatedFrom": "바로 앞 표지판까지 이동하세요"
+  },
+  "E104:S1_10": {
+   "from": "TI0_02",
+   "to": "S1_10",
+   "edgeId": "E104",
+   "pattern": "straightShort",
+   "distanceM": 3,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판 앞까지 이동하세요",
+    "en": "Go to the sign.",
+    "ja": "案内板の前まで進んでください。",
+    "zh": "请前行至指示牌前。"
+   },
+   "translatedFrom": "표지판 앞까지 이동하세요"
+  },
+  "E104:TI0_02": {
+   "from": "S1_10",
+   "to": "TI0_02",
+   "edgeId": "E104",
+   "pattern": "toPOI",
+   "distanceM": 3,
+   "status": "reviewed",
+   "text": {
+    "ko": "매표소까지 이동하세요",
+    "en": "Head to the ticket office.",
+    "ja": "切符売り場まで進んでください。",
+    "zh": "请前往售票处。"
+   },
+   "translatedFrom": "매표소까지 이동하세요"
+  },
+  "E105:BO0_01": {
+   "from": "S3_06",
+   "to": "BO0_01",
+   "edgeId": "E105",
+   "pattern": "toPOI",
+   "distanceM": 23,
+   "status": "reviewed",
+   "text": {
+    "ko": "발매기까지 25m 이동하세요",
+    "en": "Go 25 m to the ticket machine.",
+    "ja": "券売機まで25m進んでください。",
+    "zh": "前行25米到售票机。"
+   },
+   "translatedFrom": "발매기까지 25m 이동하세요"
+  },
+  "E105:S3_06": {
+   "from": "BO0_01",
+   "to": "S3_06",
+   "edgeId": "E105",
+   "pattern": "straight",
+   "distanceM": 23,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보이는 곳까지 25m 직진하세요",
+    "en": "Go straight 25 m until the sign comes into view.",
+    "ja": "案内板が見えるところまで25m直進してください。",
+    "zh": "直行25米，直到看见指示牌。"
+   },
+   "translatedFrom": "표지판이 보이는 곳까지 25m 직진하세요"
   }
  }
 }

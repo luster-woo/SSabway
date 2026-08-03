@@ -17,6 +17,7 @@ import { MOCK_ROUTE_GUIDE } from '@/user/features/route-guide/lib/mockRouteGuide
 
 import {
   CODE_TIME_LIMIT_SEC,
+  CONSULTATION_RECORDS,
   MIN_PASSWORD_LENGTH,
   NEARBY_STATION,
   RATE_LIMITED_EMAIL,
@@ -559,6 +560,48 @@ const mockHandlers: HttpHandler[] = [
         },
       }),
     )
+  }),
+
+  /* ---------------------------------------------------------------- *
+   * 관리자 — 원본 상담 내역(녹취) 조회. ✅ BE 개발완료
+   *
+   * 응답 모양은 BE ConsultationDetailResponse 기준 —
+   * email / summary / recordUrl / expiresIn.
+   * ⚠️ 노션 명세 표의 `S3_path` 가 아니다. 표가 낡았고 예시 JSON 이 맞다.
+   *
+   * useConsultationRecord 가 다뤄야 하는 네 갈래를 모두 재현한다.
+   *   정상        → recordUrl 있음 (플레이어 재생)
+   *   ID 124      → recordUrl·expiresIn null (녹취 없음 → 플레이어 감춤)
+   *   없는 ID     → 404 CONSULTATION_NOT_FOUND (BE 는 남의 역 상담도 이 응답)
+   *   id 누락·형식 → 400 INVALID_INPUT_VALUE
+   * ---------------------------------------------------------------- */
+  http.get(`${BASE}/staffs/consultations`, ({ request }) => {
+    if (!request.headers.get('Authorization')) {
+      return HttpResponse.json(errorBody('인증이 필요합니다.'), { status: 401 })
+    }
+
+    // BE 는 @RequestParam Long id 라, 없으면 MissingServletRequestParameter,
+    // 숫자가 아니면 MethodArgumentTypeMismatch — 둘 다 400 INVALID_INPUT_VALUE 다.
+    const rawId = new URL(request.url).searchParams.get('id')
+    const id = Number(rawId)
+
+    if (rawId === null || rawId === '' || !Number.isInteger(id) || id <= 0) {
+      return HttpResponse.json(
+        errorBody('잘못된 형식의 요청 값입니다.', 'INVALID_INPUT_VALUE'),
+        { status: 400 },
+      )
+    }
+
+    const record = CONSULTATION_RECORDS[id]
+
+    if (record === undefined) {
+      return HttpResponse.json(
+        errorBody('존재하지 않는 상담입니다.', 'CONSULTATION_NOT_FOUND'),
+        { status: 404 },
+      )
+    }
+
+    return HttpResponse.json(okBody('조회에 성공하였습니다.', record))
   }),
 
   /* ---------------------------------------------------------------- *
