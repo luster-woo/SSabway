@@ -272,6 +272,20 @@ export function createOpenViduApi(api: AxiosInstance) {
     await api.post(endpoints.consultations.cancel(consultationId))
   }
 
+  /**
+   * 사용자가 통화에서 나갔음을 알린다. ⚠️ BE 미구현 (목만 있다).
+   *
+   * 이 호출이 없으면 상담이 MATCHED/IN_PROGRESS 로 남아, 같은 사용자가 다시
+   * 도움을 요청할 때 409 CONSULTATION_DUPLICATED 로 막힌다. 역무원이
+   * [상담 종료] 를 눌러 주기 전까지 사용자는 재요청을 못 하게 된다.
+   *
+   * 녹음 정지·세션 종료는 여기서 하지 않는다 — 역무원 쪽 end 와 OpenVidu
+   * 세션 종료 웹훅이 담당한다.
+   */
+  async function leaveConsultation(consultationId: number): Promise<void> {
+    await api.post(endpoints.consultations.leave(consultationId))
+  }
+
   return {
     openSession,
     joinSession,
@@ -280,6 +294,7 @@ export function createOpenViduApi(api: AxiosInstance) {
     requestConsultation,
     fetchSnapshot,
     cancelConsultation,
+    leaveConsultation,
   }
 }
 

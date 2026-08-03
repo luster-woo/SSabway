@@ -56,6 +56,7 @@ export default function StartPage() {
   const resetConsent = useLocationConsentStore((s) => s.resetConsent)
 
   const setOriginStation = useOriginStationStore((s) => s.setOriginStation)
+  const clearOriginStation = useOriginStationStore((s) => s.clearOriginStation)
 
   const selectLanguage = (next: Language) => {
     changeLanguage(next)
@@ -72,10 +73,24 @@ export default function StartPage() {
 
   const { station, findStation, clear: clearStation } = useNearbyStation()
 
-  // GPS로 잡은 역 이름을 스토어에 반영한다. 목적지 설정 화면의 "내 위치" 마커가
-  // 이 값을 라벨로 쓴다. clearStation()으로 station이 null이 되면 스토어도 비워진다.
+  /*
+    GPS로 잡은 역을 스토어에 반영한다. 목적지 설정 화면의 "내 위치" 마커 라벨과
+    상담 요청의 출발지(departure)가 이 값을 쓴다.
+
+    ⚠️ null 은 덮어쓰지 않는다.
+
+    station 은 useNearbyStation 의 로컬 state 라 이 화면에 다시 들어올 때마다
+    null 로 시작한다. 그때 스토어까지 비우면 이미 잡아 둔 출발역이 사라지는데,
+    consent 는 스토어에 남아 있어 사용자가 「동의」를 다시 누르지 않으므로
+    GPS 재조회도 일어나지 않는다 → 출발역이 영구히 빈 상태가 된다.
+    (안내를 한 바퀴 돌고 「처음으로」 로 돌아오면 바로 이 상황이었다.
+     그 뒤 도움 요청 화면이 "출발지와 목적지를 알아야 연결할 수 있어요" 로
+     막혀 화상 상담을 시작할 수 없었다.)
+
+    명시적으로 버리는 지점은 아래 changeConsent(「다시 선택」) 하나다.
+  */
   useEffect(() => {
-    setOriginStation(station)
+    if (station !== null) setOriginStation(station)
   }, [station, setOriginStation])
 
   /**
@@ -116,10 +131,11 @@ export default function StartPage() {
     showToast(t('start.consent.denied'))
   }
 
-  /** 다시 선택하면 이전 좌표로 찾은 역 이름도 버린다. */
+  /** 다시 선택하면 이전 좌표로 찾은 역 이름도 버린다. (스토어까지 함께) */
   const changeConsent = () => {
     resetConsent()
     clearStation()
+    clearOriginStation()
   }
 
   const startGuide = () => {

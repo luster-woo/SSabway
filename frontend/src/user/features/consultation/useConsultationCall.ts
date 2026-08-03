@@ -1,3 +1,5 @@
+import { useCallback } from 'react'
+
 import type { StreamManager } from 'openvidu-browser'
 
 import type { ConsultationStatus } from '@/shared/types'
@@ -6,6 +8,7 @@ import {
   type OpenViduStatus,
 } from '@/shared/webrtc/useOpenViduSession'
 import { useConsultationMatch } from '@/user/features/consultation/useConsultationMatch'
+import { openviduApi } from '@/user/features/consultation/openviduApi'
 
 export interface UseConsultationCallResult {
   /** OpenVidu 연결 상태 */
@@ -30,9 +33,8 @@ export interface UseConsultationCallResult {
  * 매칭 감지는 useConsultationMatch 가 맡고, 여기서는 토큰이 생기면 접속하고
  * 카메라·마이크를 발행하는 일만 한다.
  *
- * 통화 종료 시 녹음 정지는 역무원 쪽에서 일어난다. 명세의
- * `POST /consultations/{id}/leave` 가 아직 없어 사용자는 연결만 끊는다.
- * 사용자가 먼저 나가도 OpenVidu 가 세션 종료 웹훅을 보내므로 녹음은 마감된다.
+ * 사용자가 [통화 종료] 를 누르면 연결을 끊고 상담도 종료 처리한다
+ * (leaveCall 주석 참고 — end 우선, 실패 시 leave).
  */
 export function useConsultationCall(
   consultationId: number,
@@ -48,6 +50,43 @@ export function useConsultationCall(
       : null,
   })
 
+  /**
+   * 연결을 끊고 상담을 종료 처리한다.
+   *
+   * 이 호출이 빠지면 상담이 활성 상태(MATCHED/IN_PROGRESS)로 남아, 같은
+   * 사용자의 다음 도움 요청이 409 CONSULTATION_DUPLICATED 로 막힌다.
+   *
+   * ① `POST /openvidu/sessions/{sessionId}/end` — ✅ BE 구현됨.
+   *    녹음 정지 → 세션 종료 → ENDED 전이를 서버가 한 번에 한다. 역무원의
+   *    [상담 종료] 와 같은 API 이고, 이미 ENDED 면 멱등이다. 이 엔드포인트는
+   *    `/api/v1/**` → authenticated() 라 STAFF 전용이 아니어서 사용자도 부를 수 있다.
+   *
+   * ② 실패하면 `POST /consultations/{id}/leave` — ⚠️ BE 미구현.
+   *    end 는 `status != IN_PROGRESS` 면 CONSULTATION_NOT_IN_PROGRESS, recordId
+   *    가 없으면 RECORDING_NOT_FOUND 로 거절한다. IN_PROGRESS 는 역무원이
+   *    start 를 부른 뒤에야 되므로, 수락 직후 사용자가 먼저 끊는 구간은 end 로
+   *    닫을 수 없다. 그 구간을 위한 자리가 leave 다.
+   *
+   * 상태로 미리 갈라내지 않고 순차로 시도하는 이유 — 사용자 쪽은 MATCHED 를
+   * 확인한 뒤 폴링을 멈추므로(useConsultationMatch) 서버가 IN_PROGRESS 로
+   * 넘어간 것을 알 수 없다. 즉 프론트의 상담 상태는 거의 항상 MATCHED 다.
+   *
+   * 기다리지 않는다(최선형) — 화면은 즉시 닫혀야 하고, 실패해도 사용자가
+   * 할 수 있는 일이 없다.
+   */
+  const leaveCall = useCallback(() => {
+    leave()
+
+    if (consultationId <= 0) return
+
+    void openviduApi
+      .endConsultation(consultationId)
+      .catch(() => openviduApi.leaveConsultation(consultationId))
+      .catch(() => {
+        // 통화 종료 자체를 막지는 않는다. (leave 는 BE 미구현 구간에서 404)
+      })
+  }, [consultationId, leave])
+
   return {
     status,
     consultationStatus: match.status,
@@ -56,6 +95,6 @@ export function useConsultationCall(
     isWaitingMatch:
       localStream !== null && match.token === null && !match.isFailed,
     isJoinFailed: match.isFailed,
-    leave,
+    leave: leaveCall,
   }
 }

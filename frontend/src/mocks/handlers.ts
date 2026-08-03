@@ -5,6 +5,7 @@ import {
   createMockConnection,
   createMockConsultation,
   endMockConsultation,
+  leaveMockConsultation,
   listMockWaitingConsultations,
   openMockSession,
   pollMockConsultation,
@@ -443,6 +444,11 @@ const mockHandlers: HttpHandler[] = [
   // 좌표가 없어 "역 내 현재 위치" 지도를 그릴 수 없다. FE 가 형태를 먼저
   // 굳혀 BE 에 요청한 상태 (shared/types/routeGuide.ts 의 GuidePoint 참고).
   // 비로그인에도 길안내는 동작해야 하므로 인증을 요구하지 않는다.
+  //
+  // ⚠️ 지금은 도달하지 않는다 — BACKEND_READY.ROUTE_GUIDE 가 false 인 동안
+  //    fetchRouteGuide 가 HTTP 를 보내지 않고 목을 직접 돌려준다(배포 환경에
+  //    MSW 가 없어서 생긴 조치, 플래그 주석 참고). BE 가 붙어 플래그를 켜면
+  //    이 핸들러가 다시 살아나 로컬 검증에 쓰인다.
   http.post(`${BASE}/routes/navi`, () =>
     HttpResponse.json(okBody('경로 안내 조회 성공', MOCK_ROUTE_GUIDE)),
   ),
@@ -580,6 +586,34 @@ const mockHandlers: HttpHandler[] = [
 
       return HttpResponse.json(
         okBody('상담이 취소되었습니다.', { consultationId, status: result }),
+      )
+    },
+  ),
+
+  /*
+    사용자 이탈 — 통화 화면에서 [통화 종료] 를 눌렀을 때.
+
+    ⚠️ BE 미구현이다. 목만 있는 이유는, 이게 없으면 상담이 MATCHED/
+    IN_PROGRESS 로 남아 재요청이 409 CONSULTATION_DUPLICATED 로 막히기
+    때문이다(실서버도 같은 조건으로 막는다). 멱등이라 재요청도 200 이다.
+  */
+  http.post(
+    `${BASE}/consultations/:consultationId/leave`,
+    ({ request, params }) => {
+      if (!request.headers.get('Authorization')) {
+        return HttpResponse.json(errorBody('인증이 필요합니다.'), {
+          status: 401,
+        })
+      }
+
+      const consultationId = Number(params.consultationId)
+      leaveMockConsultation(consultationId)
+
+      return HttpResponse.json(
+        okBody('상담에서 나갔습니다.', {
+          consultationId,
+          status: 'ENDED',
+        }),
       )
     },
   ),

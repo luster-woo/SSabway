@@ -68,6 +68,9 @@ const SWITCH = {
   'POST /consultations': true,
   'GET /consultations/:consultationId': true,
   'POST /consultations/:consultationId/cancel': true,
+  // ⚠️ leave 는 BE 미구현이라 끄면 404 다 (실서버에서는 상담이 활성으로 남아
+  //    재요청이 409 로 막힌다 — BE 에 구현 요청해 둔 상태)
+  'POST /consultations/:consultationId/leave': true,
 
   // 관리자 — 상담 대기 목록 (✅ BE 개발완료. BACKEND_READY.ADMIN_QUEUE 로 실호출)
   'GET /staffs/waiting': true,

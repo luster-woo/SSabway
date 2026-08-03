@@ -41,31 +41,43 @@ const routes = {
 } as const
 
 /**
- * 화상 상담 (사용자) — webrtc ConsultationController, 8/3 코드 확인.
+ * 화상 상담 (사용자) — ⚠️ 같은 `/consultations` 아래인데 소유 서비스가 갈린다.
+ * (8/4 백엔드 최신화 반영)
  *
- * ⚠️ create 는 `staffId` nullable 전환을 전제로 body 없이 호출한다.
- *    `ConsultationCreateRequest.staffId` 가 아직 `@NotNull` 이고 DB
- *    `consultations.staff_id` 도 NOT NULL 이면 이 호출은 400 이 난다 —
- *    "역무원은 수락 시점에 자동 배정"으로 바뀌어야 사용 가능하다.
- *    (프론트는 애초에 역무원을 고르는 화면이 없어 staffId 를 알 방법이 없다)
+ *   create        → ssabway(api).  상담 생성 = 대기열 등록
+ *   detail/cancel → ssabway_webrtc(signaling). 상태 전이·조회
  *
- * ⚠️ 이 경로들은 상담 상태(DB)와 OpenVidu 를 동시에 다뤄야 해서 signaling 서버에
- *    구현되어 있다. nginx 가 `/api/v1/consultations/` 를 signaling 으로
- *    보내야 한다(현재 미설정 — 배포 환경에서는 아직 404).
+ * `schema.sql` 의 consultations 테이블 주석이 정한 분업이다 — "ssabway 가
+ * INSERT, webrtc 가 상태 전이". 한때 webrtc 에도 create 가 중복 구현돼 있었는데
+ * 8/4 삭제되어 지금은 ssabway 단독이다.
+ *
+ * ⚠️ 그래서 nginx 라우팅이 경로 하나 차이로 갈린다 (deploy/nginx.conf 참고) —
+ *      `= /api/v1/consultations`  → api
+ *      `/api/v1/consultations/`   → signaling
+ *    응답 봉투도 서버마다 달라서 ssabway 는 `code` 가 있고 webrtc 는 없다.
+ *    (shared/types/api.ts 의 ApiResponse / WebrtcApiResponse)
  */
 const consultations = {
-  /** 상담 요청 → WAITING 생성. 응답은 `ConsultationCreated` 타입 참고 */
+  /**
+   * 상담 요청 → WAITING 생성. ✅ BE 구현됨 (ssabway UserConsultationController).
+   * 요청 본문은 `ConsultationCreateBody`(3필드 전부 필수), 응답은 `ConsultationCreated`.
+   * 역무원은 서버가 departureStationId 로 자동 배정한다.
+   */
   create: '/consultations',
   /** 상태 폴링 (3초). 응답은 `ConsultationSnapshot` 타입 참고. STOMP 가 붙으면 폴백으로 남는다 */
   detail: (id: number) => `/consultations/${id}`,
   /**
-   * 대기 취소 — ✅ BE 구현됨 (webrtc ConsultationController, 8/1 코드 확인).
+   * 대기 취소 — ✅ BE 구현됨 (webrtc ConsultationController).
    * POST 이고 /cancel 이 붙는다 (초기안 DELETE /consultations/{id} 에서 변경).
    * WAITING 에서만 취소 가능(그 외 409 CONSULTATION_CANCEL_NOT_ALLOWED),
    * 이미 취소된 상담은 재요청해도 성공. 응답 { consultationId, status }.
+   *
+   * ⚠️ 서버가 소유자를 검증하지 않는다(Authentication 을 받지 않음) — 상담 ID 만
+   *    알면 남의 대기도 취소된다. 취소 버튼은 사용자 화면에서만 노출할 것.
+   *    (BE 에 검증 추가 요청해 둔 상태)
    */
   cancel: (id: number) => `/consultations/${id}/cancel`,
-  /** ⚠️ BE 미구현 */
+  /** ⚠️ BE 미구현 — 목만 있다. useConsultationCall 의 leaveCall 주석 참고 */
   leave: (id: number) => `/consultations/${id}/leave`,
 } as const
 
