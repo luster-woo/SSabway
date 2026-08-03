@@ -1418,7 +1418,38 @@ const NODE_TYPES = {
   EXIT:     { color: '#ad1457', label: 'EXIT',     prefix: 'EX', shape: 'diamond' },
   GATE:     { color: '#00838f', label: 'GATE',     prefix: 'GA', shape: 'hex' },
   PLATFORM: { color: '#4527a0', label: 'PLATFORM', prefix: 'PF', shape: 'pill' },
+  POI:      { color: '#ef6c00', label: 'POI',      prefix: 'PO', shape: 'tri' },
 };
+
+/*
+   경유지로 쓰이는 편의시설.
+
+   종류마다 노드 타입을 따로 만들면 물품보관함·수유실이 늘 때마다 서버의
+   NodeType enum 까지 고쳐야 한다. 타입은 POI 하나로 두고 종류는
+   category 문자열로 구분한다. ID 앞자리는 지도 아이콘 코드를 그대로 쓴다.
+*/
+const POI_CATEGORIES = {
+  STORE:          { code: 'CO', label: '편의점',       icon: '🏪' },
+  ATM:            { code: 'AT', label: 'ATM',          icon: '🏧' },
+  TICKET_OFFICE:  { code: 'TI', label: '매표소',       icon: '🎟' },
+  TICKET_MACHINE: { code: 'BO', label: '승차권 발매기', icon: '🎫' },
+  TOILET:         { code: 'TO', label: '화장실',       icon: '🚻' },
+};
+/** 지도 아이콘 코드 -> 카테고리 (CO -> STORE) */
+const FAC_TO_CATEGORY = Object.fromEntries(
+  Object.entries(POI_CATEGORIES).map(([k, v]) => [v.code, k]));
+
+function poiInfo(n) {
+  return (n && n.category && POI_CATEGORIES[n.category]) || null;
+}
+/** POI 는 카테고리별로 ID 앞자리가 다르다 (CO1_01, AT1_01 …) */
+function idPrefixOf(node) {
+  if (node.type === 'POI') {
+    const p = poiInfo(node);
+    return p ? p.code : 'PO';
+  }
+  return (NODE_TYPES[node.type] && NODE_TYPES[node.type].prefix) || 'ND';
+}
 /** 지도 객체 -> 기본 노드 종류. 틀리면 속성창에서 바꿀 수 있다. */
 function guessNodeType(o) {
   if (o.type === 'sign') return 'SIGNAGE';
@@ -1426,6 +1457,7 @@ function guessNodeType(o) {
     if (o.code === 'EV') return 'ELEVATOR';
     if (o.code === 'EX') return 'EXIT';
     if (o.code === 'GA') return 'GATE';
+    if (FAC_TO_CATEGORY[o.code]) return 'POI';   // 편의점·ATM·매표소·발매기·화장실
     return null;
   }
   if (o.type === 'text' || o.type === 'area') return 'PLATFORM';
@@ -1445,7 +1477,7 @@ let dijkPath = null;           // {nodes:[id], edges:[id], dist}
 
 const NAV_HINTS = {
   select: '노드/엣지를 클릭해 선택합니다. 엣지를 선택하면 점선 위의 ● 를 드래그해 통로 모양을 잡을 수 있습니다. 선 위를 클릭하면 꺾임점이 추가되고, 중간점을 선택 후 Delete 로 지웁니다.',
-  node:   '지도의 표지판(S) · 엘리베이터(EV) · 출구(EX) 를 클릭하면 노드로 등록됩니다. 이미 등록된 것을 클릭하면 등록이 해제됩니다.',
+  node:   '지도의 표지판(S) · 엘리베이터 · 출구 · 개찰구 · 편의점 · ATM · 매표소 · 발매기 · 화장실 을 클릭하면 노드로 등록됩니다. 이미 등록된 것을 클릭하면 해제됩니다.',
   edge:   '노드를 하나 클릭하고, 이어서 연결할 노드를 클릭하면 엣지가 만들어집니다. Esc 로 취소합니다.',
 };
 
@@ -1526,8 +1558,8 @@ function nextEdgeId() {
   return 'E' + String(n).padStart(3, '0');
 }
 /** EV3_01, EX2_01, GA0_01, PF0_01 형태의 고유 ID */
-function nextTypedNavId(type, floorCode) {
-  const prefix = (NODE_TYPES[type] ? NODE_TYPES[type].prefix : 'ND') + floorCode + '_';
+function nextTypedNavId(type, floorCode, category) {
+  const prefix = idPrefixOf({ type, category }) + floorCode + '_';
   let n = 1;
   const used = new Set(navNodes().map(x => x.id));
   while (used.has(prefix + String(n).padStart(2, '0'))) n++;
@@ -1764,6 +1796,11 @@ function drawGraph(c, opt) {
       c.closePath();
     } else if (shape === 'pill') {             // 승강장: 가로로 긴 캡슐
       roundRect(c, n.x - R * 1.7, n.y - R * 0.75, R * 3.4, R * 1.5, R * 0.75);
+    } else if (shape === 'tri') {              // 편의시설: 삼각형
+      c.moveTo(n.x, n.y - R - 3);
+      c.lineTo(n.x + R + 2, n.y + R - 2);
+      c.lineTo(n.x - R - 2, n.y + R - 2);
+      c.closePath();
     } else {
       c.arc(n.x, n.y, R, 0, 7);
     }
@@ -1878,7 +1915,7 @@ function registerNodeAt(p) {
   if (i < 0) return false;
   const o = objs()[i];
   if (!isRegisterable(o)) {
-    setNavStatus('표지판 / 엘리베이터(EV) / 출구(EX) 만 노드로 등록할 수 있습니다.');
+    setNavStatus('표지판 · 엘리베이터 · 출구 · 개찰구 · 편의점 · ATM · 매표소 · 발매기 · 화장실 만 노드로 등록할 수 있습니다.');
     return false;
   }
   const existing = nodeIdOfMapObject(o);
@@ -1892,7 +1929,7 @@ function registerNodeAt(p) {
   }
   pushUndo();
   const f = floor();
-  let id, type, semanticFloor;
+  let id, type, semanticFloor, category = null;
   if (o.type === 'sign') {
     id = o.id; type = 'SIGNAGE';
     // 0F 개요 층에서 등록해도 S3_07 -> 3층 으로 잡아준다
@@ -1900,7 +1937,8 @@ function registerNodeAt(p) {
   } else {
     type = guessNodeType(o);
     semanticFloor = f.code;             // 실제 층은 속성창에서 지정
-    id = nextTypedNavId(type, semanticFloor);
+    if (type === 'POI') category = FAC_TO_CATEGORY[o.code] || null;
+    id = nextTypedNavId(type, semanticFloor, category);
     o.navId = id;                       // 지도 객체에 연결용 id 를 심는다 (기존 필드는 그대로)
   }
   const clash = findNode(id);
@@ -1915,6 +1953,7 @@ function registerNodeAt(p) {
   }
   const a = anchorOf(o);
   const node = { id, type, floor: semanticFloor, x: a.x, y: a.y };
+  if (category) node.category = category;
   if (o.type === 'text' && o.text) node.name = o.text.trim();      // 승강장 이름 등 참고용
   if (o.type === 'area' && o.label) node.name = o.label.trim();
   if (semanticFloor !== f.code) node.srcFloor = f.code;   // 개요 층에서 등록한 경우만 기록
@@ -1927,7 +1966,7 @@ function registerNodeAt(p) {
 }
 /** EV/EX 노드의 층이 바뀌면 ID(EV0_01 -> EV3_01)와 이를 참조하는 곳을 함께 고친다. */
 function renameFacilityNode(n, newFloor) {
-  const prefix = (NODE_TYPES[n.type] && NODE_TYPES[n.type].prefix) || 'ND';
+  const prefix = idPrefixOf(n);
   if (n.id.startsWith(prefix + newFloor + '_')) return;
   let k = 1, nid;
   const used = new Set(navNodes().map(x => x.id));
@@ -2046,9 +2085,10 @@ function renderNavList() {
       const shape = n.type === 'ELEVATOR' ? 'sq' : (n.type === 'EXIT' ? 'di' : '');
       const on = navSel && navSel.kind === 'node' && navSel.id === n.id;
       const deg = edgesOf(n.id).length;
+      const p = poiInfo(n);
       return `<div class="row ${on ? 'on' : ''} ${n.orphan ? 'orphan' : ''}" data-nid="${esc(n.id)}">
           <span class="dot ${shape}" style="background:${t.color}"></span>
-          <span class="nid">${esc(n.id)}</span>
+          <span class="nid">${p ? p.icon + ' ' : ''}${esc(n.id)}</span>
           <span class="meta">${esc(n.floor)}F · 연결 ${deg}${n.orphan ? ' · ⚠' : ''}</span>
         </div>`;
     }).join('');
@@ -2122,6 +2162,10 @@ function renderNavProps() {
       <div class="idlbl">${esc(n.id)}</div>
       ${n.name ? `<div class="row" style="color:#78909c;font-size:11px">${esc(n.name).slice(0, 40)}</div>` : ''}
       <div class="row"><label>종류</label><select id="npType">${typeOpts}</select></div>
+      ${n.type === 'POI' ? `<div class="row"><label>시설</label>
+        <select id="npCat">${Object.entries(POI_CATEGORIES).map(([k, v]) =>
+          `<option value="${k}" ${k === n.category ? 'selected' : ''}>${v.icon} ${v.label}</option>`).join('')}
+        </select></div>` : ''}
       <div class="row"><label>층</label>
         <input type="text" id="npFloor" value="${esc(n.floor)}" style="width:52px;flex:none"
                title="서버로 내보낼 실제 층. 1 / 2 / 3 / B1 등">
@@ -2132,10 +2176,24 @@ function renderNavProps() {
       ${n.orphan ? '<div class="row" style="color:#c62828">⚠ 지도에서 원본 객체를 찾을 수 없습니다</div>' : ''}
       <button id="npEdgeStart">이 노드에서 엣지 연결</button>
       <button class="danger" id="npDel">노드 등록 해제</button>`;
+    const catSel = document.getElementById('npCat');
+    if (catSel) catSel.onchange = ev => {
+      pushUndo();
+      const oldId = n.id;
+      n.category = ev.target.value;
+      renameFacilityNode(n, n.floor);          // 카테고리가 ID 앞자리라 같이 바뀐다
+      if (navSel && navSel.kind === 'node' && navSel.id === oldId) navSel.id = n.id;
+      afterNavChange();
+      setNavStatus(`${n.id} — ${POI_CATEGORIES[n.category].label}`);
+    };
+
     document.getElementById('npType').onchange = ev => {
       pushUndo();
       const oldId = n.id;
       n.type = ev.target.value;
+      // POI 로 바꿨는데 시설 종류가 없으면 기본값을 준다
+      if (n.type === 'POI' && !n.category) n.category = 'STORE';
+      if (n.type !== 'POI') delete n.category;
       if (n.type !== 'SIGNAGE') renameFacilityNode(n, n.floor);   // 종류에 맞게 ID 재부여
       if (navSel && navSel.kind === 'node' && navSel.id === oldId) navSel.id = n.id;
       afterNavChange();
@@ -2841,7 +2899,9 @@ document.getElementById('btnNavJson').addEventListener('click', () => {
     } : null,
     // srcFloor 는 편집용 내부 필드이므로 내보내지 않는다
     nodes: navNodes().map(n => Object.assign(
-      { id: n.id, type: n.type, floor: n.floor }, tp(n, t))),
+      { id: n.id, type: n.type },
+      n.category ? { category: n.category } : {},
+      { floor: n.floor }, tp(n, t))),
     edges: navEdges().map(e => ({
       id: e.id, from: e.from, to: e.to,
       bidirectional: e.bidirectional !== false,
