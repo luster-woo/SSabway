@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next'
 
 import type { RoutePlan } from '@/shared/types/guide'
 import { CheckIcon } from '@/shared/ui'
-import { PLAN_MESSAGE } from '@/user/features/user-info/lib/preferenceFlow'
+import { getPlanMessage } from '@/user/features/user-info/lib/preferenceFlow'
 
 export interface PlanResultViewProps {
   plan: RoutePlan
@@ -13,7 +13,7 @@ export interface PlanResultViewProps {
 /** 답변이 끝나 확정된 경유 계획을 보여준다. */
 export function PlanResultView({ plan, onReset }: PlanResultViewProps) {
   const { t } = useTranslation()
-  const message = PLAN_MESSAGE[plan]
+  const message = getPlanMessage(plan)
 
   return (
     <div className="flex flex-col items-center gap-3 py-2">

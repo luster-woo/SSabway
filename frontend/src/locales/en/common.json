@@ -242,15 +242,16 @@
         "yes": "Yes",
         "no": "No"
       },
-      "transitCard": {
-        "question": "Do you have a transit card?",
-        "yes": "Yes, I do",
-        "no": "No, I don't"
+      "cardReady": {
+        "question": "Do you have a transit card with enough balance?",
+        "yes": "Yes, I'm ready to ride",
+        "no": "No"
       },
-      "ticketMethod": {
-        "question": "How would you like to travel?",
-        "single": "Buy a single ticket · pay cash",
-        "buyCard": "I'll buy a transit card"
+      "preparation": {
+        "question": "What do you need?",
+        "charge": "Top up my card (have card · low balance)",
+        "buyCard": "Buy a transit card (no card)",
+        "singleTicket": "Buy a single ticket (no card)"
       },
       "cash": {
         "question": "Do you have cash on hand?",
@@ -260,20 +261,26 @@
     },
     "plan": {
       "direct": {
-        "title": "We'll guide you straight there",
+        "title": "You can head straight in",
         "description": "Just tap your card at the gate"
       },
-      "ticketMachine": {
-        "title": "We'll stop by a ticket machine",
-        "description": "Buy a single ticket, then head to the platform"
+      "charge": {
+        "title": "We'll top up your card at a store",
+        "description": "Once it's topped up, we'll guide you to the gate",
+        "atmTitle": "We'll stop by an ATM first",
+        "atmDescription": "Withdraw cash, then top up at the store"
       },
-      "convenienceStore": {
-        "title": "We'll stop by a nearby store",
-        "description": "Buy a transit card there and continue"
+      "buyCard": {
+        "title": "We'll buy a transit card at a store",
+        "description": "Once you have it, we'll guide you to the gate",
+        "atmTitle": "We'll stop by an ATM first",
+        "atmDescription": "Withdraw cash, then buy the card at the store"
       },
-      "atm": {
-        "title": "We'll stop by a nearby ATM",
-        "description": "Withdraw cash, then continue to the platform"
+      "singleTicket": {
+        "title": "We'll buy a single ticket at a machine",
+        "description": "Once you have it, we'll guide you to the gate",
+        "atmTitle": "We'll stop by an ATM first",
+        "atmDescription": "Withdraw cash, then buy the ticket at the machine"
       }
     }
   },
