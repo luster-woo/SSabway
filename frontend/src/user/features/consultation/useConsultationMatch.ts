@@ -1,12 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 
-import { BACKEND_READY } from '@/shared/api/backendCapabilities'
 import { queryKeys } from '@/shared/lib/queryKeys'
-import {
-  CONSULTATION_STATUS,
-  type ConsultationStatus,
-} from '@/shared/types'
+import { CONSULTATION_STATUS, type ConsultationStatus } from '@/shared/types'
 import { openviduApi } from '@/user/features/consultation/openviduApi'
 
 /** 상태 폴링 간격. 명세의 STOMP 폴백 규칙과 같은 값이다. */
@@ -15,7 +11,7 @@ const POLL_INTERVAL_MS = 3_000
 export interface ConsultationMatch {
   /** 서버가 아는 상담 상태. 아직 모르면 null */
   status: ConsultationStatus | null
-  /** 대기 순번(1부터). 상태 API 가 없으면 알 수 없어 null */
+  /** 대기 순번(1부터). WAITING 이 아니면 null */
   queuePosition: number | null
   /** 발급된 접속 토큰. 이 값이 생기면 화상 접속을 시작한다 */
   token: string | null
@@ -33,18 +29,18 @@ function isMatchedStatus(status: ConsultationStatus | null): boolean {
 }
 
 /**
- * 사용자가 "매칭됐다"를 알아내는 경로.
+ * 사용자가 "매칭됐다"를 알아내고 접속 토큰을 받는다.
  *
- * 서버 사정에 따라 두 가지 방식이 있고, 화면은 어느 쪽인지 몰라도 되도록
- * 같은 모양(`ConsultationMatch`)으로 돌려준다.
+ * `GET /consultations/{id}` 를 3초 폴링해 매칭과 대기 순번을 확인하고,
+ * 매칭되면 `joinSession` 으로 커넥션(토큰)을 받는다. 별도의 토큰 발급
+ * 엔드포인트는 없다 — 매칭 응답의 sessionId 규칙(`toSessionId`)이
+ * `POST /openvidu/sessions/{sessionId}/connections` 와 그대로 맞물린다.
  *
- * 1. CONSULTATION_STATUS ON — `GET /consultations/{id}` 를 3초 폴링해
- *    MATCHED 를 확인하고 토큰을 발급받는다. 대기 순번도 여기서 온다. (목표 형태)
- * 2. OFF — ⚠️ 임시. 상태 API 가 없어 OpenVidu 세션이 열렸는지를 대신 본다.
- *    세션 존재 여부는 곧 역무원이 수락했는지와 같으므로 결과는 맞지만,
- *    대기 순번을 알 수 없고 서버 장애와 대기 중을 구분하지 못한다.
+ * joinSession 은 수락 직후의 레이스(세션이 아직 안 열림, 404)를 자체
+ * 재시도하므로, 이 훅은 "매칭 확인 후 1회 호출"만 신경 쓰면 된다.
+ * 새로고침해도 같은 절차로 재접속된다(consultationId 만 있으면 된다).
  *
- * STOMP 가 들어오면 1번의 폴링만 이벤트 수신으로 바뀐다. Query 는 그대로 남는다.
+ * STOMP 가 들어오면 폴링만 이벤트 수신으로 바뀌고 나머지는 그대로 남는다.
  */
 export function useConsultationMatch(
   consultationId: number,
@@ -56,11 +52,10 @@ export function useConsultationMatch(
 
   const isActive = enabled && consultationId > 0
 
-  // ── 경로 1: 상태 폴링 ──
   const snapshot = useQuery({
     queryKey: queryKeys.consultation.detail(consultationId),
     queryFn: () => openviduApi.fetchSnapshot(consultationId),
-    enabled: BACKEND_READY.CONSULTATION_STATUS && isActive,
+    enabled: isActive,
     // 매칭되면 더 볼 이유가 없다. 이후 상태는 OpenVidu 이벤트가 알려준다.
     refetchInterval: (query) =>
       isMatchedStatus(query.state.data?.status ?? null)
@@ -68,17 +63,17 @@ export function useConsultationMatch(
         : POLL_INTERVAL_MS,
   })
 
-  const polledStatus = snapshot.data?.status ?? null
+  const status = snapshot.data?.status ?? null
 
   useEffect(() => {
-    if (!BACKEND_READY.CONSULTATION_STATUS) return
     if (!isActive || token !== null) return
-    if (!isMatchedStatus(polledStatus)) return
+    if (!isMatchedStatus(status)) return
 
+    const controller = new AbortController()
     let isCurrent = true
 
     openviduApi
-      .issueToken(consultationId)
+      .joinSession(consultationId, { signal: controller.signal })
       .then((session) => {
         if (isCurrent) setToken(session.token)
       })
@@ -88,46 +83,9 @@ export function useConsultationMatch(
 
     return () => {
       isCurrent = false
-    }
-  }, [consultationId, isActive, polledStatus, token])
-
-  // ── 경로 2 (임시): 세션이 열릴 때까지 커넥션 요청을 재시도 ──
-  useEffect(() => {
-    if (BACKEND_READY.CONSULTATION_STATUS) return
-    if (!isActive || token !== null) return
-
-    const controller = new AbortController()
-
-    async function join() {
-      try {
-        // 참여자 식별·역할은 서버가 JWT 에서 판별한다 (BE 8/2 권한 업데이트)
-        const session = await openviduApi.joinSession(consultationId, {
-          signal: controller.signal,
-        })
-        if (!controller.signal.aborted) setToken(session.token)
-      } catch {
-        if (!controller.signal.aborted) setIsFailed(true)
-      }
-    }
-
-    void join()
-
-    return () => {
       controller.abort()
     }
-  }, [consultationId, isActive, token])
-
-  /*
-    상태 API 가 없을 때는 서버 상태를 모르므로 화면이 필요한 만큼만 흉내 낸다.
-    토큰이 있으면 MATCHED, 없으면 WAITING. 이 분기는 플래그를 켤 때 지운다.
-  */
-  const status = BACKEND_READY.CONSULTATION_STATUS
-    ? polledStatus
-    : isActive
-      ? token !== null
-        ? CONSULTATION_STATUS.MATCHED
-        : CONSULTATION_STATUS.WAITING
-      : null
+  }, [consultationId, isActive, status, token])
 
   return {
     status,

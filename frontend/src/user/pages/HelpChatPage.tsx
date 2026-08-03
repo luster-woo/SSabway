@@ -1,12 +1,13 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
 import { useAuthStore } from '@/shared/lib/store/useAuthStore'
 import { useHelpChatStore } from '@/shared/lib/store/useHelpChatStore'
-import { MobileViewport } from '@/shared/ui'
+import { MobileViewport, useToast } from '@/shared/ui'
 import { useConsultationRequest } from '@/user/features/consultation/useConsultationRequest'
+import { useConsultationWaiting } from '@/user/features/consultation/useConsultationWaiting'
 import { BotBubble } from '@/user/features/help-chat/BotBubble'
 import { HelpChatHeader } from '@/user/features/help-chat/HelpChatHeader'
 
@@ -22,14 +23,21 @@ const GUTTER = 'px-[clamp(16px,5vw,24px)]'
  * 2) 버튼 클릭 · 비로그인: "화상 연결은 로그인이 필요해요." + [로그인하고 화상 연결] → /login
  * 3) 로그인을 마치고 돌아오면(또는 로그인 상태로 클릭): 연결 준비 안내 + [화상 연결]
  * 4) [화상 연결] 클릭: 페이지 이동 없이 버튼 자리에 스피너 + [취소] 표시(대기 상태).
- *    취소를 누르면 3) 으로 되돌아간다. 역무원 매칭이 붙으면 이 대기 상태에서
- *    /consultation 으로 이동하게 된다.
+ *    상담을 요청하고(POST /consultations) 받은 ID 를 3초 폴링해 매칭을 기다린다.
+ *    - 취소를 누르면 대기 취소(POST /consultations/{id}/cancel) 후 3) 으로 되돌아간다.
+ *    - 매칭되면(MATCHED) `/consultation?consultationId=...` 로 넘어간다. 접속
+ *      토큰은 여기서 받지 않는다 — 화상 화면이 카메라 권한을 얻은 뒤에 받는다.
+ *    - 취소·거절 없이 매칭 실패(대기 중 오류·취소된 상담 등)로 끝나면 안내
+ *      토스트를 띄우고 버튼 상태로 되돌린다.
  *
  * 클릭 여부는 스토어에 있어 로그인을 다녀와도(리마운트) 3) 상태가 유지된다.
+ * 이 화면을 벗어나면(뒤로가기·경로 안내로·처음으로) 대기 중이던 상담은 그대로
+ * 두고 화면 상태만 리셋한다 — 취소하려면 반드시 [취소] 버튼을 눌러야 한다.
  */
 export default function HelpChatPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const { showToast } = useToast()
 
   /*
     'idle' 은 비로그인이 아니라 "아직 모름" 이다. (UserApp 의 useRestoreSession)
@@ -42,19 +50,39 @@ export default function HelpChatPage() {
   const hasRequested = useHelpChatStore((state) => state.hasRequestedConnection)
   const requestConnection = useHelpChatStore((state) => state.requestConnection)
   const resetConversation = useHelpChatStore((state) => state.resetConversation)
-  const { requestConsultation, isPending, isRejected } = useConsultationRequest()
+  const { requestConsultation, cancelConsultation, isPending, isRejected } =
+    useConsultationRequest()
 
-  /** 연결 대기 중인지 — 대기 중에는 연결 버튼 대신 스피너 + 취소 버튼을 띄운다. */
-  const [isWaiting, setIsWaiting] = useState(false)
-  /** 발급받은 상담 ID. 취소 API 호출과 매칭 후 이동에 쓴다. (API 미연동 동안은 null) */
-  const consultationIdRef = useRef<number | null>(null)
+  /**
+   * 발급받은 상담 ID. null 이 아니면 대기 중 — 연결 버튼 대신
+   * 스피너 + 취소 버튼을 띄운다. (요청 응답을 기다리는 아주 짧은 순간은
+   * isPending 으로 같은 UI를 보여준다)
+   */
+  const [consultationId, setConsultationId] = useState<number | null>(null)
+  const isWaiting = isPending || consultationId !== null
+
+  const waiting = useConsultationWaiting(consultationId)
+
+  // 매칭되면 화상 화면으로. 토큰은 그 화면이 카메라 권한을 얻은 뒤 따로 받는다.
+  useEffect(() => {
+    if (consultationId !== null && waiting.isMatched) {
+      void navigate(`/consultation?consultationId=${String(consultationId)}`)
+    }
+  }, [consultationId, navigate, waiting.isMatched])
 
   // 요청이 거절되면(블랙리스트 403 등) 대기 상태를 풀고 버튼으로 되돌린다.
   useEffect(() => {
-    if (isRejected) setIsWaiting(false)
+    if (isRejected) setConsultationId(null)
   }, [isRejected])
 
-  /** 화면을 떠날 때는 대화를 처음으로 되돌린다. */
+  // 대기 중 취소되거나 실패하면(서버 사정) 안내하고 버튼으로 되돌린다.
+  useEffect(() => {
+    if (consultationId === null || !waiting.isFailed) return
+    setConsultationId(null)
+    showToast(t('consultation.unavailable'))
+  }, [consultationId, showToast, t, waiting.isFailed])
+
+  /** 화면을 떠날 때는 대화를 처음으로 되돌린다. (대기 중인 상담은 그대로 둔다) */
   const leaveTo = (path: string) => {
     resetConversation()
     void navigate(path)
@@ -65,29 +93,17 @@ export default function HelpChatPage() {
     void navigate('/login')
   }
 
-  /**
-   * 상담을 요청하고 이 화면에서 대기 상태로 전환한다. (페이지 이동 없음)
-   *
-   * 요청 API 가 아직 없어 지금은 항상 null 이 오고, 그동안은 스피너만 유지된다.
-   * API 가 붙으면 발급받은 ID 를 보관해 취소 API 와 매칭 후 이동에 쓴다.
-   *
-   * TODO: 매칭 감지(역무원 수락)가 붙으면 여기 대기 상태에서
-   *       `/consultation?consultationId=...` 로 이동한다.
-   */
+  /** 상담을 요청하고 이 화면에서 대기 상태로 전환한다. (페이지 이동 없음) */
   const startVideoCall = async () => {
-    setIsWaiting(true)
-    consultationIdRef.current = await requestConsultation()
+    const id = await requestConsultation()
+    setConsultationId(id)
   }
 
-  /**
-   * 대기를 취소하고 연결 버튼 상태로 되돌린다.
-   *
-   * TODO: 상담 요청 API 연동 후, ID 가 있으면 `POST /consultations/{id}/cancel` 을
-   *       호출해 대기열에서 제거한다. (endpoints.consultation.cancel)
-   */
-  const cancelWaiting = () => {
-    consultationIdRef.current = null
-    setIsWaiting(false)
+  /** 대기를 취소하고 연결 버튼 상태로 되돌린다. */
+  const cancelWaiting = async () => {
+    const id = consultationId
+    setConsultationId(null)
+    if (id !== null) await cancelConsultation(id)
   }
 
   return (
@@ -141,11 +157,15 @@ export default function HelpChatPage() {
                       aria-hidden
                       className="border-line border-t-brand size-5 animate-spin rounded-full border-[3px]"
                     />
-                    {t('consultation.connecting')}
+                    {waiting.queuePosition !== null
+                      ? t('consultation.queuePosition', {
+                          position: waiting.queuePosition,
+                        })
+                      : t('consultation.connecting')}
                   </div>
                   <button
                     type="button"
-                    onClick={cancelWaiting}
+                    onClick={() => void cancelWaiting()}
                     className="border-line bg-surface text-ink focus-visible:ring-brand h-11 w-[82%] rounded-2xl border text-[13px] transition active:brightness-95 focus-visible:ring-2 focus-visible:outline-none"
                   >
                     {t('common.cancel')}

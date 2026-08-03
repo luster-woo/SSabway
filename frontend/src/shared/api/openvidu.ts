@@ -4,6 +4,7 @@ import { endpoints } from '@/shared/api/endpoints'
 import {
   CONSULTATION_STATUS,
   type ApiResponse,
+  type ConsultationCreated,
   type ConsultationSession,
   type ConsultationSnapshot,
   type ConsultationStatus,
@@ -160,11 +161,15 @@ export function createOpenViduApi(api: AxiosInstance) {
   }
 
   /**
-   * 이미 열려 있는 세션에 접속할 때. 사용자(여행객)와, 새로고침한 역무원이 쓴다.
+   * 이미 열려 있는(또는 곧 열릴) 세션에 접속할 때.
    *
-   * 세션은 역무원이 수락해야 생기므로, 열릴 때까지(404) 3초 간격으로 재시도한다.
-   * 상담 상태 조회 API(BACKEND_READY.CONSULTATION_STATUS)가 생기면 사용자 쪽은
-   * 상태 폴링 → 1회 접속으로 바뀌고, 이 함수는 역무원 새로고침 복구용으로 남는다.
+   * 사용자(여행객)는 `GET /consultations/{id}` 폴링으로 MATCHED 를 확인한
+   * 뒤 이 함수로 커넥션(토큰)을 받는다(`useConsultationMatch`). 역무원은
+   * 새로고침 복구 시 세션 ID 규칙으로 재접속하는 데 쓴다.
+   *
+   * 세션은 역무원 수락 시 accept 1-call 로 생성되므로 보통 즉시 성공하지만,
+   * 상태 폴링과 세션 생성 사이의 아주 짧은 레이스(404)를 대비해 열릴
+   * 때까지 3초 간격으로 재시도한다.
    *
    * 재접속은 서버가 처리한다 — 같은 계정(JWT)으로 다시 커넥션을 받으면
    * 서버가 이전 커넥션을 끊고 새로 발급한다. 같은 역할의 다른 계정이면 409,
@@ -230,11 +235,16 @@ export function createOpenViduApi(api: AxiosInstance) {
     }
   }
 
-  // ─── 상담 도메인 API — ⚠️ BE 미구현 (BACKEND_READY.CONSULTATION_STATUS) ───
+  // ─── 상담 도메인 API ───
 
-  /** 상담 요청 → 대기열 등록 */
-  async function requestConsultation(): Promise<ConsultationSnapshot> {
-    const res = await api.post<ApiResponse<ConsultationSnapshot>>(
+  /**
+   * 상담 요청 → 대기열 등록.
+   *
+   * ⚠️ staffId 를 보내지 않는다 — nullable 전환 가정. `endpoints.ts` 의
+   *    consultations 블록 주석 참고. 백엔드가 아직 @NotNull 이면 400 이 난다.
+   */
+  async function requestConsultation(): Promise<ConsultationCreated> {
+    const res = await api.post<ApiResponse<ConsultationCreated>>(
       endpoints.consultations.create,
     )
     return res.data.data
@@ -251,17 +261,11 @@ export function createOpenViduApi(api: AxiosInstance) {
   }
 
   /**
-   * 매칭된 사용자가 접속 토큰을 받는다.
-   * 이 API 가 생기면 사용자 쪽 joinSession 폴링이 상태 폴링 + 1회 발급으로 바뀐다.
+   * 대기 취소. WAITING 에서만 가능하고(그 외 409), 이미 취소된 상담에
+   * 재요청해도 성공(멱등)이다 — 호출부가 상태를 가리지 않고 불러도 된다.
    */
-  async function issueToken(
-    consultationId: number,
-  ): Promise<ConsultationSession> {
-    const res = await api.post<
-      ApiResponse<{ sessionId: string; token: string }>
-    >(endpoints.consultations.token(consultationId))
-    const { sessionId, token } = res.data.data
-    return { consultationId, sessionId, token }
+  async function cancelConsultation(consultationId: number): Promise<void> {
+    await api.post(endpoints.consultations.cancel(consultationId))
   }
 
   return {
@@ -271,7 +275,7 @@ export function createOpenViduApi(api: AxiosInstance) {
     endConsultation,
     requestConsultation,
     fetchSnapshot,
-    issueToken,
+    cancelConsultation,
   }
 }
 

@@ -1,5 +1,4 @@
 interface BackendReadyFlags {
-  CONSULTATION_STATUS: boolean
   ADMIN_QUEUE: boolean
 }
 
@@ -23,38 +22,23 @@ interface BackendReadyFlags {
  *   ERROR_CODES: GlobalExceptionHandler 도입으로 상시 적용 (7/31)
  *   CONSULTATION_ACCEPT / CONSULTATION_END: accept 통합안을 철회하고
  *     백엔드의 sessions → connections → start 3-call 로 확정 (7/31)
+ *   CONSULTATION_STATUS: `POST /consultations` + `GET /consultations/{id}`
+ *     상시 실호출로 전환 (8/3). useConsultationMatch 의 임시 세션 폴링 분기 제거.
+ *     ⚠️ 단, 이 API 들은 백엔드가 `staffId` 를 nullable 로 바꾸는 것을 전제로
+ *        한다 — 그 전환이 아직이면 `POST /consultations` 가 400 을 낸다.
+ *        (`endpoints.ts` 의 consultations 블록 주석 참고)
  *
  * ⚠️ 플래그를 켤 때는 반드시 짝이 되는 임시 코드를 함께 지울 것.
  *    남겨두면 테스트되지 않는 죽은 분기가 된다.
  */
 export const BACKEND_READY: BackendReadyFlags = {
   /**
-   * `POST /api/v1/consultations` + `GET /api/v1/consultations/{id}`
-   * 상담 요청과 상태 조회. 대기 순번(queuePosition)이 여기서 온다.
-   *
-   * 목 준비됨 — mocks/consultationQueue.ts (8/1).
-   * 로컬에서 이 플래그를 true 로 켜면 MSW 만으로 요청 → 순번 감소 → 매칭 →
-   * 토큰 발급까지 확인할 수 있다. (가짜 토큰이라 화상 접속은 실패가 정상)
-   *
-   * BE 배포 시 실연동 절차:
-   *   1. .env.local 에 VITE_PROXY_TARGET 지정
-   *   2. mockSwitch.ts 의 상담 3종을 false 로
-   *   3. 이 플래그를 true 로
-   *
-   * ⚠️ 이 플래그를 켠 채 커밋하려면(=BE 실배포 후) 아래 임시 코드를 함께 지울 것 —
-   *    useConsultationMatch 의 세션 폴링 분기,
-   *    ConsultationPage 의 ?consultationId= 쿼리 파싱.
-   *    그 전까지 false 로 두는 이유: 배포 환경에는 MSW 가 없어서, 켜 두면
-   *    실서버 404 로 상담 요청이 전부 실패 화면으로 빠진다.
-   */
-  CONSULTATION_STATUS: false,
-
-  /**
    * `GET /api/v1/staffs/waiting?page=` — 역무원 대기 목록. ✅ BE 개발완료.
    *
-   * true 면 실호출로 나간다. 아래 목들은 지우지 않고 남겨 둔다:
-   * MOCK_WAITING 은 폴백, mockAcceptedIds/markMockAccepted/isMockAccepted 는
-   * 아직 목인 수락(accept) 흐름이 쓴다. 수락까지 실연동되면 그때 함께 정리한다.
+   * true 면 실호출로 나간다. `useWaitingConsultations.ts` 의 MOCK_WAITING·
+   * mockAcceptedIds 계열은 이제 도달하지 않는 죽은 폴백이다 — accept 가
+   * 1-call 로 전환되며(8/3) markMockAccepted 호출도 사라졌다. 정리는 별도
+   * 작업으로 남겨 둔다.
    */
   ADMIN_QUEUE: true,
 }

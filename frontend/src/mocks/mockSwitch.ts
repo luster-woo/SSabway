@@ -52,10 +52,19 @@ const SWITCH = {
   'GET /routes/gps': true,
   'POST /routes/navi': true,
 
-  // 상담 대기열 (BE 미구현 — 배포되면 셋을 함께 끄고 실연동 검증)
+  /*
+    상담 대기열 — create/detail 은 ⚠️ 아직 실서버로 못 붙는다.
+
+    `POST /consultations` 는 BE 가 staffId 를 nullable 로 바꿔야 body 없이
+    호출할 수 있다(현재 @NotNull). 그 전환 전에 false 로 내리면 400 만 받는다.
+    cancel 은 그 제약과 무관하게 이미 구현되어 있지만, 애초에 요청을 만들
+    방법이 없으니(create 가 막혀 있으니) 같이 목으로 둔다.
+
+    BE 가 staffId nullable 전환을 마치면 셋을 함께 false 로 내려 실연동 검증한다.
+  */
   'POST /consultations': true,
   'GET /consultations/:consultationId': true,
-  'POST /consultations/:consultationId/token': true,
+  'POST /consultations/:consultationId/cancel': true,
 
   // 관리자 — 상담 대기 목록 (✅ BE 개발완료. BACKEND_READY.ADMIN_QUEUE 로 실호출)
   'GET /staffs/waiting': true,

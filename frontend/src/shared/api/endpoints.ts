@@ -41,32 +41,32 @@ const routes = {
 } as const
 
 /**
- * 화상 상담 (사용자) — ⚠️ 백엔드 미구현. BACKEND_READY.CONSULTATION_STATUS 참고.
+ * 화상 상담 (사용자) — webrtc ConsultationController, 8/3 코드 확인.
  *
- * 노션 7/27 명세의 상담 리소스 API 다. 대기열·매칭·상태조회가 여기 걸려 있다.
+ * ⚠️ create 는 `staffId` nullable 전환을 전제로 body 없이 호출한다.
+ *    `ConsultationCreateRequest.staffId` 가 아직 `@NotNull` 이고 DB
+ *    `consultations.staff_id` 도 NOT NULL 이면 이 호출은 400 이 난다 —
+ *    "역무원은 수락 시점에 자동 배정"으로 바뀌어야 사용 가능하다.
+ *    (프론트는 애초에 역무원을 고르는 화면이 없어 staffId 를 알 방법이 없다)
  *
  * ⚠️ 이 경로들은 상담 상태(DB)와 OpenVidu 를 동시에 다뤄야 해서 signaling 서버에
- *    구현될 가능성이 높다. 그렇다면 nginx 가 `/api/v1/consultations/` 도
- *    signaling 으로 보내야 한다. BE 와 어느 모듈에 넣을지 먼저 합의할 것.
+ *    구현되어 있다. nginx 가 `/api/v1/consultations/` 를 signaling 으로
+ *    보내야 한다(현재 미설정 — 배포 환경에서는 아직 404).
  */
 const consultations = {
-  /** 상담 요청 → WAITING 생성 */
+  /** 상담 요청 → WAITING 생성. 응답은 `ConsultationCreated` 타입 참고 */
   create: '/consultations',
-  /** 상태 폴링 (3초). STOMP 가 붙으면 폴백으로 남는다 */
+  /** 상태 폴링 (3초). 응답은 `ConsultationSnapshot` 타입 참고. STOMP 가 붙으면 폴백으로 남는다 */
   detail: (id: number) => `/consultations/${id}`,
   /**
    * 대기 취소 — ✅ BE 구현됨 (webrtc ConsultationController, 8/1 코드 확인).
    * POST 이고 /cancel 이 붙는다 (초기안 DELETE /consultations/{id} 에서 변경).
    * WAITING 에서만 취소 가능(그 외 409 CONSULTATION_CANCEL_NOT_ALLOWED),
    * 이미 취소된 상담은 재요청해도 성공. 응답 { consultationId, status }.
-   * ⚠️ webrtc 서버 구현이므로 nginx 가 /api/v1/consultations/ 를
-   *    signaling 으로 보내야 한다 (아래 consultations 블록 주석과 같은 이슈).
    */
   cancel: (id: number) => `/consultations/${id}/cancel`,
   /** ⚠️ BE 미구현 */
   leave: (id: number) => `/consultations/${id}/leave`,
-  /** 접속 토큰 발급·재발급 */
-  token: (id: number) => `/consultations/${id}/token`,
 } as const
 
 /**
