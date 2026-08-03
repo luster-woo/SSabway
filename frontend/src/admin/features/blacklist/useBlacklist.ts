@@ -3,11 +3,13 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { queryKeys } from '@/shared/lib/queryKeys'
 import {
-  addMockBlacklist,
   listMockBlacklist,
   removeMockBlacklist,
   updateMockBlacklistReason,
 } from '@/admin/features/blacklist/mockBlacklistStore'
+import { toReasonCodes } from '@/admin/features/blacklist/blacklistReasons'
+import { adminApi } from '@/shared/api/client'
+import { endpoints } from '@/shared/api/endpoints'
 import {
   FIRST_PAGE,
   toMockPageMeta,
@@ -61,14 +63,13 @@ async function requestRegister(
   userEmail: string,
   reason: string,
 ): Promise<void> {
-  // TODO: BE 연동 시 아래 목 처리를 실제 호출로 교체
-  //   await adminApi.post(endpoints.admin.blacklist.create, { userEmail, reason })
-  await delay(MOCK_LATENCY_MS)
+  // 화면은 사유를 콤마로 이은 한글 문자열로 넘긴다. 백엔드는 영문 enum 코드
+  // 배열(reasons)을 받으므로 여기서 변환해 보낸다.
+  const reasons = toReasonCodes(reason)
 
-  // API 가 reason 을 필수(Non Null)로 요구하므로 목에서도 같은 조건으로 막는다.
-  if (reason.trim() === '') throw new Error('등록 사유가 비어 있습니다.')
-
-  addMockBlacklist(userEmail, reason)
+  // 응답 본문(success/message)은 쓰지 않는다. 실패 시 던져진 에러를 run() 이 잡아
+  // false 로 바꾸고, 화면이 실패 토스트를 띄운다.
+  await adminApi.post(endpoints.admin.blacklist.create, { userEmail, reasons })
 }
 
 async function requestUpdateReason(
