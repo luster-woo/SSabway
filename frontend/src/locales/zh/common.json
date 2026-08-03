@@ -334,6 +334,7 @@
     "connectStaff": "与站务员视频通话",
     "loginRequired": "视频通话需要登录。",
     "loginAndConnect": "登录并开始通话",
+    "routeRequired": "请先开始路线导航。\n我们需要知道出发地和目的地才能为您连接。",
     "ready": "已准备就绪。\n请点击下方按钮开始连接。",
     "connect": "视频通话",
     "recordNotice": "通话语音可能会被录音",

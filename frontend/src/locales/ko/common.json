@@ -334,6 +334,7 @@
     "connectStaff": "역무원과 화상 연결",
     "loginRequired": "화상 연결은 로그인이 필요해요.",
     "loginAndConnect": "로그인하고 화상 연결",
+    "routeRequired": "먼저 경로 안내를 시작해 주세요.\n출발지와 목적지를 알아야 연결할 수 있어요.",
     "ready": "연결 준비가 끝났어요.\n아래 버튼으로 연결을 시작하세요.",
     "connect": "화상 연결",
     "recordNotice": "통화 음성이 녹음될 수 있어요",

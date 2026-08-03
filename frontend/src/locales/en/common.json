@@ -334,6 +334,7 @@
     "connectStaff": "Video call with staff",
     "loginRequired": "You need to sign in for a video call.",
     "loginAndConnect": "Sign in and connect",
+    "routeRequired": "Please start the route guide first.\nWe need your origin and destination to connect you.",
     "ready": "Everything is ready.\nStart the call with the button below.",
     "connect": "Start video call",
     "recordNotice": "The call audio may be recorded",

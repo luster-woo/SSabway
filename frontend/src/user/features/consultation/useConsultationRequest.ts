@@ -1,11 +1,14 @@
 import { useCallback, useState } from 'react'
 
+import { PROTOTYPE_STATION_ID } from '@/shared/lib/prototypeStation'
+import { useDestinationStore } from '@/shared/lib/store/useDestinationStore'
+import { useOriginStationStore } from '@/shared/lib/store/useOriginStationStore'
 import { openviduApi } from '@/user/features/consultation/openviduApi'
 
 export interface UseConsultationRequestResult {
   /**
    * 상담을 요청하고 consultationId 를 돌려준다.
-   * 실패하면(중복 요청 409, 블랙리스트 403 등) null.
+   * 실패하면(경로 정보 없음, 중복 요청 409, 블랙리스트 403 등) null.
    */
   requestConsultation: () => Promise<number | null>
   /**
@@ -16,14 +19,25 @@ export interface UseConsultationRequestResult {
   isPending: boolean
   /** 403 BLACKLISTED 등으로 요청이 거절됐다 */
   isRejected: boolean
+  /**
+   * 출발지·목적지를 몰라서 요청을 보낼 수조차 없다.
+   *
+   * 정상 흐름(경로 안내 → 도움 요청)에서는 두 값이 스토어에 차 있다.
+   * 이 화면에 URL 로 직접 들어왔거나, GPS 를 거부하고 표지판 분석도 아직
+   * 붙지 않아 출발역을 못 잡은 경우에 true 가 된다.
+   */
+  isRouteMissing: boolean
 }
 
 /**
  * 상담 요청 — 대기열 등록 + 취소.
  *
- * ⚠️ `POST /api/v1/consultations` 는 staffId 를 nullable 로 바꾸는 백엔드
- * 전환을 전제로 body 없이 호출한다. 전환 전에는 400 이 난다.
- * (`shared/api/endpoints.ts` 의 consultations 블록 주석 참고)
+ * 요청 본문의 출발지·목적지는 앞선 화면들이 스토어에 담아 둔 값을 쓴다.
+ * (`useOriginStationStore` = GPS/표지판으로 잡은 출발역, `useDestinationStore`
+ *  = 지도에서 고른 목적지) 역무원은 서버가 departureStationId 로 배정한다.
+ *
+ * ⚠️ departureStationId 는 아직 프로토타입 상수다 — `PROTOTYPE_STATION_ID`
+ *    주석 참고. 표지판 분석 API 가 붙으면 그 응답 값으로 바뀐다.
  *
  * TODO: 블랙리스트 403 을 화면 문구로 구분해야 한다. 에러 응답에 code 필드가
  *       추가되면(백엔드 요청 중) 403 + BLACKLISTED 로 좁힌다.
@@ -32,12 +46,26 @@ export function useConsultationRequest(): UseConsultationRequestResult {
   const [isPending, setIsPending] = useState(false)
   const [isRejected, setIsRejected] = useState(false)
 
+  const originStation = useOriginStationStore((state) => state.originStation)
+  const destination = useDestinationStore((state) => state.destination)
+
+  const departure = originStation?.name ?? null
+  const arrival = destination?.name ?? null
+  const isRouteMissing = departure === null || arrival === null
+
   const requestConsultation = useCallback(async (): Promise<number | null> => {
+    // 필수 필드가 비면 서버가 400 을 줄 뿐이라 요청 자체를 보내지 않는다.
+    if (departure === null || arrival === null) return null
+
     setIsPending(true)
     setIsRejected(false)
 
     try {
-      const created = await openviduApi.requestConsultation()
+      const created = await openviduApi.requestConsultation({
+        departureStationId: PROTOTYPE_STATION_ID,
+        departure,
+        destination: arrival,
+      })
       return created.consultationId
     } catch {
       setIsRejected(true)
@@ -45,7 +73,7 @@ export function useConsultationRequest(): UseConsultationRequestResult {
     } finally {
       setIsPending(false)
     }
-  }, [])
+  }, [arrival, departure])
 
   const cancelConsultation = useCallback(
     async (consultationId: number): Promise<void> => {
@@ -59,5 +87,11 @@ export function useConsultationRequest(): UseConsultationRequestResult {
     [],
   )
 
-  return { requestConsultation, cancelConsultation, isPending, isRejected }
+  return {
+    requestConsultation,
+    cancelConsultation,
+    isPending,
+    isRejected,
+    isRouteMissing,
+  }
 }

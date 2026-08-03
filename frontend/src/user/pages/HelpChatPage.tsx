@@ -50,8 +50,13 @@ export default function HelpChatPage() {
   const hasRequested = useHelpChatStore((state) => state.hasRequestedConnection)
   const requestConnection = useHelpChatStore((state) => state.requestConnection)
   const resetConversation = useHelpChatStore((state) => state.resetConversation)
-  const { requestConsultation, cancelConsultation, isPending, isRejected } =
-    useConsultationRequest()
+  const {
+    requestConsultation,
+    cancelConsultation,
+    isPending,
+    isRejected,
+    isRouteMissing,
+  } = useConsultationRequest()
 
   /**
    * 발급받은 상담 ID. null 이 아니면 대기 중 — 연결 버튼 대신
@@ -141,7 +146,15 @@ export default function HelpChatPage() {
           </>
         ) : null}
 
-        {hasRequested && isAuthenticated ? (
+        {/*
+          출발지·목적지를 모르면 상담을 요청할 수 없다(서버 필수 필드).
+          경로 안내로 돌아가 다시 잡도록 안내한다 — 하단에 그 버튼이 이미 있다.
+        */}
+        {hasRequested && isAuthenticated && isRouteMissing ? (
+          <BotBubble>{t('helpChat.routeRequired')}</BotBubble>
+        ) : null}
+
+        {hasRequested && isAuthenticated && !isRouteMissing ? (
           <>
             <BotBubble>{t('helpChat.ready')}</BotBubble>
             <div className="mt-1 flex flex-col items-center gap-3">

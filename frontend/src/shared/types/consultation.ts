@@ -81,12 +81,28 @@ export interface ConnectionData {
 }
 
 /**
+ * `POST /api/v1/consultations` 요청 본문 (BE ssabway ConsultationCreateRequest).
+ *
+ * 역무원은 클라이언트가 지정하지 않는다 — 서버가 `departureStationId` 로
+ * 담당 역무원을 찾아 배정한다(`staffs.station_id` UNIQUE, 역 1개당 1명).
+ * 그래서 이 본문에 staffId 가 없고, DB `staff_id NOT NULL` 도 그대로 유효하다.
+ *
+ * departure/destination 은 화면에 보여줄 자유 입력 문자열이라 DB 에서 FK 로
+ * 묶지 않는다(schema.sql 주석). 우리 DB 의 역명과 일치할 필요가 없다.
+ *
+ * ⚠️ 세 필드 모두 필수다(@NotNull / @NotBlank + @Size(255)). 하나라도 빠지면 400.
+ */
+export interface ConsultationCreateBody {
+  departureStationId: number
+  departure: string
+  destination: string
+}
+
+/**
  * `POST /api/v1/consultations` 응답 (BE ConsultationCreateResponse).
  *
- * ⚠️ 이 API 는 요청 시점에 `staffId` 를 받지 않는다 — 역무원은 수락 시점에
- * 배정되므로 최초 등록 시 staffName·startedAt 은 항상 null 이다.
- * (BE 의 `ConsultationCreateRequest.staffId @NotNull` + DB `staff_id NOT NULL`
- *  이 nullable 로 바뀌는 것을 전제로 한다 — 전환 전에는 이 API 가 400 을 낸다)
+ * 역무원은 수락 시점에 화상 세션과 함께 확정되므로, 최초 등록 시
+ * staffName·startedAt 은 항상 null 이다.
  */
 export interface ConsultationCreated {
   consultationId: number
