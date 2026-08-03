@@ -6,10 +6,7 @@ import {
 } from '@tanstack/react-query'
 
 import { queryKeys } from '@/shared/lib/queryKeys'
-import {
-  removeMockBlacklist,
-  updateMockBlacklistReason,
-} from '@/admin/features/blacklist/mockBlacklistStore'
+import { updateMockBlacklistReason } from '@/admin/features/blacklist/mockBlacklistStore'
 import {
   toReasonCodes,
   type BlacklistReasonCode,
@@ -92,10 +89,9 @@ async function requestUpdateReason(
 }
 
 async function requestRelease(userEmail: string): Promise<void> {
-  // TODO: BE 연동 시 아래 목 처리를 실제 호출로 교체
-  //   await adminApi.put(endpoints.admin.blacklist.release, { userEmail })
-  await delay(MOCK_LATENCY_MS)
-  removeMockBlacklist(userEmail)
+  // 백엔드는 POST /staffs/blacklist/release, body { userEmail } 로 소프트 삭제한다.
+  // 응답 본문(success/message)은 쓰지 않는다. 실패는 run() 이 잡아 false 로 바꾼다.
+  await adminApi.post(endpoints.admin.blacklist.release, { userEmail })
 }
 
 export interface UseBlacklistResult {
