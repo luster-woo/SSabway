@@ -10,7 +10,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
 
 public interface ConsultationRepository extends JpaRepository<Consultation, Long> {
 
@@ -88,27 +87,6 @@ public interface ConsultationRepository extends JpaRepository<Consultation, Long
         @Param("nextStatus") ConsultationStatus nextStatus
     );
 
-    /**
-     * 동일 사용자가 이미 진행 중인 상담을 가지고 있는지 확인.
-     *
-     * WAITING, MATCHED, IN_PROGRESS 중 하나가 존재하면
-     * 새로운 상담 요청을 생성하지 않음.
-     */
-    boolean existsByRequesterUserIdAndStatusIn(
-        Long requesterUserId,
-        Collection<ConsultationStatus> statuses
-    );
-
-    /**
-     * 현재 WAITING 상태인 전체 상담 수를 계산.
-     *
-     * 새 요청은 대기열 마지막에 들어가므로 저장 직후 WAITING 상담 수를
-     * 해당 사용자의 초기 대기 순번으로 사용.
-     */
-    long countByStaffIdAndStatus(
-        Long staffId,
-        ConsultationStatus status
-    );
     /**
      * 해당 역의 역무원이 대기 중인 상담을 수락합니다.
      *
