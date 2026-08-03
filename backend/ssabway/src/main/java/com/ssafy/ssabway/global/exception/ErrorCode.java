@@ -45,7 +45,14 @@ public enum ErrorCode {
     // 상담
     CONSULTATION_DUPLICATED(HttpStatus.CONFLICT, "중복된 상담 요청입니다."), // 409
     CONSULTATION_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 상담입니다."), //404
-    CONSULTATION_BLOCKED(HttpStatus.FORBIDDEN, "해당 역의 화상 상담 이용이 제한된 사용자입니다."); // 403
+    CONSULTATION_BLOCKED(HttpStatus.FORBIDDEN, "해당 역의 화상 상담 이용이 제한된 사용자입니다."), // 403
+
+    // 역 내 길안내
+    NAV_NODE_NOT_FOUND(HttpStatus.BAD_REQUEST, "존재하지 않는 지점입니다."), // 400
+    NAV_NEEDS_REQUIRED(HttpStatus.BAD_REQUEST, "무엇이 필요한지 함께 보내주세요."), // 400
+    NAV_ROUTE_NOT_FOUND(HttpStatus.NOT_FOUND, "이동할 수 있는 경로를 찾지 못했습니다."), // 404
+    NAV_NO_STEP_FREE_ROUTE(HttpStatus.NOT_FOUND, "계단을 이용하지 않고 갈 수 있는 경로가 없습니다."), // 404
+    NAV_GRAPH_NOT_LOADED(HttpStatus.SERVICE_UNAVAILABLE, "길안내 데이터가 준비되지 않았습니다."); // 503
 
     private final HttpStatus httpStatus;
     private final String message;
