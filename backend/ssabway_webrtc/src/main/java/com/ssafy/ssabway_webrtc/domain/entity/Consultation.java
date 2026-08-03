@@ -55,11 +55,11 @@ public class Consultation {
      * @param requesterUserId JWT에서 확인한 상담 요청자 ID
      * @return WAITING 상태의 새로운 상담 Entity
      */
-    public static Consultation createWaiting(Long requesterUserId) {
+    public static Consultation createWaiting(Long requesterUserId, Long staffId) {
         Consultation consultation = new Consultation();
 
         consultation.requesterUserId = requesterUserId;
-        consultation.staffId = null;
+        consultation.staffId = staffId;
         consultation.status = ConsultationStatus.WAITING;
         consultation.requestedAt = LocalDateTime.now();
 

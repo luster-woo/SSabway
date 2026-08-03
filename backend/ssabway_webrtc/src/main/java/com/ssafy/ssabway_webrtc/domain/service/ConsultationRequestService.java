@@ -42,29 +42,34 @@ public class ConsultationRequestService {
      */
     @Transactional
     public ConsultationCreateResponse
-    requestConsultation(
-        Long requesterUserId
-    ) {
-
+    requestConsultation(Long requesterUserId, Long staffId) {
         boolean alreadyRequested = consultationRepository
-            .existsByRequesterUserIdAndStatusIn(
-                    requesterUserId,
-                    ACTIVE_STATUSES);
+                .existsByRequesterUserIdAndStatusIn(
+                    requesterUserId, ACTIVE_STATUSES);
 
-        if (alreadyRequested) { throw new BusinessException(
-                ErrorCode.CONSULTATION_DUPLICATED);
+        if (alreadyRequested) {
+            throw new BusinessException(ErrorCode.CONSULTATION_DUPLICATED);
         }
 
-        Consultation consultation = Consultation.createWaiting(requesterUserId);
 
-        Consultation savedConsultation = consultationRepository.save(consultation);
+        // 사용자 상담 요청 시 담당 역무원 ID까지 함께 저장합니다.
+        Consultation consultation = Consultation.createWaiting(
+                requesterUserId,
+                staffId);
+
+        Consultation savedConsultation =
+            consultationRepository.save(consultation);
 
         /*
-         * 신규 요청은 WAITING 대기열의 마지막에 등록되므로
-         * 저장 이후 전체 WAITING 상담 수를 초기 대기 순번으로 반환.
+         * 담당 역무원에게 배정된 WAITING 상담만 계산하여
+         * 해당 역을 기준으로 한 대기 순번을 반환합니다.
          */
-        long queuePosition = consultationRepository.countByStatus(
-                ConsultationStatus.WAITING);
+        long queuePosition =
+            consultationRepository
+                .countByStaffIdAndStatus(
+                    staffId,
+                    ConsultationStatus.WAITING
+                );
 
         return new ConsultationCreateResponse(
             savedConsultation.getId(),

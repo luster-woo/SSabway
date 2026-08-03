@@ -3,20 +3,17 @@ package com.ssafy.ssabway_webrtc.domain.controller;
 
 import com.ssafy.ssabway_webrtc.common.response.ApiResponse;
 import com.ssafy.ssabway_webrtc.domain.dto.ConsultationCancelResponse;
+import com.ssafy.ssabway_webrtc.domain.dto.ConsultationCreateRequest;
 import com.ssafy.ssabway_webrtc.domain.dto.ConsultationCreateResponse;
 import com.ssafy.ssabway_webrtc.domain.service.ConsultationCancelService;
 import com.ssafy.ssabway_webrtc.domain.service.ConsultationRequestService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import com.ssafy.ssabway_webrtc.domain.dto.ConsultationStatusResponse;
 import com.ssafy.ssabway_webrtc.domain.service.ConsultationStatusService;
-import org.springframework.web.bind.annotation.GetMapping;
 
 @RestController
 @RequestMapping("/api/v1/consultations")
@@ -40,11 +37,25 @@ public class ConsultationController {
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ApiResponse<ConsultationCreateResponse> requestConsultation(Authentication authentication) {
+    public ApiResponse<ConsultationCreateResponse>
+    requestConsultation(
+        Authentication authentication,
+        @Valid @RequestBody
+        ConsultationCreateRequest request
+    ) {
+        Long requesterUserId =
+            (Long) authentication.getPrincipal();
 
-        Long requesterUserId = (Long) authentication.getPrincipal();
+        Long staffId =
+            request.getStaffId();
+
         return ApiResponse.ok(
-            consultationRequestService.requestConsultation(requesterUserId));
+            consultationRequestService
+                .requestConsultation(
+                    requesterUserId,
+                    staffId
+                )
+        );
     }
 
     @PostMapping("/{consultationId}/cancel")
