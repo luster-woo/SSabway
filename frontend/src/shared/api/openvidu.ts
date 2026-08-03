@@ -4,6 +4,7 @@ import { endpoints } from '@/shared/api/endpoints'
 import {
   CONSULTATION_STATUS,
   type ApiResponse,
+  type ConsultationCreateBody,
   type ConsultationCreated,
   type ConsultationSession,
   type ConsultationSnapshot,
@@ -240,12 +241,15 @@ export function createOpenViduApi(api: AxiosInstance) {
   /**
    * 상담 요청 → 대기열 등록.
    *
-   * ⚠️ staffId 를 보내지 않는다 — nullable 전환 가정. `endpoints.ts` 의
-   *    consultations 블록 주석 참고. 백엔드가 아직 @NotNull 이면 400 이 난다.
+   * 역무원은 서버가 `departureStationId` 로 배정하므로 보내지 않는다.
+   * 세 필드 모두 필수다 — 자세한 계약은 `ConsultationCreateBody` 참고.
    */
-  async function requestConsultation(): Promise<ConsultationCreated> {
+  async function requestConsultation(
+    body: ConsultationCreateBody,
+  ): Promise<ConsultationCreated> {
     const res = await api.post<ApiResponse<ConsultationCreated>>(
       endpoints.consultations.create,
+      body,
     )
     return res.data.data
   }

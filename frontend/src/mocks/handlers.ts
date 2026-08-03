@@ -11,6 +11,7 @@ import {
   startMockConsultation,
 } from '@/mocks/consultationQueue'
 import { MOCK_SWITCH, type MockSwitchKey } from '@/mocks/mockSwitch'
+import type { ConsultationCreateBody } from '@/shared/types'
 // 목 데이터가 화면 목과 어긋나면 안 되어 user 쪽 원본을 그대로 쓴다.
 // (mocks 는 개발 전용이라 user 레이어 참조가 번들 분리를 해치지 않는다)
 import { MOCK_ROUTE_GUIDE } from '@/user/features/route-guide/lib/mockRouteGuide'
@@ -46,6 +47,12 @@ import {
  * 경로는 client.ts 의 baseURL 과 맞춰 절대 경로로 적는다.
  */
 export const BASE = '*/api/v1'
+
+/**
+ * 출발·도착지 이름 길이 한도.
+ * BE ConsultationCreateRequest 의 `@Size(max = 255)` 와 같은 값이다.
+ */
+const MAX_PLACE_NAME_LENGTH = 255
 
 /** 상태를 들고 있지 않으므로 새로고침하면 처음부터 다시 시작한다. */
 const mockHandlers: HttpHandler[] = [
@@ -446,15 +453,69 @@ const mockHandlers: HttpHandler[] = [
    * `POST /consultations` 가 staffId nullable 전환을 전제로 하는 동안에는
    * 이 목으로 "요청 → 대기 순번 감소 → 매칭" 흐름을 프론트 단독 검증한다.
    * 상태는 consultationQueue.ts 가 들고 있다.
-   * BE 가 전환을 마치면 mockSwitch.ts 의 상담 3종을 false 로 내려 실연동한다.
+   * 시드 데이터(stations/staffs)가 들어오면 mockSwitch.ts 의 상담 3종을
+   * false 로 내려 실연동한다.
    * ---------------------------------------------------------------- */
 
-  // 상담 요청 → 대기열 등록
-  http.post(`${BASE}/consultations`, ({ request }) => {
+  /*
+    상담 요청 → 대기열 등록.
+
+    ⚠️ 본문 검증을 실서버와 같은 규칙으로 흉내 낸다.
+
+    이 목이 body 를 안 읽던 동안은 프론트가 빈 요청을 보내도 통과해서,
+    "로컬 MSW 는 성공하는데 실서버는 400" 이라는 함정이 숨어 있었다.
+    ssabway ConsultationCreateRequest 의 제약(@NotNull / @NotBlank / @Size(255))과
+    GlobalExceptionHandler 의 응답 형태(위반 메시지를 ", " 로 이어 붙임)를
+    그대로 따라간다. 계약이 어긋나면 로컬에서 먼저 드러나야 한다.
+  */
+  http.post(`${BASE}/consultations`, async ({ request }) => {
     if (!request.headers.get('Authorization')) {
       return HttpResponse.json(errorBody('인증이 필요합니다.'), { status: 401 })
     }
 
+    // 본문이 아예 없거나 JSON 이 깨졌을 때 — BE 는 HttpMessageNotReadableException
+    let body: Partial<ConsultationCreateBody>
+    try {
+      body = (await request.json()) as Partial<ConsultationCreateBody>
+    } catch {
+      return HttpResponse.json(
+        errorBody('잘못된 형식의 요청 값입니다.', 'INVALID_INPUT_VALUE'),
+        { status: 400 },
+      )
+    }
+
+    const isBlank = (value: unknown) =>
+      typeof value !== 'string' || value.trim() === ''
+
+    // BE 의 필드 선언 순서대로 메시지를 모은다 (DTO 의 message 문구 그대로).
+    const violations: string[] = []
+    if (typeof body.departureStationId !== 'number') {
+      violations.push('출발역 번호는 필수입니다.')
+    }
+    if (isBlank(body.departure)) {
+      violations.push('출발역 이름은 필수입니다.')
+    } else if ((body.departure ?? '').length > MAX_PLACE_NAME_LENGTH) {
+      violations.push('출발역 이름은 255자 이하여야 합니다.')
+    }
+    if (isBlank(body.destination)) {
+      violations.push('도착역 이름은 필수입니다.')
+    } else if ((body.destination ?? '').length > MAX_PLACE_NAME_LENGTH) {
+      violations.push('도착역 이름은 255자 이하여야 합니다.')
+    }
+
+    if (violations.length > 0) {
+      return HttpResponse.json(
+        errorBody(violations.join(', '), 'INVALID_INPUT_VALUE'),
+        { status: 400 },
+      )
+    }
+
+    /*
+      실서버는 여기서 `staffs.station_id = departureStationId` 인 역무원을 찾고,
+      없으면 404 STAFF_NOT_FOUND 를 던진다. 목은 역 데이터를 갖고 있지 않으므로
+      그 분기는 흉내 내지 않는다 — 시드 데이터가 들어오면 실서버로 검증할 것.
+      블랙리스트 차단(403 CONSULTATION_BLOCKED)도 같은 이유로 생략한다.
+    */
     const result = createMockConsultation()
 
     if (result === 'DUPLICATED') {
