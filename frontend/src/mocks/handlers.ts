@@ -526,22 +526,28 @@ const mockHandlers: HttpHandler[] = [
    * 목록은 consultationQueue 의 공유 상태(localStorage)에서 읽으므로,
    * user 탭이 요청한 상담이 admin 탭 목록에 그대로 나타난다.
    * ---------------------------------------------------------------- */
-  http.get(`${BASE}/admin/consultations`, ({ request }) => {
+  http.get(`${BASE}/staffs/waiting`, ({ request }) => {
     if (!request.headers.get('Authorization')) {
       return HttpResponse.json(errorBody('인증이 필요합니다.'), { status: 401 })
     }
 
-    // status=WAITING 만 지원한다. 다른 값은 목이 다루지 않는 영역이라 빈 목록.
-    const status = new URL(request.url).searchParams.get('status')
-    const content = status === 'WAITING' ? listMockWaitingConsultations() : []
+    // 백엔드 WaitingResponse 형태(departure/destination/language)로 내려준다.
+    const content = listMockWaitingConsultations().map((item) => ({
+      consultationId: item.consultationId,
+      email: item.email,
+      departure: item.startPoint,
+      destination: item.finalPoint,
+      language: item.langCode,
+      requestedAt: item.requestedAt,
+    }))
 
     return HttpResponse.json(
-      okBody('상담 대기 목록 조회 성공', {
+      okBody('대기 목록 조회 성공', {
         content,
-        // admin/lib/paging.ts 의 PageMeta 와 같은 모양 (목은 한 페이지뿐)
+        // 백엔드 PageResponse 와 같은 모양 (목은 한 페이지, size 6)
         page: {
-          number: 0,
-          size: 20,
+          number: 1,
+          size: 6,
           totalElements: content.length,
           totalPages: 1,
           first: true,

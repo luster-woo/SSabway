@@ -110,16 +110,43 @@ function byWaitedLongestFirst(
 /** 상담 대기는 페이지당 6건으로 나눈다. BE 연동 시 서버 page.size 로 대체된다. */
 const WAITING_PAGE_SIZE = 6
 
+/**
+ * GET /staffs/waiting 의 content 한 건 (백엔드 WaitingResponse).
+ * 화면 모델과 필드명이 다르고(departure/destination/language), status 는 없다.
+ */
+interface WaitingResponseDto {
+  consultationId: number
+  email: string
+  departure: string
+  destination: string
+  language: LangCode
+  requestedAt: string
+}
+
+/** 백엔드 응답을 화면 모델로. status 는 대기 목록이라 항상 WAITING 으로 채운다. */
+function toWaitingConsultation(dto: WaitingResponseDto): WaitingConsultation {
+  return {
+    consultationId: dto.consultationId,
+    email: dto.email,
+    startPoint: dto.departure,
+    finalPoint: dto.destination,
+    langCode: dto.language,
+    status: 'WAITING',
+    requestedAt: dto.requestedAt,
+  }
+}
+
 async function fetchWaitingConsultations(
   page: number,
 ): Promise<PagedContent<WaitingConsultation>> {
   if (BACKEND_READY.ADMIN_QUEUE) {
     const res =
-      await adminApi.get<ApiResponse<PagedContent<WaitingConsultation>>>(
+      await adminApi.get<ApiResponse<PagedContent<WaitingResponseDto>>>(
         endpoints.admin.waiting(page),
       )
     const { content, page: pageInfo } = res.data.data
-    return { content: [...content].sort(byWaitedLongestFirst), page: pageInfo }
+    const mapped = content.map(toWaitingConsultation).sort(byWaitedLongestFirst)
+    return { content: mapped, page: pageInfo }
   }
 
   await delay(MOCK_LATENCY_MS)

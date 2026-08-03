@@ -103,16 +103,8 @@ const openvidu = {
 /** 관리자 */
 const admin = {
   login: '/staffs/login',
-  /**
-   * 상담 대기 목록.
-   *
-   * ⚠️ 노션에 경로가 두 벌이다. 7/21 등록분은 `/admins/waiting`,
-   *    7/27 정리 제안은 `/admin/consultations?status=WAITING` 이다.
-   *    BE 구현 시작 전에 어느 쪽으로 확정할지 합의 필요. 지금은 7/27 안을 기본으로
-   *    두고, 서버가 7/21 형태로 나오면 이 함수만 바꾼다.
-   */
-  waiting: (page: number) =>
-    `/staffs/consultations?status=WAITING&page=${page}`,
+  /** 상담 대기 목록. ✅ BE 개발완료 (ConsultationController GET /staffs/waiting). */
+  waiting: (page: number) => `/staffs/waiting?page=${page}`,
   history: (page: number) => `/staffs/history?page=${page}`,
   consultationDetail: (id: number) => `/staffs/consultations?id=${id}`,
   /**

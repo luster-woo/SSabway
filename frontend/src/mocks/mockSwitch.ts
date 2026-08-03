@@ -57,8 +57,8 @@ const SWITCH = {
   'GET /consultations/:consultationId': true,
   'POST /consultations/:consultationId/token': true,
 
-  // 관리자 — 상담 대기 목록 (BE 미구현. BACKEND_READY.ADMIN_QUEUE 를 켜야 호출됨)
-  'GET /admin/consultations': true,
+  // 관리자 — 상담 대기 목록 (✅ BE 개발완료. BACKEND_READY.ADMIN_QUEUE 로 실호출)
+  'GET /staffs/waiting': true,
 
   /*
     화상연결(signaling) — ✅ BE 개발완료라 기본 OFF (실서버로 나간다).
