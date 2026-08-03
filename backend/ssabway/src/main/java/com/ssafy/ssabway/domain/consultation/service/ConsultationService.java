@@ -1,6 +1,7 @@
 package com.ssafy.ssabway.domain.consultation.service;
 
 import com.ssafy.ssabway.domain.consultation.dto.response.ConsultationDetailResponse;
+import com.ssafy.ssabway.domain.consultation.dto.response.HistoryResponse;
 import com.ssafy.ssabway.domain.consultation.dto.response.WaitingResponse;
 import com.ssafy.ssabway.domain.consultation.entity.ConsultationStatus;
 import com.ssafy.ssabway.domain.consultation.repository.ConsultationDetail;
@@ -51,5 +52,14 @@ public class ConsultationService {
                 detail.summary(),
                 recordUrl,
                 recordUrl == null ? null : RECORD_URL_DURATION.toSeconds());
+    }
+
+    public PageResponse<HistoryResponse> getHistory(Long staffId, int page) {
+        Pageable pageable = PageRequest.of(page - 1, PAGE_SIZE);
+
+        return PageResponse.from(
+                consultationRepository.findHistoryByStaffIdAndStatus(
+                        staffId, ConsultationStatus.ENDED, pageable)
+        );
     }
 }
