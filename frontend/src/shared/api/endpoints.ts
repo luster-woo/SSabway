@@ -102,6 +102,15 @@ const admin = {
   /** 상담 대기 목록. ✅ BE 개발완료 (ConsultationController GET /staffs/waiting). */
   waiting: (page: number) => `/staffs/waiting?page=${page}`,
   history: (page: number) => `/staffs/history?page=${page}`,
+  /**
+   * 원본 상담 내역(녹취) 조회. ✅ BE 개발완료 (ConsultationController.getDetail).
+   *
+   * 응답 data 는 { email, summary, recordUrl, expiresIn } 네 개다.
+   * ⚠️ 노션 명세 「Response」 표의 `S3_path` 는 실제 응답에 없다 — 표가 낡았고
+   *    같은 문서의 예시 JSON 이 백엔드와 일치한다. useConsultationRecord 주석 참고.
+   * ⚠️ 이름이 detail 이지만 상담방에 필요한 departure/destination/language 는
+   *    주지 않는다. 상담방 정보(useConsultationDetail)에 이 경로를 쓰지 말 것.
+   */
   consultationDetail: (id: number) => `/staffs/consultations?id=${id}`,
   /**
    * 상담 수락 — ✅ BE 구현됨 (webrtc StaffConsultationController, 8/3 코드 확인).

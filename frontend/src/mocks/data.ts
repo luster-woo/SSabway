@@ -119,6 +119,71 @@ export function issueAccessToken(subject: string): string {
 }
 
 /* ------------------------------------------------------------------ *
+ * 관리자 — 원본 상담 내역 (녹취)
+ * ------------------------------------------------------------------ */
+
+/** 목 응답용 공개 샘플 음원. 실제 presigned URL 처럼 바로 재생된다. */
+const SAMPLE_RECORD_URL =
+  'https://upload.wikimedia.org/wikipedia/commons/c/c8/Example.ogg'
+
+/** 백엔드 RECORD_URL_DURATION(10분)을 초로 환산한 값. 응답의 expiresIn */
+const RECORD_URL_EXPIRES_IN_SEC = 600
+
+/**
+ * GET /staffs/consultations?id={id} 의 data. 키는 상담 ID 다.
+ *
+ * 백엔드 ConsultationDetailResponse 와 같은 모양
+ * (email / summary / recordUrl / expiresIn — 명세 표의 S3_path 가 아니다).
+ * ID 와 이메일·요약은 민원 기록 목록의 목(useConsultationHistory 의 MOCK_HISTORY)과
+ * 맞춰 두었다. 어긋나면 목록에서 고른 항목과 모달 내용이 달라 보인다.
+ *
+ * 124 는 녹취가 없는 상담이다. 프론트가 recordUrl 이 null 인 응답을 받아
+ * 플레이어를 감추는지 확인하는 용도이므로 지우지 말 것 — 실서버에서는
+ * 녹음 실패·업로드 미완료 상담이 이렇게 내려온다.
+ */
+export const CONSULTATION_RECORDS: Record<
+  number,
+  {
+    email: string
+    summary: string | null
+    recordUrl: string | null
+    expiresIn: number | null
+  }
+> = {
+  120: {
+    email: 'user1@mail.com',
+    summary: '출구 안내 요청 → 3번 출구 안내 완료',
+    recordUrl: SAMPLE_RECORD_URL,
+    expiresIn: RECORD_URL_EXPIRES_IN_SEC,
+  },
+  121: {
+    email: 'user2@mail.com',
+    summary: '환승 경로 문의 → 4호선 환승 안내',
+    recordUrl: SAMPLE_RECORD_URL,
+    expiresIn: RECORD_URL_EXPIRES_IN_SEC,
+  },
+  122: {
+    email: 'user3@mail.com',
+    summary: '승차권 발매기 사용법 안내',
+    recordUrl: SAMPLE_RECORD_URL,
+    expiresIn: RECORD_URL_EXPIRES_IN_SEC,
+  },
+  123: {
+    email: 'user4@mail.com',
+    summary: '분실물 문의 → 유실물 센터 연결',
+    recordUrl: SAMPLE_RECORD_URL,
+    expiresIn: RECORD_URL_EXPIRES_IN_SEC,
+  },
+  // 녹취 없음 — recordUrl 과 expiresIn 이 함께 null 로 온다
+  124: {
+    email: 'user5@mail.com',
+    summary: '욕설·비협조 → 경고 후 종료',
+    recordUrl: null,
+    expiresIn: null,
+  },
+}
+
+/* ------------------------------------------------------------------ *
  * 공통 응답 형태
  * ------------------------------------------------------------------ */
 

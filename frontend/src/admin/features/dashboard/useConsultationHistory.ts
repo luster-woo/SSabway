@@ -4,7 +4,7 @@ import { queryKeys } from '@/shared/lib/queryKeys'
 import { isMockBlacklisted } from '@/admin/features/blacklist/mockBlacklistStore'
 import { paginate, type PagedContent } from '@/admin/lib/paging'
 
-/** GET /admins/history 의 content 한 건 */
+/** GET /staffs/history 의 content 한 건 */
 export interface ConsultationHistory {
   consultationId: number
   userEmail: string

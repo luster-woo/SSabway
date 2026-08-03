@@ -27,11 +27,16 @@ interface ReasonTarget {
   fromRoster: boolean
 }
 
-/** 원본 내역 모달에 띄울 대상. 녹취 경로를 받아온 뒤에만 열린다. */
+/**
+ * 원본 내역 모달에 띄울 대상. 조회에 성공한 뒤에만 열린다.
+ *
+ * recordUrl 이 null 인 것은 실패가 아니라 "녹취가 없는 상담"이라는 정상 응답이다.
+ * 요약은 보여줄 수 있으므로 모달을 열고, 모달이 플레이어만 감춘다.
+ */
 interface RecordTarget {
   userEmail: string
-  summary: string
-  recordUrl: string
+  summary: string | null
+  recordUrl: string | null
 }
 
 /** 우측 패널 — 민원 기록 (FR-STAFF-001, FR-STAFF-002) */
@@ -53,17 +58,21 @@ export function HistoryPanel() {
   const [recordTarget, setRecordTarget] = useState<RecordTarget | null>(null)
 
   const openRecordModal = async (history: ConsultationHistory) => {
-    const recordUrl = await loadRecord(history.consultationId)
+    const record = await loadRecord(history.consultationId)
 
-    if (recordUrl === null) {
+    // 조회 실패(네트워크·404·500)만 토스트로 끝낸다. 녹취가 없는 상담은
+    // record 가 돌아오고 recordUrl 만 null 이므로 아래로 내려가 모달이 열린다.
+    if (record === null) {
       showToast('원본 기록을 불러오지 못했습니다.')
       return
     }
 
     setRecordTarget({
-      userEmail: history.userEmail,
-      summary: history.summary,
-      recordUrl,
+      // 서버 응답을 우선한다. 목록을 받은 뒤 요약이 갱신됐을 수 있고,
+      // 요약이 아직 없는 상담은 null 로 온다(모달이 문구로 대체한다).
+      userEmail: record.email,
+      summary: record.summary,
+      recordUrl: record.recordUrl,
     })
   }
 

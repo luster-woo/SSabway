@@ -8,7 +8,7 @@ import type { ApiResponse, ConsultationStatus } from '@/shared/types'
 import type { LangCode } from '@/admin/lib/language'
 import { paginate, type PagedContent } from '@/admin/lib/paging'
 
-/** GET /admins/waiting 의 content 한 건 */
+/** GET /staffs/waiting 의 content 한 건 */
 export interface WaitingConsultation {
   consultationId: number
   email: string
