@@ -37,6 +37,7 @@ services:
       AWS_REGION: ${AWS_REGION:-ap-northeast-2}
       AWS_S3_BUCKET: ${AWS_S3_BUCKET}
       JWT_SECRET: ${JWT_SECRET}
+      ODSAY_API_KEY : ${ODSAY_API_KEY}
       MAIL_USERNAME: ${MAIL_USERNAME}
       MAIL_PASSWORD: ${MAIL_PASSWORD}
     depends_on:
