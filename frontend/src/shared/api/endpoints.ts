@@ -70,16 +70,18 @@ const consultations = {
 } as const
 
 /**
- * 화상 연결 — signaling 서버(ssabway_webrtc)의 실제 구현 (7/31 최신화 반영).
+ * 화상 연결 — signaling 서버(ssabway_webrtc)의 실제 구현 (8/3 최신화 반영).
  *
- * 세션 생성 → 커넥션 → start(녹음+IN_PROGRESS) → end 의 흐름이며,
+ * 역무원 수락은 admin.accept(1-call) 가 세션 생성+토큰까지 처리하고,
+ * 여기는 사용자 커넥션 → start(녹음+IN_PROGRESS) → end 만 남는다.
  * 호출 순서와 실패 처리는 `@/shared/api/openvidu` 가 책임진다. 화면에서 직접 부르지 말 것.
+ * (구 3-call 의 `POST /openvidu/sessions` 와 `DELETE /openvidu/sessions/{id}` 는
+ *  백엔드에 존재하지 않아 제거했다 — 8/3)
  *
  * ⚠️ nginx 가 `/api/` 를 ssabway 로만 보내고 있어 배포 환경에서는 아직 404 다.
  *    `location /api/v1/openvidu/ { proxy_pass http://signaling:8080; }` 추가가 필요하다.
  */
 const openvidu = {
-  createSession: '/openvidu/sessions',
   createConnection: (sessionId: string) =>
     `/openvidu/sessions/${encodeURIComponent(sessionId)}/connections`,
   /**
@@ -89,12 +91,6 @@ const openvidu = {
    */
   start: (sessionId: string) =>
     `/openvidu/sessions/${encodeURIComponent(sessionId)}/start`,
-  /**
-   * 세션 정리(수락 실패 롤백용).
-   * ⚠️ 백엔드에서 제거됐다가 재추가 합의됨(7/31) — 배포 전까지 404 가능.
-   */
-  closeSession: (sessionId: string) =>
-    `/openvidu/sessions/${encodeURIComponent(sessionId)}`,
   /** 녹음 정지 + 세션 종료 + ENDED 전이. recordingId 는 서버가 DB에서 찾는다. */
   endConsultation: (sessionId: string) =>
     `/openvidu/sessions/${encodeURIComponent(sessionId)}/end`,
@@ -108,8 +104,11 @@ const admin = {
   history: (page: number) => `/staffs/history?page=${page}`,
   consultationDetail: (id: number) => `/staffs/consultations?id=${id}`,
   /**
-   * 상담 수락 — 세션 생성 + 토큰 발급 + 녹음 시작 통합. ⚠️ BE 작업 중.
-   * consultationId 기준이라 프론트가 sessionId 를 몰라도 된다.
+   * 상담 수락 — ✅ BE 구현됨 (webrtc StaffConsultationController, 8/3 코드 확인).
+   * 상태 잠금 + 세션 생성 + 역무원 토큰 발급을 1-call 로 처리한다.
+   * 응답 { consultationId, sessionId, token, status }. 녹음 시작은 별도(start).
+   * ⚠️ webrtc 서버 구현이므로 nginx 가 /api/v1/staffs/consultations/ 를
+   *    signaling 으로 보내야 한다.
    */
   accept: (id: number) => `/staffs/consultations/${id}/accept`,
   /** 상담 종료 — 녹음 정지 + 세션 종료 + ENDED. ⚠️ BE 작업 중 */

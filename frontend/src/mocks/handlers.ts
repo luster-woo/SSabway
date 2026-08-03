@@ -1,7 +1,6 @@
 import { http, HttpResponse, type HttpHandler, type RequestHandler } from 'msw'
 
 import {
-  closeMockSession,
   createMockConnection,
   createMockConsultation,
   endMockConsultation,
@@ -561,31 +560,38 @@ const mockHandlers: HttpHandler[] = [
    * 화상연결(signaling) — ✅ BE 개발완료
    *
    * 실서버가 있으므로 mockSwitch 기본값이 false 다(등록 안 됨 → 실서버로).
-   * 한 컴퓨터에서 user + admin 매칭 실험을 할 때만 다섯 개를 함께 켠다.
-   * 켜면: admin 수락(세션 생성)이 공유 상태를 MATCHED 로 바꾸고,
+   * 한 컴퓨터에서 user + admin 매칭 실험을 할 때만 네 개를 함께 켠다.
+   * 켜면: admin 수락(accept)이 공유 상태를 MATCHED 로 바꾸고,
    * user 의 커넥션 폴링(joinSession)이 404 → 토큰 발급으로 풀린다.
-   * 응답 모양은 BE 실코드(OpenViduController, 8/1) 기준.
+   * 응답 모양은 BE 실코드(StaffConsultationController·OpenViduController, 8/3) 기준.
    * ---------------------------------------------------------------- */
 
-  // 세션 생성 (= 역무원 수락)
-  http.post(`${BASE}/openvidu/sessions`, async ({ request }) => {
-    const { consultationId } = (await request.json()) as {
-      consultationId?: number
-    }
+  // 역무원 수락 — accept 1-call (상태 잠금 + 세션 생성 + 토큰 발급)
+  http.post(
+    `${BASE}/staffs/consultations/:consultationId/accept`,
+    ({ params }) => {
+      const consultationId = Number(params.consultationId)
 
-    if (typeof consultationId !== 'number') {
+      if (!Number.isInteger(consultationId) || consultationId <= 0) {
+        return HttpResponse.json(
+          errorBody('잘못된 형식의 요청 값입니다.', 'INVALID_INPUT_VALUE'),
+          { status: 400 },
+        )
+      }
+
+      const sessionId = openMockSession(consultationId)
+      const connection = createMockConnection(sessionId)
+
       return HttpResponse.json(
-        errorBody('잘못된 형식의 요청 값입니다.', 'INVALID_INPUT_VALUE'),
-        { status: 400 },
+        okBody('상담이 수락되었습니다.', {
+          consultationId,
+          sessionId,
+          token: connection?.token ?? `mock-openvidu-token-${sessionId}`,
+          status: 'MATCHED',
+        }),
       )
-    }
-
-    return HttpResponse.json(
-      okBody('세션이 생성되었습니다.', {
-        sessionId: openMockSession(consultationId),
-      }),
-    )
-  }),
+    },
+  ),
 
   // 커넥션(접속 토큰) 발급 — 세션이 없으면 404 (사용자 폴링이 이 404 에 기댄다)
   // 참여자 식별·역할은 JWT 몫이라 요청 본문이 없다 (BE 8/2 권한 업데이트).
@@ -643,12 +649,6 @@ const mockHandlers: HttpHandler[] = [
     )
   }),
 
-  // 세션 정리(수락 실패 롤백) — ⚠️ BE 는 미구현(재추가 합의 상태)이지만
-  // FE 롤백 경로를 목에서라도 통과시키기 위해 둔다.
-  http.delete(`${BASE}/openvidu/sessions/:sessionId`, ({ params }) => {
-    closeMockSession(String(params.sessionId))
-    return HttpResponse.json(okBodyWithoutData('세션이 정리되었습니다.'))
-  }),
 ]
 
 /** 핸들러의 method + path 를 mockSwitch.ts 의 키 형식으로 바꾼다. */

@@ -12,9 +12,10 @@ import {
 } from '@/shared/types'
 
 /**
- * 화상 상담 서버(ssabway_webrtc) 호출부. — 7/31 백엔드 최신화 반영
+ * 화상 상담 서버(ssabway_webrtc) 호출부. — 8/3 백엔드 최신화 반영
  *
- * 서버 흐름: sessions(생성) → connections(토큰) → start(녹음+IN_PROGRESS) → end.
+ * 서버 흐름: 역무원 accept(세션 생성+토큰 통합) / 사용자 connections(토큰)
+ *            → start(녹음+IN_PROGRESS) → end.
  * 순서·실패 처리·세션 ID 규칙을 화면 코드가 알면 고칠 자리가 흩어지므로
  * 전부 이 파일에 가둔다.
  *
@@ -27,8 +28,9 @@ import {
  * 세션 ID 생성 규칙.
  *
  * ⚠️ 백엔드와 공유하는 규칙이다. (양쪽 서비스의 SESSION_PREFIX 상수)
- * accept 통합안을 철회하고 sessionId 기준 API 로 확정했으므로(7/31)
- * 이 규칙은 계속 유지된다. 서버에서 접두사를 바꾸면 반드시 상호 공지할 것.
+ * 역무원은 accept 응답의 sessionId 를 받지만, 사용자 joinSession 과
+ * 종료(endConsultation)는 sessionId 기준 API 라 이 규칙이 계속 필요하다.
+ * 서버에서 접두사를 바꾸면 반드시 상호 공지할 것.
  */
 const SESSION_ID_PREFIX = 'consultation-'
 
@@ -36,8 +38,12 @@ export function toSessionId(consultationId: number): string {
   return `${SESSION_ID_PREFIX}${String(consultationId)}`
 }
 
-interface SessionCreated {
+/** BE 실제 DTO (ConsultationAcceptResponse — 8/3 코드 확인) */
+interface ConsultationAccepted {
+  consultationId: number
   sessionId: string
+  token: string
+  status: ConsultationStatus
 }
 
 interface ConnectionCreated {
@@ -111,14 +117,6 @@ function isSessionNotReady(error: unknown): boolean {
 }
 
 export function createOpenViduApi(api: AxiosInstance) {
-  async function createSession(consultationId: number): Promise<string> {
-    const res = await api.post<WebrtcApiResponse<SessionCreated>>(
-      endpoints.openvidu.createSession,
-      { consultationId },
-    )
-    return res.data.data.sessionId
-  }
-
   /**
    * 접속 토큰 발급 — 요청 본문이 없다.
    *
@@ -136,37 +134,29 @@ export function createOpenViduApi(api: AxiosInstance) {
     return res.data.data
   }
 
-  async function closeSession(sessionId: string): Promise<void> {
-    await api.delete(endpoints.openvidu.closeSession(sessionId))
-  }
-
   /**
-   * 역무원이 상담을 수락할 때. 세션 생성 → 토큰 발급.
+   * 역무원이 상담을 수락할 때 — accept 1-call (BE 8/3 확정 구현).
+   *
+   * `POST /staffs/consultations/{id}/accept` 하나가 상태 잠금(WAITING→MATCHED)
+   * + 세션 생성 + 역무원 토큰 발급을 서버 트랜잭션으로 처리한다.
+   * 예전 3-call(sessions → connections, 실패 시 DELETE 롤백)은 백엔드에서
+   * 제거되어 더 이상 존재하지 않는다 — 롤백도 서버 책임이 됐다.
    *
    * 녹음은 여기서 시작하지 않는다 — start 가 사용자 접속 이후로 합의됐다.
    *
-   * 선착순 판정은 서버가 한다. 두 역무원이 동시에 수락하면 늦은 쪽이
-   * 세션 생성(409, OpenVidu customSessionId 충돌) 또는 커넥션 발급
-   * (409 PARTICIPANT_ALREADY_CONNECTED / PARTICIPANT_LIMIT_EXCEEDED)에서 거절된다.
-   *
-   * 토큰 발급이 실패하면 방금 만든 세션을 되돌린다. 남겨두면 사용자 쪽
-   * joinSession 이 "세션이 열렸다"고 오판해 들어가 혼자 기다리게 된다.
-   * (closeSession 은 백엔드 재추가 예정 — 그 전까지 롤백 실패는 무시된다)
+   * 실패 분기:
+   *   409 CONSULTATION_ALREADY_ACCEPTED — 다른 역무원이 먼저 수락(선착순)
+   *   403 CONSULTATION_ACCESS_DENIED — 이 상담에 배정된 역무원이 아님
+   *       (⚠️ 현 BE 는 상담 생성 시 staffId 를 고정한다 — 3.2 정책 합의와 연동)
    */
   async function openSession(
     consultationId: number,
   ): Promise<ConsultationSession> {
-    const sessionId = await createSession(consultationId)
-
-    try {
-      const connection = await createConnection(sessionId)
-      return { consultationId, sessionId, token: connection.token }
-    } catch (error) {
-      await closeSession(sessionId).catch(() => {
-        // 롤백 실패는 원래 오류를 덮지 않는다.
-      })
-      throw error
-    }
+    const res = await api.post<WebrtcApiResponse<ConsultationAccepted>>(
+      endpoints.admin.accept(consultationId),
+    )
+    const { sessionId, token } = res.data.data
+    return { consultationId, sessionId, token }
   }
 
   /**
@@ -279,7 +269,6 @@ export function createOpenViduApi(api: AxiosInstance) {
     joinSession,
     startConsultation,
     endConsultation,
-    closeSession,
     requestConsultation,
     fetchSnapshot,
     issueToken,
