@@ -76,6 +76,17 @@ const SWITCH = {
   'GET /staffs/waiting': true,
 
   /*
+    관리자 — 블랙리스트 4종 (✅ BE 개발완료).
+
+    핸들러가 없던 동안에는 스위치도 없어서 이 요청만 항상 실서버로 나갔다.
+    그래서 USE_MSW 를 켠 로컬에서도 등록·해제가 조용히 실패했다.
+  */
+  'POST /staffs/blacklist': true,
+  'GET /staffs/blacklist': true,
+  'POST /staffs/blacklist/release': true,
+  'PATCH /staffs/blacklist': true,
+
+  /*
     관리자 — 원본 상담 내역(녹취) 조회는 목을 두지 않는다. ✅ BE 개발완료.
 
     useConsultationRecord 가 항상 실호출하고 핸들러도 없으므로 요청이 그대로
@@ -95,10 +106,10 @@ const SWITCH = {
     (구 3-call 의 'POST /openvidu/sessions' 와 'DELETE /openvidu/sessions/…' 는
      accept 1-call 전환으로 제거됨 — 8/3)
   */
-  'POST /staffs/consultations/:consultationId/accept': false,
-  'POST /openvidu/sessions/:sessionId/connections': false,
-  'POST /openvidu/sessions/:sessionId/start': false,
-  'POST /openvidu/sessions/:sessionId/end': false,
+  'POST /staffs/consultations/:consultationId/accept': true,
+  'POST /openvidu/sessions/:sessionId/connections': true,
+  'POST /openvidu/sessions/:sessionId/start': true,
+  'POST /openvidu/sessions/:sessionId/end': true,
 }
 
 export type MockSwitchKey = keyof typeof SWITCH

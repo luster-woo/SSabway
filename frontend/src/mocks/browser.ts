@@ -1,5 +1,6 @@
 import { setupWorker } from 'msw/browser'
 
+import { seedMockBlacklist } from '@/mocks/blacklistStore'
 import { handlers } from '@/mocks/handlers'
 
 export const worker = setupWorker(...handlers)
@@ -13,6 +14,10 @@ export const worker = setupWorker(...handlers)
  * 실서버 오류 시 스위치만 되돌리면 즉시 목으로 복귀한다.
  */
 export function startMockWorker(): Promise<unknown> {
+  // 블랙리스트 명단이 비어 있으면 모달에서 해제·페이지네이션을 눌러 볼 수
+  // 없어서 초기 1건을 심는다. (이미 데이터가 있으면 건드리지 않는다)
+  seedMockBlacklist()
+
   return worker.start({
     onUnhandledRequest: 'bypass',
     serviceWorker: { url: '/mockServiceWorker.js' },
