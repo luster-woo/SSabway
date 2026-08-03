@@ -43,10 +43,6 @@ public enum ErrorCode {
         "서비스 이용이 제한된 사용자입니다."),
     CONSULTATION_NOT_MATCHED(HttpStatus.CONFLICT,
         "역무원이 배정된 상담만 시작할 수 있습니다."),
-    CONSULTATION_ALREADY_ACCEPTED(HttpStatus.CONFLICT,
-        "이미 다른 역무원에게 배정되었거나 수락할 수 없는 상담입니다."),
-    CONSULTATION_ACCEPT_FAILED(HttpStatus.INTERNAL_SERVER_ERROR,
-        "상담 수락 처리에 실패했습니다."),
     CONSULTATION_ACCESS_DENIED(HttpStatus.FORBIDDEN,
         "해당 상담을 조회할 권한이 없습니다."),
 
@@ -63,6 +59,8 @@ public enum ErrorCode {
         "존재하지 않는 화상 상담 세션입니다."),
     OPENVIDU_COMMUNICATION_FAILED(HttpStatus.BAD_GATEWAY,
         "화상 연결 서버와 통신할 수 없습니다."),
+    INVALID_INTERNAL_SECRET(HttpStatus.UNAUTHORIZED,
+        "유효하지 않은 서버 간 인증 정보입니다."),
 
     // 참여자 연결
     INVALID_PARTICIPANT_ROLE(HttpStatus.BAD_REQUEST,

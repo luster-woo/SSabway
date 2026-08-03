@@ -46,6 +46,11 @@ public class SecurityConfig {
                     HttpMethod.POST,
                     "/api/v1/openvidu/webhooks"
                 ).permitAll()
+                .requestMatchers(
+                    HttpMethod.POST,
+                    "/internal/v1/openvidu/**"
+                )
+                .permitAll()
                 // 사용자만 상담 요청 가능
                 .requestMatchers(
                     HttpMethod.GET,
@@ -54,8 +59,6 @@ public class SecurityConfig {
                 .hasAuthority("USER")
 
                 // 역무원 API는 STAFF만 접근 가능
-                .requestMatchers("/api/v1/staffs/**")
-                .hasAuthority("STAFF")
                 .requestMatchers("/api/v1/**")
                 .authenticated()
                 .anyRequest()

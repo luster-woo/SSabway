@@ -46,6 +46,10 @@ public enum ErrorCode {
     CONSULTATION_DUPLICATED(HttpStatus.CONFLICT, "중복된 상담 요청입니다."), // 409
     CONSULTATION_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 상담입니다."), //404
     CONSULTATION_BLOCKED(HttpStatus.FORBIDDEN, "해당 역의 화상 상담 이용이 제한된 사용자입니다."), // 403
+    CONSULTATION_ALREADY_ACCEPTED(HttpStatus.CONFLICT, "이미 수락되었거나 처리된 상담입니다."),
+    CONSULTATION_ACCESS_DENIED(HttpStatus.FORBIDDEN, "해당 상담을 수락할 권한이 없습니다."),
+
+    WEBRTC_SERVER_ERROR(HttpStatus.BAD_GATEWAY, "화상 연결 서버 처리에 실패했습니다."),
 
     // 역 내 길안내
     NAV_NODE_NOT_FOUND(HttpStatus.BAD_REQUEST, "존재하지 않는 지점입니다."), // 400
