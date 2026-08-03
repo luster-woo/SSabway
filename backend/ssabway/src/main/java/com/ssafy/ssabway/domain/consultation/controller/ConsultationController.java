@@ -1,6 +1,7 @@
 package com.ssafy.ssabway.domain.consultation.controller;
 
 import com.ssafy.ssabway.domain.consultation.dto.response.ConsultationDetailResponse;
+import com.ssafy.ssabway.domain.consultation.dto.response.HistoryResponse;
 import com.ssafy.ssabway.domain.consultation.dto.response.WaitingResponse;
 import com.ssafy.ssabway.domain.consultation.service.ConsultationService;
 import com.ssafy.ssabway.global.common.ApiResponse;
@@ -37,5 +38,14 @@ public class ConsultationController {
 
         return ResponseEntity.ok(
                 ApiResponse.ok("조회에 성공하였습니다.", consultationService.getDetail(staffId, id)));
+    }
+
+    @GetMapping("/history")
+    public ResponseEntity<ApiResponse<PageResponse<HistoryResponse>>> getHistory(
+            @AuthenticationPrincipal Long staffId,
+            @RequestParam(defaultValue = "1") @Min(1) int page) {
+
+        return ResponseEntity.ok(
+                ApiResponse.ok("조회에 성공하였습니다.", consultationService.getHistory(staffId, page)));
     }
 }
