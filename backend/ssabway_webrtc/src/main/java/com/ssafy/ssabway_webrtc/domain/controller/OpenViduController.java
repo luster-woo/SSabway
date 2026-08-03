@@ -27,21 +27,6 @@ public class OpenViduController {
 
     private final ConsultationEndService consultationEndService;
 
-    @PostMapping("/sessions")
-    public ApiResponse<SessionCreateResponse> createSession(
-        @Valid @RequestBody SessionCreateRequest request
-    ) throws OpenViduJavaClientException,
-             OpenViduHttpException {
-
-        String sessionId = openViduService.createSession(
-            request.getConsultationId()
-        );
-
-        return ApiResponse.ok(
-            new SessionCreateResponse(sessionId)
-        );
-    }
-
 
     @PostMapping("/sessions/{sessionId}/connections")
     public ApiResponse<ConnectionCreateResponse> createConnection(
