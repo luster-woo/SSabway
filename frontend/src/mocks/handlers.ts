@@ -11,6 +11,12 @@ import {
   pollMockConsultation,
   startMockConsultation,
 } from '@/mocks/consultationQueue'
+import {
+  listMockBlacklist,
+  registerMockBlacklist,
+  releaseMockBlacklist,
+  updateMockBlacklistReasons,
+} from '@/mocks/blacklistStore'
 import { MOCK_SWITCH, type MockSwitchKey } from '@/mocks/mockSwitch'
 import type { ConsultationCreateBody } from '@/shared/types'
 // 목 데이터가 화면 목과 어긋나면 안 되어 user 쪽 원본을 그대로 쓴다.
@@ -617,6 +623,122 @@ const mockHandlers: HttpHandler[] = [
       )
     },
   ),
+
+  /* ---------------------------------------------------------------- *
+   * 관리자 — 블랙리스트 4종 (✅ BE 개발완료)
+   *
+   * ⚠️ 이 목이 없던 동안 블랙리스트 요청만 스위치 없이 실서버로 나가서,
+   *    USE_MSW 를 켠 로컬에서도 등록·해제가 항상 실패했다. 상태는
+   *    blacklistStore.ts 가 들고 있다(localStorage).
+   * 응답 모양은 BE BlacklistController·BlacklistResponse 기준.
+   * ---------------------------------------------------------------- */
+
+  // 블랙리스트 등록
+  http.post(`${BASE}/staffs/blacklist`, async ({ request }) => {
+    if (!request.headers.get('Authorization')) {
+      return HttpResponse.json(errorBody('인증이 필요합니다.'), { status: 401 })
+    }
+
+    const { userEmail, reasons } = (await request.json()) as {
+      userEmail?: string
+      reasons?: string[]
+    }
+
+    if (
+      typeof userEmail !== 'string' ||
+      userEmail.trim() === '' ||
+      !Array.isArray(reasons) ||
+      reasons.length === 0
+    ) {
+      return HttpResponse.json(
+        errorBody('잘못된 형식의 요청 값입니다.', 'INVALID_INPUT_VALUE'),
+        { status: 400 },
+      )
+    }
+
+    if (registerMockBlacklist(userEmail, reasons) === 'DUPLICATED') {
+      return HttpResponse.json(
+        errorBody('이미 블랙리스트에 등록된 사용자입니다.', 'BLACKLIST_DUPLICATED'),
+        { status: 409 },
+      )
+    }
+
+    return HttpResponse.json(
+      okBodyWithoutData('블랙리스트에 등록했습니다.'),
+      { status: 201 },
+    )
+  }),
+
+  // 블랙리스트 명단 조회 (page 는 1부터)
+  http.get(`${BASE}/staffs/blacklist`, ({ request }) => {
+    if (!request.headers.get('Authorization')) {
+      return HttpResponse.json(errorBody('인증이 필요합니다.'), { status: 401 })
+    }
+
+    const page = Number(new URL(request.url).searchParams.get('page') ?? '1')
+
+    return HttpResponse.json(
+      okBody('조회에 성공하였습니다.', listMockBlacklist(page)),
+    )
+  }),
+
+  // 블랙리스트 해제
+  http.post(`${BASE}/staffs/blacklist/release`, async ({ request }) => {
+    if (!request.headers.get('Authorization')) {
+      return HttpResponse.json(errorBody('인증이 필요합니다.'), { status: 401 })
+    }
+
+    const { userEmail } = (await request.json()) as { userEmail?: string }
+
+    if (typeof userEmail !== 'string' || userEmail.trim() === '') {
+      return HttpResponse.json(
+        errorBody('잘못된 형식의 요청 값입니다.', 'INVALID_INPUT_VALUE'),
+        { status: 400 },
+      )
+    }
+
+    if (releaseMockBlacklist(userEmail) === 'NOT_FOUND') {
+      return HttpResponse.json(
+        errorBody('블랙리스트에 없는 사용자입니다.', 'BLACKLIST_NOT_FOUND'),
+        { status: 404 },
+      )
+    }
+
+    return HttpResponse.json(okBodyWithoutData('블랙리스트를 해제했습니다.'))
+  }),
+
+  // 블랙리스트 사유 수정
+  http.patch(`${BASE}/staffs/blacklist`, async ({ request }) => {
+    if (!request.headers.get('Authorization')) {
+      return HttpResponse.json(errorBody('인증이 필요합니다.'), { status: 401 })
+    }
+
+    const { userEmail, reasons } = (await request.json()) as {
+      userEmail?: string
+      reasons?: string[]
+    }
+
+    if (
+      typeof userEmail !== 'string' ||
+      userEmail.trim() === '' ||
+      !Array.isArray(reasons) ||
+      reasons.length === 0
+    ) {
+      return HttpResponse.json(
+        errorBody('잘못된 형식의 요청 값입니다.', 'INVALID_INPUT_VALUE'),
+        { status: 400 },
+      )
+    }
+
+    if (updateMockBlacklistReasons(userEmail, reasons) === 'NOT_FOUND') {
+      return HttpResponse.json(
+        errorBody('블랙리스트에 없는 사용자입니다.', 'BLACKLIST_NOT_FOUND'),
+        { status: 404 },
+      )
+    }
+
+    return HttpResponse.json(okBodyWithoutData('사유를 수정했습니다.'))
+  }),
 
   /* ---------------------------------------------------------------- *
    * 관리자 — 상담 대기 목록 (BE 미구현, BACKEND_READY.ADMIN_QUEUE 참고)
