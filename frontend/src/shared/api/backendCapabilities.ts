@@ -50,11 +50,11 @@ export const BACKEND_READY: BackendReadyFlags = {
   CONSULTATION_STATUS: false,
 
   /**
-   * `GET /api/v1/admin/consultations?status=WAITING`
-   * 역무원 대기 목록.
+   * `GET /api/v1/staffs/waiting?page=` — 역무원 대기 목록. ✅ BE 개발완료.
    *
-   * 켜면 지울 것 — useWaitingConsultations 의 MOCK_WAITING,
-   *              mockAcceptedIds 와 markMockAccepted/isMockAccepted
+   * true 면 실호출로 나간다. 아래 목들은 지우지 않고 남겨 둔다:
+   * MOCK_WAITING 은 폴백, mockAcceptedIds/markMockAccepted/isMockAccepted 는
+   * 아직 목인 수락(accept) 흐름이 쓴다. 수락까지 실연동되면 그때 함께 정리한다.
    */
-  ADMIN_QUEUE: false,
+  ADMIN_QUEUE: true,
 }
