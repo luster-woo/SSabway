@@ -1,33 +1,33 @@
 import { useCallback, useState } from 'react'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import {
+  keepPreviousData,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query'
 
 import { queryKeys } from '@/shared/lib/queryKeys'
 import {
-  listMockBlacklist,
   removeMockBlacklist,
   updateMockBlacklistReason,
 } from '@/admin/features/blacklist/mockBlacklistStore'
-import { toReasonCodes } from '@/admin/features/blacklist/blacklistReasons'
+import {
+  toReasonCodes,
+  type BlacklistReasonCode,
+} from '@/admin/features/blacklist/blacklistReasons'
 import { adminApi } from '@/shared/api/client'
 import { endpoints } from '@/shared/api/endpoints'
-import {
-  FIRST_PAGE,
-  toMockPageMeta,
-  type PagedContent,
-} from '@/admin/lib/paging'
+import type { ApiResponse } from '@/shared/types/api'
+import type { PagedContent } from '@/admin/lib/paging'
 
 /**
- * GET /admins/blacklist 의 content 한 건. 명세서 응답 필드를 그대로 따른다.
- *
- * shared/types/consultation.ts 의 Blacklist 는 ERD 기준(userId·staffId·releasedAt)이라
- * 이 응답과 필드가 다르다. 화면은 API 응답을 쓰므로 여기서 따로 정의한다.
+ * GET /staffs/blacklist 의 content 한 건. 백엔드 BlacklistResponse 필드를 그대로 따른다.
+ * reasons 는 영문 enum 코드 배열이라, 화면에 뿌릴 때 라벨로 변환한다(toReasonLabels).
  */
 export interface BlacklistEntry {
-  blacklistId: number
   userEmail: string
-  reason: string
-  /** 블랙 등록 시간. 명세서 필드명이 registeredAt 이 아니라 registerTime 이다. */
-  registerTime: string
+  reasons: BlacklistReasonCode[]
+  /** 블랙 등록 시각 (LocalDateTime ISO 문자열) */
+  registeredAt: string
 }
 
 const MOCK_LATENCY_MS = 400
@@ -38,24 +38,29 @@ function delay(ms: number): Promise<void> {
   })
 }
 
-async function fetchBlacklist(): Promise<PagedContent<BlacklistEntry>> {
-  // TODO: BE 연동 시 아래 목 처리를 실제 호출로 교체
-  //   const res = await adminApi.get<ApiResponse<PagedContent<BlacklistEntry>>>(
-  //     endpoints.admin.blacklist.list(FIRST_PAGE),
-  //   )
-  //   return res.data.data
-  await delay(MOCK_LATENCY_MS)
+/** 백엔드는 페이지를 1부터 센다(@Min(1)). 페이지당 5건은 서버가 정한다. */
+export const BLACKLIST_FIRST_PAGE = 1
 
-  const content = listMockBlacklist()
-  return { content, page: toMockPageMeta(content.length) }
+async function fetchBlacklist(
+  page: number,
+): Promise<PagedContent<BlacklistEntry>> {
+  const res = await adminApi.get<ApiResponse<PagedContent<BlacklistEntry>>>(
+    endpoints.admin.blacklist.list(page),
+  )
+  return res.data.data
 }
 
-/** 블랙리스트 명단. 명단 모달을 열 때만 조회한다. */
-export function useBlacklistRoster(enabled: boolean) {
+/**
+ * 블랙리스트 명단. 명단 모달을 열 때만 조회한다.
+ * page 는 백엔드 PageResponse 를 그대로 받아 화면 페이지네이션에 쓴다.
+ * 페이지 이동 시 이전 데이터를 유지해 목록이 깜빡이지 않게 한다.
+ */
+export function useBlacklistRoster(enabled: boolean, page: number) {
   return useQuery({
-    queryKey: queryKeys.blacklist.list(FIRST_PAGE),
-    queryFn: fetchBlacklist,
+    queryKey: queryKeys.blacklist.list(page),
+    queryFn: () => fetchBlacklist(page),
     enabled,
+    placeholderData: keepPreviousData,
   })
 }
 

@@ -36,7 +36,8 @@ interface RecordTarget {
 
 /** 우측 패널 — 민원 기록 (FR-STAFF-001, FR-STAFF-002) */
 export function HistoryPanel() {
-  const { data, isPending, isError } = useConsultationHistory()
+  const [page, setPage] = useState(1)
+  const { data, isPending, isError, isFetching } = useConsultationHistory(page)
   const {
     registerBlacklist,
     updateBlacklistReason,
@@ -175,6 +176,32 @@ export function HistoryPanel() {
               />
             ))}
           </ul>
+        ) : null}
+
+        {data && data.page.totalPages > 1 ? (
+          <div className="mt-4 flex items-center justify-center gap-3">
+            <AdminButton
+              variant="secondary"
+              size="sm"
+              className="rounded-full"
+              disabled={data.page.first || isFetching}
+              onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+            >
+              이전
+            </AdminButton>
+            <span className="text-ink-muted text-[12.5px]">
+              {data.page.number} / {data.page.totalPages}
+            </span>
+            <AdminButton
+              variant="secondary"
+              size="sm"
+              className="rounded-full"
+              disabled={data.page.last || isFetching}
+              onClick={() => setPage((prev) => prev + 1)}
+            >
+              다음
+            </AdminButton>
+          </div>
         ) : null}
       </Panel>
 

@@ -1,3 +1,9 @@
+import { useState } from 'react'
+
+import {
+  joinReasons,
+  toReasonLabels,
+} from '@/admin/features/blacklist/blacklistReasons'
 import { useBlacklistRoster } from '@/admin/features/blacklist/useBlacklist'
 import { AdminButton } from '@/admin/ui/AdminButton'
 import { Modal } from '@/admin/ui/Modal'
@@ -17,7 +23,11 @@ export function BlacklistRosterModal({
   onRelease,
   onClose,
 }: BlacklistRosterModalProps) {
-  const { data, isPending, isError } = useBlacklistRoster(true)
+  const [page, setPage] = useState(1)
+  const { data, isPending, isError, isFetching } = useBlacklistRoster(
+    true,
+    page,
+  )
 
   return (
     <Modal title="블랙리스트 명단" onClose={onClose}>
@@ -50,7 +60,7 @@ export function BlacklistRosterModal({
           <ul className="flex flex-col gap-2">
             {data.content.map((entry) => (
               <li
-                key={entry.blacklistId}
+                key={entry.userEmail}
                 className="bg-surface-muted flex items-center gap-3 rounded-2xl px-4 py-3"
               >
                 <div className="min-w-0 flex-1">
@@ -58,7 +68,8 @@ export function BlacklistRosterModal({
                     {entry.userEmail}
                   </p>
                   <p className="text-ink-muted mt-1 truncate text-[12.5px]">
-                    차단 사유 · {entry.reason || '미입력'}
+                    차단 사유 ·{' '}
+                    {joinReasons(toReasonLabels(entry.reasons)) || '미입력'}
                   </p>
                 </div>
 
@@ -67,7 +78,12 @@ export function BlacklistRosterModal({
                   size="sm"
                   className="shrink-0 rounded-full"
                   disabled={pendingEmail === entry.userEmail}
-                  onClick={() => onEditReason(entry.userEmail, entry.reason)}
+                  onClick={() =>
+                    onEditReason(
+                      entry.userEmail,
+                      joinReasons(toReasonLabels(entry.reasons)),
+                    )
+                  }
                 >
                   수정
                 </AdminButton>
@@ -85,6 +101,32 @@ export function BlacklistRosterModal({
           </ul>
         ) : null}
       </div>
+
+      {data && data.page.totalPages > 1 ? (
+        <div className="mt-4 flex items-center justify-center gap-3">
+          <AdminButton
+            variant="secondary"
+            size="sm"
+            className="rounded-full"
+            disabled={data.page.first || isFetching}
+            onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+          >
+            이전
+          </AdminButton>
+          <span className="text-ink-muted text-[12.5px]">
+            {data.page.number} / {data.page.totalPages}
+          </span>
+          <AdminButton
+            variant="secondary"
+            size="sm"
+            className="rounded-full"
+            disabled={data.page.last || isFetching}
+            onClick={() => setPage((prev) => prev + 1)}
+          >
+            다음
+          </AdminButton>
+        </div>
+      ) : null}
 
       <div className="mt-6">
         <AdminButton size="lg" fullWidth onClick={onClose}>

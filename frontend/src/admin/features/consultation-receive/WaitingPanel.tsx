@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { useToast } from '@/shared/ui'
@@ -10,12 +11,14 @@ import {
   useWaitingConsultations,
   type WaitingConsultation,
 } from '@/admin/features/consultation-receive/useWaitingConsultations'
+import { AdminButton } from '@/admin/ui/AdminButton'
 import { Chip } from '@/admin/ui/Chip'
 import { Panel } from '@/admin/ui/Panel'
 
 /** 좌측 패널 — 상담 대기 목록 (FR-CALL-003) */
 export function WaitingPanel() {
-  const { data, isPending, isError } = useWaitingConsultations()
+  const [page, setPage] = useState(1)
+  const { data, isPending, isError, isFetching } = useWaitingConsultations(page)
   const { accept, pendingId } = useAcceptConsultation()
   const { showToast } = useToast()
   const navigate = useNavigate()
@@ -71,12 +74,38 @@ export function WaitingPanel() {
             <WaitingCard
               key={consultation.consultationId}
               consultation={consultation}
-              isNext={index === 0}
+              isNext={page === 1 && index === 0}
               isPending={pendingId === consultation.consultationId}
               onAccept={() => void acceptConsultation(consultation)}
             />
           ))}
         </ul>
+      ) : null}
+
+      {data && data.page.totalPages > 1 ? (
+        <div className="mt-4 flex items-center justify-center gap-3">
+          <AdminButton
+            variant="secondary"
+            size="sm"
+            className="rounded-full"
+            disabled={data.page.first || isFetching}
+            onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+          >
+            이전
+          </AdminButton>
+          <span className="text-ink-muted text-[12.5px]">
+            {data.page.number} / {data.page.totalPages}
+          </span>
+          <AdminButton
+            variant="secondary"
+            size="sm"
+            className="rounded-full"
+            disabled={data.page.last || isFetching}
+            onClick={() => setPage((prev) => prev + 1)}
+          >
+            다음
+          </AdminButton>
+        </div>
       ) : null}
     </Panel>
   )
