@@ -10,16 +10,6 @@ import type { ApiResponse } from '@/shared/types/api'
  * 백엔드 ConsultationDetailResponse(email, summary, recordUrl, expiresIn) 를
  * 그대로 따른다. (ConsultationController.getDetail)
  *
- * ⚠️ 노션 명세 「Response」 표의 `S3_path` 는 실제 응답에 없다. 표가 낡았고
- *    같은 문서의 예시 JSON 이 백엔드 코드와 일치한다. `S3_path` 로 읽으면
- *    값이 undefined 가 되는데 요청 자체는 200 이라 에러도 나지 않고
- *    <audio src="undefined"> 로 재생만 조용히 실패한다. 필드명을 바꾸지 말 것.
- *
- * recordUrl 은 DB 컬럼이 아니라 서비스가 요청마다 새로 발급하는 S3 presigned
- * URL 이다. 녹취가 아직 없거나 업로드에 실패한 상담은 recordUrl 과 expiresIn 이
- * 함께 null 로 온다 — 백엔드가 "프론트가 요약만 띄우고 플레이어를 비활성화"
- * 하도록 의도한 응답이다. summary 도 consultations.summary 에 NOT NULL 제약이
- * 없어 null 이 가능하다.
  */
 interface ConsultationRecordResponse {
   email: string
