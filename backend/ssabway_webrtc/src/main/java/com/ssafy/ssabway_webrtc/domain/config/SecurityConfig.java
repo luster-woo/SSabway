@@ -47,9 +47,6 @@ public class SecurityConfig {
                     "/api/v1/openvidu/webhooks"
                 ).permitAll()
                 // 사용자만 상담 요청 가능
-                .requestMatchers(HttpMethod.POST,
-                    "/api/v1/consultations")
-                .hasAuthority("USER")
                 .requestMatchers(
                     HttpMethod.GET,
                     "/api/v1/consultations/**"

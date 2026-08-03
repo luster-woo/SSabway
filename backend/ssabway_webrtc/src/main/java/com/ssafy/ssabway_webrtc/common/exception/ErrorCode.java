@@ -39,8 +39,6 @@ public enum ErrorCode {
         "상담 시작 상태를 저장하지 못했습니다."),
     CONSULTATION_END_FAILED(HttpStatus.INTERNAL_SERVER_ERROR,
         "상담 종료 상태를 저장하지 못했습니다."),
-    CONSULTATION_DUPLICATED(HttpStatus.CONFLICT,
-        "이미 대기 중이거나 진행 중인 상담이 있습니다."),
     BLACKLISTED_USER(HttpStatus.FORBIDDEN,
         "서비스 이용이 제한된 사용자입니다."),
     CONSULTATION_NOT_MATCHED(HttpStatus.CONFLICT,
