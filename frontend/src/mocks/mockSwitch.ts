@@ -61,14 +61,13 @@ const SWITCH = {
   'GET /staffs/waiting': true,
 
   /*
-    관리자 — 원본 상담 내역(녹취) 조회. ✅ BE 개발완료.
+    관리자 — 원본 상담 내역(녹취) 조회는 목을 두지 않는다. ✅ BE 개발완료.
 
-    useConsultationRecord 는 플래그 없이 항상 실호출하므로, 로컬에서는 이 목이
-    응답을 준다. false 로 끄면 그대로 실서버로 나간다.
+    useConsultationRecord 가 항상 실호출하고 핸들러도 없으므로 요청이 그대로
+    실서버로 나간다 (블랙리스트 4종과 같은 방식).
     ⚠️ 실서버 검증 시 상담 ID 는 로그인한 역무원 소유여야 한다. 남의 역 상담은
        없는 ID 와 똑같이 404 CONSULTATION_NOT_FOUND 로 온다.
   */
-  'GET /staffs/consultations': true,
 
   /*
     화상연결(signaling) — ✅ BE 개발완료라 기본 OFF (실서버로 나간다).
