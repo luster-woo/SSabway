@@ -1,4 +1,4 @@
-import { userApi } from '@/shared/api/client'
+import { publicApi } from '@/shared/api/client'
 import { endpoints } from '@/shared/api/endpoints'
 import type { ApiResponse } from '@/shared/types'
 import type { RouteGuide } from '@/shared/types/routeGuide'
@@ -16,6 +16,8 @@ import type { RouteGuide } from '@/shared/types/routeGuide'
  *   - 응답의 point(도면 좌표) 포함 여부 — GuidePoint 주석 참고.
  */
 export async function fetchRouteGuide(): Promise<RouteGuide> {
-  const res = await userApi.post<ApiResponse<RouteGuide>>(endpoints.routes.navi)
+  const res = await publicApi.post<ApiResponse<RouteGuide>>(
+    endpoints.routes.navi,
+  )
   return res.data.data
 }

@@ -39,6 +39,15 @@ const SWITCH = {
   'POST /auth/logout': true,
   'POST /auth/refresh': true,
 
+  /*
+    관리자(역무원) 로그인 — ✅ BE 개발완료.
+
+    true  → 목 계정(data.ts 의 STAFF_ACCOUNT: ADMIN001 / example1)으로 로그인
+    false → 실서버로 나간다 (.env.local 의 VITE_PROXY_TARGET 이 가리키는 곳).
+            이때는 해당 백엔드 DB 에 실존하는 staff 계정이 필요하다.
+  */
+  'POST /staffs/login': true,
+
   // 경로
   'GET /routes/gps': true,
   'POST /routes/navi': true,
