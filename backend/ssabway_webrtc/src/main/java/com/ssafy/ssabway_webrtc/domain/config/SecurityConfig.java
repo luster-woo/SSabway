@@ -50,6 +50,11 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST,
                     "/api/v1/consultations")
                 .hasAuthority("USER")
+                .requestMatchers(
+                    HttpMethod.GET,
+                    "/api/v1/consultations/**"
+                )
+                .hasAuthority("USER")
 
                 // 역무원 API는 STAFF만 접근 가능
                 .requestMatchers("/api/v1/staffs/**")

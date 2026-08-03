@@ -14,6 +14,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import com.ssafy.ssabway_webrtc.domain.dto.ConsultationStatusResponse;
+import com.ssafy.ssabway_webrtc.domain.service.ConsultationStatusService;
+import org.springframework.web.bind.annotation.GetMapping;
 
 @RestController
 @RequestMapping("/api/v1/consultations")
@@ -23,6 +26,8 @@ public class ConsultationController {
     private final ConsultationCancelService consultationCancelService;
 
     private final ConsultationRequestService consultationRequestService;
+
+    private final ConsultationStatusService consultationStatusService;
 
     /**
      * 로그인한 사용자의 상담 요청을 WAITING 상태로 등록.
@@ -49,5 +54,24 @@ public class ConsultationController {
                 consultationId)
         );
     }
+
+    // 로그인한 사용자가 자신의 상담 상태와 대기 순번을 조회.
+
+    // 사용자 ID는 요청 값으로 받지 않고 검증된 JWT의 principal을 사용하여 상담 소유자를 확인.
+    @GetMapping("/{consultationId}")
+    public ApiResponse<ConsultationStatusResponse>
+    getConsultationStatus(@PathVariable Long consultationId,
+        Authentication authentication) {
+        Long requesterUserId = (Long) authentication.getPrincipal();
+
+        return ApiResponse.ok(
+            consultationStatusService.getStatus(
+                consultationId,
+                requesterUserId
+            )
+        );
+    }
+
+
 
 }
