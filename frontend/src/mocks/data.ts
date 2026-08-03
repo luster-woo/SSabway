@@ -47,7 +47,7 @@ export const VERIFICATION_EXPIRED_EMAIL = 'expired@mail.com'
  * 명세에 비밀번호 규칙이 아직 없어, 화면 안내 문구("8자 이상 입력")와
  * 회원가입 목의 기준을 그대로 쓴다. BE 규칙이 확정되면 그것을 따른다.
  */
-export const MIN_PASSWORD_LENGTH = 8
+export const MIN_PASSWORD_LENGTH = 5
 
 /* ------------------------------------------------------------------ *
  * 인증 (로그인 · 로그아웃 · 토큰 재발급)
@@ -58,6 +58,18 @@ export const USER_ACCOUNT = {
   email: 'user1@mail.com',
   /** 명세 예시값 */
   password: 'example1',
+}
+
+/**
+ * 관리자(역무원) 로그인 목 계정.
+ *
+ * 명세상 요청 본문은 { staffCode, password } 다. (useAdminLogin 참고)
+ * 실서버 DB 계정과는 무관한 목 전용 값 — 실서버 연동 테스트 때는
+ * mockSwitch 의 'POST /staffs/login' 을 끄고 실제 staff 계정을 쓴다.
+ */
+export const STAFF_ACCOUNT = {
+  staffCode: 'fjhiuozasld',
+  password: '12345',
 }
 
 /**

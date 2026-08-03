@@ -22,6 +22,7 @@ import {
   NEARBY_STATION,
   RATE_LIMITED_EMAIL,
   REFRESH_COOKIE,
+  STAFF_ACCOUNT,
   TAKEN_EMAILS,
   USER_ACCOUNT,
   USER_LANGUAGE,
@@ -309,6 +310,37 @@ const mockHandlers: HttpHandler[] = [
       okBody('로그인 되었습니다.', {
         accessToken: issueAccessToken('user'),
         language: USER_LANGUAGE,
+      }),
+      { headers: { 'Set-Cookie': refreshCookie() } },
+    )
+  }),
+
+  // 관리자(역무원) 로그인 — ✅ BE 개발완료
+  //
+  // 실서버가 있지만, 배포 백엔드가 내려가 있거나(502) 로컬 백엔드 없이
+  // admin 화면을 확인할 때를 위해 목을 둔다. 기본값은 mockSwitch 참고.
+  // 응답 data 는 { accessToken, staffCode } (useAdminLogin 의 AdminLoginData).
+  // 리프레시 쿠키는 사용자 로그인과 같은 방식으로 내려준다 (auth/refresh 공통).
+  http.post(`${BASE}/staffs/login`, async ({ request }) => {
+    const { staffCode, password } = (await request.json()) as {
+      staffCode?: string
+      password?: string
+    }
+
+    if (
+      staffCode !== STAFF_ACCOUNT.staffCode ||
+      password !== STAFF_ACCOUNT.password
+    ) {
+      return HttpResponse.json(
+        errorBody('관리자 코드 또는 비밀번호가 일치하지 않습니다.'),
+        { status: 401 },
+      )
+    }
+
+    return HttpResponse.json(
+      okBody('로그인 되었습니다.', {
+        accessToken: issueAccessToken('admin'),
+        staffCode,
       }),
       { headers: { 'Set-Cookie': refreshCookie() } },
     )
