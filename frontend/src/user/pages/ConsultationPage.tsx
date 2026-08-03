@@ -59,10 +59,10 @@ export default function ConsultationPage() {
   /*
     상담 ID.
 
-    원래는 `POST /api/v1/consultations`(상담 요청) 응답으로 받아야 하지만
-    백엔드에 해당 컨트롤러가 없다. 연결 검증 동안에는 역무원 대기 목록에 보이는
-    ID 를 쿼리 파라미터로 직접 넘긴다. (/consultation?consultationId=1)
-    TODO: 상담 요청 API 가 생기면 응답의 consultationId 를 쓰고 이 파싱은 지운다.
+    HelpChatPage 의 대기 화면이 상담 요청(POST /consultations) 응답으로 받은
+    실제 ID 를 쿼리 파라미터에 실어 이 화면으로 넘긴다. 새로고침해도 URL 에
+    남아 있어 재접속(joinSession)에 그대로 쓸 수 있다 — 그래서 라우팅 state가
+    아니라 쿼리 파라미터를 택했다.
   */
   const consultationId = Number(searchParams.get('consultationId') ?? '0')
 

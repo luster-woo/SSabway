@@ -27,8 +27,8 @@ export interface UseConsultationCallResult {
 /**
  * 여행객 쪽 화상 통화.
  *
- * 매칭 감지는 useConsultationMatch 가 맡고(서버 사정에 따라 방식이 다르다),
- * 여기서는 토큰이 생기면 접속하고 카메라·마이크를 발행하는 일만 한다.
+ * 매칭 감지는 useConsultationMatch 가 맡고, 여기서는 토큰이 생기면 접속하고
+ * 카메라·마이크를 발행하는 일만 한다.
  *
  * 통화 종료 시 녹음 정지는 역무원 쪽에서 일어난다. 명세의
  * `POST /consultations/{id}/leave` 가 아직 없어 사용자는 연결만 끊는다.

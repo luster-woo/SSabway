@@ -1,10 +1,10 @@
 import { http, HttpResponse, type HttpHandler, type RequestHandler } from 'msw'
 
 import {
+  cancelMockConsultation,
   createMockConnection,
   createMockConsultation,
   endMockConsultation,
-  issueMockConsultationToken,
   listMockWaitingConsultations,
   openMockSession,
   pollMockConsultation,
@@ -441,12 +441,12 @@ const mockHandlers: HttpHandler[] = [
   ),
 
   /* ---------------------------------------------------------------- *
-   * 상담 대기열 — ⚠️ BE 미구현 (BACKEND_READY.CONSULTATION_STATUS)
+   * 상담 대기열 — mockSwitch 기본값 true (아직 실서버로 못 붙는다).
    *
-   * 이 목이 있는 동안에는 플래그를 true 로 켜면 MSW 만으로
-   * "요청 → 대기 순번 감소 → 매칭 → 토큰 발급" 흐름을 확인할 수 있다.
+   * `POST /consultations` 가 staffId nullable 전환을 전제로 하는 동안에는
+   * 이 목으로 "요청 → 대기 순번 감소 → 매칭" 흐름을 프론트 단독 검증한다.
    * 상태는 consultationQueue.ts 가 들고 있다.
-   * BE 가 배포되면 mockSwitch 에서 상담 3종을 끄고 실서버로 검증한다.
+   * BE 가 전환을 마치면 mockSwitch.ts 의 상담 3종을 false 로 내려 실연동한다.
    * ---------------------------------------------------------------- */
 
   // 상담 요청 → 대기열 등록
@@ -487,9 +487,9 @@ const mockHandlers: HttpHandler[] = [
     return HttpResponse.json(okBody('상담 상태 조회 성공', snapshot))
   }),
 
-  // 접속 토큰 발급 — MATCHED 확인 후 1회 호출된다
+  // 대기 취소 — HelpChatPage 의 [취소] 버튼
   http.post(
-    `${BASE}/consultations/:consultationId/token`,
+    `${BASE}/consultations/:consultationId/cancel`,
     ({ request, params }) => {
       if (!request.headers.get('Authorization')) {
         return HttpResponse.json(errorBody('인증이 필요합니다.'), {
@@ -497,7 +497,8 @@ const mockHandlers: HttpHandler[] = [
         })
       }
 
-      const result = issueMockConsultationToken(Number(params.consultationId))
+      const consultationId = Number(params.consultationId)
+      const result = cancelMockConsultation(consultationId)
 
       if (result === 'NOT_FOUND') {
         return HttpResponse.json(
@@ -506,15 +507,19 @@ const mockHandlers: HttpHandler[] = [
         )
       }
 
-      // 매칭 전 발급 요청. 정상 흐름에서는 오지 않는다 — BE 확정 시 코드 맞출 것.
-      if (result === 'NOT_MATCHED') {
+      if (result === 'NOT_ALLOWED') {
         return HttpResponse.json(
-          errorBody('아직 매칭되지 않은 상담입니다.', 'CONSULTATION_NOT_MATCHED'),
+          errorBody(
+            '대기 중인 상담만 취소할 수 있습니다.',
+            'CONSULTATION_CANCEL_NOT_ALLOWED',
+          ),
           { status: 409 },
         )
       }
 
-      return HttpResponse.json(okBody('토큰이 발급되었습니다.', result))
+      return HttpResponse.json(
+        okBody('상담이 취소되었습니다.', { consultationId, status: result }),
+      )
     },
   ),
 
