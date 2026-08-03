@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 import java.util.Collection;
 
 public interface ConsultationRepository extends JpaRepository<Consultation, Long> {
@@ -132,5 +134,30 @@ public interface ConsultationRepository extends JpaRepository<Consultation, Long
         @Param("staffId") Long staffId,
         @Param("currentStatus") ConsultationStatus currentStatus,
         @Param("nextStatus") ConsultationStatus nextStatus
+    );
+
+    /**
+     * 특정 상담의 현재 대기 순번을 계산합니다.
+     *
+     * 요청 시간이 빠른 WAITING 상담을 앞 순서로 계산하고,
+     * 요청 시간이 같으면 상담 ID가 작은 상담을 먼저 처리합니다.
+     * 조회 대상 상담 자신까지 포함하므로 반환값은 1부터 시작합니다.
+     */
+    @Query("""
+    SELECT COUNT(c)
+    FROM Consultation c
+    WHERE c.status = :status
+      AND (
+          c.requestedAt < :requestedAt
+          OR (
+              c.requestedAt = :requestedAt
+              AND c.id <= :consultationId
+          )
+      )
+    """)
+    long calculateQueuePosition(
+        @Param("status") ConsultationStatus status,
+        @Param("requestedAt") LocalDateTime requestedAt,
+        @Param("consultationId") Long consultationId
     );
 }

@@ -49,6 +49,8 @@ public enum ErrorCode {
         "이미 다른 역무원에게 배정되었거나 수락할 수 없는 상담입니다."),
     CONSULTATION_ACCEPT_FAILED(HttpStatus.INTERNAL_SERVER_ERROR,
         "상담 수락 처리에 실패했습니다."),
+    CONSULTATION_ACCESS_DENIED(HttpStatus.FORBIDDEN,
+        "해당 상담을 조회할 권한이 없습니다."),
 
     // 상담 오류
     CONSULTATION_CANCEL_NOT_ALLOWED(HttpStatus.CONFLICT,
