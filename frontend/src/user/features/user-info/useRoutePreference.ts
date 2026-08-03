@@ -21,8 +21,8 @@ interface Trail {
 
 const EMPTY_ANSWERS: RoutePreference = {
   useElevator: null,
-  hasTransitCard: null,
-  ticketMethod: null,
+  isCardReady: null,
+  preparationTask: null,
   hasCash: null,
 }
 

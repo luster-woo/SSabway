@@ -53,6 +53,13 @@ services:
       OPENVIDU_URL: ${OPENVIDU_URL}
       OPENVIDU_SECRET: ${OPENVIDU_SECRET}
       OPENVIDU_WEBHOOK_SECRET: ${OPENVIDU_WEBHOOK_SECRET}
+      # api 와 반드시 같은 값이어야 한다 — 사용자·역무원이 api 에서 발급받은
+      # JWT 를 이 서비스가 검증한다. 없으면 application.yaml 의
+      # `jwt.secret: ${JWT_SECRET}` placeholder 를 못 채워 기동 자체가 실패하고
+      # (restart: unless-stopped 로 재시작 루프) 화상 기능 전체가 죽는다.
+      # ⚠️ --env-file 은 compose 파일의 ${} 치환용일 뿐, 컨테이너 환경변수로
+      #    자동 주입되지 않는다. 여기 명시해야 컨테이너에 들어간다.
+      JWT_SECRET: ${JWT_SECRET}
       TZ: Asia/Seoul
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}

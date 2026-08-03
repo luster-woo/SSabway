@@ -12,7 +12,7 @@ import {
   이 파일에는 관리자용 조회 훅만 남는다.
 
   TODO: 상담별 경로 조회 API 신설 요청은 유효하다.
-        GET /api/v1/admins/consultations/{consultationId}/route
+        GET /api/v1/staffs/consultations/{consultationId}/route
         (GET /routes/navi 는 요청 파라미터가 사용자 입력값이라 역무원이 호출 불가)
 */
 

@@ -242,15 +242,16 @@
         "yes": "はい",
         "no": "いいえ"
       },
-      "transitCard": {
-        "question": "交通カードをお持ちですか？",
-        "yes": "はい、あります",
-        "no": "いいえ、ありません"
+      "cardReady": {
+        "question": "交通カードをお持ちで、残高は十分ですか？",
+        "yes": "はい、すぐ乗れます",
+        "no": "いいえ"
       },
-      "ticketMethod": {
-        "question": "どのように移動しますか？",
-        "single": "1回券を購入・現金で移動",
-        "buyCard": "交通カードを購入します"
+      "preparation": {
+        "question": "何が必要ですか？",
+        "charge": "カードのチャージ（カードあり・残高不足）",
+        "buyCard": "交通カードの購入（カードなし）",
+        "singleTicket": "1回券の発券（カードなし）"
       },
       "cash": {
         "question": "現金をお持ちですか？",
@@ -260,20 +261,26 @@
     },
     "plan": {
       "direct": {
-        "title": "目的地までそのまま案内します",
+        "title": "そのまま乗車できます",
         "description": "交通カードで改札を通るだけです"
       },
-      "ticketMachine": {
-        "title": "券売機を経由します",
-        "description": "1回券を購入してから乗車経路を案内します"
+      "charge": {
+        "title": "コンビニでカードをチャージします",
+        "description": "チャージが済んだら改札まで案内します",
+        "atmTitle": "先にATMを経由します",
+        "atmDescription": "現金を引き出してからコンビニでチャージします"
       },
-      "convenienceStore": {
-        "title": "近くのコンビニを経由します",
-        "description": "交通カードを購入してから案内を続けます"
+      "buyCard": {
+        "title": "コンビニで交通カードを購入します",
+        "description": "購入が済んだら改札まで案内します",
+        "atmTitle": "先にATMを経由します",
+        "atmDescription": "現金を引き出してからコンビニでカードを購入します"
       },
-      "atm": {
-        "title": "近くのATMを経由します",
-        "description": "現金を引き出してから移動経路を案内します"
+      "singleTicket": {
+        "title": "券売機で1回券を発券します",
+        "description": "発券が済んだら改札まで案内します",
+        "atmTitle": "先にATMを経由します",
+        "atmDescription": "現金を引き出してから券売機で1回券を発券します"
       }
     }
   },
@@ -334,6 +341,7 @@
     "connectStaff": "駅員とビデオ通話",
     "loginRequired": "ビデオ通話にはログインが必要です。",
     "loginAndConnect": "ログインして通話する",
+    "routeRequired": "先にルート案内を開始してください。\n出発地と目的地がわからないと接続できません。",
     "ready": "接続の準備ができました。\n下のボタンで接続を開始してください。",
     "connect": "ビデオ通話",
     "recordNotice": "通話音声が録音されることがあります",

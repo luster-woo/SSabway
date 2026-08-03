@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Collection;
 import java.util.Optional;
 
 public interface ConsultationRepository extends JpaRepository<Consultation, Long> {
@@ -67,4 +68,16 @@ public interface ConsultationRepository extends JpaRepository<Consultation, Long
     Page<HistoryResponse> findHistoryByStaffIdAndStatus(@Param("staffId") Long staffId,
                                                         @Param("status") ConsultationStatus status,
                                                         Pageable pageable);
+
+    // 사용자가 대기·매칭·상담 중인 요청을 이미 가지고 있는지 확인
+    boolean existsByRequesterUserIdAndStatusIn(
+            Long requesterUserId,
+            Collection<ConsultationStatus> statuses
+    );
+
+    // 해당 역무원에게 등록된 WAITING 상담 수를 계산
+    long countByStaffIdAndStatus(
+            Long staffId,
+            ConsultationStatus status
+    );
 }

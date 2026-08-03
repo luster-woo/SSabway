@@ -81,18 +81,54 @@ export interface ConnectionData {
 }
 
 /**
- * `GET /api/v1/consultations/{consultationId}` 응답. — ⚠️ BE 미구현
+ * `POST /api/v1/consultations` 요청 본문 (BE ssabway ConsultationCreateRequest).
  *
- * 사용자가 3초 간격으로 폴링해 매칭 여부를 확인한다.
- * BACKEND_READY.CONSULTATION_STATUS 가 켜지면 이 타입이 실제로 쓰인다.
+ * 역무원은 클라이언트가 지정하지 않는다 — 서버가 `departureStationId` 로
+ * 담당 역무원을 찾아 배정한다(`staffs.station_id` UNIQUE, 역 1개당 1명).
+ * 그래서 이 본문에 staffId 가 없고, DB `staff_id NOT NULL` 도 그대로 유효하다.
+ *
+ * departure/destination 은 화면에 보여줄 자유 입력 문자열이라 DB 에서 FK 로
+ * 묶지 않는다(schema.sql 주석). 우리 DB 의 역명과 일치할 필요가 없다.
+ *
+ * ⚠️ 세 필드 모두 필수다(@NotNull / @NotBlank + @Size(255)). 하나라도 빠지면 400.
+ */
+export interface ConsultationCreateBody {
+  departureStationId: number
+  departure: string
+  destination: string
+}
+
+/**
+ * `POST /api/v1/consultations` 응답 (BE ConsultationCreateResponse).
+ *
+ * 역무원은 수락 시점에 화상 세션과 함께 확정되므로, 최초 등록 시
+ * staffName·startedAt 은 항상 null 이다.
+ */
+export interface ConsultationCreated {
+  consultationId: number
+  status: ConsultationStatus
+  /** 초기 대기 순번. 1부터 시작 */
+  queuePosition: number | null
+  staffName: string | null
+  requestedAt: string
+  startedAt: string | null
+}
+
+/**
+ * `GET /api/v1/consultations/{consultationId}` 응답 (BE ConsultationStatusResponse).
+ *
+ * 사용자가 3초 간격으로 폴링해 매칭 여부와 대기 순번을 확인한다.
+ * `ConsultationCreated` 와 달리 staffName 이 아니라 sessionId 를 준다 —
+ * MATCHED 이후에만 채워지며, 이 값으로 바로 접속 커넥션을 발급받는다
+ * (별도 발급 API 없음. `@/shared/api/openvidu` 의 joinSession 참고).
  */
 export interface ConsultationSnapshot {
   consultationId: number
   status: ConsultationStatus
   /** WAITING 일 때만 채워진다. 1부터 시작 */
   queuePosition: number | null
-  /** MATCHED 이후 배정된 역무원명 */
-  staffName: string | null
+  /** MATCHED 이후에만 채워진다 */
+  sessionId: string | null
   requestedAt: string
   startedAt: string | null
 }

@@ -1,9 +1,42 @@
 import { toSessionId } from '@/shared/api/openvidu'
 import {
   CONSULTATION_STATUS,
+  type ConsultationCreated,
   type ConsultationSnapshot,
+  type ConsultationStatus,
 } from '@/shared/types'
 import { USER_ACCOUNT } from '@/mocks/data'
+
+/**
+ * 목 내부 상태 모양. 실제 BE 응답은 두 갈래(ConsultationCreated 는 staffName,
+ * ConsultationSnapshot 은 sessionId)라서, 내부 저장은 둘을 합친 이 모양으로
+ * 두고 각 핸들러가 필요한 wire 모양으로 변환한다 (toSnapshotResponse 참고).
+ */
+interface MockConsultationState {
+  consultationId: number
+  status: ConsultationStatus
+  queuePosition: number | null
+  staffName: string | null
+  requestedAt: string
+  startedAt: string | null
+}
+
+/** GET /consultations/{id} 응답 모양으로 변환. MATCHED 이후에만 sessionId 를 채운다. */
+function toSnapshotResponse(
+  state: MockConsultationState,
+): ConsultationSnapshot {
+  return {
+    consultationId: state.consultationId,
+    status: state.status,
+    queuePosition: state.queuePosition,
+    sessionId:
+      state.status === CONSULTATION_STATUS.WAITING
+        ? null
+        : toSessionId(state.consultationId),
+    requestedAt: state.requestedAt,
+    startedAt: state.startedAt,
+  }
+}
 
 /**
  * 상담 대기열 + 화상 세션 시뮬레이션.
@@ -39,7 +72,7 @@ const STORAGE_KEY = 'msw:consultation-queue'
 const STATE_TTL_MS = 10 * 60_000
 
 interface QueueState {
-  snapshot: ConsultationSnapshot | null
+  snapshot: MockConsultationState | null
   /** admin 탭이 대기 목록을 조회했는가 — true 면 자동 매칭을 멈춘다 */
   adminSeen: boolean
   /** 열려 있는 OpenVidu 세션 ID 목록 */
@@ -78,25 +111,29 @@ function writeState(state: QueueState): void {
   )
 }
 
-function isActiveStatus(snapshot: ConsultationSnapshot): boolean {
+function isActiveStatus(state: MockConsultationState): boolean {
   return (
-    snapshot.status === CONSULTATION_STATUS.WAITING ||
-    snapshot.status === CONSULTATION_STATUS.MATCHED ||
-    snapshot.status === CONSULTATION_STATUS.IN_PROGRESS
+    state.status === CONSULTATION_STATUS.WAITING ||
+    state.status === CONSULTATION_STATUS.MATCHED ||
+    state.status === CONSULTATION_STATUS.IN_PROGRESS
   )
 }
 
 /* ------------------------------------------------------------------ *
- * 사용자 쪽 — POST /consultations 3종
+ * 사용자 쪽 — POST /consultations 2종
  * ------------------------------------------------------------------ */
 
-/** 상담 요청. 진행 중 상담이 있으면 'DUPLICATED' (명세의 409). */
-export function createMockConsultation(): ConsultationSnapshot | 'DUPLICATED' {
+/**
+ * 상담 요청. 진행 중 상담이 있으면 'DUPLICATED' (명세의 409).
+ *
+ * ⚠️ staffId 를 받지 않는다 — nullable 전환 가정(shared/api/endpoints.ts 참고).
+ */
+export function createMockConsultation(): ConsultationCreated | 'DUPLICATED' {
   const state = readState()
 
   if (state.snapshot && isActiveStatus(state.snapshot)) return 'DUPLICATED'
 
-  const snapshot: ConsultationSnapshot = {
+  const snapshot: MockConsultationState = {
     consultationId: state.nextId,
     status: CONSULTATION_STATUS.WAITING,
     queuePosition: INITIAL_QUEUE_POSITION,
@@ -119,6 +156,7 @@ export function createMockConsultation(): ConsultationSnapshot | 'DUPLICATED' {
  *
  * admin 탭이 붙어 있으면(adminSeen) 순번 1에서 멈추고 수락을 기다린다.
  * admin 탭이 없으면 0이 되는 순간 자동 매칭한다 — 사용자 단독 테스트용.
+ * 매칭되면 sessionId 가 응답에 채워진다 — 별도 토큰 발급 API 는 없다.
  */
 export function pollMockConsultation(
   consultationId: number,
@@ -127,14 +165,16 @@ export function pollMockConsultation(
   const { snapshot } = state
 
   if (!snapshot || snapshot.consultationId !== consultationId) return null
-  if (snapshot.status !== CONSULTATION_STATUS.WAITING) return snapshot
+  if (snapshot.status !== CONSULTATION_STATUS.WAITING) {
+    return toSnapshotResponse(snapshot)
+  }
 
   const nextPosition = Math.max(
     state.adminSeen ? 1 : 0,
     (snapshot.queuePosition ?? 1) - 1,
   )
 
-  const next: ConsultationSnapshot =
+  const next: MockConsultationState =
     nextPosition <= 0
       ? {
           ...snapshot,
@@ -145,27 +185,55 @@ export function pollMockConsultation(
       : { ...snapshot, queuePosition: nextPosition }
 
   writeState({ ...state, snapshot: next })
-  return next
+  return toSnapshotResponse(next)
 }
 
 /**
- * 접속 토큰 발급. MATCHED 이후에만 성공한다.
- * sessionId 는 백엔드와 공유하는 규칙(toSessionId)을 그대로 따른다.
+ * 대기 취소 — WAITING 에서만 성공한다. 이미 취소된 상담은 재요청해도
+ * 성공(멱등, BE 와 동일). WAITING 이 아닌데 취소되지 않았으면 거절한다.
  */
-export function issueMockConsultationToken(
+export function cancelMockConsultation(
   consultationId: number,
-): { sessionId: string; token: string } | 'NOT_FOUND' | 'NOT_MATCHED' {
-  const { snapshot } = readState()
+): 'CANCELED' | 'NOT_FOUND' | 'NOT_ALLOWED' {
+  const state = readState()
+  const { snapshot } = state
 
-  if (!snapshot || snapshot.consultationId !== consultationId)
+  if (!snapshot || snapshot.consultationId !== consultationId) {
     return 'NOT_FOUND'
-  if (snapshot.status === CONSULTATION_STATUS.WAITING) return 'NOT_MATCHED'
-
-  return {
-    sessionId: toSessionId(consultationId),
-    // 가짜 토큰. openvidu-browser 에 넣으면 접속은 실패한다 (파일 상단 주석 참고).
-    token: `mock-openvidu-token-${String(consultationId)}`,
   }
+  if (snapshot.status === CONSULTATION_STATUS.CANCELED) return 'CANCELED'
+  if (snapshot.status !== CONSULTATION_STATUS.WAITING) return 'NOT_ALLOWED'
+
+  writeState({
+    ...state,
+    snapshot: { ...snapshot, status: CONSULTATION_STATUS.CANCELED },
+  })
+  return 'CANCELED'
+}
+
+/**
+ * 사용자가 통화를 끊었다 — 활성 상담을 ENDED 로 내린다.
+ *
+ * 이게 없으면 상담이 MATCHED/IN_PROGRESS 로 남아, 사용자가 다시 도움을
+ * 요청할 때 `createMockConsultation` 이 'DUPLICATED'(409)를 돌려준다.
+ * 실서버도 같은 조건(existsByRequesterUserIdAndStatusIn)으로 막는다.
+ *
+ * 없는 상담이거나 이미 끝났으면 조용히 넘어간다(멱등).
+ */
+export function leaveMockConsultation(consultationId: number): void {
+  const state = readState()
+  const { snapshot } = state
+
+  if (!snapshot || snapshot.consultationId !== consultationId) return
+  if (!isActiveStatus(snapshot)) return
+
+  writeState({
+    ...state,
+    sessions: state.sessions.filter(
+      (id) => id !== toSessionId(consultationId),
+    ),
+    snapshot: { ...snapshot, status: CONSULTATION_STATUS.ENDED },
+  })
 }
 
 /* ------------------------------------------------------------------ *
@@ -298,26 +366,4 @@ export function endMockConsultation(sessionId: string): {
         : snapshot,
   })
   return { recordingId: `mock-recording-${sessionId}` }
-}
-
-/** 세션 정리(수락 실패 롤백). 매칭됐던 상담은 다시 대기로 되돌린다. */
-export function closeMockSession(sessionId: string): void {
-  const state = readState()
-  const { snapshot } = state
-
-  writeState({
-    ...state,
-    sessions: state.sessions.filter((id) => id !== sessionId),
-    snapshot:
-      snapshot &&
-      toSessionId(snapshot.consultationId) === sessionId &&
-      snapshot.status === CONSULTATION_STATUS.MATCHED
-        ? {
-            ...snapshot,
-            status: CONSULTATION_STATUS.WAITING,
-            queuePosition: 1,
-            staffName: null,
-          }
-        : snapshot,
-  })
 }

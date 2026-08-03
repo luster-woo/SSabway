@@ -242,15 +242,16 @@
         "yes": "是",
         "no": "否"
       },
-      "transitCard": {
-        "question": "您有交通卡吗？",
-        "yes": "有",
+      "cardReady": {
+        "question": "您有交通卡且余额充足吗？",
+        "yes": "有，可以直接乘车",
         "no": "没有"
       },
-      "ticketMethod": {
-        "question": "您打算怎么乘车？",
-        "single": "购买单程票 · 使用现金",
-        "buyCard": "我要购买交通卡"
+      "preparation": {
+        "question": "您需要办理什么？",
+        "charge": "给卡充值（有卡 · 余额不足）",
+        "buyCard": "购买交通卡（没有卡）",
+        "singleTicket": "购买单程票（没有卡）"
       },
       "cash": {
         "question": "您带现金了吗？",
@@ -260,20 +261,26 @@
     },
     "plan": {
       "direct": {
-        "title": "将直接为您导航至目的地",
+        "title": "可以直接乘车",
         "description": "用交通卡通过闸机即可"
       },
-      "ticketMachine": {
-        "title": "将途经售票机",
-        "description": "购买单程票后为您指引乘车路线"
+      "charge": {
+        "title": "将在便利店为您充值",
+        "description": "充值完成后为您指引至闸机",
+        "atmTitle": "将先途经ATM",
+        "atmDescription": "取现后再到便利店充值"
       },
-      "convenienceStore": {
-        "title": "将途经附近的便利店",
-        "description": "购买交通卡后继续为您导航"
+      "buyCard": {
+        "title": "将在便利店购买交通卡",
+        "description": "购买完成后为您指引至闸机",
+        "atmTitle": "将先途经ATM",
+        "atmDescription": "取现后再到便利店购买交通卡"
       },
-      "atm": {
-        "title": "将途经附近的ATM",
-        "description": "取现后为您指引前行路线"
+      "singleTicket": {
+        "title": "将在售票机购买单程票",
+        "description": "购票完成后为您指引至闸机",
+        "atmTitle": "将先途经ATM",
+        "atmDescription": "取现后再到售票机购买单程票"
       }
     }
   },
@@ -334,6 +341,7 @@
     "connectStaff": "与站务员视频通话",
     "loginRequired": "视频通话需要登录。",
     "loginAndConnect": "登录并开始通话",
+    "routeRequired": "请先开始路线导航。\n我们需要知道出发地和目的地才能为您连接。",
     "ready": "已准备就绪。\n请点击下方按钮开始连接。",
     "connect": "视频通话",
     "recordNotice": "通话语音可能会被录音",

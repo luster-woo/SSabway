@@ -41,45 +41,59 @@ const routes = {
 } as const
 
 /**
- * 화상 상담 (사용자) — ⚠️ 백엔드 미구현. BACKEND_READY.CONSULTATION_STATUS 참고.
+ * 화상 상담 (사용자) — ⚠️ 같은 `/consultations` 아래인데 소유 서비스가 갈린다.
+ * (8/4 백엔드 최신화 반영)
  *
- * 노션 7/27 명세의 상담 리소스 API 다. 대기열·매칭·상태조회가 여기 걸려 있다.
+ *   create        → ssabway(api).  상담 생성 = 대기열 등록
+ *   detail/cancel → ssabway_webrtc(signaling). 상태 전이·조회
  *
- * ⚠️ 이 경로들은 상담 상태(DB)와 OpenVidu 를 동시에 다뤄야 해서 signaling 서버에
- *    구현될 가능성이 높다. 그렇다면 nginx 가 `/api/v1/consultations/` 도
- *    signaling 으로 보내야 한다. BE 와 어느 모듈에 넣을지 먼저 합의할 것.
+ * `schema.sql` 의 consultations 테이블 주석이 정한 분업이다 — "ssabway 가
+ * INSERT, webrtc 가 상태 전이". 한때 webrtc 에도 create 가 중복 구현돼 있었는데
+ * 8/4 삭제되어 지금은 ssabway 단독이다.
+ *
+ * ⚠️ 그래서 nginx 라우팅이 경로 하나 차이로 갈린다 (deploy/nginx.conf 참고) —
+ *      `= /api/v1/consultations`  → api
+ *      `/api/v1/consultations/`   → signaling
+ *    응답 봉투도 서버마다 달라서 ssabway 는 `code` 가 있고 webrtc 는 없다.
+ *    (shared/types/api.ts 의 ApiResponse / WebrtcApiResponse)
  */
 const consultations = {
-  /** 상담 요청 → WAITING 생성 */
+  /**
+   * 상담 요청 → WAITING 생성. ✅ BE 구현됨 (ssabway UserConsultationController).
+   * 요청 본문은 `ConsultationCreateBody`(3필드 전부 필수), 응답은 `ConsultationCreated`.
+   * 역무원은 서버가 departureStationId 로 자동 배정한다.
+   */
   create: '/consultations',
-  /** 상태 폴링 (3초). STOMP 가 붙으면 폴백으로 남는다 */
+  /** 상태 폴링 (3초). 응답은 `ConsultationSnapshot` 타입 참고. STOMP 가 붙으면 폴백으로 남는다 */
   detail: (id: number) => `/consultations/${id}`,
   /**
-   * 대기 취소 — ✅ BE 구현됨 (webrtc ConsultationController, 8/1 코드 확인).
+   * 대기 취소 — ✅ BE 구현됨 (webrtc ConsultationController).
    * POST 이고 /cancel 이 붙는다 (초기안 DELETE /consultations/{id} 에서 변경).
    * WAITING 에서만 취소 가능(그 외 409 CONSULTATION_CANCEL_NOT_ALLOWED),
    * 이미 취소된 상담은 재요청해도 성공. 응답 { consultationId, status }.
-   * ⚠️ webrtc 서버 구현이므로 nginx 가 /api/v1/consultations/ 를
-   *    signaling 으로 보내야 한다 (아래 consultations 블록 주석과 같은 이슈).
+   *
+   * ⚠️ 서버가 소유자를 검증하지 않는다(Authentication 을 받지 않음) — 상담 ID 만
+   *    알면 남의 대기도 취소된다. 취소 버튼은 사용자 화면에서만 노출할 것.
+   *    (BE 에 검증 추가 요청해 둔 상태)
    */
   cancel: (id: number) => `/consultations/${id}/cancel`,
-  /** ⚠️ BE 미구현 */
+  /** ⚠️ BE 미구현 — 목만 있다. useConsultationCall 의 leaveCall 주석 참고 */
   leave: (id: number) => `/consultations/${id}/leave`,
-  /** 접속 토큰 발급·재발급 */
-  token: (id: number) => `/consultations/${id}/token`,
 } as const
 
 /**
- * 화상 연결 — signaling 서버(ssabway_webrtc)의 실제 구현 (7/31 최신화 반영).
+ * 화상 연결 — signaling 서버(ssabway_webrtc)의 실제 구현 (8/3 최신화 반영).
  *
- * 세션 생성 → 커넥션 → start(녹음+IN_PROGRESS) → end 의 흐름이며,
+ * 역무원 수락은 admin.accept(1-call) 가 세션 생성+토큰까지 처리하고,
+ * 여기는 사용자 커넥션 → start(녹음+IN_PROGRESS) → end 만 남는다.
  * 호출 순서와 실패 처리는 `@/shared/api/openvidu` 가 책임진다. 화면에서 직접 부르지 말 것.
+ * (구 3-call 의 `POST /openvidu/sessions` 와 `DELETE /openvidu/sessions/{id}` 는
+ *  백엔드에 존재하지 않아 제거했다 — 8/3)
  *
  * ⚠️ nginx 가 `/api/` 를 ssabway 로만 보내고 있어 배포 환경에서는 아직 404 다.
  *    `location /api/v1/openvidu/ { proxy_pass http://signaling:8080; }` 추가가 필요하다.
  */
 const openvidu = {
-  createSession: '/openvidu/sessions',
   createConnection: (sessionId: string) =>
     `/openvidu/sessions/${encodeURIComponent(sessionId)}/connections`,
   /**
@@ -89,12 +103,6 @@ const openvidu = {
    */
   start: (sessionId: string) =>
     `/openvidu/sessions/${encodeURIComponent(sessionId)}/start`,
-  /**
-   * 세션 정리(수락 실패 롤백용).
-   * ⚠️ 백엔드에서 제거됐다가 재추가 합의됨(7/31) — 배포 전까지 404 가능.
-   */
-  closeSession: (sessionId: string) =>
-    `/openvidu/sessions/${encodeURIComponent(sessionId)}`,
   /** 녹음 정지 + 세션 종료 + ENDED 전이. recordingId 는 서버가 DB에서 찾는다. */
   endConsultation: (sessionId: string) =>
     `/openvidu/sessions/${encodeURIComponent(sessionId)}/end`,
@@ -103,21 +111,24 @@ const openvidu = {
 /** 관리자 */
 const admin = {
   login: '/staffs/login',
+  /** 상담 대기 목록. ✅ BE 개발완료 (ConsultationController GET /staffs/waiting). */
+  waiting: (page: number) => `/staffs/waiting?page=${page}`,
   /**
-   * 상담 대기 목록.
-   *
-   * ⚠️ 노션에 경로가 두 벌이다. 7/21 등록분은 `/admins/waiting`,
-   *    7/27 정리 제안은 `/admin/consultations?status=WAITING` 이다.
-   *    BE 구현 시작 전에 어느 쪽으로 확정할지 합의 필요. 지금은 7/27 안을 기본으로
-   *    두고, 서버가 7/21 형태로 나오면 이 함수만 바꾼다.
+   * 민원 기록 목록. ✅ BE 개발완료 (ConsultationController GET /staffs/history).
+   * useConsultationHistory 의 매핑 함수 주석 참고. 페이지는 1부터, 6건씩.
    */
-  waiting: (page: number) =>
-    `/staffs/consultations?status=WAITING&page=${page}`,
   history: (page: number) => `/staffs/history?page=${page}`,
+  /**
+   * 원본 상담 내역(녹취) 조회. ✅ BE 개발완료 (ConsultationController.getDetail).
+   *
+   */
   consultationDetail: (id: number) => `/staffs/consultations?id=${id}`,
   /**
-   * 상담 수락 — 세션 생성 + 토큰 발급 + 녹음 시작 통합. ⚠️ BE 작업 중.
-   * consultationId 기준이라 프론트가 sessionId 를 몰라도 된다.
+   * 상담 수락 — ✅ BE 구현됨 (webrtc StaffConsultationController, 8/3 코드 확인).
+   * 상태 잠금 + 세션 생성 + 역무원 토큰 발급을 1-call 로 처리한다.
+   * 응답 { consultationId, sessionId, token, status }. 녹음 시작은 별도(start).
+   * ⚠️ webrtc 서버 구현이므로 nginx 가 /api/v1/staffs/consultations/ 를
+   *    signaling 으로 보내야 한다.
    */
   accept: (id: number) => `/staffs/consultations/${id}/accept`,
   /** 상담 종료 — 녹음 정지 + 세션 종료 + ENDED. ⚠️ BE 작업 중 */

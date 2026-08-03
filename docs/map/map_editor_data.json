@@ -397,7 +397,8 @@
      "type": "facility",
      "code": "CO",
      "x": -1940,
-     "y": 2860
+     "y": 2860,
+     "navId": "CO0_02"
     },
     {
      "type": "facility",
@@ -409,19 +410,22 @@
      "type": "facility",
      "code": "TI",
      "x": -1940,
-     "y": 2980
+     "y": 2980,
+     "navId": "TI0_01"
     },
     {
      "type": "facility",
      "code": "BO",
      "x": -1940,
-     "y": 3160
+     "y": 3160,
+     "navId": "BO0_01"
     },
     {
      "type": "facility",
      "code": "AT",
      "x": -1400,
-     "y": 3300
+     "y": 3300,
+     "navId": "AT0_01"
     },
     {
      "type": "facility",
@@ -1415,13 +1419,15 @@
      "type": "facility",
      "code": "AT",
      "x": 400,
-     "y": 3880
+     "y": 3880,
+     "navId": "AT0_02"
     },
     {
      "type": "facility",
      "code": "CO",
      "x": 400,
-     "y": 3940
+     "y": 3940,
+     "navId": "CO0_01"
     },
     {
      "type": "facility",
@@ -2617,25 +2623,29 @@
      "type": "facility",
      "code": "BO",
      "x": 1180,
-     "y": 2600
+     "y": 2600,
+     "navId": "BO0_03"
     },
     {
      "type": "facility",
      "code": "TI",
      "x": 1220,
-     "y": 2560
+     "y": 2560,
+     "navId": "TI0_02"
     },
     {
      "type": "facility",
      "code": "TI",
      "x": 1320,
-     "y": 1960
+     "y": 1960,
+     "navId": "TI0_03"
     },
     {
      "type": "facility",
      "code": "BO",
      "x": 1280,
-     "y": 2000
+     "y": 2000,
+     "navId": "BO0_04"
     },
     {
      "type": "facility",
@@ -2722,6 +2732,25 @@
      "text": "1F",
      "size": 90,
      "color": "#212121"
+    },
+    {
+     "type": "facility",
+     "code": "BO",
+     "x": -3300,
+     "y": 4440
+    },
+    {
+     "type": "facility",
+     "code": "BO",
+     "x": -3300,
+     "y": 4920
+    },
+    {
+     "type": "facility",
+     "code": "BO",
+     "x": -2520,
+     "y": 3680,
+     "navId": "BO0_02"
     }
    ]
   }
@@ -3214,6 +3243,94 @@
     "floor": "0",
     "x": -1120,
     "y": 4140
+   },
+   {
+    "id": "BO0_01",
+    "type": "POI",
+    "floor": "0",
+    "x": -1940,
+    "y": 3160,
+    "category": "TICKET_MACHINE"
+   },
+   {
+    "id": "TI0_01",
+    "type": "POI",
+    "floor": "0",
+    "x": -1940,
+    "y": 2980,
+    "category": "TICKET_OFFICE"
+   },
+   {
+    "id": "BO0_02",
+    "type": "POI",
+    "floor": "0",
+    "x": -2520,
+    "y": 3680,
+    "category": "TICKET_MACHINE"
+   },
+   {
+    "id": "AT0_01",
+    "type": "POI",
+    "floor": "0",
+    "x": -1400,
+    "y": 3300,
+    "category": "ATM"
+   },
+   {
+    "id": "AT0_02",
+    "type": "POI",
+    "floor": "0",
+    "x": 400,
+    "y": 3880,
+    "category": "ATM"
+   },
+   {
+    "id": "CO0_01",
+    "type": "POI",
+    "floor": "0",
+    "x": 400,
+    "y": 3940,
+    "category": "STORE"
+   },
+   {
+    "id": "TI0_02",
+    "type": "POI",
+    "floor": "0",
+    "x": 1220,
+    "y": 2560,
+    "category": "TICKET_OFFICE"
+   },
+   {
+    "id": "BO0_03",
+    "type": "POI",
+    "floor": "0",
+    "x": 1180,
+    "y": 2600,
+    "category": "TICKET_MACHINE"
+   },
+   {
+    "id": "BO0_04",
+    "type": "POI",
+    "floor": "0",
+    "x": 1280,
+    "y": 2000,
+    "category": "TICKET_MACHINE"
+   },
+   {
+    "id": "TI0_03",
+    "type": "POI",
+    "floor": "0",
+    "x": 1320,
+    "y": 1960,
+    "category": "TICKET_OFFICE"
+   },
+   {
+    "id": "CO0_02",
+    "type": "POI",
+    "floor": "0",
+    "x": -1940,
+    "y": 2860,
+    "category": "STORE"
    }
   ],
   "edges": [
@@ -5192,6 +5309,318 @@
       "y": 4960
      }
     ]
+   },
+   {
+    "id": "E090",
+    "from": "AT0_01",
+    "to": "S3_06",
+    "bidirectional": true,
+    "containsStairs": false,
+    "weight": 120,
+    "geometry": [
+     {
+      "x": -1400,
+      "y": 3300
+     },
+     {
+      "x": -1400,
+      "y": 3420
+     }
+    ],
+    "arriveSide": {
+     "S3_06": "B"
+    }
+   },
+   {
+    "id": "E091",
+    "from": "AT0_01",
+    "to": "BO0_01",
+    "bidirectional": true,
+    "containsStairs": false,
+    "weight": 557.85,
+    "geometry": [
+     {
+      "x": -1400,
+      "y": 3300
+     },
+     {
+      "x": -1940,
+      "y": 3160
+     }
+    ]
+   },
+   {
+    "id": "E092",
+    "from": "AT0_01",
+    "to": "TI0_01",
+    "bidirectional": true,
+    "containsStairs": false,
+    "weight": 627.69,
+    "geometry": [
+     {
+      "x": -1400,
+      "y": 3300
+     },
+     {
+      "x": -1940,
+      "y": 2980
+     }
+    ]
+   },
+   {
+    "id": "E093",
+    "from": "S3_08",
+    "to": "BO0_02",
+    "bidirectional": true,
+    "containsStairs": false,
+    "weight": 342.34,
+    "geometry": [
+     {
+      "x": -2180,
+      "y": 3640
+     },
+     {
+      "x": -2520,
+      "y": 3680
+     }
+    ],
+    "arriveSide": {
+     "S3_08": "F"
+    }
+   },
+   {
+    "id": "E094",
+    "from": "CO0_02",
+    "to": "AT0_01",
+    "bidirectional": true,
+    "containsStairs": false,
+    "weight": 696.56,
+    "geometry": [
+     {
+      "x": -1940,
+      "y": 2860
+     },
+     {
+      "x": -1400,
+      "y": 3300
+     }
+    ]
+   },
+   {
+    "id": "E095",
+    "from": "CO0_02",
+    "to": "TI0_01",
+    "bidirectional": true,
+    "containsStairs": false,
+    "weight": 120,
+    "geometry": [
+     {
+      "x": -1940,
+      "y": 2860
+     },
+     {
+      "x": -1940,
+      "y": 2980
+     }
+    ]
+   },
+   {
+    "id": "E096",
+    "from": "TI0_01",
+    "to": "BO0_01",
+    "bidirectional": true,
+    "containsStairs": false,
+    "weight": 180,
+    "geometry": [
+     {
+      "x": -1940,
+      "y": 2980
+     },
+     {
+      "x": -1940,
+      "y": 3160
+     }
+    ]
+   },
+   {
+    "id": "E097",
+    "from": "S2_06",
+    "to": "AT0_02",
+    "bidirectional": true,
+    "containsStairs": false,
+    "weight": 205.91,
+    "geometry": [
+     {
+      "x": 300,
+      "y": 3700
+     },
+     {
+      "x": 400,
+      "y": 3880
+     }
+    ],
+    "arriveSide": {
+     "S2_06": "B"
+    }
+   },
+   {
+    "id": "E098",
+    "from": "AT0_02",
+    "to": "CO0_01",
+    "bidirectional": true,
+    "containsStairs": false,
+    "weight": 60,
+    "geometry": [
+     {
+      "x": 400,
+      "y": 3880
+     },
+     {
+      "x": 400,
+      "y": 3940
+     }
+    ]
+   },
+   {
+    "id": "E099",
+    "from": "S1_10",
+    "to": "BO0_03",
+    "bidirectional": true,
+    "containsStairs": false,
+    "weight": 89.44,
+    "geometry": [
+     {
+      "x": 1140,
+      "y": 2520
+     },
+     {
+      "x": 1180,
+      "y": 2600
+     }
+    ],
+    "arriveSide": {
+     "S1_10": "F"
+    }
+   },
+   {
+    "id": "E100",
+    "from": "BO0_03",
+    "to": "TI0_02",
+    "bidirectional": true,
+    "containsStairs": false,
+    "weight": 56.57,
+    "geometry": [
+     {
+      "x": 1180,
+      "y": 2600
+     },
+     {
+      "x": 1220,
+      "y": 2560
+     }
+    ]
+   },
+   {
+    "id": "E101",
+    "from": "S1_01",
+    "to": "TI0_03",
+    "bidirectional": true,
+    "containsStairs": false,
+    "weight": 84.85,
+    "geometry": [
+     {
+      "x": 1380,
+      "y": 2020
+     },
+     {
+      "x": 1320,
+      "y": 1960
+     }
+    ],
+    "arriveSide": {
+     "S1_01": "B"
+    }
+   },
+   {
+    "id": "E102",
+    "from": "TI0_03",
+    "to": "BO0_04",
+    "bidirectional": true,
+    "containsStairs": false,
+    "weight": 56.57,
+    "geometry": [
+     {
+      "x": 1320,
+      "y": 1960
+     },
+     {
+      "x": 1280,
+      "y": 2000
+     }
+    ]
+   },
+   {
+    "id": "E103",
+    "from": "BO0_04",
+    "to": "S1_01",
+    "bidirectional": true,
+    "containsStairs": false,
+    "weight": 101.98,
+    "geometry": [
+     {
+      "x": 1280,
+      "y": 2000
+     },
+     {
+      "x": 1380,
+      "y": 2020
+     }
+    ],
+    "arriveSide": {
+     "S1_01": "B"
+    }
+   },
+   {
+    "id": "E104",
+    "from": "S1_10",
+    "to": "TI0_02",
+    "bidirectional": true,
+    "containsStairs": false,
+    "weight": 89.44,
+    "geometry": [
+     {
+      "x": 1140,
+      "y": 2520
+     },
+     {
+      "x": 1220,
+      "y": 2560
+     }
+    ],
+    "arriveSide": {
+     "S1_10": "F"
+    }
+   },
+   {
+    "id": "E105",
+    "from": "BO0_01",
+    "to": "S3_06",
+    "bidirectional": true,
+    "containsStairs": false,
+    "weight": 599.33,
+    "geometry": [
+     {
+      "x": -1940,
+      "y": 3160
+     },
+     {
+      "x": -1400,
+      "y": 3420
+     }
+    ],
+    "arriveSide": {
+     "S3_06": "B"
+    }
    }
   ]
  }
