@@ -1,5 +1,6 @@
 interface BackendReadyFlags {
   ADMIN_QUEUE: boolean
+  ROUTE_GUIDE: boolean
 }
 
 /*
@@ -41,4 +42,23 @@ export const BACKEND_READY: BackendReadyFlags = {
    * 작업으로 남겨 둔다.
    */
   ADMIN_QUEUE: true,
+
+  /**
+   * `POST /api/v1/routes/navi` — 역 내 단계별 경로 안내. ⚠️ BE 컨트롤러 없음.
+   *
+   * `/api/v1/routes/**` 는 어느 서비스에도 구현되어 있지 않다(ssabway·webrtc
+   * 양쪽에 routes 컨트롤러 0건). 그래서 false 인 동안 `fetchRouteGuide` 는
+   * HTTP 를 아예 보내지 않고 `MOCK_ROUTE_GUIDE` 를 돌려준다.
+   *
+   * ⚠️ 이 플래그가 있는 이유 — 배포 환경에는 MSW 가 없다.
+   *    (main.tsx 의 `IS_DEV && env.USE_MSW` 이중 게이트, 운영 번들에서 제외)
+   *    HTTP 를 보내면 로컬은 MSW 가 받아 주지만 배포에서는 404 로 떨어져
+   *    경로 안내 화면이 실패 상태에 갇히고, 그 뒤 도움 요청·화상까지 막힌다.
+   *    형제 함수인 fetchRoutePaths·fetchGuideInfo 는 처음부터 목을 직접
+   *    돌려주고 있어 배포에서도 동작한다 — 이 함수만 예외였다.
+   *
+   * BE 배포 시: 이 플래그를 true 로 바꾸고, mocks/handlers.ts 의
+   * `POST /routes/navi` 목과 mockRouteGuide.ts 를 정리한다.
+   */
+  ROUTE_GUIDE: false,
 }

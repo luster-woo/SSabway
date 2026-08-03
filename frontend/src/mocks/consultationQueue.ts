@@ -211,6 +211,31 @@ export function cancelMockConsultation(
   return 'CANCELED'
 }
 
+/**
+ * 사용자가 통화를 끊었다 — 활성 상담을 ENDED 로 내린다.
+ *
+ * 이게 없으면 상담이 MATCHED/IN_PROGRESS 로 남아, 사용자가 다시 도움을
+ * 요청할 때 `createMockConsultation` 이 'DUPLICATED'(409)를 돌려준다.
+ * 실서버도 같은 조건(existsByRequesterUserIdAndStatusIn)으로 막는다.
+ *
+ * 없는 상담이거나 이미 끝났으면 조용히 넘어간다(멱등).
+ */
+export function leaveMockConsultation(consultationId: number): void {
+  const state = readState()
+  const { snapshot } = state
+
+  if (!snapshot || snapshot.consultationId !== consultationId) return
+  if (!isActiveStatus(snapshot)) return
+
+  writeState({
+    ...state,
+    sessions: state.sessions.filter(
+      (id) => id !== toSessionId(consultationId),
+    ),
+    snapshot: { ...snapshot, status: CONSULTATION_STATUS.ENDED },
+  })
+}
+
 /* ------------------------------------------------------------------ *
  * 관리자 쪽 — GET /admin/consultations?status=WAITING
  * ------------------------------------------------------------------ */
