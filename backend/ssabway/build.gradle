@@ -29,6 +29,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security-oauth2-client'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+    // 경로 그래프·안내 문구 JSON 을 ObjectMapper 로 읽는다.
+    // 런타임에는 이미 들어와 있지만 컴파일 시점에는 보이지 않아 명시한다.
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation "io.jsonwebtoken:jjwt-api:${jjwtVersion}"
     implementation platform('software.amazon.awssdk:bom:2.32.0')

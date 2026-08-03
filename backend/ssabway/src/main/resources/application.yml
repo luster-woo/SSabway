@@ -68,3 +68,13 @@ logging:
   level:
     org.hibernate.SQL: debug
     org.hibernate.orm.jdbc.bind: trace
+
+# 역 내 길안내
+#   graph-location  지도 편집 툴이 내보낸 노드·엣지
+#   guide-location  구간별 안내 문구 (한/영/일/중)
+#   두 파일은 항상 같이 갱신해야 한다. 엣지를 지우면 문구가 남아돌고,
+#   엣지를 추가하면 문구가 없어 null 이 나간다.
+navigation:
+  graph-location: classpath:navigation/daegu_navigation.json
+  guide-location: classpath:navigation/daegu_user_guide.json
+  sign-image-base-url: ${SIGN_IMAGE_BASE_URL:https://ssabway.s3.ap-northeast-2.amazonaws.com/signs}
