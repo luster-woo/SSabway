@@ -1,5 +1,6 @@
 package com.ssafy.ssabway.domain.consultation.controller;
 
+import com.ssafy.ssabway.domain.consultation.dto.response.ConsultationDetailResponse;
 import com.ssafy.ssabway.domain.consultation.dto.response.WaitingResponse;
 import com.ssafy.ssabway.domain.consultation.service.ConsultationService;
 import com.ssafy.ssabway.global.common.ApiResponse;
@@ -27,5 +28,14 @@ public class ConsultationController {
 
         return ResponseEntity.ok(
                 ApiResponse.ok("대기 목록 조회 성공", consultationService.getWaitingList(staffId, page)));
+    }
+
+    @GetMapping("/consultations")
+    public ResponseEntity<ApiResponse<ConsultationDetailResponse>> getDetail(
+            @AuthenticationPrincipal Long staffId,
+            @RequestParam Long id) {
+
+        return ResponseEntity.ok(
+                ApiResponse.ok("조회에 성공하였습니다.", consultationService.getDetail(staffId, id)));
     }
 }
