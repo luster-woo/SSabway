@@ -43,7 +43,11 @@ public enum ErrorCode {
 
     // 상담
     CONSULTATION_DUPLICATED(HttpStatus.CONFLICT, "중복된 상담 요청입니다."), // 409
-    CONSULTATION_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 상담입니다."); //404
+    CONSULTATION_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 상담입니다."), //404
+    
+    // 길찾기
+    SUBWAY_ROUTE_NOT_FOUND(HttpStatus.NOT_FOUND, "이용 가능한 지하철 경로가 없습니다."),  // 404
+    EXTERNAL_API_ERROR(HttpStatus.BAD_GATEWAY, "외부 경로 서비스에 일시적인 문제가 있습니다.");    // 502
 
     private final HttpStatus httpStatus;
     private final String message;
