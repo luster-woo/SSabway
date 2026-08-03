@@ -6,7 +6,6 @@ import {
 } from '@tanstack/react-query'
 
 import { queryKeys } from '@/shared/lib/queryKeys'
-import { updateMockBlacklistReason } from '@/admin/features/blacklist/mockBlacklistStore'
 import {
   toReasonCodes,
   type BlacklistReasonCode,
@@ -25,14 +24,6 @@ export interface BlacklistEntry {
   reasons: BlacklistReasonCode[]
   /** 블랙 등록 시각 (LocalDateTime ISO 문자열) */
   registeredAt: string
-}
-
-const MOCK_LATENCY_MS = 400
-
-function delay(ms: number): Promise<void> {
-  return new Promise((resolve) => {
-    window.setTimeout(resolve, ms)
-  })
 }
 
 /** 백엔드는 페이지를 1부터 센다(@Min(1)). 페이지당 5건은 서버가 정한다. */
@@ -78,14 +69,13 @@ async function requestUpdateReason(
   userEmail: string,
   reason: string,
 ): Promise<void> {
-  // TODO: BE 연동 시 아래 목 처리를 실제 호출로 교체
-  //   await adminApi.patch(endpoints.admin.blacklist.updateReason, { userEmail, reason })
-  await delay(MOCK_LATENCY_MS)
+  // 등록과 같다: 화면의 한글 사유 문자열을 백엔드 영문 코드 배열로 바꿔 PATCH 한다.
+  const reasons = toReasonCodes(reason)
 
-  // reason 이 Non Null 이므로 목에서도 같은 조건으로 막는다.
-  if (reason.trim() === '') throw new Error('사유가 비어 있습니다.')
-
-  updateMockBlacklistReason(userEmail, reason)
+  await adminApi.patch(endpoints.admin.blacklist.updateReason, {
+    userEmail,
+    reasons,
+  })
 }
 
 async function requestRelease(userEmail: string): Promise<void> {
