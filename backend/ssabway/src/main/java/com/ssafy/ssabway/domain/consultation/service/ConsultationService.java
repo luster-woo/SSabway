@@ -94,8 +94,10 @@ public class ConsultationService {
         userRepository.findByIdAndDeletedAtIsNull(requesterUserId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
-        Staff staff = staffRepository.findByStationId(request.departureStationId())
-                .orElseThrow(() -> new BusinessException(ErrorCode.STAFF_NOT_FOUND));
+        Staff staff = staffRepository
+                .findByDepartureStationName(request.departure().trim())
+                .orElseThrow(() -> new BusinessException(ErrorCode.STAFF_NOT_FOUND)
+                );
 
         Long staffId = staff.getId();
 
