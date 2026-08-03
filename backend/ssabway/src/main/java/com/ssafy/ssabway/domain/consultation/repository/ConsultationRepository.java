@@ -7,6 +7,7 @@ import com.ssafy.ssabway.domain.consultation.entity.ConsultationStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -79,5 +80,20 @@ public interface ConsultationRepository extends JpaRepository<Consultation, Long
     long countByStaffIdAndStatus(
             Long staffId,
             ConsultationStatus status
+    );
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("""
+    UPDATE Consultation c
+       SET c.status = :nextStatus
+     WHERE c.id = :consultationId
+       AND c.staffId = :staffId
+       AND c.status = :currentStatus
+    """)
+    int acceptConsultation(
+            @Param("staffId") Long staffId,
+            @Param("consultationId") Long consultationId,
+            @Param("currentStatus") ConsultationStatus currentStatus,
+            @Param("nextStatus") ConsultationStatus nextStatus
     );
 }

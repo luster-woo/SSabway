@@ -1,11 +1,10 @@
 package com.ssafy.ssabway.domain.consultation.service;
 
 import com.ssafy.ssabway.domain.blacklist.repository.BlacklistRepository;
+import com.ssafy.ssabway.domain.consultation.client.WebRtcClient;
+import com.ssafy.ssabway.domain.consultation.client.WebRtcConnectionResponse;
 import com.ssafy.ssabway.domain.consultation.dto.request.ConsultationCreateRequest;
-import com.ssafy.ssabway.domain.consultation.dto.response.ConsultationCreateResponse;
-import com.ssafy.ssabway.domain.consultation.dto.response.ConsultationDetailResponse;
-import com.ssafy.ssabway.domain.consultation.dto.response.HistoryResponse;
-import com.ssafy.ssabway.domain.consultation.dto.response.WaitingResponse;
+import com.ssafy.ssabway.domain.consultation.dto.response.*;
 import com.ssafy.ssabway.domain.consultation.entity.Consultation;
 import com.ssafy.ssabway.domain.consultation.entity.ConsultationStatus;
 import com.ssafy.ssabway.domain.consultation.repository.ConsultationDetail;
@@ -45,6 +44,7 @@ public class ConsultationService {
     private final UserRepository userRepository;
     private final StaffRepository staffRepository;
     private final BlacklistRepository blacklistRepository;
+    private final WebRtcClient webRtcClient;
 
     public PageResponse<WaitingResponse> getWaitingList(Long staffId, int page) {
 
@@ -132,6 +132,57 @@ public class ConsultationService {
                 null,
                 saved.getRequestedAt(),
                 null
+        );
+    }
+
+
+    @Transactional(rollbackFor = Exception.class)
+    public ConsultationAcceptResponse acceptConsultation(
+            Long consultationId,
+            Long staffId
+    ) {
+        Consultation consultation = consultationRepository.findById(consultationId)
+                        .orElseThrow(() -> new BusinessException(ErrorCode.CONSULTATION_NOT_FOUND));
+
+        // 로그인한 역무원에게 배정된 상담인지 확인
+        if (!consultation.getStaffId().equals(staffId)) {
+            throw new BusinessException(ErrorCode.CONSULTATION_ACCESS_DENIED);
+        }
+
+        // 이미 취소·수락·진행·종료된 상담은 다시 수락할 수 없음
+        if (consultation.getStatus() != ConsultationStatus.WAITING) {
+            throw new BusinessException(ErrorCode.CONSULTATION_ALREADY_ACCEPTED);
+        }
+
+        /*
+         * WAITING인 경우에만 MATCHED로 변경
+         * 동시에 여러 수락 요청이 들어와도 한 요청만 성공
+         */
+        int updatedCount = consultationRepository.acceptConsultation(
+                        staffId,
+                        consultationId,
+                        ConsultationStatus.WAITING,
+                        ConsultationStatus.MATCHED
+                );
+
+        if (updatedCount == 0) {
+            throw new BusinessException(ErrorCode.CONSULTATION_ALREADY_ACCEPTED);
+        }
+
+        /*
+         * WebRTC 서버에 OpenVidu 세션과 STAFF 연결 토큰 생성을 요청
+         * 호출에 실패하면 예외가 발생하면서 위 상태 변경도 롤백
+         */
+        WebRtcConnectionResponse connection = webRtcClient.createStaffConnection(
+                        consultationId,
+                        staffId
+                );
+
+        return new ConsultationAcceptResponse(
+                consultationId,
+                connection.sessionId(),
+                connection.token(),
+                ConsultationStatus.MATCHED
         );
     }
 }

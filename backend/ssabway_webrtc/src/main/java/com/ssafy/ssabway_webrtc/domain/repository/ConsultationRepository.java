@@ -87,39 +87,13 @@ public interface ConsultationRepository extends JpaRepository<Consultation, Long
         @Param("nextStatus") ConsultationStatus nextStatus
     );
 
-    /**
-     * 해당 역의 역무원이 대기 중인 상담을 수락합니다.
-     *
-     * 상담 요청 시 staffId는 이미 저장되어 있으며,
-     * 동일한 staffId와 WAITING 상태를 만족할 때만
-     * 상담 상태를 MATCHED로 변경합니다.
-     *
-     * @return 수락 성공 시 1, 조건 불일치 또는 중복 수락이면 0
-     */
-    @Modifying(
-        clearAutomatically = true,
-        flushAutomatically = true
-    )
-    @Query("""
-       UPDATE Consultation c
-       SET c.status = :nextStatus
-       WHERE c.id = :consultationId
-         AND c.staffId = :staffId
-         AND c.status = :currentStatus
-    """)
-    int acceptConsultation(
-        @Param("staffId") Long staffId,
-        @Param("consultationId") Long consultationId,
-        @Param("currentStatus") ConsultationStatus currentStatus,
-        @Param("nextStatus") ConsultationStatus nextStatus
-    );
 
     /**
-     * 특정 상담의 현재 대기 순번을 계산합니다.
+     * 특정 상담의 현재 대기 순번을 계산
      *
      * 요청 시간이 빠른 WAITING 상담을 앞 순서로 계산하고,
-     * 요청 시간이 같으면 상담 ID가 작은 상담을 먼저 처리합니다.
-     * 조회 대상 상담 자신까지 포함하므로 반환값은 1부터 시작합니다.
+     * 요청 시간이 같으면 상담 ID가 작은 상담을 먼저 처리
+     * 조회 대상 상담 자신까지 포함하므로 반환값은 1부터 시작
      */
     @Query("""
     SELECT COUNT(c)
