@@ -1,0 +1,2811 @@
+{
+ "version": 1,
+ "scale": {
+  "unitsPerMeter": 26.077
+ },
+ "languages": [
+  "ko",
+  "en",
+  "ja",
+  "zh"
+ ],
+ "exits": {
+  "EX0_01": {
+   "ko": "대구역 2번 출구",
+   "en": "Daegu Stn. Exit 2",
+   "ja": "大邱駅2番出口",
+   "zh": "大邱站2号出口"
+  },
+  "EX0_02": {
+   "ko": "대구역 1번 출구",
+   "en": "Daegu Stn. Exit 1",
+   "ja": "大邱駅1番出口",
+   "zh": "大邱站1号出口"
+  },
+  "EX0_03": {
+   "ko": "대구역 3번 출구",
+   "en": "Daegu Stn. Exit 3",
+   "ja": "大邱駅3番出口",
+   "zh": "大邱站3号出口"
+  },
+  "EX0_04": {
+   "ko": "대구역 4번 출구",
+   "en": "Daegu Stn. Exit 4",
+   "ja": "大邱駅4番出口",
+   "zh": "大邱站4号出口"
+  },
+  "EX0_05": {
+   "ko": "대경선 2번 출구",
+   "en": "Daegyeong Line Exit 2",
+   "ja": "大慶線2番出口",
+   "zh": "大庆线2号出口"
+  },
+  "EX0_06": {
+   "ko": "대경선 1번 출구",
+   "en": "Daegyeong Line Exit 1",
+   "ja": "大慶線1番出口",
+   "zh": "大庆线1号出口"
+  }
+ },
+ "templates": {
+  "prefix": {
+   "fromElevator": {
+    "ko": "엘리베이터에서 내려 ",
+    "en": "Exit the elevator, then ",
+    "ja": "エレベーターを降りて",
+    "zh": "出电梯后"
+   }
+  },
+  "body": {
+   "straightShort": {
+    "label": "짧은 직진 (8m 미만)",
+    "ko": "바로 앞 표지판까지 {d}m 이동하세요\n{d}m 앞 표지판까지 걸어가세요\n표지판 앞까지 {d}m 이동하세요",
+    "en": "walk {d} m to the sign just ahead\ngo {d} m to reach the sign\nmove {d} m up to the sign",
+    "ja": "すぐ前の案内板まで{d}m進んでください\n{d}m先の案内板まで歩いてください\n案内板の前まで{d}m進んでください",
+    "zh": "请前行{d}米到前方的指示牌处\n走{d}米到指示牌前\n向前{d}米至指示牌"
+   },
+   "straight": {
+    "label": "직진 (8~30m)",
+    "ko": "표지판이 보이는 곳까지 {d}m 직진하세요\n사진 속 표지판까지 {d}m 직진하세요\n표지판이 보일 때까지 {d}m 앞으로 이동하세요",
+    "en": "go straight {d} m until the sign comes into view\ncontinue straight {d} m to the sign in the photo\nhead forward {d} m until you can see the sign",
+    "ja": "案内板が見えるところまで{d}m直進してください\n写真の案内板まで{d}m直進してください\n案内板が見えるまで{d}m前へ進んでください",
+    "zh": "请直行{d}米，直到看见指示牌\n直行{d}米至照片中的指示牌\n向前走{d}米，直到看到指示牌"
+   },
+   "straightLong": {
+    "label": "긴 직진 (30m 초과)",
+    "ko": "표지판이 보이는 곳까지 긴 통로를 따라 {d}m 직진하세요\n통로 끝 표지판까지 {d}m 이동하세요\n사진 속 표지판이 보일 때까지 {d}m 계속 직진하세요",
+    "en": "follow the long corridor {d} m until the sign comes into view\ncontinue {d} m to the sign at the end of the corridor\nkeep going straight {d} m until you can see the sign in the photo",
+    "ja": "案内板が見えるところまで長い通路を{d}m直進してください\n通路の突き当たりの案内板まで{d}m進んでください\n写真の案内板が見えるまで{d}m直進し続けてください",
+    "zh": "沿长廊直行{d}米，直到看见指示牌\n前行{d}米至通道尽头的指示牌\n继续直行{d}米，直到看到照片中的指示牌"
+   },
+   "bendLeft": {
+    "label": "왼쪽으로 꺾임",
+    "ko": "표지판이 보이는 곳까지 {d}m 가다 왼쪽으로 꺾으세요\n왼쪽으로 꺾어 표지판 앞까지 {d}m 이동하세요",
+    "en": "go {d} m and bear left until the sign comes into view\nturn left and continue {d} m to the sign",
+    "ja": "案内板が見えるところまで{d}m進んで左に曲がってください\n左に曲がって案内板の前まで{d}m進んでください",
+    "zh": "前行{d}米后向左拐，直到看见指示牌\n向左拐后前行{d}米至指示牌处"
+   },
+   "bendRight": {
+    "label": "오른쪽으로 꺾임",
+    "ko": "표지판이 보이는 곳까지 {d}m 가다 오른쪽으로 꺾으세요\n오른쪽으로 꺾어 표지판 앞까지 {d}m 이동하세요",
+    "en": "go {d} m and bear right until the sign comes into view\nturn right and continue {d} m to the sign",
+    "ja": "案内板が見えるところまで{d}m進んで右に曲がってください\n右に曲がって案内板の前まで{d}m進んでください",
+    "zh": "前行{d}米后向右拐，直到看见指示牌\n向右拐后前行{d}米至指示牌处"
+   },
+   "stairsUp": {
+    "label": "계단 올라감",
+    "ko": "표지판이 보이는 곳까지 계단을 올라가 {d}m 이동하세요\n계단으로 올라가 표지판 앞까지 {d}m 걸어가세요",
+    "en": "go up the stairs and continue {d} m until the sign comes into view\ntake the stairs up, then walk {d} m to the sign",
+    "ja": "案内板が見えるところまで階段を上がって{d}m進んでください\n階段を上って案内板の前まで{d}m歩いてください",
+    "zh": "上楼梯后前行{d}米，直到看见指示牌\n上楼梯，走{d}米至指示牌处"
+   },
+   "stairsDown": {
+    "label": "계단 내려감",
+    "ko": "표지판이 보이는 곳까지 계단을 내려가 {d}m 이동하세요\n계단으로 내려가 표지판 앞까지 {d}m 걸어가세요",
+    "en": "go down the stairs and continue {d} m until the sign comes into view\ntake the stairs down, then walk {d} m to the sign",
+    "ja": "案内板が見えるところまで階段を下りて{d}m進んでください\n階段を下りて案内板の前まで{d}m歩いてください",
+    "zh": "下楼梯后前行{d}米，直到看见指示牌\n下楼梯，走{d}米至指示牌处"
+   },
+   "stairs": {
+    "label": "계단 (같은 층)",
+    "ko": "표지판이 보이는 곳까지 계단을 지나 {d}m 이동하세요\n계단을 이용해 표지판 앞까지 {d}m 이동하세요",
+    "en": "pass the stairs and continue {d} m until the sign comes into view\ntake the stairs, then go {d} m to the sign",
+    "ja": "案内板が見えるところまで階段を通って{d}m進んでください\n階段を使って案内板の前まで{d}m進んでください",
+    "zh": "经过楼梯前行{d}米，直到看见指示牌\n走楼梯，前行{d}米至指示牌处"
+   },
+   "toElevator": {
+    "label": "엘리베이터 탑승",
+    "ko": "{d}m 이동한 뒤 엘리베이터를 타세요\n엘리베이터까지 {d}m 이동하세요",
+    "en": "continue {d} m, then take the elevator\ngo {d} m to the elevator",
+    "ja": "{d}m進んでエレベーターに乗ってください\nエレベーターまで{d}m進んでください",
+    "zh": "前行{d}米后乘坐电梯\n前行{d}米到电梯处"
+   },
+   "toExit": {
+    "label": "출구",
+    "ko": "{d}m 이동하여 {exit}로 나가세요\n{exit} 방향으로 {d}m 이동하세요",
+    "en": "continue {d} m and leave through {exit}\nhead toward {exit} for {d} m",
+    "ja": "{d}m進んで{exit}から出てください\n{exit}方面へ{d}m進んでください",
+    "zh": "前行{d}米后从{exit}出站\n朝{exit}方向前行{d}米"
+   },
+   "toGate": {
+    "label": "개찰구",
+    "ko": "{d}m 이동하여 개찰구를 통과하세요\n개찰구까지 {d}m 이동하세요",
+    "en": "continue {d} m and go through the ticket gate\ngo {d} m to the ticket gate",
+    "ja": "{d}m進んで改札口を通ってください\n改札口まで{d}m進んでください",
+    "zh": "前行{d}米通过检票口\n前行{d}米到检票口"
+   }
+  }
+ },
+ "directions": {
+  "E001:S3_01": {
+   "from": "S3_02",
+   "to": "S3_01",
+   "edgeId": "E001",
+   "pattern": "straight",
+   "distanceM": 10,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보이는 곳까지 10m 직진하세요",
+    "en": "Go straight 10 m until the sign comes into view.",
+    "ja": "案内板が見えるところまで10m直進してください。",
+    "zh": "直行10米，直到看见指示牌。"
+   },
+   "translatedFrom": "표지판이 보이는 곳까지 10m 직진하세요"
+  },
+  "E001:S3_02": {
+   "from": "S3_01",
+   "to": "S3_02",
+   "edgeId": "E001",
+   "pattern": "straight",
+   "distanceM": 10,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보일 때까지 10m 앞으로 이동하세요",
+    "en": "Move forward 10 m until you see the sign.",
+    "ja": "案内板が見えるまで10m前へ進んでください。",
+    "zh": "向前走10米，直到看到指示牌。"
+   },
+   "translatedFrom": "표지판이 보일 때까지 10m 앞으로 이동하세요"
+  },
+  "E002:S3_01": {
+   "from": "S3_16",
+   "to": "S3_01",
+   "edgeId": "E002",
+   "pattern": "straight",
+   "distanceM": 13,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보일 때까지 10m 앞으로 이동하세요",
+    "en": "Move forward 10 m until you see the sign.",
+    "ja": "案内板が見えるまで10m前へ進んでください。",
+    "zh": "向前走10米，直到看到指示牌。"
+   },
+   "translatedFrom": "표지판이 보일 때까지 10m 앞으로 이동하세요"
+  },
+  "E002:S3_16": {
+   "from": "S3_01",
+   "to": "S3_16",
+   "edgeId": "E002",
+   "pattern": "straight",
+   "distanceM": 13,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보일 때까지 10m 앞으로 이동하세요",
+    "en": "Move forward 10 m until you see the sign.",
+    "ja": "案内板が見えるまで10m前へ進んでください。",
+    "zh": "向前走10米，直到看到指示牌。"
+   },
+   "translatedFrom": "표지판이 보일 때까지 10m 앞으로 이동하세요"
+  },
+  "E003:S3_02": {
+   "from": "S3_03",
+   "to": "S3_02",
+   "edgeId": "E003",
+   "pattern": "straightShort",
+   "distanceM": 7,
+   "status": "reviewed",
+   "text": {
+    "ko": "바로 앞 표지판까지 7m 이동하세요",
+    "en": "Go 7 m to the sign just ahead.",
+    "ja": "すぐ前の案内板まで7m進んでください。",
+    "zh": "前行7米到前方的指示牌处。"
+   },
+   "translatedFrom": "바로 앞 표지판까지 7m 이동하세요"
+  },
+  "E003:S3_03": {
+   "from": "S3_02",
+   "to": "S3_03",
+   "edgeId": "E003",
+   "pattern": "straightShort",
+   "distanceM": 7,
+   "status": "reviewed",
+   "text": {
+    "ko": "7m 앞 표지판까지 걸어가세요",
+    "en": "Walk to the sign 7 m ahead.",
+    "ja": "7m先の案内板まで歩いてください。",
+    "zh": "走到前方7米处的指示牌。"
+   },
+   "translatedFrom": "7m 앞 표지판까지 걸어가세요"
+  },
+  "E004:S3_02": {
+   "from": "S3_15",
+   "to": "S3_02",
+   "edgeId": "E004",
+   "pattern": "straight",
+   "distanceM": 9,
+   "status": "reviewed",
+   "text": {
+    "ko": "사진 속 표지판까지 9m 직진하세요",
+    "en": "Go straight 9 m to the sign shown in the photo.",
+    "ja": "写真の案内板まで9m直進してください。",
+    "zh": "直行9米至照片中的指示牌。"
+   },
+   "translatedFrom": "사진 속 표지판까지 9m 직진하세요"
+  },
+  "E004:S3_15": {
+   "from": "S3_02",
+   "to": "S3_15",
+   "edgeId": "E004",
+   "pattern": "straight",
+   "distanceM": 9,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보일 때까지 9m 앞으로 이동하세요",
+    "en": "Move forward 9 m until you see the sign.",
+    "ja": "案内板が見えるまで9m前へ進んでください。",
+    "zh": "向前走9米，直到看到指示牌。"
+   },
+   "translatedFrom": "표지판이 보일 때까지 9m 앞으로 이동하세요"
+  },
+  "E005:S3_04": {
+   "from": "S3_15",
+   "to": "S3_04",
+   "edgeId": "E005",
+   "pattern": "straight",
+   "distanceM": 8,
+   "status": "reviewed",
+   "text": {
+    "ko": "사진 속 표지판까지 8m 직진하세요",
+    "en": "Go straight 8 m to the sign shown in the photo.",
+    "ja": "写真の案内板まで8m直進してください。",
+    "zh": "直行8米至照片中的指示牌。"
+   },
+   "translatedFrom": "사진 속 표지판까지 8m 직진하세요"
+  },
+  "E005:S3_15": {
+   "from": "S3_04",
+   "to": "S3_15",
+   "edgeId": "E005",
+   "pattern": "straight",
+   "distanceM": 8,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보이는 곳까지 8m 직진하세요",
+    "en": "Go straight 8 m until the sign comes into view.",
+    "ja": "案内板が見えるところまで8m直進してください。",
+    "zh": "直行8米，直到看见指示牌。"
+   },
+   "translatedFrom": "표지판이 보이는 곳까지 8m 직진하세요"
+  },
+  "E006:S3_05": {
+   "from": "S3_15",
+   "to": "S3_05",
+   "edgeId": "E006",
+   "pattern": "straight",
+   "distanceM": 11,
+   "status": "reviewed",
+   "text": {
+    "ko": "사진 속 표지판까지 10m 직진하세요",
+    "en": "Go straight 10 m to the sign shown in the photo.",
+    "ja": "写真の案内板まで10m直進してください。",
+    "zh": "直行10米至照片中的指示牌。"
+   },
+   "translatedFrom": "사진 속 표지판까지 10m 직진하세요"
+  },
+  "E006:S3_15": {
+   "from": "S3_05",
+   "to": "S3_15",
+   "edgeId": "E006",
+   "pattern": "straight",
+   "distanceM": 11,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보이는 곳까지 10m 직진하세요",
+    "en": "Go straight 10 m until the sign comes into view.",
+    "ja": "案内板が見えるところまで10m直進してください。",
+    "zh": "直行10米，直到看见指示牌。"
+   },
+   "translatedFrom": "표지판이 보이는 곳까지 10m 직진하세요"
+  },
+  "E007:EV3_02": {
+   "from": "S3_15",
+   "to": "EV3_02",
+   "edgeId": "E007",
+   "pattern": "toElevator",
+   "distanceM": 11,
+   "status": "reviewed",
+   "text": {
+    "ko": "엘리베이터까지 10m 이동하세요",
+    "en": "Go 10 m to the elevator.",
+    "ja": "エレベーターまで10m進んでください。",
+    "zh": "前行10米到电梯处。"
+   },
+   "translatedFrom": "엘리베이터까지 10m 이동하세요"
+  },
+  "E007:S3_15": {
+   "from": "EV3_02",
+   "to": "S3_15",
+   "edgeId": "E007",
+   "pattern": "straight",
+   "distanceM": 11,
+   "status": "reviewed",
+   "text": {
+    "ko": "엘리베이터에서 내려 표지판이 보일 때까지 10m 앞으로 이동하세요",
+    "en": "Exit the elevator, move forward 10 m until you see the sign.",
+    "ja": "エレベーターを降り、案内板が見えるまで10m前へ進んでください。",
+    "zh": "出电梯，向前走10米，直到看到指示牌。"
+   },
+   "translatedFrom": "엘리베이터에서 내려 표지판이 보일 때까지 10m 앞으로 이동하세요"
+  },
+  "E008:EV3_03": {
+   "from": "S3_03",
+   "to": "EV3_03",
+   "edgeId": "E008",
+   "pattern": "toElevator",
+   "distanceM": 7,
+   "status": "reviewed",
+   "text": {
+    "ko": "엘리베이터까지 7m 이동하세요",
+    "en": "Go 7 m to the elevator.",
+    "ja": "エレベーターまで7m進んでください。",
+    "zh": "前行7米到电梯处。"
+   },
+   "translatedFrom": "엘리베이터까지 7m 이동하세요"
+  },
+  "E008:S3_03": {
+   "from": "EV3_03",
+   "to": "S3_03",
+   "edgeId": "E008",
+   "pattern": "straightShort",
+   "distanceM": 7,
+   "status": "reviewed",
+   "text": {
+    "ko": "엘리베이터에서 내려 표지판 앞까지 7m 이동하세요",
+    "en": "Exit the elevator, go 7 m to the sign.",
+    "ja": "エレベーターを降り、案内板の前まで7m進んでください。",
+    "zh": "出电梯，前行7米至指示牌前。"
+   },
+   "translatedFrom": "엘리베이터에서 내려 표지판 앞까지 7m 이동하세요"
+  },
+  "E009:S3_06": {
+   "from": "S3_15",
+   "to": "S3_06",
+   "edgeId": "E009",
+   "pattern": "straight",
+   "distanceM": 16,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보이는 곳까지 15m 직진하세요",
+    "en": "Go straight 15 m until the sign comes into view.",
+    "ja": "案内板が見えるところまで15m直進してください。",
+    "zh": "直行15米，直到看见指示牌。"
+   },
+   "translatedFrom": "표지판이 보이는 곳까지 15m 직진하세요"
+  },
+  "E009:S3_15": {
+   "from": "S3_06",
+   "to": "S3_15",
+   "edgeId": "E009",
+   "pattern": "straight",
+   "distanceM": 16,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보이는 곳까지 15m 직진하세요",
+    "en": "Go straight 15 m until the sign comes into view.",
+    "ja": "案内板が見えるところまで15m直進してください。",
+    "zh": "直行15米，直到看见指示牌。"
+   },
+   "translatedFrom": "표지판이 보이는 곳까지 15m 직진하세요"
+  },
+  "E010:S3_06": {
+   "from": "S3_14",
+   "to": "S3_06",
+   "edgeId": "E010",
+   "pattern": "straight",
+   "distanceM": 11,
+   "status": "reviewed",
+   "text": {
+    "ko": "사진 속 표지판까지 10m 직진하세요",
+    "en": "Go straight 10 m to the sign shown in the photo.",
+    "ja": "写真の案内板まで10m直進してください。",
+    "zh": "直行10米至照片中的指示牌。"
+   },
+   "translatedFrom": "사진 속 표지판까지 10m 직진하세요"
+  },
+  "E010:S3_14": {
+   "from": "S3_06",
+   "to": "S3_14",
+   "edgeId": "E010",
+   "pattern": "straight",
+   "distanceM": 11,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보일 때까지 10m 앞으로 이동하세요",
+    "en": "Move forward 10 m until you see the sign.",
+    "ja": "案内板が見えるまで10m前へ進んでください。",
+    "zh": "向前走10米，直到看到指示牌。"
+   },
+   "translatedFrom": "표지판이 보일 때까지 10m 앞으로 이동하세요"
+  },
+  "E011:S3_07": {
+   "from": "S3_14",
+   "to": "S3_07",
+   "edgeId": "E011",
+   "pattern": "straight",
+   "distanceM": 9,
+   "status": "reviewed",
+   "text": {
+    "ko": "사진 속 표지판까지 10m 직진하세요",
+    "en": "Go straight 10 m to the sign shown in the photo.",
+    "ja": "写真の案内板まで10m直進してください。",
+    "zh": "直行10米至照片中的指示牌。"
+   },
+   "translatedFrom": "사진 속 표지판까지 10m 직진하세요"
+  },
+  "E011:S3_14": {
+   "from": "S3_07",
+   "to": "S3_14",
+   "edgeId": "E011",
+   "pattern": "straight",
+   "distanceM": 9,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보일 때까지 10m 앞으로 이동하세요",
+    "en": "Move forward 10 m until you see the sign.",
+    "ja": "案内板が見えるまで10m前へ進んでください。",
+    "zh": "向前走10米，直到看到指示牌。"
+   },
+   "translatedFrom": "표지판이 보일 때까지 10m 앞으로 이동하세요"
+  },
+  "E012:S3_14": {
+   "from": "S3_15",
+   "to": "S3_14",
+   "edgeId": "E012",
+   "pattern": "straight",
+   "distanceM": 20,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보이는 곳까지 20m 직진하세요",
+    "en": "Go straight 20 m until the sign comes into view.",
+    "ja": "案内板が見えるところまで20m直進してください。",
+    "zh": "直行20米，直到看见指示牌。"
+   },
+   "translatedFrom": "표지판이 보이는 곳까지 20m 직진하세요"
+  },
+  "E012:S3_15": {
+   "from": "S3_14",
+   "to": "S3_15",
+   "edgeId": "E012",
+   "pattern": "straight",
+   "distanceM": 20,
+   "status": "reviewed",
+   "text": {
+    "ko": "사진 속 표지판까지 20m 직진하세요",
+    "en": "Go straight 20 m to the sign shown in the photo.",
+    "ja": "写真の案内板まで20m直進してください。",
+    "zh": "直行20米至照片中的指示牌。"
+   },
+   "translatedFrom": "사진 속 표지판까지 20m 직진하세요"
+  },
+  "E013:S3_08": {
+   "from": "S3_12",
+   "to": "S3_08",
+   "edgeId": "E013",
+   "pattern": "straight",
+   "distanceM": 9,
+   "status": "reviewed",
+   "text": {
+    "ko": "사진 속 표지판까지 10m 직진하세요",
+    "en": "Go straight 10 m to the sign shown in the photo.",
+    "ja": "写真の案内板まで10m直進してください。",
+    "zh": "直行10米至照片中的指示牌。"
+   },
+   "translatedFrom": "사진 속 표지판까지 10m 직진하세요"
+  },
+  "E013:S3_12": {
+   "from": "S3_08",
+   "to": "S3_12",
+   "edgeId": "E013",
+   "pattern": "straight",
+   "distanceM": 9,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보일 때까지 10m 앞으로 이동하세요",
+    "en": "Move forward 10 m until you see the sign.",
+    "ja": "案内板が見えるまで10m前へ進んでください。",
+    "zh": "向前走10米，直到看到指示牌。"
+   },
+   "translatedFrom": "표지판이 보일 때까지 10m 앞으로 이동하세요"
+  },
+  "E014:S3_08": {
+   "from": "S3_09",
+   "to": "S3_08",
+   "edgeId": "E014",
+   "pattern": "straightShort",
+   "distanceM": 5,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판 앞까지 5m 이동하세요",
+    "en": "Go 5 m to the sign.",
+    "ja": "案内板の前まで5m進んでください。",
+    "zh": "前行5米至指示牌前。"
+   },
+   "translatedFrom": "표지판 앞까지 5m 이동하세요"
+  },
+  "E014:S3_09": {
+   "from": "S3_08",
+   "to": "S3_09",
+   "edgeId": "E014",
+   "pattern": "straightShort",
+   "distanceM": 5,
+   "status": "reviewed",
+   "text": {
+    "ko": "5m 앞 표지판까지 걸어가세요",
+    "en": "Walk to the sign 5 m ahead.",
+    "ja": "5m先の案内板まで歩いてください。",
+    "zh": "走到前方5米处的指示牌。"
+   },
+   "translatedFrom": "5m 앞 표지판까지 걸어가세요"
+  },
+  "E015:S3_09": {
+   "from": "S3_10",
+   "to": "S3_09",
+   "edgeId": "E015",
+   "pattern": "straight",
+   "distanceM": 8,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보이는 곳까지 10m 직진하세요",
+    "en": "Go straight 10 m until the sign comes into view.",
+    "ja": "案内板が見えるところまで10m直進してください。",
+    "zh": "直行10米，直到看见指示牌。"
+   },
+   "translatedFrom": "표지판이 보이는 곳까지 10m 직진하세요"
+  },
+  "E015:S3_10": {
+   "from": "S3_09",
+   "to": "S3_10",
+   "edgeId": "E015",
+   "pattern": "straight",
+   "distanceM": 8,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보일 때까지 10m 앞으로 이동하세요",
+    "en": "Move forward 10 m until you see the sign.",
+    "ja": "案内板が見えるまで10m前へ進んでください。",
+    "zh": "向前走10米，直到看到指示牌。"
+   },
+   "translatedFrom": "표지판이 보일 때까지 10m 앞으로 이동하세요"
+  },
+  "E016:S3_09": {
+   "from": "S3_11",
+   "to": "S3_09",
+   "edgeId": "E016",
+   "pattern": "straight",
+   "distanceM": 8,
+   "status": "reviewed",
+   "text": {
+    "ko": "사진 속 표지판까지 10m 직진하세요",
+    "en": "Go straight 10 m to the sign shown in the photo.",
+    "ja": "写真の案内板まで10m直進してください。",
+    "zh": "直行10米至照片中的指示牌。"
+   },
+   "translatedFrom": "사진 속 표지판까지 10m 직진하세요"
+  },
+  "E016:S3_11": {
+   "from": "S3_09",
+   "to": "S3_11",
+   "edgeId": "E016",
+   "pattern": "straight",
+   "distanceM": 8,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보이는 곳까지 10m 직진하세요",
+    "en": "Go straight 10 m until the sign comes into view.",
+    "ja": "案内板が見えるところまで10m直進してください。",
+    "zh": "直行10米，直到看见指示牌。"
+   },
+   "translatedFrom": "표지판이 보이는 곳까지 10m 직진하세요"
+  },
+  "E017:S3_08": {
+   "from": "S3_13",
+   "to": "S3_08",
+   "edgeId": "E017",
+   "pattern": "straight",
+   "distanceM": 10,
+   "status": "reviewed",
+   "text": {
+    "ko": "사진 속 표지판까지 10m 직진하세요",
+    "en": "Go straight 10 m to the sign shown in the photo.",
+    "ja": "写真の案内板まで10m直進してください。",
+    "zh": "直行10米至照片中的指示牌。"
+   },
+   "translatedFrom": "사진 속 표지판까지 10m 직진하세요"
+  },
+  "E017:S3_13": {
+   "from": "S3_08",
+   "to": "S3_13",
+   "edgeId": "E017",
+   "pattern": "straight",
+   "distanceM": 10,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보이는 곳까지 10m 직진하세요",
+    "en": "Go straight 10 m until the sign comes into view.",
+    "ja": "案内板が見えるところまで10m直進してください。",
+    "zh": "直行10米，直到看见指示牌。"
+   },
+   "translatedFrom": "표지판이 보이는 곳까지 10m 직진하세요"
+  },
+  "E018:S3_07": {
+   "from": "S3_08",
+   "to": "S3_07",
+   "edgeId": "E018",
+   "pattern": "straight",
+   "distanceM": 14,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보이는 곳까지 15m 직진하세요",
+    "en": "Go straight 15 m until the sign comes into view.",
+    "ja": "案内板が見えるところまで15m直進してください。",
+    "zh": "直行15米，直到看见指示牌。"
+   },
+   "translatedFrom": "표지판이 보이는 곳까지 15m 직진하세요"
+  },
+  "E018:S3_08": {
+   "from": "S3_07",
+   "to": "S3_08",
+   "edgeId": "E018",
+   "pattern": "straight",
+   "distanceM": 14,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보일 때까지 15m 앞으로 이동하세요",
+    "en": "Move forward 15 m until you see the sign.",
+    "ja": "案内板が見えるまで15m前へ進んでください。",
+    "zh": "向前走15米，直到看到指示牌。"
+   },
+   "translatedFrom": "표지판이 보일 때까지 15m 앞으로 이동하세요"
+  },
+  "E019:S3_10": {
+   "from": "S3_19",
+   "to": "S3_10",
+   "edgeId": "E019",
+   "pattern": "stairs",
+   "distanceM": 44,
+   "status": "reviewed",
+   "text": {
+    "ko": "계단을 이용해 표지판 앞까지 45m 이동하세요",
+    "en": "Take the stairs and go 45 m to the sign.",
+    "ja": "階段を使って案内板の前まで45m進んでください。",
+    "zh": "走楼梯前行45米至指示牌前。"
+   },
+   "translatedFrom": "계단을 이용해 표지판 앞까지 45m 이동하세요"
+  },
+  "E019:S3_19": {
+   "from": "S3_10",
+   "to": "S3_19",
+   "edgeId": "E019",
+   "pattern": "stairs",
+   "distanceM": 44,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보이는 곳까지 계단을 지나 45m 이동하세요",
+    "en": "Pass the stairs and continue 45 m until the sign comes into view.",
+    "ja": "階段を通って案内板が見えるところまで45m進んでください。",
+    "zh": "经过楼梯前行45米，直到看见指示牌。"
+   },
+   "translatedFrom": "표지판이 보이는 곳까지 계단을 지나 45m 이동하세요"
+  },
+  "E020:S3_12": {
+   "from": "S3_17",
+   "to": "S3_12",
+   "edgeId": "E020",
+   "pattern": "stairs",
+   "distanceM": 40,
+   "status": "reviewed",
+   "text": {
+    "ko": "계단을 이용해 표지판 앞까지 40m 이동하세요",
+    "en": "Take the stairs and go 40 m to the sign.",
+    "ja": "階段を使って案内板の前まで40m進んでください。",
+    "zh": "走楼梯前行40米至指示牌前。"
+   },
+   "translatedFrom": "계단을 이용해 표지판 앞까지 40m 이동하세요"
+  },
+  "E020:S3_17": {
+   "from": "S3_12",
+   "to": "S3_17",
+   "edgeId": "E020",
+   "pattern": "stairs",
+   "distanceM": 40,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보이는 곳까지 계단을 지나 40m 이동하세요",
+    "en": "Pass the stairs and continue 40 m until the sign comes into view.",
+    "ja": "階段を通って案内板が見えるところまで40m進んでください。",
+    "zh": "经过楼梯前行40米，直到看见指示牌。"
+   },
+   "translatedFrom": "표지판이 보이는 곳까지 계단을 지나 40m 이동하세요"
+  },
+  "E021:EV2_03": {
+   "from": "S3_19",
+   "to": "EV2_03",
+   "edgeId": "E021",
+   "pattern": "toElevator",
+   "distanceM": 35,
+   "status": "reviewed",
+   "text": {
+    "ko": "엘리베이터까지 35m 이동하세요",
+    "en": "Go 35 m to the elevator.",
+    "ja": "エレベーターまで35m進んでください。",
+    "zh": "前行35米到电梯处。"
+   },
+   "translatedFrom": "엘리베이터까지 35m 이동하세요"
+  },
+  "E021:S3_19": {
+   "from": "EV2_03",
+   "to": "S3_19",
+   "edgeId": "E021",
+   "pattern": "straightLong",
+   "distanceM": 35,
+   "status": "reviewed",
+   "text": {
+    "ko": "엘리베이터에서 내려 사진 속 표지판이 보일 때까지 35m 계속 직진하세요",
+    "en": "Exit the elevator, keep going straight 35 m until you see the sign shown in the photo.",
+    "ja": "エレベーターを降り、写真の案内板が見えるまで35m直進し続けてください。",
+    "zh": "出电梯，继续直行35米，直到看到照片中的指示牌。"
+   },
+   "translatedFrom": "엘리베이터에서 내려 사진 속 표지판이 보일 때까지 35m 계속 직진하세요"
+  },
+  "E022:EV2_02": {
+   "from": "S3_17",
+   "to": "EV2_02",
+   "edgeId": "E022",
+   "pattern": "toElevator",
+   "distanceM": 35,
+   "status": "reviewed",
+   "text": {
+    "ko": "엘리베이터까지 35m 이동하세요",
+    "en": "Go 35 m to the elevator.",
+    "ja": "エレベーターまで35m進んでください。",
+    "zh": "前行35米到电梯处。"
+   },
+   "translatedFrom": "엘리베이터까지 35m 이동하세요"
+  },
+  "E022:S3_17": {
+   "from": "EV2_02",
+   "to": "S3_17",
+   "edgeId": "E022",
+   "pattern": "straightLong",
+   "distanceM": 35,
+   "status": "reviewed",
+   "text": {
+    "ko": "엘리베이터에서 내려 표지판이 보이는 곳까지 긴 통로를 따라 35m 직진하세요",
+    "en": "Exit the elevator, follow the long corridor 35 m until the sign comes into view.",
+    "ja": "エレベーターを降り、長い通路に沿って案内板が見えるところまで35m直進してください。",
+    "zh": "出电梯，沿长廊直行35米，直到看见指示牌。"
+   },
+   "translatedFrom": "엘리베이터에서 내려 표지판이 보이는 곳까지 긴 통로를 따라 35m 직진하세요"
+  },
+  "E023:S3_17": {
+   "from": "S3_18",
+   "to": "S3_17",
+   "edgeId": "E023",
+   "pattern": "straight",
+   "distanceM": 28,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보일 때까지 30m 앞으로 이동하세요",
+    "en": "Move forward 30 m until you see the sign.",
+    "ja": "案内板が見えるまで30m前へ進んでください。",
+    "zh": "向前走30米，直到看到指示牌。"
+   },
+   "translatedFrom": "표지판이 보일 때까지 30m 앞으로 이동하세요"
+  },
+  "E023:S3_18": {
+   "from": "S3_17",
+   "to": "S3_18",
+   "edgeId": "E023",
+   "pattern": "straight",
+   "distanceM": 28,
+   "status": "reviewed",
+   "text": {
+    "ko": "사진 속 표지판까지 30m 직진하세요",
+    "en": "Go straight 30 m to the sign shown in the photo.",
+    "ja": "写真の案内板まで30m直進してください。",
+    "zh": "直行30米至照片中的指示牌。"
+   },
+   "translatedFrom": "사진 속 표지판까지 30m 직진하세요"
+  },
+  "E024:GA0_01": {
+   "from": "S3_18",
+   "to": "GA0_01",
+   "edgeId": "E024",
+   "pattern": "toGate",
+   "distanceM": 11,
+   "status": "reviewed",
+   "text": {
+    "ko": "개찰구까지 10m 이동하세요",
+    "en": "Go 10 m to the ticket gate.",
+    "ja": "改札口まで10m進んでください。",
+    "zh": "前行10米到检票口。"
+   },
+   "translatedFrom": "개찰구까지 10m 이동하세요"
+  },
+  "E024:S3_18": {
+   "from": "GA0_01",
+   "to": "S3_18",
+   "edgeId": "E024",
+   "pattern": "straight",
+   "distanceM": 11,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보이는 곳까지 10m 직진하세요",
+    "en": "Go straight 10 m until the sign comes into view.",
+    "ja": "案内板が見えるところまで10m直進してください。",
+    "zh": "直行10米，直到看见指示牌。"
+   },
+   "translatedFrom": "표지판이 보이는 곳까지 10m 직진하세요"
+  },
+  "E025:GA0_02": {
+   "from": "S3_20",
+   "to": "GA0_02",
+   "edgeId": "E025",
+   "pattern": "toGate",
+   "distanceM": 11,
+   "status": "reviewed",
+   "text": {
+    "ko": "개찰구까지 10m 이동하세요",
+    "en": "Go 10 m to the ticket gate.",
+    "ja": "改札口まで10m進んでください。",
+    "zh": "前行10米到检票口。"
+   },
+   "translatedFrom": "개찰구까지 10m 이동하세요"
+  },
+  "E025:S3_20": {
+   "from": "GA0_02",
+   "to": "S3_20",
+   "edgeId": "E025",
+   "pattern": "straight",
+   "distanceM": 11,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보이는 곳까지 10m 직진하세요",
+    "en": "Go straight 10 m until the sign comes into view.",
+    "ja": "案内板が見えるところまで10m直進してください。",
+    "zh": "直行10米，直到看见指示牌。"
+   },
+   "translatedFrom": "표지판이 보이는 곳까지 10m 직진하세요"
+  },
+  "E026:S3_19": {
+   "from": "S3_20",
+   "to": "S3_19",
+   "edgeId": "E026",
+   "pattern": "straight",
+   "distanceM": 28,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보이는 곳까지 30m 직진하세요",
+    "en": "Go straight 30 m until the sign comes into view.",
+    "ja": "案内板が見えるところまで30m直進してください。",
+    "zh": "直行30米，直到看见指示牌。"
+   },
+   "translatedFrom": "표지판이 보이는 곳까지 30m 직진하세요"
+  },
+  "E026:S3_20": {
+   "from": "S3_19",
+   "to": "S3_20",
+   "edgeId": "E026",
+   "pattern": "straight",
+   "distanceM": 28,
+   "status": "reviewed",
+   "text": {
+    "ko": "사진 속 표지판까지 30m 직진하세요",
+    "en": "Go straight 30 m to the sign shown in the photo.",
+    "ja": "写真の案内板まで30m直進してください。",
+    "zh": "直行30米至照片中的指示牌。"
+   },
+   "translatedFrom": "사진 속 표지판까지 30m 직진하세요"
+  },
+  "E027:S3_13": {
+   "from": "S3_18",
+   "to": "S3_13",
+   "edgeId": "E027",
+   "pattern": "stairs",
+   "distanceM": 66,
+   "status": "reviewed",
+   "text": {
+    "ko": "에스컬레이터를 이용해 표지판 앞까지 60m 이동하세요",
+    "en": "Take the escalator and go 60 m to the sign.",
+    "ja": "エスカレーターを使って案内板の前まで60m進んでください。",
+    "zh": "乘自动扶梯前行60米至指示牌前。"
+   },
+   "translatedFrom": "에스컬레이터를 이용해 표지판 앞까지 60m 이동하세요"
+  },
+  "E027:S3_18": {
+   "from": "S3_13",
+   "to": "S3_18",
+   "edgeId": "E027",
+   "pattern": "stairs",
+   "distanceM": 66,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보이는 곳까지 에스컬레이터를 지나 60m 이동하세요",
+    "en": "Pass the escalator and continue 60 m until the sign comes into view.",
+    "ja": "エスカレーターを通って案内板が見えるところまで60m進んでください。",
+    "zh": "经过自动扶梯前行60米，直到看见指示牌。"
+   },
+   "translatedFrom": "표지판이 보이는 곳까지 에스컬레이터를 지나 60m 이동하세요"
+  },
+  "E028:S3_11": {
+   "from": "S3_20",
+   "to": "S3_11",
+   "edgeId": "E028",
+   "pattern": "stairs",
+   "distanceM": 74,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보이는 곳까지 에스컬레이터를 지나 60m 이동하세요",
+    "en": "Pass the escalator and continue 60 m until the sign comes into view.",
+    "ja": "エスカレーターを通って案内板が見えるところまで60m進んでください。",
+    "zh": "经过自动扶梯前行60米，直到看见指示牌。"
+   },
+   "translatedFrom": "표지판이 보이는 곳까지 에스컬레이터를 지나 60m 이동하세요"
+  },
+  "E028:S3_20": {
+   "from": "S3_11",
+   "to": "S3_20",
+   "edgeId": "E028",
+   "pattern": "stairs",
+   "distanceM": 74,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보이는 곳까지 에스컬레이터를 지나 60m 이동하세요",
+    "en": "Pass the escalator and continue 60 m until the sign comes into view.",
+    "ja": "エスカレーターを通って案内板が見えるところまで60m進んでください。",
+    "zh": "经过自动扶梯前行60米，直到看见指示牌。"
+   },
+   "translatedFrom": "표지판이 보이는 곳까지 에스컬레이터를 지나 60m 이동하세요"
+  },
+  "E029:EV3_01": {
+   "from": "S3_06",
+   "to": "EV3_01",
+   "edgeId": "E029",
+   "pattern": "toElevator",
+   "distanceM": 23,
+   "status": "reviewed",
+   "text": {
+    "ko": "20m 이동한 뒤 대합실 안에 엘리베이터를 타세요",
+    "en": "Go 20 m, then take the elevator inside the waiting room.",
+    "ja": "20m進んで待合室内のエレベーターに乗ってください。",
+    "zh": "前行20米后乘坐候车室内的电梯。"
+   },
+   "translatedFrom": "20m 이동한 뒤 대합실 안에 엘리베이터를 타세요"
+  },
+  "E029:S3_06": {
+   "from": "EV3_01",
+   "to": "S3_06",
+   "edgeId": "E029",
+   "pattern": "straight",
+   "distanceM": 23,
+   "status": "reviewed",
+   "text": {
+    "ko": "엘리베이터에서 내려 사진 속 표지판까지 20m 직진하세요",
+    "en": "Exit the elevator, go straight 20 m to the sign shown in the photo.",
+    "ja": "エレベーターを降り、写真の案内板まで20m直進してください。",
+    "zh": "出电梯，直行20米至照片中的指示牌。"
+   },
+   "translatedFrom": "엘리베이터에서 내려 사진 속 표지판까지 20m 직진하세요"
+  },
+  "E030:S2_01": {
+   "from": "S3_05",
+   "to": "S2_01",
+   "edgeId": "E030",
+   "pattern": "stairsDown",
+   "distanceM": 79,
+   "status": "reviewed",
+   "text": {
+    "ko": "계단으로 내려가 표지판 앞까지 80m 걸어가세요",
+    "en": "Take the stairs down and walk 80 m to the sign.",
+    "ja": "階段を下りて案内板の前まで80m歩いてください。",
+    "zh": "下楼梯，走80米至指示牌前。"
+   },
+   "translatedFrom": "계단으로 내려가 표지판 앞까지 80m 걸어가세요"
+  },
+  "E030:S3_05": {
+   "from": "S2_01",
+   "to": "S3_05",
+   "edgeId": "E030",
+   "pattern": "stairsUp",
+   "distanceM": 79,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보이는 곳까지 계단을 올라가 80m 이동하세요",
+    "en": "Go up the stairs and continue 80 m until the sign comes into view.",
+    "ja": "階段を上がって案内板が見えるところまで80m進んでください。",
+    "zh": "上楼梯后前行80米，直到看见指示牌。"
+   },
+   "translatedFrom": "표지판이 보이는 곳까지 계단을 올라가 80m 이동하세요"
+  },
+  "E031:EV2_01": {
+   "from": "S2_01",
+   "to": "EV2_01",
+   "edgeId": "E031",
+   "pattern": "toElevator",
+   "distanceM": 44,
+   "status": "reviewed",
+   "text": {
+    "ko": "20m 이동한 뒤 엘리베이터를 타세요",
+    "en": "Go 20 m, then take the elevator.",
+    "ja": "20m進んでエレベーターに乗ってください。",
+    "zh": "前行20米后乘坐电梯。"
+   },
+   "translatedFrom": "20m 이동한 뒤 엘리베이터를 타세요"
+  },
+  "E031:S2_01": {
+   "from": "EV2_01",
+   "to": "S2_01",
+   "edgeId": "E031",
+   "pattern": "bendRight",
+   "distanceM": 44,
+   "status": "reviewed",
+   "text": {
+    "ko": "엘리베이터에서 내려 표지판이 보이는 곳까지 20m 가다 오른쪽으로 꺾으세요",
+    "en": "Exit the elevator, go 20 m and turn right until the sign comes into view.",
+    "ja": "エレベーターを降り、20m進み、案内板が見えるところで右に曲がってください。",
+    "zh": "出电梯，前行20米后向右拐，直到看见指示牌。"
+   },
+   "translatedFrom": "엘리베이터에서 내려 표지판이 보이는 곳까지 20m 가다 오른쪽으로 꺾으세요"
+  },
+  "E032:S2_01": {
+   "from": "S2_02",
+   "to": "S2_01",
+   "edgeId": "E032",
+   "pattern": "straightShort",
+   "distanceM": 5,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판 앞까지 5m 이동하세요",
+    "en": "Go 5 m to the sign.",
+    "ja": "案内板の前まで5m進んでください。",
+    "zh": "前行5米至指示牌前。"
+   },
+   "translatedFrom": "표지판 앞까지 5m 이동하세요"
+  },
+  "E032:S2_02": {
+   "from": "S2_01",
+   "to": "S2_02",
+   "edgeId": "E032",
+   "pattern": "straightShort",
+   "distanceM": 5,
+   "status": "reviewed",
+   "text": {
+    "ko": "바로 앞 표지판까지 5m 이동하세요",
+    "en": "Go 5 m to the sign just ahead.",
+    "ja": "すぐ前の案内板まで5m進んでください。",
+    "zh": "前行5米到前方的指示牌处。"
+   },
+   "translatedFrom": "바로 앞 표지판까지 5m 이동하세요"
+  },
+  "E033:S2_02": {
+   "from": "S2_03",
+   "to": "S2_02",
+   "edgeId": "E033",
+   "pattern": "stairs",
+   "distanceM": 104,
+   "status": "reviewed",
+   "text": {
+    "ko": "계단을 이용해 표지판 앞까지 100m 이동하세요",
+    "en": "Take the stairs and go 100 m to the sign.",
+    "ja": "階段を使って案内板の前まで100m進んでください。",
+    "zh": "走楼梯前行100米至指示牌前。"
+   },
+   "translatedFrom": "계단을 이용해 표지판 앞까지 100m 이동하세요"
+  },
+  "E033:S2_03": {
+   "from": "S2_02",
+   "to": "S2_03",
+   "edgeId": "E033",
+   "pattern": "stairs",
+   "distanceM": 104,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보이는 곳까지 계단을 지나 100m 이동하세요",
+    "en": "Pass the stairs and continue 100 m until the sign comes into view.",
+    "ja": "階段を通って案内板が見えるところまで100m進んでください。",
+    "zh": "经过楼梯前行100米，直到看见指示牌。"
+   },
+   "translatedFrom": "표지판이 보이는 곳까지 계단을 지나 100m 이동하세요"
+  },
+  "E034:EV1_01": {
+   "from": "S2_03",
+   "to": "EV1_01",
+   "edgeId": "E034",
+   "pattern": "toElevator",
+   "distanceM": 31,
+   "status": "reviewed",
+   "text": {
+    "ko": "30m 이동한 뒤 엘리베이터를 타세요",
+    "en": "Go 30 m, then take the elevator.",
+    "ja": "30m進んでエレベーターに乗ってください。",
+    "zh": "前行30米后乘坐电梯。"
+   },
+   "translatedFrom": "30m 이동한 뒤 엘리베이터를 타세요"
+  },
+  "E034:S2_03": {
+   "from": "EV1_01",
+   "to": "S2_03",
+   "edgeId": "E034",
+   "pattern": "bendLeft",
+   "distanceM": 31,
+   "status": "reviewed",
+   "text": {
+    "ko": "엘리베이터에서 내려 왼쪽으로 꺾어 표지판 앞까지 30m 이동하세요",
+    "en": "Exit the elevator, turn left and go 30 m to the sign.",
+    "ja": "エレベーターを降り、左に曲がって案内板の前まで30m進んでください。",
+    "zh": "出电梯，向左拐后前行30米至指示牌前。"
+   },
+   "translatedFrom": "엘리베이터에서 내려 왼쪽으로 꺾어 표지판 앞까지 30m 이동하세요"
+  },
+  "E035:S2_03": {
+   "from": "S2_04",
+   "to": "S2_03",
+   "edgeId": "E035",
+   "pattern": "straight",
+   "distanceM": 15,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보이는 곳까지 15m 직진하세요",
+    "en": "Go straight 15 m until the sign comes into view.",
+    "ja": "案内板が見えるところまで15m直進してください。",
+    "zh": "直行15米，直到看见指示牌。"
+   },
+   "translatedFrom": "표지판이 보이는 곳까지 15m 직진하세요"
+  },
+  "E035:S2_04": {
+   "from": "S2_03",
+   "to": "S2_04",
+   "edgeId": "E035",
+   "pattern": "straight",
+   "distanceM": 15,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보일 때까지 15m 앞으로 이동하세요",
+    "en": "Move forward 15 m until you see the sign.",
+    "ja": "案内板が見えるまで15m前へ進んでください。",
+    "zh": "向前走15米，直到看到指示牌。"
+   },
+   "translatedFrom": "표지판이 보일 때까지 15m 앞으로 이동하세요"
+  },
+  "E036:S2_04": {
+   "from": "S2_05",
+   "to": "S2_04",
+   "edgeId": "E036",
+   "pattern": "straight",
+   "distanceM": 8,
+   "status": "reviewed",
+   "text": {
+    "ko": "사진 속 표지판까지 8m 직진하세요",
+    "en": "Go straight 8 m to the sign shown in the photo.",
+    "ja": "写真の案内板まで8m直進してください。",
+    "zh": "直行8米至照片中的指示牌。"
+   },
+   "translatedFrom": "사진 속 표지판까지 8m 직진하세요"
+  },
+  "E036:S2_05": {
+   "from": "S2_04",
+   "to": "S2_05",
+   "edgeId": "E036",
+   "pattern": "straight",
+   "distanceM": 8,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보이는 곳까지 8m 직진하세요",
+    "en": "Go straight 8 m until the sign comes into view.",
+    "ja": "案内板が見えるところまで8m直進してください。",
+    "zh": "直行8米，直到看见指示牌。"
+   },
+   "translatedFrom": "표지판이 보이는 곳까지 8m 직진하세요"
+  },
+  "E037:S2_05": {
+   "from": "S2_10",
+   "to": "S2_05",
+   "edgeId": "E037",
+   "pattern": "straight",
+   "distanceM": 19,
+   "status": "reviewed",
+   "text": {
+    "ko": "사진 속 표지판까지 20m 직진하세요",
+    "en": "Go straight 20 m to the sign shown in the photo.",
+    "ja": "写真の案内板まで20m直進してください。",
+    "zh": "直行20米至照片中的指示牌。"
+   },
+   "translatedFrom": "사진 속 표지판까지 20m 직진하세요"
+  },
+  "E037:S2_10": {
+   "from": "S2_05",
+   "to": "S2_10",
+   "edgeId": "E037",
+   "pattern": "straight",
+   "distanceM": 19,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보이는 곳까지 20m 직진하세요",
+    "en": "Go straight 20 m until the sign comes into view.",
+    "ja": "案内板が見えるところまで20m直進してください。",
+    "zh": "直行20米，直到看见指示牌。"
+   },
+   "translatedFrom": "표지판이 보이는 곳까지 20m 직진하세요"
+  },
+  "E038:S2_06": {
+   "from": "S2_10",
+   "to": "S2_06",
+   "edgeId": "E038",
+   "pattern": "straight",
+   "distanceM": 20,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보이는 곳까지 20m 직진하세요",
+    "en": "Go straight 20 m until the sign comes into view.",
+    "ja": "案内板が見えるところまで20m直進してください。",
+    "zh": "直行20米，直到看见指示牌。"
+   },
+   "translatedFrom": "표지판이 보이는 곳까지 20m 직진하세요"
+  },
+  "E038:S2_10": {
+   "from": "S2_06",
+   "to": "S2_10",
+   "edgeId": "E038",
+   "pattern": "straight",
+   "distanceM": 20,
+   "status": "reviewed",
+   "text": {
+    "ko": "사진 속 표지판까지 20m 직진하세요",
+    "en": "Go straight 20 m to the sign shown in the photo.",
+    "ja": "写真の案内板まで20m直進してください。",
+    "zh": "直行20米至照片中的指示牌。"
+   },
+   "translatedFrom": "사진 속 표지판까지 20m 직진하세요"
+  },
+  "E039:S2_06": {
+   "from": "S2_07",
+   "to": "S2_06",
+   "edgeId": "E039",
+   "pattern": "bendLeft",
+   "distanceM": 19,
+   "status": "reviewed",
+   "text": {
+    "ko": "왼쪽으로 꺾어 표지판 앞까지 20m 이동하세요",
+    "en": "Turn left and go 20 m to the sign.",
+    "ja": "左に曲がって案内板の前まで20m進んでください。",
+    "zh": "向左拐后前行20米至指示牌前。"
+   },
+   "translatedFrom": "왼쪽으로 꺾어 표지판 앞까지 20m 이동하세요"
+  },
+  "E039:S2_07": {
+   "from": "S2_06",
+   "to": "S2_07",
+   "edgeId": "E039",
+   "pattern": "bendRight",
+   "distanceM": 19,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보이는 곳까지 20m 가다 오른쪽으로 꺾으세요",
+    "en": "Go 20 m and turn right until the sign comes into view.",
+    "ja": "20m進み、案内板が見えるところで右に曲がってください。",
+    "zh": "前行20米后向右拐，直到看见指示牌。"
+   },
+   "translatedFrom": "표지판이 보이는 곳까지 20m 가다 오른쪽으로 꺾으세요"
+  },
+  "E040:S1_08": {
+   "from": "S2_10",
+   "to": "S1_08",
+   "edgeId": "E040",
+   "pattern": "stairsDown",
+   "distanceM": 15,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보이는 곳까지 계단을 내려가 15m 이동하세요",
+    "en": "Go down the stairs and continue 15 m until the sign comes into view.",
+    "ja": "階段を下りて案内板が見えるところまで15m進んでください。",
+    "zh": "下楼梯后前行15米，直到看见指示牌。"
+   },
+   "translatedFrom": "표지판이 보이는 곳까지 계단을 내려가 15m 이동하세요"
+  },
+  "E040:S2_10": {
+   "from": "S1_08",
+   "to": "S2_10",
+   "edgeId": "E040",
+   "pattern": "stairsUp",
+   "distanceM": 15,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보이는 곳까지 계단을 올라가 15m 이동하세요",
+    "en": "Go up the stairs and continue 15 m until the sign comes into view.",
+    "ja": "階段を上がって案内板が見えるところまで15m進んでください。",
+    "zh": "上楼梯后前行15米，直到看见指示牌。"
+   },
+   "translatedFrom": "표지판이 보이는 곳까지 계단을 올라가 15m 이동하세요"
+  },
+  "E041:S1_05": {
+   "from": "S1_08",
+   "to": "S1_05",
+   "edgeId": "E041",
+   "pattern": "straight",
+   "distanceM": 8,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보일 때까지 8m 앞으로 이동하세요",
+    "en": "Move forward 8 m until you see the sign.",
+    "ja": "案内板が見えるまで8m前へ進んでください。",
+    "zh": "向前走8米，直到看到指示牌。"
+   },
+   "translatedFrom": "표지판이 보일 때까지 8m 앞으로 이동하세요"
+  },
+  "E041:S1_08": {
+   "from": "S1_05",
+   "to": "S1_08",
+   "edgeId": "E041",
+   "pattern": "straight",
+   "distanceM": 8,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보일 때까지 8m 앞으로 이동하세요",
+    "en": "Move forward 8 m until you see the sign.",
+    "ja": "案内板が見えるまで8m前へ進んでください。",
+    "zh": "向前走8米，直到看到指示牌。"
+   },
+   "translatedFrom": "표지판이 보일 때까지 8m 앞으로 이동하세요"
+  },
+  "E042:S1_04": {
+   "from": "S1_05",
+   "to": "S1_04",
+   "edgeId": "E042",
+   "pattern": "straight",
+   "distanceM": 12,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보일 때까지 12m 앞으로 이동하세요",
+    "en": "Move forward 12 m until you see the sign.",
+    "ja": "案内板が見えるまで12m前へ進んでください。",
+    "zh": "向前走12米，直到看到指示牌。"
+   },
+   "translatedFrom": "표지판이 보일 때까지 12m 앞으로 이동하세요"
+  },
+  "E042:S1_05": {
+   "from": "S1_04",
+   "to": "S1_05",
+   "edgeId": "E042",
+   "pattern": "straight",
+   "distanceM": 12,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보이는 곳까지 12m 직진하세요",
+    "en": "Go straight 12 m until the sign comes into view.",
+    "ja": "案内板が見えるところまで12m直進してください。",
+    "zh": "直行12米，直到看见指示牌。"
+   },
+   "translatedFrom": "표지판이 보이는 곳까지 12m 직진하세요"
+  },
+  "E043:S1_04": {
+   "from": "S1_09",
+   "to": "S1_04",
+   "edgeId": "E043",
+   "pattern": "straight",
+   "distanceM": 9,
+   "status": "reviewed",
+   "text": {
+    "ko": "사진 속 표지판까지 10m 직진하세요",
+    "en": "Go straight 10 m to the sign shown in the photo.",
+    "ja": "写真の案内板まで10m直進してください。",
+    "zh": "直行10米至照片中的指示牌。"
+   },
+   "translatedFrom": "사진 속 표지판까지 10m 직진하세요"
+  },
+  "E043:S1_09": {
+   "from": "S1_04",
+   "to": "S1_09",
+   "edgeId": "E043",
+   "pattern": "straight",
+   "distanceM": 9,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보일 때까지 10m 앞으로 이동하세요",
+    "en": "Move forward 10 m until you see the sign.",
+    "ja": "案内板が見えるまで10m前へ進んでください。",
+    "zh": "向前走10米，直到看到指示牌。"
+   },
+   "translatedFrom": "표지판이 보일 때까지 10m 앞으로 이동하세요"
+  },
+  "E044:S1_08": {
+   "from": "S1_09",
+   "to": "S1_08",
+   "edgeId": "E044",
+   "pattern": "straight",
+   "distanceM": 11,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보일 때까지 10m 앞으로 이동하세요",
+    "en": "Move forward 10 m until you see the sign.",
+    "ja": "案内板が見えるまで10m前へ進んでください。",
+    "zh": "向前走10米，直到看到指示牌。"
+   },
+   "translatedFrom": "표지판이 보일 때까지 10m 앞으로 이동하세요"
+  },
+  "E044:S1_09": {
+   "from": "S1_08",
+   "to": "S1_09",
+   "edgeId": "E044",
+   "pattern": "straight",
+   "distanceM": 11,
+   "status": "reviewed",
+   "text": {
+    "ko": "사진 속 표지판까지 10m 직진하세요",
+    "en": "Go straight 10 m to the sign shown in the photo.",
+    "ja": "写真の案内板まで10m直進してください。",
+    "zh": "直行10米至照片中的指示牌。"
+   },
+   "translatedFrom": "사진 속 표지판까지 10m 직진하세요"
+  },
+  "E045:S1_09": {
+   "from": "S1_10",
+   "to": "S1_09",
+   "edgeId": "E045",
+   "pattern": "straight",
+   "distanceM": 12,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보이는 곳까지 12m 직진하세요",
+    "en": "Go straight 12 m until the sign comes into view.",
+    "ja": "案内板が見えるところまで12m直進してください。",
+    "zh": "直行12米，直到看见指示牌。"
+   },
+   "translatedFrom": "표지판이 보이는 곳까지 12m 직진하세요"
+  },
+  "E045:S1_10": {
+   "from": "S1_09",
+   "to": "S1_10",
+   "edgeId": "E045",
+   "pattern": "straight",
+   "distanceM": 12,
+   "status": "reviewed",
+   "text": {
+    "ko": "사진 속 표지판까지 12m 직진하세요",
+    "en": "Go straight 12 m to the sign shown in the photo.",
+    "ja": "写真の案内板まで12m直進してください。",
+    "zh": "直行12米至照片中的指示牌。"
+   },
+   "translatedFrom": "사진 속 표지판까지 12m 직진하세요"
+  },
+  "E046:S1_03": {
+   "from": "S1_04",
+   "to": "S1_03",
+   "edgeId": "E046",
+   "pattern": "straight",
+   "distanceM": 12,
+   "status": "reviewed",
+   "text": {
+    "ko": "사진 속 표지판까지 12m 직진하세요",
+    "en": "Go straight 12 m to the sign shown in the photo.",
+    "ja": "写真の案内板まで12m直進してください。",
+    "zh": "直行12米至照片中的指示牌。"
+   },
+   "translatedFrom": "사진 속 표지판까지 12m 직진하세요"
+  },
+  "E046:S1_04": {
+   "from": "S1_03",
+   "to": "S1_04",
+   "edgeId": "E046",
+   "pattern": "straight",
+   "distanceM": 12,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보일 때까지 12m 앞으로 이동하세요",
+    "en": "Move forward 12 m until you see the sign.",
+    "ja": "案内板が見えるまで12m前へ進んでください。",
+    "zh": "向前走12米，直到看到指示牌。"
+   },
+   "translatedFrom": "표지판이 보일 때까지 12m 앞으로 이동하세요"
+  },
+  "E047:S1_03": {
+   "from": "S1_10",
+   "to": "S1_03",
+   "edgeId": "E047",
+   "pattern": "straight",
+   "distanceM": 8,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보일 때까지 8m 앞으로 이동하세요",
+    "en": "Move forward 8 m until you see the sign.",
+    "ja": "案内板が見えるまで8m前へ進んでください。",
+    "zh": "向前走8米，直到看到指示牌。"
+   },
+   "translatedFrom": "표지판이 보일 때까지 8m 앞으로 이동하세요"
+  },
+  "E047:S1_10": {
+   "from": "S1_03",
+   "to": "S1_10",
+   "edgeId": "E047",
+   "pattern": "straight",
+   "distanceM": 8,
+   "status": "reviewed",
+   "text": {
+    "ko": "사진 속 표지판까지 8m 직진하세요",
+    "en": "Go straight 8 m to the sign shown in the photo.",
+    "ja": "写真の案内板まで8m直進してください。",
+    "zh": "直行8米至照片中的指示牌。"
+   },
+   "translatedFrom": "사진 속 표지판까지 8m 직진하세요"
+  },
+  "E048:S1_10": {
+   "from": "S1_11",
+   "to": "S1_10",
+   "edgeId": "E048",
+   "pattern": "straight",
+   "distanceM": 11,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보이는 곳까지 10m 직진하세요",
+    "en": "Go straight 10 m until the sign comes into view.",
+    "ja": "案内板が見えるところまで10m直進してください。",
+    "zh": "直行10米，直到看见指示牌。"
+   },
+   "translatedFrom": "표지판이 보이는 곳까지 10m 직진하세요"
+  },
+  "E048:S1_11": {
+   "from": "S1_10",
+   "to": "S1_11",
+   "edgeId": "E048",
+   "pattern": "straight",
+   "distanceM": 11,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보일 때까지 10m 앞으로 이동하세요",
+    "en": "Move forward 10 m until you see the sign.",
+    "ja": "案内板が見えるまで10m前へ進んでください。",
+    "zh": "向前走10米，直到看到指示牌。"
+   },
+   "translatedFrom": "표지판이 보일 때까지 10m 앞으로 이동하세요"
+  },
+  "E049:S1_02": {
+   "from": "S1_03",
+   "to": "S1_02",
+   "edgeId": "E049",
+   "pattern": "straight",
+   "distanceM": 10,
+   "status": "reviewed",
+   "text": {
+    "ko": "사진 속 표지판까지 10m 직진하세요",
+    "en": "Go straight 10 m to the sign shown in the photo.",
+    "ja": "写真の案内板まで10m直進してください。",
+    "zh": "直行10米至照片中的指示牌。"
+   },
+   "translatedFrom": "사진 속 표지판까지 10m 직진하세요"
+  },
+  "E049:S1_03": {
+   "from": "S1_02",
+   "to": "S1_03",
+   "edgeId": "E049",
+   "pattern": "straight",
+   "distanceM": 10,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보이는 곳까지 10m 직진하세요",
+    "en": "Go straight 10 m until the sign comes into view.",
+    "ja": "案内板が見えるところまで10m直進してください。",
+    "zh": "直行10米，直到看见指示牌。"
+   },
+   "translatedFrom": "표지판이 보이는 곳까지 10m 직진하세요"
+  },
+  "E050:S1_02": {
+   "from": "S1_11",
+   "to": "S1_02",
+   "edgeId": "E050",
+   "pattern": "straightShort",
+   "distanceM": 7,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판 앞까지 7m 이동하세요",
+    "en": "Go 7 m to the sign.",
+    "ja": "案内板の前まで7m進んでください。",
+    "zh": "前行7米至指示牌前。"
+   },
+   "translatedFrom": "표지판 앞까지 7m 이동하세요"
+  },
+  "E050:S1_11": {
+   "from": "S1_02",
+   "to": "S1_11",
+   "edgeId": "E050",
+   "pattern": "straightShort",
+   "distanceM": 7,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판 앞까지 7m 이동하세요",
+    "en": "Go 7 m to the sign.",
+    "ja": "案内板の前まで7m進んでください。",
+    "zh": "前行7米至指示牌前。"
+   },
+   "translatedFrom": "표지판 앞까지 7m 이동하세요"
+  },
+  "E051:GA0_03": {
+   "from": "S1_11",
+   "to": "GA0_03",
+   "edgeId": "E051",
+   "pattern": "toGate",
+   "distanceM": 3,
+   "status": "reviewed",
+   "text": {
+    "ko": "개찰구까지 이동하세요",
+    "en": "Head to the ticket gate.",
+    "ja": "改札口まで進んでください。",
+    "zh": "请前往检票口。"
+   },
+   "translatedFrom": "개찰구까지 이동하세요"
+  },
+  "E051:S1_11": {
+   "from": "GA0_03",
+   "to": "S1_11",
+   "edgeId": "E051",
+   "pattern": "straightShort",
+   "distanceM": 3,
+   "status": "reviewed",
+   "text": {
+    "ko": "3m 앞 표지판까지 걸어가세요",
+    "en": "Walk to the sign 3 m ahead.",
+    "ja": "3m先の案内板まで歩いてください。",
+    "zh": "走到前方3米处的指示牌。"
+   },
+   "translatedFrom": "3m 앞 표지판까지 걸어가세요"
+  },
+  "E052:GA0_04": {
+   "from": "S1_02",
+   "to": "GA0_04",
+   "edgeId": "E052",
+   "pattern": "toGate",
+   "distanceM": 3,
+   "status": "reviewed",
+   "text": {
+    "ko": "개찰구까지 이동하세요",
+    "en": "Head to the ticket gate.",
+    "ja": "改札口まで進んでください。",
+    "zh": "请前往检票口。"
+   },
+   "translatedFrom": "개찰구까지 이동하세요"
+  },
+  "E052:S1_02": {
+   "from": "GA0_04",
+   "to": "S1_02",
+   "edgeId": "E052",
+   "pattern": "straightShort",
+   "distanceM": 3,
+   "status": "reviewed",
+   "text": {
+    "ko": "바로 앞 표지판까지 3m 이동하세요",
+    "en": "Go 3 m to the sign just ahead.",
+    "ja": "すぐ前の案内板まで3m進んでください。",
+    "zh": "前行3米到前方的指示牌处。"
+   },
+   "translatedFrom": "바로 앞 표지판까지 3m 이동하세요"
+  },
+  "E053:S1_11": {
+   "from": "S1_12",
+   "to": "S1_11",
+   "edgeId": "E053",
+   "pattern": "straight",
+   "distanceM": 9,
+   "status": "reviewed",
+   "text": {
+    "ko": "사진 속 표지판까지 10m 직진하세요",
+    "en": "Go straight 10 m to the sign shown in the photo.",
+    "ja": "写真の案内板まで10m直進してください。",
+    "zh": "直行10米至照片中的指示牌。"
+   },
+   "translatedFrom": "사진 속 표지판까지 10m 직진하세요"
+  },
+  "E053:S1_12": {
+   "from": "S1_11",
+   "to": "S1_12",
+   "edgeId": "E053",
+   "pattern": "straight",
+   "distanceM": 9,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보일 때까지 10m 앞으로 이동하세요",
+    "en": "Move forward 10 m until you see the sign.",
+    "ja": "案内板が見えるまで10m前へ進んでください。",
+    "zh": "向前走10米，直到看到指示牌。"
+   },
+   "translatedFrom": "표지판이 보일 때까지 10m 앞으로 이동하세요"
+  },
+  "E054:S1_01": {
+   "from": "S1_02",
+   "to": "S1_01",
+   "edgeId": "E054",
+   "pattern": "straight",
+   "distanceM": 9,
+   "status": "reviewed",
+   "text": {
+    "ko": "사진 속 표지판까지 10m 직진하세요",
+    "en": "Go straight 10 m to the sign shown in the photo.",
+    "ja": "写真の案内板まで10m直進してください。",
+    "zh": "直行10米至照片中的指示牌。"
+   },
+   "translatedFrom": "사진 속 표지판까지 10m 직진하세요"
+  },
+  "E054:S1_02": {
+   "from": "S1_01",
+   "to": "S1_02",
+   "edgeId": "E054",
+   "pattern": "straight",
+   "distanceM": 9,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보일 때까지 10m 앞으로 이동하세요",
+    "en": "Move forward 10 m until you see the sign.",
+    "ja": "案内板が見えるまで10m前へ進んでください。",
+    "zh": "向前走10米，直到看到指示牌。"
+   },
+   "translatedFrom": "표지판이 보일 때까지 10m 앞으로 이동하세요"
+  },
+  "E055:S1_01": {
+   "from": "S1_12",
+   "to": "S1_01",
+   "edgeId": "E055",
+   "pattern": "straightShort",
+   "distanceM": 7,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판 앞까지 10m 이동하세요",
+    "en": "Go 10 m to the sign.",
+    "ja": "案内板の前まで10m進んでください。",
+    "zh": "前行10米至指示牌前。"
+   },
+   "translatedFrom": "표지판 앞까지 10m 이동하세요"
+  },
+  "E055:S1_12": {
+   "from": "S1_01",
+   "to": "S1_12",
+   "edgeId": "E055",
+   "pattern": "straightShort",
+   "distanceM": 7,
+   "status": "reviewed",
+   "text": {
+    "ko": "바로 앞 표지판까지 10m 이동하세요",
+    "en": "Go 10 m to the sign just ahead.",
+    "ja": "すぐ前の案内板まで10m進んでください。",
+    "zh": "前行10米到前方的指示牌处。"
+   },
+   "translatedFrom": "바로 앞 표지판까지 10m 이동하세요"
+  },
+  "E056:S1_12": {
+   "from": "S2_08",
+   "to": "S1_12",
+   "edgeId": "E056",
+   "pattern": "stairsDown",
+   "distanceM": 40,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보이는 곳까지 계단을 내려가 40m 이동하세요",
+    "en": "Go down the stairs and continue 40 m until the sign comes into view.",
+    "ja": "階段を下りて案内板が見えるところまで40m進んでください。",
+    "zh": "下楼梯后前行40米，直到看见指示牌。"
+   },
+   "translatedFrom": "표지판이 보이는 곳까지 계단을 내려가 40m 이동하세요"
+  },
+  "E056:S2_08": {
+   "from": "S1_12",
+   "to": "S2_08",
+   "edgeId": "E056",
+   "pattern": "stairsUp",
+   "distanceM": 40,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보이는 곳까지 계단을 올라가 40m 이동하세요",
+    "en": "Go up the stairs and continue 40 m until the sign comes into view.",
+    "ja": "階段を上がって案内板が見えるところまで40m進んでください。",
+    "zh": "上楼梯后前行40米，直到看见指示牌。"
+   },
+   "translatedFrom": "표지판이 보이는 곳까지 계단을 올라가 40m 이동하세요"
+  },
+  "E057:S1_01": {
+   "from": "S2_08",
+   "to": "S1_01",
+   "edgeId": "E057",
+   "pattern": "stairsDown",
+   "distanceM": 51,
+   "status": "reviewed",
+   "text": {
+    "ko": "계단으로 내려가 표지판 앞까지 50m 걸어가세요",
+    "en": "Take the stairs down and walk 50 m to the sign.",
+    "ja": "階段を下りて案内板の前まで50m歩いてください。",
+    "zh": "下楼梯，走50米至指示牌前。"
+   },
+   "translatedFrom": "계단으로 내려가 표지판 앞까지 50m 걸어가세요"
+  },
+  "E057:S2_08": {
+   "from": "S1_01",
+   "to": "S2_08",
+   "edgeId": "E057",
+   "pattern": "stairsUp",
+   "distanceM": 51,
+   "status": "reviewed",
+   "text": {
+    "ko": "계단으로 올라가 표지판 앞까지 50m 걸어가세요",
+    "en": "Take the stairs up and walk 50 m to the sign.",
+    "ja": "階段を上って案内板の前まで50m歩いてください。",
+    "zh": "上楼梯，走50米至指示牌前。"
+   },
+   "translatedFrom": "계단으로 올라가 표지판 앞까지 50m 걸어가세요"
+  },
+  "E058:S1_09": {
+   "from": "S2_09",
+   "to": "S1_09",
+   "edgeId": "E058",
+   "pattern": "stairsDown",
+   "distanceM": 37,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보이는 곳까지 계단을 내려가 40m 이동하세요",
+    "en": "Go down the stairs and continue 40 m until the sign comes into view.",
+    "ja": "階段を下りて案内板が見えるところまで40m進んでください。",
+    "zh": "下楼梯后前行40米，直到看见指示牌。"
+   },
+   "translatedFrom": "표지판이 보이는 곳까지 계단을 내려가 40m 이동하세요"
+  },
+  "E058:S2_09": {
+   "from": "S1_09",
+   "to": "S2_09",
+   "edgeId": "E058",
+   "pattern": "stairsUp",
+   "distanceM": 37,
+   "status": "reviewed",
+   "text": {
+    "ko": "계단으로 올라가 표지판 앞까지 40m 걸어가세요",
+    "en": "Take the stairs up and walk 40 m to the sign.",
+    "ja": "階段を上って案内板の前まで40m歩いてください。",
+    "zh": "上楼梯，走40米至指示牌前。"
+   },
+   "translatedFrom": "계단으로 올라가 표지판 앞까지 40m 걸어가세요"
+  },
+  "E059:S1_04": {
+   "from": "S2_09",
+   "to": "S1_04",
+   "edgeId": "E059",
+   "pattern": "stairsDown",
+   "distanceM": 49,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보이는 곳까지 계단을 내려가 50m 이동하세요",
+    "en": "Go down the stairs and continue 50 m until the sign comes into view.",
+    "ja": "階段を下りて案内板が見えるところまで50m進んでください。",
+    "zh": "下楼梯后前行50米，直到看见指示牌。"
+   },
+   "translatedFrom": "표지판이 보이는 곳까지 계단을 내려가 50m 이동하세요"
+  },
+  "E059:S2_09": {
+   "from": "S1_04",
+   "to": "S2_09",
+   "edgeId": "E059",
+   "pattern": "stairsUp",
+   "distanceM": 49,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보이는 곳까지 계단을 올라가 50m 이동하세요",
+    "en": "Go up the stairs and continue 50 m until the sign comes into view.",
+    "ja": "階段を上がって案内板が見えるところまで50m進んでください。",
+    "zh": "上楼梯后前行50米，直到看见指示牌。"
+   },
+   "translatedFrom": "표지판이 보이는 곳까지 계단을 올라가 50m 이동하세요"
+  },
+  "E060:S1_05": {
+   "from": "S1_06",
+   "to": "S1_05",
+   "edgeId": "E060",
+   "pattern": "stairs",
+   "distanceM": 16,
+   "status": "reviewed",
+   "text": {
+    "ko": "계단을 이용해 표지판 앞까지 15m 이동하세요",
+    "en": "Take the stairs and go 15 m to the sign.",
+    "ja": "階段を使って案内板の前まで15m進んでください。",
+    "zh": "走楼梯前行15米至指示牌前。"
+   },
+   "translatedFrom": "계단을 이용해 표지판 앞까지 15m 이동하세요"
+  },
+  "E060:S1_06": {
+   "from": "S1_05",
+   "to": "S1_06",
+   "edgeId": "E060",
+   "pattern": "stairs",
+   "distanceM": 16,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보이는 곳까지 계단을 지나 15m 이동하세요",
+    "en": "Pass the stairs and continue 15 m until the sign comes into view.",
+    "ja": "階段を通って案内板が見えるところまで15m進んでください。",
+    "zh": "经过楼梯前行15米，直到看见指示牌。"
+   },
+   "translatedFrom": "표지판이 보이는 곳까지 계단을 지나 15m 이동하세요"
+  },
+  "E061:S1_06": {
+   "from": "S2_05",
+   "to": "S1_06",
+   "edgeId": "E061",
+   "pattern": "straight",
+   "distanceM": 17,
+   "status": "reviewed",
+   "text": {
+    "ko": "사진 속 표지판까지 15m 직진하세요",
+    "en": "Go straight 15 m to the sign shown in the photo.",
+    "ja": "写真の案内板まで15m直進してください。",
+    "zh": "直行15米至照片中的指示牌。"
+   },
+   "translatedFrom": "사진 속 표지판까지 15m 직진하세요"
+  },
+  "E061:S2_05": {
+   "from": "S1_06",
+   "to": "S2_05",
+   "edgeId": "E061",
+   "pattern": "straight",
+   "distanceM": 17,
+   "status": "reviewed",
+   "text": {
+    "ko": "사진 속 표지판까지 15m 직진하세요",
+    "en": "Go straight 15 m to the sign shown in the photo.",
+    "ja": "写真の案内板まで15m直進してください。",
+    "zh": "直行15米至照片中的指示牌。"
+   },
+   "translatedFrom": "사진 속 표지판까지 15m 직진하세요"
+  },
+  "E062:S2_05": {
+   "from": "S2_06",
+   "to": "S2_05",
+   "edgeId": "E062",
+   "pattern": "straight",
+   "distanceM": 22,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보일 때까지 20m 앞으로 이동하세요",
+    "en": "Move forward 20 m until you see the sign.",
+    "ja": "案内板が見えるまで20m前へ進んでください。",
+    "zh": "向前走20米，直到看到指示牌。"
+   },
+   "translatedFrom": "표지판이 보일 때까지 20m 앞으로 이동하세요"
+  },
+  "E062:S2_06": {
+   "from": "S2_05",
+   "to": "S2_06",
+   "edgeId": "E062",
+   "pattern": "straight",
+   "distanceM": 22,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보이는 곳까지 20m 직진하세요",
+    "en": "Go straight 20 m until the sign comes into view.",
+    "ja": "案内板が見えるところまで20m直進してください。",
+    "zh": "直行20米，直到看见指示牌。"
+   },
+   "translatedFrom": "표지판이 보이는 곳까지 20m 직진하세요"
+  },
+  "E063:S1_06": {
+   "from": "S2_06",
+   "to": "S1_06",
+   "edgeId": "E063",
+   "pattern": "straight",
+   "distanceM": 22,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보이는 곳까지 20m 직진하세요",
+    "en": "Go straight 20 m until the sign comes into view.",
+    "ja": "案内板が見えるところまで20m直進してください。",
+    "zh": "直行20米，直到看见指示牌。"
+   },
+   "translatedFrom": "표지판이 보이는 곳까지 20m 직진하세요"
+  },
+  "E063:S2_06": {
+   "from": "S1_06",
+   "to": "S2_06",
+   "edgeId": "E063",
+   "pattern": "straight",
+   "distanceM": 22,
+   "status": "reviewed",
+   "text": {
+    "ko": "사진 속 표지판까지 20m 직진하세요",
+    "en": "Go straight 20 m to the sign shown in the photo.",
+    "ja": "写真の案内板まで20m直進してください。",
+    "zh": "直行20米至照片中的指示牌。"
+   },
+   "translatedFrom": "사진 속 표지판까지 20m 직진하세요"
+  },
+  "E064:EX0_03": {
+   "from": "S2_09",
+   "to": "EX0_03",
+   "edgeId": "E064",
+   "pattern": "toExit",
+   "distanceM": 8,
+   "status": "reviewed",
+   "text": {
+    "ko": "10m 이동하여 대구역 3번 출구로 나가세요",
+    "en": "Go 10 m and leave via Daegu Stn. Exit 3.",
+    "ja": "10m進んで大邱駅3番出口から出てください。",
+    "zh": "前行10米后从大邱站3号出口出站。"
+   },
+   "translatedFrom": "10m 이동하여 대구역 3번 출구로 나가세요"
+  },
+  "E064:S2_09": {
+   "from": "EX0_03",
+   "to": "S2_09",
+   "edgeId": "E064",
+   "pattern": "straight",
+   "distanceM": 8,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보일 때까지 10m 앞으로 이동하세요",
+    "en": "Move forward 10 m until you see the sign.",
+    "ja": "案内板が見えるまで10m前へ進んでください。",
+    "zh": "向前走10米，直到看到指示牌。"
+   },
+   "translatedFrom": "표지판이 보일 때까지 10m 앞으로 이동하세요"
+  },
+  "E065:EX0_04": {
+   "from": "S2_09",
+   "to": "EX0_04",
+   "edgeId": "E065",
+   "pattern": "toExit",
+   "distanceM": 8,
+   "status": "reviewed",
+   "text": {
+    "ko": "10m 이동하여 대구역 4번 출구로 나가세요",
+    "en": "Go 10 m and leave via Daegu Stn. Exit 4.",
+    "ja": "10m進んで大邱駅4番出口から出てください。",
+    "zh": "前行10米后从大邱站4号出口出站。"
+   },
+   "translatedFrom": "10m 이동하여 대구역 4번 출구로 나가세요"
+  },
+  "E065:S2_09": {
+   "from": "EX0_04",
+   "to": "S2_09",
+   "edgeId": "E065",
+   "pattern": "straight",
+   "distanceM": 8,
+   "status": "reviewed",
+   "text": {
+    "ko": "사진 속 표지판까지 10m 직진하세요",
+    "en": "Go straight 10 m to the sign shown in the photo.",
+    "ja": "写真の案内板まで10m直進してください。",
+    "zh": "直行10米至照片中的指示牌。"
+   },
+   "translatedFrom": "사진 속 표지판까지 10m 직진하세요"
+  },
+  "E066:EX0_01": {
+   "from": "S2_08",
+   "to": "EX0_01",
+   "edgeId": "E066",
+   "pattern": "toExit",
+   "distanceM": 8,
+   "status": "reviewed",
+   "text": {
+    "ko": "10m 이동하여 대구역 2번 출구로 나가세요",
+    "en": "Go 10 m and leave via Daegu Stn. Exit 2.",
+    "ja": "10m進んで大邱駅2番出口から出てください。",
+    "zh": "前行10米后从大邱站2号出口出站。"
+   },
+   "translatedFrom": "10m 이동하여 대구역 2번 출구로 나가세요"
+  },
+  "E066:S2_08": {
+   "from": "EX0_01",
+   "to": "S2_08",
+   "edgeId": "E066",
+   "pattern": "straight",
+   "distanceM": 8,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보일 때까지 10m 앞으로 이동하세요",
+    "en": "Move forward 10 m until you see the sign.",
+    "ja": "案内板が見えるまで10m前へ進んでください。",
+    "zh": "向前走10米，直到看到指示牌。"
+   },
+   "translatedFrom": "표지판이 보일 때까지 10m 앞으로 이동하세요"
+  },
+  "E067:EX0_02": {
+   "from": "S2_08",
+   "to": "EX0_02",
+   "edgeId": "E067",
+   "pattern": "toExit",
+   "distanceM": 8,
+   "status": "reviewed",
+   "text": {
+    "ko": "10m 이동하여 대구역 1번 출구로 나가세요",
+    "en": "Go 10 m and leave via Daegu Stn. Exit 1.",
+    "ja": "10m進んで大邱駅1番出口から出てください。",
+    "zh": "前行10米后从大邱站1号出口出站。"
+   },
+   "translatedFrom": "10m 이동하여 대구역 1번 출구로 나가세요"
+  },
+  "E067:S2_08": {
+   "from": "EX0_02",
+   "to": "S2_08",
+   "edgeId": "E067",
+   "pattern": "straight",
+   "distanceM": 8,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보이는 곳까지 10m 직진하세요",
+    "en": "Go straight 10 m until the sign comes into view.",
+    "ja": "案内板が見えるところまで10m直進してください。",
+    "zh": "直行10米，直到看见指示牌。"
+   },
+   "translatedFrom": "표지판이 보이는 곳까지 10m 직진하세요"
+  },
+  "E068:EX0_05": {
+   "from": "S2_02",
+   "to": "EX0_05",
+   "edgeId": "E068",
+   "pattern": "toExit",
+   "distanceM": 8,
+   "status": "reviewed",
+   "text": {
+    "ko": "10m 이동하여 대경선 2번 출구로 나가세요",
+    "en": "Go 10 m and leave via Daegyeong Line Exit 2.",
+    "ja": "10m進んで大慶線2番出口から出てください。",
+    "zh": "前行10米后从大庆线2号出口出站。"
+   },
+   "translatedFrom": "10m 이동하여 대경선 2번 출구로 나가세요"
+  },
+  "E068:S2_02": {
+   "from": "EX0_05",
+   "to": "S2_02",
+   "edgeId": "E068",
+   "pattern": "straight",
+   "distanceM": 8,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보이는 곳까지 10m 직진하세요",
+    "en": "Go straight 10 m until the sign comes into view.",
+    "ja": "案内板が見えるところまで10m直進してください。",
+    "zh": "直行10米，直到看见指示牌。"
+   },
+   "translatedFrom": "표지판이 보이는 곳까지 10m 직진하세요"
+  },
+  "E069:EX0_05": {
+   "from": "S2_01",
+   "to": "EX0_05",
+   "edgeId": "E069",
+   "pattern": "toExit",
+   "distanceM": 8,
+   "status": "reviewed",
+   "text": {
+    "ko": "대경선 2번 출구 방향으로 10m 이동하세요",
+    "en": "Head toward Daegyeong Line Exit 2 for 10 m.",
+    "ja": "大慶線2番出口方面へ10m進んでください。",
+    "zh": "朝大庆线2号出口方向前行10米。"
+   },
+   "translatedFrom": "대경선 2번 출구 방향으로 10m 이동하세요"
+  },
+  "E069:S2_01": {
+   "from": "EX0_05",
+   "to": "S2_01",
+   "edgeId": "E069",
+   "pattern": "straight",
+   "distanceM": 8,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보이는 곳까지 10m 직진하세요",
+    "en": "Go straight 10 m until the sign comes into view.",
+    "ja": "案内板が見えるところまで10m直進してください。",
+    "zh": "直行10米，直到看见指示牌。"
+   },
+   "translatedFrom": "표지판이 보이는 곳까지 10m 직진하세요"
+  },
+  "E070:EV1_04": {
+   "from": "EX0_01",
+   "to": "EV1_04",
+   "edgeId": "E070",
+   "pattern": "toElevator",
+   "distanceM": 28,
+   "status": "reviewed",
+   "text": {
+    "ko": "엘리베이터를 탑승하세요",
+    "en": "Take the elevator.",
+    "ja": "エレベーターに乗ってください。",
+    "zh": "请乘坐电梯。"
+   },
+   "translatedFrom": "엘리베이터를 탑승하세요"
+  },
+  "E070:EX0_01": {
+   "from": "EV1_04",
+   "to": "EX0_01",
+   "edgeId": "E070",
+   "pattern": "toExit",
+   "distanceM": 28,
+   "status": "reviewed",
+   "text": {
+    "ko": "엘리베이터에서 내려 대구역 2번 출구로 이동하세요",
+    "en": "Exit the elevator, head to Daegu Stn. Exit 2.",
+    "ja": "エレベーターを降り、大邱駅2番出口へ進んでください。",
+    "zh": "出电梯，前往大邱站2号出口。"
+   },
+   "translatedFrom": "엘리베이터에서 내려 대구역 2번 출구로 이동하세요"
+  },
+  "E071:EV1_04": {
+   "from": "EX0_02",
+   "to": "EV1_04",
+   "edgeId": "E071",
+   "pattern": "toElevator",
+   "distanceM": 39,
+   "status": "reviewed",
+   "text": {
+    "ko": "엘리베이터를 탑승하세요",
+    "en": "Take the elevator.",
+    "ja": "エレベーターに乗ってください。",
+    "zh": "请乘坐电梯。"
+   },
+   "translatedFrom": "엘리베이터를 탑승하세요"
+  },
+  "E071:EX0_02": {
+   "from": "EV1_04",
+   "to": "EX0_02",
+   "edgeId": "E071",
+   "pattern": "toExit",
+   "distanceM": 39,
+   "status": "reviewed",
+   "text": {
+    "ko": "엘리베이터에서 내려 대구역 1번 출구로 이동하세요",
+    "en": "Exit the elevator, head to Daegu Stn. Exit 1.",
+    "ja": "エレベーターを降り、大邱駅1番出口へ進んでください。",
+    "zh": "出电梯，前往大邱站1号出口。"
+   },
+   "translatedFrom": "엘리베이터에서 내려 대구역 1번 출구로 이동하세요"
+  },
+  "E072:EV1_05": {
+   "from": "EX0_01",
+   "to": "EV1_05",
+   "edgeId": "E072",
+   "pattern": "toElevator",
+   "distanceM": 57,
+   "status": "reviewed",
+   "text": {
+    "ko": "엘리베이터를 탑승하세요",
+    "en": "Take the elevator.",
+    "ja": "エレベーターに乗ってください。",
+    "zh": "请乘坐电梯。"
+   },
+   "translatedFrom": "엘리베이터를 탑승하세요"
+  },
+  "E072:EX0_01": {
+   "from": "EV1_05",
+   "to": "EX0_01",
+   "edgeId": "E072",
+   "pattern": "toExit",
+   "distanceM": 57,
+   "status": "reviewed",
+   "text": {
+    "ko": "엘리베이터에서 내려 대구역 2번 출구로 이동하세요",
+    "en": "Exit the elevator, head to Daegu Stn. Exit 2.",
+    "ja": "エレベーターを降り、大邱駅2番出口へ進んでください。",
+    "zh": "出电梯，前往大邱站2号出口。"
+   },
+   "translatedFrom": "엘리베이터에서 내려 대구역 2번 출구로 이동하세요"
+  },
+  "E073:EV1_05": {
+   "from": "EX0_02",
+   "to": "EV1_05",
+   "edgeId": "E073",
+   "pattern": "toElevator",
+   "distanceM": 63,
+   "status": "reviewed",
+   "text": {
+    "ko": "엘리베이터를 탑승하세요",
+    "en": "Take the elevator.",
+    "ja": "エレベーターに乗ってください。",
+    "zh": "请乘坐电梯。"
+   },
+   "translatedFrom": "엘리베이터를 탑승하세요"
+  },
+  "E073:EX0_02": {
+   "from": "EV1_05",
+   "to": "EX0_02",
+   "edgeId": "E073",
+   "pattern": "toExit",
+   "distanceM": 63,
+   "status": "reviewed",
+   "text": {
+    "ko": "엘리베이터에서 내려 대구역 1번 출구로 이동하세요",
+    "en": "Exit the elevator, head to Daegu Stn. Exit 1.",
+    "ja": "エレベーターを降り、大邱駅1番出口へ進んでください。",
+    "zh": "出电梯，前往大邱站1号出口。"
+   },
+   "translatedFrom": "엘리베이터에서 내려 대구역 1번 출구로 이동하세요"
+  },
+  "E074:EV1_02": {
+   "from": "EX0_03",
+   "to": "EV1_02",
+   "edgeId": "E074",
+   "pattern": "toElevator",
+   "distanceM": 34,
+   "status": "reviewed",
+   "text": {
+    "ko": "엘리베이터를 탑승하세요",
+    "en": "Take the elevator.",
+    "ja": "エレベーターに乗ってください。",
+    "zh": "请乘坐电梯。"
+   },
+   "translatedFrom": "엘리베이터를 탑승하세요"
+  },
+  "E074:EX0_03": {
+   "from": "EV1_02",
+   "to": "EX0_03",
+   "edgeId": "E074",
+   "pattern": "toExit",
+   "distanceM": 34,
+   "status": "reviewed",
+   "text": {
+    "ko": "엘리베이터에서 내려 대구역 3번 출구로 이동하세요",
+    "en": "Exit the elevator, head to Daegu Stn. Exit 3.",
+    "ja": "エレベーターを降り、大邱駅3番出口へ進んでください。",
+    "zh": "出电梯，前往大邱站3号出口。"
+   },
+   "translatedFrom": "엘리베이터에서 내려 대구역 3번 출구로 이동하세요"
+  },
+  "E075:EV1_02": {
+   "from": "EX0_04",
+   "to": "EV1_02",
+   "edgeId": "E075",
+   "pattern": "toElevator",
+   "distanceM": 37,
+   "status": "reviewed",
+   "text": {
+    "ko": "엘리베이터를 탑승하세요",
+    "en": "Take the elevator.",
+    "ja": "エレベーターに乗ってください。",
+    "zh": "请乘坐电梯。"
+   },
+   "translatedFrom": "엘리베이터를 탑승하세요"
+  },
+  "E075:EX0_04": {
+   "from": "EV1_02",
+   "to": "EX0_04",
+   "edgeId": "E075",
+   "pattern": "toExit",
+   "distanceM": 37,
+   "status": "reviewed",
+   "text": {
+    "ko": "엘리베이터에서 내려 대구역 4번 출구로 이동하세요",
+    "en": "Exit the elevator, head to Daegu Stn. Exit 4.",
+    "ja": "エレベーターを降り、大邱駅4番出口へ進んでください。",
+    "zh": "出电梯，前往大邱站4号出口。"
+   },
+   "translatedFrom": "엘리베이터에서 내려 대구역 4번 출구로 이동하세요"
+  },
+  "E076:EV1_03": {
+   "from": "EX0_03",
+   "to": "EV1_03",
+   "edgeId": "E076",
+   "pattern": "toElevator",
+   "distanceM": 54,
+   "status": "reviewed",
+   "text": {
+    "ko": "엘리베이터를 탑승하세요",
+    "en": "Take the elevator.",
+    "ja": "エレベーターに乗ってください。",
+    "zh": "请乘坐电梯。"
+   },
+   "translatedFrom": "엘리베이터를 탑승하세요"
+  },
+  "E076:EX0_03": {
+   "from": "EV1_03",
+   "to": "EX0_03",
+   "edgeId": "E076",
+   "pattern": "toExit",
+   "distanceM": 54,
+   "status": "reviewed",
+   "text": {
+    "ko": "엘리베이터에서 내려 대구역 3번 출구로 이동하세요",
+    "en": "Exit the elevator, head to Daegu Stn. Exit 3.",
+    "ja": "エレベーターを降り、大邱駅3番出口へ進んでください。",
+    "zh": "出电梯，前往大邱站3号出口。"
+   },
+   "translatedFrom": "엘리베이터에서 내려 대구역 3번 출구로 이동하세요"
+  },
+  "E077:EV1_03": {
+   "from": "EX0_04",
+   "to": "EV1_03",
+   "edgeId": "E077",
+   "pattern": "toElevator",
+   "distanceM": 65,
+   "status": "reviewed",
+   "text": {
+    "ko": "엘리베이터를 탑승하세요",
+    "en": "Take the elevator.",
+    "ja": "エレベーターに乗ってください。",
+    "zh": "请乘坐电梯。"
+   },
+   "translatedFrom": "엘리베이터를 탑승하세요"
+  },
+  "E077:EX0_04": {
+   "from": "EV1_03",
+   "to": "EX0_04",
+   "edgeId": "E077",
+   "pattern": "toExit",
+   "distanceM": 65,
+   "status": "reviewed",
+   "text": {
+    "ko": "엘리베이터에서 내려 대구역 4번 출구로 이동하세요",
+    "en": "Exit the elevator, head to Daegu Stn. Exit 4.",
+    "ja": "エレベーターを降り、大邱駅4番出口へ進んでください。",
+    "zh": "出电梯，前往大邱站4号出口。"
+   },
+   "translatedFrom": "엘리베이터에서 내려 대구역 4번 출구로 이동하세요"
+  },
+  "E078:EV1_02": {
+   "from": "S1_09",
+   "to": "EV1_02",
+   "edgeId": "E078",
+   "pattern": "toElevator",
+   "distanceM": 5,
+   "status": "reviewed",
+   "text": {
+    "ko": "엘리베이터까지 5m 이동하세요",
+    "en": "Go 5 m to the elevator.",
+    "ja": "エレベーターまで5m進んでください。",
+    "zh": "前行5米到电梯处。"
+   },
+   "translatedFrom": "엘리베이터까지 5m 이동하세요"
+  },
+  "E078:S1_09": {
+   "from": "EV1_02",
+   "to": "S1_09",
+   "edgeId": "E078",
+   "pattern": "straightShort",
+   "distanceM": 5,
+   "status": "reviewed",
+   "text": {
+    "ko": "엘리베이터에서 내려 표지판 앞까지 5m 이동하세요",
+    "en": "Exit the elevator, go 5 m to the sign.",
+    "ja": "エレベーターを降り、案内板の前まで5m進んでください。",
+    "zh": "出电梯，前行5米至指示牌前。"
+   },
+   "translatedFrom": "엘리베이터에서 내려 표지판 앞까지 5m 이동하세요"
+  },
+  "E079:EV1_03": {
+   "from": "S1_04",
+   "to": "EV1_03",
+   "edgeId": "E079",
+   "pattern": "toElevator",
+   "distanceM": 6,
+   "status": "reviewed",
+   "text": {
+    "ko": "엘리베이터까지 6m 이동하세요",
+    "en": "Go 6 m to the elevator.",
+    "ja": "エレベーターまで6m進んでください。",
+    "zh": "前行6米到电梯处。"
+   },
+   "translatedFrom": "엘리베이터까지 6m 이동하세요"
+  },
+  "E079:S1_04": {
+   "from": "EV1_03",
+   "to": "S1_04",
+   "edgeId": "E079",
+   "pattern": "straightShort",
+   "distanceM": 6,
+   "status": "reviewed",
+   "text": {
+    "ko": "엘리베이터에서 내려 바로 앞 표지판까지 6m 이동하세요",
+    "en": "Exit the elevator, go 6 m to the sign just ahead.",
+    "ja": "エレベーターを降り、すぐ前の案内板まで6m進んでください。",
+    "zh": "出电梯，前行6米到前方的指示牌处。"
+   },
+   "translatedFrom": "엘리베이터에서 내려 바로 앞 표지판까지 6m 이동하세요"
+  },
+  "E080:EV1_05": {
+   "from": "S1_01",
+   "to": "EV1_05",
+   "edgeId": "E080",
+   "pattern": "toElevator",
+   "distanceM": 9,
+   "status": "reviewed",
+   "text": {
+    "ko": "엘리베이터까지 10m 이동하세요",
+    "en": "Go 10 m to the elevator.",
+    "ja": "エレベーターまで10m進んでください。",
+    "zh": "前行10米到电梯处。"
+   },
+   "translatedFrom": "엘리베이터까지 10m 이동하세요"
+  },
+  "E080:S1_01": {
+   "from": "EV1_05",
+   "to": "S1_01",
+   "edgeId": "E080",
+   "pattern": "straight",
+   "distanceM": 9,
+   "status": "reviewed",
+   "text": {
+    "ko": "엘리베이터에서 내려 사진 속 표지판까지 10m 직진하세요",
+    "en": "Exit the elevator, go straight 10 m to the sign shown in the photo.",
+    "ja": "エレベーターを降り、写真の案内板まで10m直進してください。",
+    "zh": "出电梯，直行10米至照片中的指示牌。"
+   },
+   "translatedFrom": "엘리베이터에서 내려 사진 속 표지판까지 10m 직진하세요"
+  },
+  "E081:EV1_04": {
+   "from": "S1_12",
+   "to": "EV1_04",
+   "edgeId": "E081",
+   "pattern": "toElevator",
+   "distanceM": 8,
+   "status": "reviewed",
+   "text": {
+    "ko": "엘리베이터까지 10m 이동하세요",
+    "en": "Go 10 m to the elevator.",
+    "ja": "エレベーターまで10m進んでください。",
+    "zh": "前行10米到电梯处。"
+   },
+   "translatedFrom": "엘리베이터까지 10m 이동하세요"
+  },
+  "E081:S1_12": {
+   "from": "EV1_04",
+   "to": "S1_12",
+   "edgeId": "E081",
+   "pattern": "straight",
+   "distanceM": 8,
+   "status": "reviewed",
+   "text": {
+    "ko": "엘리베이터에서 내려 사진 속 표지판까지 10m 직진하세요",
+    "en": "Exit the elevator, go straight 10 m to the sign shown in the photo.",
+    "ja": "エレベーターを降り、写真の案内板まで10m直進してください。",
+    "zh": "出电梯，直行10米至照片中的指示牌。"
+   },
+   "translatedFrom": "엘리베이터에서 내려 사진 속 표지판까지 10m 직진하세요"
+  },
+  "E082:S3_14": {
+   "from": "S3_16",
+   "to": "S3_14",
+   "edgeId": "E082",
+   "pattern": "straight",
+   "distanceM": 15,
+   "status": "reviewed",
+   "text": {
+    "ko": "사진 속 표지판까지 15m 직진하세요",
+    "en": "Go straight 15 m to the sign shown in the photo.",
+    "ja": "写真の案内板まで15m直進してください。",
+    "zh": "直行15米至照片中的指示牌。"
+   },
+   "translatedFrom": "사진 속 표지판까지 15m 직진하세요"
+  },
+  "E082:S3_16": {
+   "from": "S3_14",
+   "to": "S3_16",
+   "edgeId": "E082",
+   "pattern": "straight",
+   "distanceM": 15,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보이는 곳까지 15m 직진하세요",
+    "en": "Go straight 15 m until the sign comes into view.",
+    "ja": "案内板が見えるところまで15m直進してください。",
+    "zh": "直行15米，直到看见指示牌。"
+   },
+   "translatedFrom": "표지판이 보이는 곳까지 15m 직진하세요"
+  },
+  "E083:S3_15": {
+   "from": "S3_16",
+   "to": "S3_15",
+   "edgeId": "E083",
+   "pattern": "straight",
+   "distanceM": 12,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판이 보이는 곳까지 10m 직진하세요",
+    "en": "Go straight 10 m until the sign comes into view.",
+    "ja": "案内板が見えるところまで10m直進してください。",
+    "zh": "直行10米，直到看见指示牌。"
+   },
+   "translatedFrom": "표지판이 보이는 곳까지 10m 직진하세요"
+  },
+  "E083:S3_16": {
+   "from": "S3_15",
+   "to": "S3_16",
+   "edgeId": "E083",
+   "pattern": "straight",
+   "distanceM": 12,
+   "status": "reviewed",
+   "text": {
+    "ko": "사진 속 표지판까지 10m 직진하세요",
+    "en": "Go straight 10 m to the sign shown in the photo.",
+    "ja": "写真の案内板まで10m直進してください。",
+    "zh": "直行10米至照片中的指示牌。"
+   },
+   "translatedFrom": "사진 속 표지판까지 10m 직진하세요"
+  },
+  "E084:EX0_06": {
+   "from": "S3_01",
+   "to": "EX0_06",
+   "edgeId": "E084",
+   "pattern": "toExit",
+   "distanceM": 2,
+   "status": "reviewed",
+   "text": {
+    "ko": "대경선 1번 출구 방향으로 이동하세요",
+    "en": "Head toward Daegyeong Line Exit 1.",
+    "ja": "大慶線1番出口方面へ進んでください。",
+    "zh": "请朝大庆线1号出口方向前行。"
+   },
+   "translatedFrom": "대경선 1번 출구 방향으로 이동하세요"
+  },
+  "E084:S3_01": {
+   "from": "EX0_06",
+   "to": "S3_01",
+   "edgeId": "E084",
+   "pattern": "straightShort",
+   "distanceM": 2,
+   "status": "reviewed",
+   "text": {
+    "ko": "표지판 앞까지 이동하세요",
+    "en": "Go to the sign.",
+    "ja": "案内板の前まで進んでください。",
+    "zh": "请前行至指示牌前。"
+   },
+   "translatedFrom": "표지판 앞까지 이동하세요"
+  },
+  "E085:EV2_01": {
+   "from": "EV3_01",
+   "to": "EV2_01",
+   "edgeId": "E085",
+   "pattern": "toElevator",
+   "distanceM": 10,
+   "status": "reviewed",
+   "text": {
+    "ko": "엘리베이터를 통해 2층으로 내려가세요",
+    "en": "Take the elevator down to the 2nd floor.",
+    "ja": "エレベーターで2階へ下りてください。",
+    "zh": "乘电梯下到2楼。"
+   },
+   "translatedFrom": "엘리베이터를 통해 2층으로 내려가세요"
+  },
+  "E085:EV3_01": {
+   "from": "EV2_01",
+   "to": "EV3_01",
+   "edgeId": "E085",
+   "pattern": "toElevator",
+   "distanceM": 10,
+   "status": "reviewed",
+   "text": {
+    "ko": "엘리베이터를 통해 3층으로 올라가세요",
+    "en": "Take the elevator up to the 3rd floor.",
+    "ja": "エレベーターで3階へ上がってください。",
+    "zh": "乘电梯上到3楼。"
+   },
+   "translatedFrom": "엘리베이터를 통해 3층으로 올라가세요"
+  },
+  "E086:EV1_01": {
+   "from": "EV3_01",
+   "to": "EV1_01",
+   "edgeId": "E086",
+   "pattern": "toElevator",
+   "distanceM": 40,
+   "status": "reviewed",
+   "text": {
+    "ko": "엘리베이터를 통해 1층으로 내려가세요",
+    "en": "Take the elevator down to the 1st floor.",
+    "ja": "エレベーターで1階へ下りてください。",
+    "zh": "乘电梯下到1楼。"
+   },
+   "translatedFrom": "엘리베이터를 통해 1층으로 내려가세요"
+  },
+  "E086:EV3_01": {
+   "from": "EV1_01",
+   "to": "EV3_01",
+   "edgeId": "E086",
+   "pattern": "toElevator",
+   "distanceM": 40,
+   "status": "reviewed",
+   "text": {
+    "ko": "엘리베이터를 통해 3층으로 올라가세요",
+    "en": "Take the elevator up to the 3rd floor.",
+    "ja": "エレベーターで3階へ上がってください。",
+    "zh": "乘电梯上到3楼。"
+   },
+   "translatedFrom": "엘리베이터를 통해 3층으로 올라가세요"
+  },
+  "E087:EV1_01": {
+   "from": "EV2_01",
+   "to": "EV1_01",
+   "edgeId": "E087",
+   "pattern": "toElevator",
+   "distanceM": 41,
+   "status": "reviewed",
+   "text": {
+    "ko": "엘리베이터를 통해 1층으로 내려가세요",
+    "en": "Take the elevator down to the 1st floor.",
+    "ja": "エレベーターで1階へ下りてください。",
+    "zh": "乘电梯下到1楼。"
+   },
+   "translatedFrom": "엘리베이터를 통해 1층으로 내려가세요"
+  },
+  "E087:EV2_01": {
+   "from": "EV1_01",
+   "to": "EV2_01",
+   "edgeId": "E087",
+   "pattern": "toElevator",
+   "distanceM": 41,
+   "status": "reviewed",
+   "text": {
+    "ko": "엘리베이터를 통해 2층으로 올라가세요",
+    "en": "Take the elevator up to the 2nd floor.",
+    "ja": "エレベーターで2階へ上がってください。",
+    "zh": "乘电梯上到2楼。"
+   },
+   "translatedFrom": "엘리베이터를 통해 2층으로 올라가세요"
+  },
+  "E088:EV2_02": {
+   "from": "EV3_02",
+   "to": "EV2_02",
+   "edgeId": "E088",
+   "pattern": "toElevator",
+   "distanceM": 45,
+   "status": "reviewed",
+   "text": {
+    "ko": "엘리베이터를 통해 1층으로 내려가세요",
+    "en": "Take the elevator down to the 1st floor.",
+    "ja": "エレベーターで1階へ下りてください。",
+    "zh": "乘电梯下到1楼。"
+   },
+   "translatedFrom": "엘리베이터를 통해 1층으로 내려가세요"
+  },
+  "E088:EV3_02": {
+   "from": "EV2_02",
+   "to": "EV3_02",
+   "edgeId": "E088",
+   "pattern": "toElevator",
+   "distanceM": 45,
+   "status": "reviewed",
+   "text": {
+    "ko": "엘리베이터를 통해 3층으로 올라가세요",
+    "en": "Take the elevator up to the 3rd floor.",
+    "ja": "エレベーターで3階へ上がってください。",
+    "zh": "乘电梯上到3楼。"
+   },
+   "translatedFrom": "엘리베이터를 통해 3층으로 올라가세요"
+  },
+  "E089:EV2_03": {
+   "from": "EV3_03",
+   "to": "EV2_03",
+   "edgeId": "E089",
+   "pattern": "toElevator",
+   "distanceM": 51,
+   "status": "reviewed",
+   "text": {
+    "ko": "엘리베이터를 통해 1층으로 내려가세요",
+    "en": "Take the elevator down to the 1st floor.",
+    "ja": "エレベーターで1階へ下りてください。",
+    "zh": "乘电梯下到1楼。"
+   },
+   "translatedFrom": "엘리베이터를 통해 1층으로 내려가세요"
+  },
+  "E089:EV3_03": {
+   "from": "EV2_03",
+   "to": "EV3_03",
+   "edgeId": "E089",
+   "pattern": "toElevator",
+   "distanceM": 51,
+   "status": "reviewed",
+   "text": {
+    "ko": "엘리베이터를 통해 3층으로 올라가세요",
+    "en": "Take the elevator up to the 3rd floor.",
+    "ja": "エレベーターで3階へ上がってください。",
+    "zh": "乘电梯上到3楼。"
+   },
+   "translatedFrom": "엘리베이터를 통해 3층으로 올라가세요"
+  }
+ }
+}
