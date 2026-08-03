@@ -26,9 +26,6 @@ public class Staff {
     @Column(name = "station_id", nullable = false)
     private Long stationId;
 
-    @Column(nullable = false, length = 50)
-    private String username;
-
     @Column(name = "staff_code", nullable = false)
     private String staffCode;
 
