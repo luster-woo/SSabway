@@ -68,3 +68,9 @@ logging:
   level:
     org.hibernate.SQL: debug
     org.hibernate.orm.jdbc.bind: trace
+
+odsay:
+  api-key: ${ODSAY_API_KEY}
+  base-url: https://api.odsay.com/v1/api
+  connect-timeout: 3000
+  read-timeout: 5000
