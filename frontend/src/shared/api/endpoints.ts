@@ -126,7 +126,7 @@ const admin = {
     list: (page: number) => `/staffs/blacklist?page=${page}`,
     create: '/staffs/blacklist',
     release: '/staffs/blacklist/release',
-    updateReason: '/staffs/blacklist/',
+    updateReason: '/staffs/blacklist',
   },
 } as const
 
