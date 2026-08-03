@@ -9,6 +9,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Optional;
+
 public interface ConsultationRepository extends JpaRepository<Consultation, Long> {
 
     // 오래 기다린 순. 정렬이 없으면 DB가 순서를 보장하지 않아
@@ -24,4 +26,16 @@ public interface ConsultationRepository extends JpaRepository<Consultation, Long
     Page<WaitingResponse> findByStaffIdAndStatus(@Param("staffId") Long staffId,
                                                  @Param("status") ConsultationStatus status,
                                                  Pageable pageable);
+
+
+    // staffId 조건이 없으면 id만 바꿔가며 남의 역 상담을 훔쳐볼 수 있음
+    @Query("""
+            SELECT new com.ssafy.ssabway.domain.consultation.repository.ConsultationDetail(
+                       u.email, c.summary, c.recordS3)
+            FROM Consultation c
+            JOIN User u ON u.id = c.requesterUserId
+            WHERE c.id = :id AND c.staffId = :staffId
+            """)
+    Optional<ConsultationDetail> findDetailByIdAndStaffId(@Param("id") Long id,
+                                                          @Param("staffId") Long staffId);
 }
