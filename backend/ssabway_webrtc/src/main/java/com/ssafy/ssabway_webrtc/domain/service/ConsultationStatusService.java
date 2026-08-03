@@ -78,6 +78,7 @@ public class ConsultationStatusService {
 
         return consultationRepository
             .calculateQueuePosition(
+                consultation.getStaffId(),
                 ConsultationStatus.WAITING,
                 consultation.getRequestedAt(),
                 consultation.getId()

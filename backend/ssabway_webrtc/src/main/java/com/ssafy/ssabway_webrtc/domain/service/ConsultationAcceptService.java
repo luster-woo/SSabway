@@ -51,14 +51,17 @@ public class ConsultationAcceptService {
 
             throw new BusinessException(ErrorCode.CONSULTATION_ALREADY_ACCEPTED);
         }
+        if (!consultation.getStaffId().equals(staffId)) {
+            throw new BusinessException(ErrorCode.CONSULTATION_ACCESS_DENIED);
+        }
 
 
         // 상담 ID와 현재 상태를 조건으로 직접 UPDATE.
         //동시에 여러 요청이 들어와도 실제 UPDATE는 한 건만 성공
         int updatedCount =
             consultationRepository.acceptConsultation(
-                consultationId,
                 staffId,
+                consultationId,
                 ConsultationStatus.WAITING,
                 ConsultationStatus.MATCHED
             );
@@ -104,6 +107,12 @@ public class ConsultationAcceptService {
              * 여기서 별도의 예외로 변경하지 않음
              */
             closeCreatedSessionQuietly(sessionId);
+
+            throw exception;
+        } catch (RuntimeException exception) {
+            closeCreatedSessionQuietly(
+                sessionId
+            );
 
             throw exception;
         }
