@@ -23,6 +23,10 @@ public enum ErrorCode {
         "지원하지 않는 형식입니다."),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,
         "서버 오류가 발생했습니다."),
+    ACCESS_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED,
+        "액세스 토큰이 만료되었습니다."),
+    INVALID_TOKEN(HttpStatus.UNAUTHORIZED,
+        "유효하지 않은 토큰입니다."),
 
     // 상담
     CONSULTATION_NOT_FOUND(HttpStatus.NOT_FOUND,
@@ -35,6 +39,16 @@ public enum ErrorCode {
         "상담 시작 상태를 저장하지 못했습니다."),
     CONSULTATION_END_FAILED(HttpStatus.INTERNAL_SERVER_ERROR,
         "상담 종료 상태를 저장하지 못했습니다."),
+    CONSULTATION_DUPLICATED(HttpStatus.CONFLICT,
+        "이미 대기 중이거나 진행 중인 상담이 있습니다."),
+    BLACKLISTED_USER(HttpStatus.FORBIDDEN,
+        "서비스 이용이 제한된 사용자입니다."),
+    CONSULTATION_NOT_MATCHED(HttpStatus.CONFLICT,
+        "역무원이 배정된 상담만 시작할 수 있습니다."),
+    CONSULTATION_ALREADY_ACCEPTED(HttpStatus.CONFLICT,
+        "이미 다른 역무원에게 배정되었거나 수락할 수 없는 상담입니다."),
+    CONSULTATION_ACCEPT_FAILED(HttpStatus.INTERNAL_SERVER_ERROR,
+        "상담 수락 처리에 실패했습니다."),
 
     // 상담 오류
     CONSULTATION_CANCEL_NOT_ALLOWED(HttpStatus.CONFLICT,

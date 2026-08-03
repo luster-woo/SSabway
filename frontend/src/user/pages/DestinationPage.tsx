@@ -1,8 +1,10 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
+import { cn } from '@/shared/lib/cn'
 import { useDestinationStore } from '@/shared/lib/store/useDestinationStore'
+import { useOriginStationStore } from '@/shared/lib/store/useOriginStationStore'
 import type { Place } from '@/shared/types/place'
 import { MobileViewport, useToast } from '@/shared/ui'
 import { DestinationSearchBar } from '@/user/features/destination-search/DestinationSearchBar'
@@ -20,10 +22,10 @@ import { usePlaceSearch } from '@/user/features/destination-search/hooks/usePlac
 /**
  * 3. 목적지 설정 — 지도에서 목적지를 확정하는 화면.
  *
- * 진입 직후에는 지도와 검색창만 보인다. GPS 동의가 돼 있으면 내 위치(파란 점)를
- * 지도에 표시하고 그 위치로 화면을 맞춘다. 키워드를 검색하면 후보 목록이 뜨고
- * 첫 번째 후보가 자동 선택되어 마커가 찍히며 그 위치로 확대 이동한다.
- * 다른 후보를 고르면 마커와 지도 중심이 그 후보로 옮겨간다.
+ * 진입 직후에는 지도와 검색창만 보인다. GPS 동의가 돼 있으면 내 위치(파란 원)를
+ * 지도에 표시하고 그 위치로 화면을 맞춘다. 우측 하단 "현재 위치" 버튼으로 언제든
+ * 내 위치로 다시 돌아올 수 있다. 키워드를 검색하면 후보 목록이 뜨고 첫 번째 후보가
+ * 자동 선택되어 마커가 찍히며 그 위치로 확대 이동한다.
  */
 export default function DestinationPage() {
   const { t } = useTranslation()
@@ -42,10 +44,25 @@ export default function DestinationPage() {
   const { results, isSearching, hasSearched, errorType } =
     usePlaceSearch(submittedQuery)
 
-  // GPS 동의가 돼 있으면 내 위치를 받아온다. (동의 전/거부면 null → 마커 없음)
-  const myLocation = useMyLocation(status === SDK_STATUS.READY)
+  // GPS 동의가 돼 있으면 실제 좌표를 받아온다. (동의 전/거부면 null)
+  const rawLocation = useMyLocation(status === SDK_STATUS.READY)
+  // 시작 화면에서 GPS로 찾은 인근역(이름+좌표).
+  const originStation = useOriginStationStore((state) => state.originStation)
 
-  useGoogleDestinationMap(mapContainerRef, {
+  // 파란 원은 "찾은 인근역" 위치에 찍는다. 인근역이 없으면(직접 진입/거부 등)
+  // 실제 GPS 좌표로 폴백한다. 새 객체 리터럴이 매 렌더 지도를 다시 맞추지 않도록 메모한다.
+  const myLocation = useMemo(
+    () =>
+      originStation
+        ? {
+            latitude: originStation.latitude,
+            longitude: originStation.longitude,
+          }
+        : rawLocation,
+    [originStation, rawLocation],
+  )
+
+  const { recenterToMyLocation } = useGoogleDestinationMap(mapContainerRef, {
     isReady: status === SDK_STATUS.READY,
     selected,
     myLocation,
@@ -140,6 +157,39 @@ export default function DestinationPage() {
           </div>
         ) : null}
       </div>
+
+      {/* 현재 위치로 이동 버튼. 내 좌표가 있을 때만 보인다. (아이콘만, 텍스트 없음) */}
+      {myLocation ? (
+        <button
+          type="button"
+          aria-label="현재 위치로 이동"
+          onClick={recenterToMyLocation}
+          className={cn(
+            'bg-surface text-brand-dark border-line absolute right-4 z-20 flex size-11 items-center justify-center rounded-full border shadow-lg transition active:scale-95',
+            // 목적지를 고르면 하단 카드가 뜨므로 그 위로 버튼을 올린다. (카드 높이 근사값)
+            selected
+              ? 'bottom-[calc(env(safe-area-inset-bottom,0px)+11rem)]'
+              : 'bottom-[calc(env(safe-area-inset-bottom,0px)+1.5rem)]',
+          )}
+        >
+          <svg
+            aria-hidden
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+            strokeLinecap="round"
+            className="size-5"
+          >
+            <circle cx="12" cy="12" r="7" />
+            <circle cx="12" cy="12" r="2.4" fill="currentColor" stroke="none" />
+            <line x1="12" y1="1.5" x2="12" y2="4.5" />
+            <line x1="12" y1="19.5" x2="12" y2="22.5" />
+            <line x1="1.5" y1="12" x2="4.5" y2="12" />
+            <line x1="19.5" y1="12" x2="22.5" y2="12" />
+          </svg>
+        </button>
+      ) : null}
 
       {selected ? (
         <div className="absolute inset-x-0 bottom-0 z-10">

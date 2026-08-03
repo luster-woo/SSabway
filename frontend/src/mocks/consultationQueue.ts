@@ -251,13 +251,15 @@ export function hasMockSession(sessionId: string): boolean {
   return readState().sessions.includes(sessionId)
 }
 
-/** 커넥션(접속 토큰) 발급. 세션이 없으면 null — 핸들러가 404 로 바꾼다. */
+/**
+ * 커넥션(접속 토큰) 발급. 세션이 없으면 null — 핸들러가 404 로 바꾼다.
+ * 참여자 식별은 서버가 JWT 로 하므로(BE 8/2) 목은 세션 존재만 본다.
+ */
 export function createMockConnection(
   sessionId: string,
-  participantId: string,
 ): { sessionId: string; token: string } | null {
   if (!hasMockSession(sessionId)) return null
-  return { sessionId, token: `mock-openvidu-token-${participantId}` }
+  return { sessionId, token: `mock-openvidu-token-${sessionId}` }
 }
 
 /** 상담 시작 — WAITING/MATCHED → IN_PROGRESS. 세션이 없으면 null. */

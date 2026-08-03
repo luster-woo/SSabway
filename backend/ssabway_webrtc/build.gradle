@@ -8,6 +8,10 @@ group = 'com.ssafy'
 version = '0.0.1-SNAPSHOT'
 description = 'ssabway_webrtc'
 
+ext {
+  jjwtVersion = '0.13.0'
+}
+
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
@@ -40,6 +44,10 @@ dependencies {
 
     // 녹음 파일을 S3에 업로드하기 위한 AWS SDK
     implementation 'software.amazon.awssdk:s3'
+
+    implementation "io.jsonwebtoken:jjwt-api:${jjwtVersion}"
+    runtimeOnly "io.jsonwebtoken:jjwt-impl:${jjwtVersion}"
+    runtimeOnly "io.jsonwebtoken:jjwt-jackson:${jjwtVersion}"
 }
 
 tasks.named('test') {

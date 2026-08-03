@@ -5,7 +5,6 @@ import { BACKEND_READY } from '@/shared/api/backendCapabilities'
 import { queryKeys } from '@/shared/lib/queryKeys'
 import {
   CONSULTATION_STATUS,
-  PARTICIPANT_ROLE,
   type ConsultationStatus,
 } from '@/shared/types'
 import { openviduApi } from '@/user/features/consultation/openviduApi'
@@ -101,12 +100,10 @@ export function useConsultationMatch(
 
     async function join() {
       try {
-        const session = await openviduApi.joinSession(
-          consultationId,
-          `user-${String(consultationId)}`,
-          PARTICIPANT_ROLE.USER,
-          { signal: controller.signal },
-        )
+        // 참여자 식별·역할은 서버가 JWT 에서 판별한다 (BE 8/2 권한 업데이트)
+        const session = await openviduApi.joinSession(consultationId, {
+          signal: controller.signal,
+        })
         if (!controller.signal.aborted) setToken(session.token)
       } catch {
         if (!controller.signal.aborted) setIsFailed(true)

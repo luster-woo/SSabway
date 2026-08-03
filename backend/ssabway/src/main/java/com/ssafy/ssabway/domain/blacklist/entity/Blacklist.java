@@ -45,4 +45,14 @@ public class Blacklist {
     public static Blacklist register(Long userId, Long staffId, Set<BlacklistReason> reasons) {
         return new Blacklist(userId, staffId, reasons);
     }
+
+    // soft delete
+    public void release() {
+        this.releasedAt = LocalDateTime.now();
+    }
+
+    // 블랙리스트 사유 통째로 교체
+    public void changeReasons(Set<BlacklistReason> reasons){
+        this.reasons = reasons;
+    }
 }

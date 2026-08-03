@@ -36,18 +36,18 @@ public class ConsultationStartService {
             return new ConsultationStartResponse(sessionId, ConsultationStatus.IN_PROGRESS);
         }
 
-        if (consultation.getStatus() != ConsultationStatus.WAITING) {
-            throw new BusinessException(ErrorCode.CONSULTATION_NOT_WAITING);
+        if (consultation.getStatus() != ConsultationStatus.MATCHED) {
+            throw new BusinessException(ErrorCode.CONSULTATION_NOT_MATCHED);
         }
 
         // 양쪽 참여자가 연결된 OpenVidu 세션의 음성 녹음을 시작합니다.
         Recording recording = openViduService.startAudioRecording(sessionId);
 
         int updatedCount = consultationRepository.startConsultation(
-                consultationId,
-                recording.getId(),
-                ConsultationStatus.WAITING,
-                ConsultationStatus.IN_PROGRESS);
+            consultationId,
+            recording.getId(),
+            ConsultationStatus.MATCHED,
+            ConsultationStatus.IN_PROGRESS);
 
         if (updatedCount == 0) {
             throw new BusinessException(ErrorCode.CONSULTATION_START_FAILED);

@@ -9,6 +9,7 @@ import { HelpRequestButton } from '@/user/features/route-guide/HelpRequestButton
 import { RescanButton } from '@/user/features/route-guide/RescanButton'
 import { SignBoardCard } from '@/user/features/route-guide/SignBoardCard'
 import { StationLocationButton } from '@/user/features/route-guide/StationLocationButton'
+import { StationMapOverlay } from '@/user/features/route-guide/StationMapOverlay'
 import { StepNavigator } from '@/user/features/route-guide/StepNavigator'
 import { StepProgressBar } from '@/user/features/route-guide/StepProgressBar'
 import { ChevronLeftIcon } from '@/user/features/route-guide/icons'
@@ -74,10 +75,11 @@ export default function RouteGuidePage() {
     })
   }
 
-  const showStationMap = () => {
-    // 역 내부 지도는 미구현. 눌렀을 때 아무 반응이 없으면 고장으로 보이므로 알려준다.
-    showToast(t('routeGuide.mapNotReady'))
-  }
+  /**
+   * 역 내 현재 위치 지도. 현재 위치는 보고 있는 단계의 표지판 위치와 같다 —
+   * 위치의 근거가 GPS 가 아니라 "마지막으로 확인한 표지판"이기 때문이다.
+   */
+  const [isMapOpen, setIsMapOpen] = useState(false)
 
   const requestHelp = () => {
     void navigate('/help')
@@ -174,7 +176,7 @@ export default function RouteGuidePage() {
             onNext={goNextStep}
           />
 
-          <StationLocationButton onClick={showStationMap} />
+          <StationLocationButton onClick={() => setIsMapOpen(true)} />
 
           {isLastStep ? (
             <Button size="lg" fullWidth onClick={completeArrival}>
@@ -187,6 +189,14 @@ export default function RouteGuidePage() {
             <HelpRequestButton onClick={requestHelp} />
           </div>
         </div>
+      ) : null}
+
+      {isMapOpen ? (
+        <StationMapOverlay
+          steps={steps}
+          currentIndex={activeIndex}
+          onClose={() => setIsMapOpen(false)}
+        />
       ) : null}
     </MobileScreen>
   )

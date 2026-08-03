@@ -8,7 +8,6 @@ import {
   type ConsultationSnapshot,
   type ConsultationStatus,
   type EndResult,
-  type ParticipantRole,
   type WebrtcApiResponse,
 } from '@/shared/types'
 
@@ -120,14 +119,19 @@ export function createOpenViduApi(api: AxiosInstance) {
     return res.data.data.sessionId
   }
 
+  /**
+   * 접속 토큰 발급 — 요청 본문이 없다.
+   *
+   * 참여자 ID 와 역할(USER/STAFF)은 서버가 JWT 에서 추출한다
+   * (BE 8/2 권한 업데이트 — ConnectionCreateRequest 삭제됨).
+   * 서버는 JWT 의 계정이 그 상담의 requester/staff 와 일치하는지
+   * DB 와 대조하며, 남의 상담이면 403 FORBIDDEN 이 온다.
+   */
   async function createConnection(
     sessionId: string,
-    participantId: string,
-    role: ParticipantRole,
   ): Promise<ConnectionCreated> {
     const res = await api.post<WebrtcApiResponse<ConnectionCreated>>(
       endpoints.openvidu.createConnection(sessionId),
-      { participantId, role },
     )
     return res.data.data
   }
@@ -151,13 +155,11 @@ export function createOpenViduApi(api: AxiosInstance) {
    */
   async function openSession(
     consultationId: number,
-    participantId: string,
-    role: ParticipantRole,
   ): Promise<ConsultationSession> {
     const sessionId = await createSession(consultationId)
 
     try {
-      const connection = await createConnection(sessionId, participantId, role)
+      const connection = await createConnection(sessionId)
       return { consultationId, sessionId, token: connection.token }
     } catch (error) {
       await closeSession(sessionId).catch(() => {
@@ -174,13 +176,12 @@ export function createOpenViduApi(api: AxiosInstance) {
    * 상담 상태 조회 API(BACKEND_READY.CONSULTATION_STATUS)가 생기면 사용자 쪽은
    * 상태 폴링 → 1회 접속으로 바뀌고, 이 함수는 역무원 새로고침 복구용으로 남는다.
    *
-   * 재접속은 서버가 처리한다 — 같은 participantId 로 다시 커넥션을 받으면
-   * 서버가 이전 커넥션을 끊고 새로 발급한다. 다른 participantId 면 409.
+   * 재접속은 서버가 처리한다 — 같은 계정(JWT)으로 다시 커넥션을 받으면
+   * 서버가 이전 커넥션을 끊고 새로 발급한다. 같은 역할의 다른 계정이면 409,
+   * 그 상담의 참여자가 아니면 403 (재시도하지 않고 실패로 떨어진다).
    */
   async function joinSession(
     consultationId: number,
-    participantId: string,
-    role: ParticipantRole,
     options: JoinSessionOptions = {},
   ): Promise<ConsultationSession> {
     const { signal, timeoutMs = JOIN_TIMEOUT_MS } = options
@@ -189,7 +190,7 @@ export function createOpenViduApi(api: AxiosInstance) {
 
     for (;;) {
       try {
-        const connection = await createConnection(sessionId, participantId, role)
+        const connection = await createConnection(sessionId)
         return { consultationId, sessionId, token: connection.token }
       } catch (error) {
         const canRetry =

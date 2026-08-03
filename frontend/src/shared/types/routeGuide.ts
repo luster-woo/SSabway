@@ -48,6 +48,32 @@ export interface GuideSign {
   photoUrl: string | null
 }
 
+/** 층간 이동 지점이 도착하는 반대편 층의 좌표 */
+export interface GuidePointLink {
+  floor: string
+  view: string
+  x: number
+  y: number
+}
+
+/**
+ * 단계 표지판의 역 도면 위 위치. 좌표계는 stationMapData 와 같은 2000×2000.
+ *
+ * ⚠️ 명세 제안 필드다 — 현재 노션의 「역 내 경로 제공」 응답에는 좌표가 없어
+ *    지도에 현재 위치를 찍을 수 없다. FE 가 이 형태를 먼저 굳혀 두고
+ *    BE 에 응답 포함을 요청한 상태다. BE 가 좌표를 아직 못 주면 null 이고,
+ *    그 경우 지도에는 경로가 목(PROTOTYPE_STATION_ROUTE)으로 표시된다.
+ */
+export interface GuidePoint {
+  floor: string
+  /** 이 단계를 보여줄 뷰 (stationMapData 의 STATION_MAP_VIEWS key) */
+  view: string
+  x: number
+  y: number
+  /** 층을 넘는 지점(에스컬레이터 등)이면 반대편 층 좌표 */
+  up?: GuidePointLink
+}
+
 /** 경로 상세 안내의 한 단계 */
 export interface GuideStep {
   /** 1부터 시작하는 단계 번호 */
@@ -55,6 +81,8 @@ export interface GuideStep {
   /** 이번 단계에서 해야 할 행동 ("3번 출구 방향으로 직진하세요") */
   instruction: string
   sign: GuideSign
+  /** 표지판의 도면 좌표. BE 미지원이면 null (GuidePoint 주석 참고) */
+  point: GuidePoint | null
 }
 
 /** 경로 상세 안내 전체 (GET /routes/navi 응답 본문) */

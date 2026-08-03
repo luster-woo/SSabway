@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
@@ -10,6 +10,7 @@ import {
   LOCATION_CONSENT,
   useLocationConsentStore,
 } from '@/shared/lib/store/useLocationConsentStore'
+import { useOriginStationStore } from '@/shared/lib/store/useOriginStationStore'
 import type { Language } from '@/shared/types/user'
 import {
   AppLogo,
@@ -54,6 +55,8 @@ export default function StartPage() {
   const setConsent = useLocationConsentStore((s) => s.setConsent)
   const resetConsent = useLocationConsentStore((s) => s.resetConsent)
 
+  const setOriginStation = useOriginStationStore((s) => s.setOriginStation)
+
   const selectLanguage = (next: Language) => {
     changeLanguage(next)
     showToast(t('language.changed', { lng: next }))
@@ -69,6 +72,12 @@ export default function StartPage() {
 
   const { station, findStation, clear: clearStation } = useNearbyStation()
 
+  // GPS로 잡은 역 이름을 스토어에 반영한다. 목적지 설정 화면의 "내 위치" 마커가
+  // 이 값을 라벨로 쓴다. clearStation()으로 station이 null이 되면 스토어도 비워진다.
+  useEffect(() => {
+    setOriginStation(station)
+  }, [station, setOriginStation])
+
   /**
    * 실제 브라우저 권한을 요청하고, 좌표를 받으면 가까운 역까지 조회한다.
    *
@@ -82,7 +91,9 @@ export default function StartPage() {
     setIsRequestingLocation(true)
 
     try {
-      const coords = await requestLocation()
+      // 최근접 역을 정확히 고르려면 고정밀 + 새 좌표가 필요하다.
+      // (지도 "내 위치" 마커는 대략 위치면 되므로 기본 저정밀을 그대로 쓴다.)
+      const coords = await requestLocation({ highAccuracy: true, maxAgeMs: 0 })
 
       if (coords === null) {
         setConsent(LOCATION_CONSENT.DENIED)
@@ -194,7 +205,7 @@ export default function StartPage() {
         ) : (
           <LocationConsentStatus
             granted={consent === LOCATION_CONSENT.GRANTED}
-            station={station}
+            station={station?.name ?? null}
             onChange={changeConsent}
           />
         )}

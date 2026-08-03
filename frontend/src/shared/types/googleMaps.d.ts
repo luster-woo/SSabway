@@ -63,11 +63,13 @@ declare namespace google.maps {
     constructor(options?: MarkerOptions)
     setPosition(latlng: LatLng | LatLngLiteral): void
     setMap(map: Map | null): void
+    setIcon(icon: string | Icon): void
+    setTitle(title: string): void
     getPosition(): LatLng | undefined
   }
 
   namespace places {
-    /** textSearch 콜백이 돌려주는 상태 문자열. 실제 런타임 값이 이 문자열과 같다. */
+    /** textSearch·nearbySearch 콜백이 돌려주는 상태 문자열. */
     type PlacesServiceStatus =
       | 'OK'
       | 'ZERO_RESULTS'
@@ -76,6 +78,12 @@ declare namespace google.maps {
       | 'INVALID_REQUEST'
       | 'NOT_FOUND'
       | 'UNKNOWN_ERROR'
+
+    /** nearbySearch 의 정렬 기준. DISTANCE 를 쓰면 radius 를 넣으면 안 된다. */
+    enum RankBy {
+      PROMINENCE = 0,
+      DISTANCE = 1,
+    }
 
     interface PlaceGeometry {
       location?: LatLng
@@ -94,10 +102,28 @@ declare namespace google.maps {
       region?: string
     }
 
+    /** 좌표 주변 특정 유형(예: subway_station)을 거리순으로 찾는 요청. */
+    interface PlaceSearchRequest {
+      location: LatLng | LatLngLiteral
+      /** rankBy 가 DISTANCE 면 radius 대신 keyword/name/type 중 하나가 필수. */
+      radius?: number
+      rankBy?: RankBy
+      keyword?: string
+      name?: string
+      type?: string
+    }
+
     class PlacesService {
       constructor(attrContainer: HTMLElement | Map)
       textSearch(
         request: TextSearchRequest,
+        callback: (
+          results: PlaceResult[] | null,
+          status: PlacesServiceStatus,
+        ) => void,
+      ): void
+      nearbySearch(
+        request: PlaceSearchRequest,
         callback: (
           results: PlaceResult[] | null,
           status: PlacesServiceStatus,
