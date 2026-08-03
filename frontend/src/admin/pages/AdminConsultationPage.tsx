@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
 
 import { useToast } from '@/shared/ui'
+import { OV_STATUS } from '@/shared/webrtc/useOpenViduSession'
 import { BlacklistReasonModal } from '@/admin/features/blacklist/BlacklistReasonModal'
 import { useBlacklist } from '@/admin/features/blacklist/useBlacklist'
 import { ConsultationInfoPanel } from '@/admin/features/consultation-room/ConsultationInfoPanel'
@@ -48,6 +49,27 @@ export default function AdminConsultationPage() {
    * 같은 사용자를 다시 등록하지 못하게 하는 용도만 남는다.
    */
   const [isBlacklisted, setIsBlacklisted] = useState(false)
+
+  /**
+   * 사용자가 먼저 나가 세션이 닫히면 이 화면도 목록으로 돌린다.
+   *
+   * 사용자가 [통화 종료] 를 누르면 상담 종료 API 까지 호출하므로 서버가
+   * OpenVidu 세션을 닫고, 이쪽에는 `sessionDisconnected` 가 온다. 이 신호를
+   * 받지 않으면 이미 끝난 상담방에 역무원이 계속 남아 있게 된다.
+   *
+   * 한 번 연결된 뒤의 DISCONNECTED 만 본다 (접속 전 IDLE 과 구분).
+   * 역무원이 직접 종료한 경우는 submitEnd 가 먼저 이동시킨다.
+   */
+  const hasConnectedRef = useRef(false)
+  if (room.status === OV_STATUS.CONNECTED) hasConnectedRef.current = true
+
+  useEffect(() => {
+    if (!hasConnectedRef.current) return
+    if (room.status !== OV_STATUS.DISCONNECTED) return
+
+    showToast('사용자가 통화를 종료했습니다.')
+    void navigate('/admin', { replace: true })
+  }, [navigate, room.status, showToast])
 
   // 잘못된 URL 로 들어온 경우. 조회를 시도하지 않고 목록으로 돌린다.
   if (!isValidId) return <Navigate to="/admin" replace />

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
@@ -134,6 +134,30 @@ export default function ConsultationPage() {
         : t('consultation.video.cameraOn'),
     )
   }
+
+  /**
+   * 역무원이 먼저 종료했을 때 이 화면도 함께 닫는다.
+   *
+   * 역무원이 [상담 종료] 를 누르면 서버가 OpenVidu 세션을 닫고, 그러면 이쪽
+   * 클라이언트에 `sessionDisconnected` 가 와서 상태가 DISCONNECTED 가 된다.
+   * 그 신호를 화면이 받지 않으면 통화가 끝났는데도 카메라가 계속 돌고 화면이
+   * 그대로 남는다.
+   *
+   * 한 번 연결된 뒤의 DISCONNECTED 만 본다 — 접속 전 IDLE 상태와 구분해야
+   * 하고, 사용자가 직접 끊은 경우는 endCall 이 이미 정리하고 이동했으므로
+   * 여기까지 오지 않는다.
+   */
+  const hasConnectedRef = useRef(false)
+  if (call.status === OV_STATUS.CONNECTED) hasConnectedRef.current = true
+
+  useEffect(() => {
+    if (!hasConnectedRef.current) return
+    if (call.status !== OV_STATUS.DISCONNECTED) return
+
+    stop()
+    showToast(t('consultation.video.endedByStaff'))
+    void navigate('/guide', { replace: true })
+  }, [call.status, navigate, showToast, stop, t])
 
   const endCall = () => {
     /*
