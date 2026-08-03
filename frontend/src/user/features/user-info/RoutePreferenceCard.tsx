@@ -6,24 +6,29 @@ import { Card, SelectableTile } from '@/shared/ui'
 import { PlanResultView } from '@/user/features/user-info/PlanResultView'
 import { StepDots } from '@/user/features/user-info/StepDots'
 import {
-  ArrowRightIcon,
+  ChecklistIcon,
   ChevronLeftIcon,
   ElevatorIcon,
   TransitCardIcon,
   WonIcon,
 } from '@/user/features/user-info/icons'
 import {
-  PREFERENCE_QUESTIONS,
+  getQuestion,
   type PreferenceChoice,
   type PreferenceNode,
 } from '@/user/features/user-info/lib/preferenceFlow'
 
-/** 질문마다 머리에 올리는 아이콘 */
+/**
+ * 질문마다 머리에 올리는 아이콘.
+ *
+ * 52px 원 안에 24px 아이콘을 넣으면 여백이 너무 많아 존재감이 약하다.
+ * 28px(size-7)이 원의 지름 대비 비율이 맞는다.
+ */
 const STEP_ICON: Record<PreferenceStep, ReactNode> = {
-  [PREFERENCE_STEP.ELEVATOR]: <ElevatorIcon className="size-6" />,
-  [PREFERENCE_STEP.TRANSIT_CARD]: <TransitCardIcon className="size-6" />,
-  [PREFERENCE_STEP.TICKET_METHOD]: <ArrowRightIcon className="size-6" />,
-  [PREFERENCE_STEP.CASH]: <WonIcon className="size-6" />,
+  [PREFERENCE_STEP.ELEVATOR]: <ElevatorIcon className="size-7" />,
+  [PREFERENCE_STEP.CARD_READY]: <TransitCardIcon className="size-7" />,
+  [PREFERENCE_STEP.PREPARATION]: <ChecklistIcon className="size-7" />,
+  [PREFERENCE_STEP.CASH]: <WonIcon className="size-7" />,
 }
 
 const QUESTION_ID = 'route-preference-question'
@@ -103,7 +108,7 @@ export function RoutePreferenceCard({
             id={QUESTION_ID}
             className="text-ink mb-1 text-center text-[clamp(15px,4.6vw,17px)] font-extrabold"
           >
-            {t(PREFERENCE_QUESTIONS[node.step].questionKey)}
+            {t(getQuestion(node).questionKey)}
           </p>
 
           {/* SelectableTile이 aria-pressed를 쓰므로 radiogroup 대신 group으로 묶는다. */}
@@ -112,7 +117,7 @@ export function RoutePreferenceCard({
             aria-labelledby={QUESTION_ID}
             className="flex w-full flex-col gap-2"
           >
-            {PREFERENCE_QUESTIONS[node.step].choices.map((choice) => (
+            {getQuestion(node).choices.map((choice) => (
               <SelectableTile
                 key={choice.labelKey}
                 selected={false}
