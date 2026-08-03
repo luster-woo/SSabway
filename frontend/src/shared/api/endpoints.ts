@@ -112,21 +112,21 @@ const admin = {
    *    두고, 서버가 7/21 형태로 나오면 이 함수만 바꾼다.
    */
   waiting: (page: number) =>
-    `/admin/consultations?status=WAITING&page=${page}`,
-  history: (page: number) => `/admins/history?page=${page}`,
-  consultationDetail: (id: number) => `/admins/consultations?id=${id}`,
+    `/staffs/consultations?status=WAITING&page=${page}`,
+  history: (page: number) => `/staffs/history?page=${page}`,
+  consultationDetail: (id: number) => `/staffs/consultations?id=${id}`,
   /**
    * 상담 수락 — 세션 생성 + 토큰 발급 + 녹음 시작 통합. ⚠️ BE 작업 중.
    * consultationId 기준이라 프론트가 sessionId 를 몰라도 된다.
    */
-  accept: (id: number) => `/admin/consultations/${id}/accept`,
+  accept: (id: number) => `/staffs/consultations/${id}/accept`,
   /** 상담 종료 — 녹음 정지 + 세션 종료 + ENDED. ⚠️ BE 작업 중 */
-  end: (id: number) => `/admin/consultations/${id}/end`,
+  end: (id: number) => `/staffs/consultations/${id}/end`,
   blacklist: {
-    list: (page: number) => `/admins/blacklist?page=${page}`,
-    create: '/admins/blacklist',
-    release: '/admins/blacklist',
-    updateReason: '/admins/blacklist',
+    list: (page: number) => `/staffs/blacklist?page=${page}`,
+    create: '/staffs/blacklist',
+    release: '/staffs/blacklist/release',
+    updateReason: '/staffs/blacklist/',
   },
 } as const
 

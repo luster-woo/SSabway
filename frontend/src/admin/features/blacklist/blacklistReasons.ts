@@ -32,3 +32,26 @@ export function splitReasons(reason: string): BlacklistReason[] {
   const parts = reason.split(',').map((part) => part.trim())
   return BLACKLIST_REASONS.filter((candidate) => parts.includes(candidate))
 }
+
+/**
+ * 화면 라벨(한글) → 백엔드 enum 코드(영문) 매핑.
+ * 등록 API 의 reasons 는 영문 코드 배열이라 전송 직전에 변환해야 한다.
+ */
+export const REASON_CODE = {
+  '욕설/비방': 'ABUSE',
+  성희롱: 'SEXUAL_HARASSMENT',
+  스팸: 'SPAM',
+  허위: 'FALSE_INFO',
+  음란행위: 'OBSCENITY',
+} as const satisfies Record<BlacklistReason, string>
+
+/** 백엔드 BlacklistReason enum 과 1:1 인 코드 유니온. */
+export type BlacklistReasonCode = (typeof REASON_CODE)[BlacklistReason]
+
+/**
+ * 모달이 만든 사유 문자열(콤마 결합 한글)을 백엔드 enum 코드 배열로 바꾼다.
+ * 목록에 없는 값은 splitReasons 가 이미 걸러 낸다.
+ */
+export function toReasonCodes(reason: string): BlacklistReasonCode[] {
+  return splitReasons(reason).map((label) => REASON_CODE[label])
+}
