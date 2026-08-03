@@ -55,3 +55,15 @@ export type BlacklistReasonCode = (typeof REASON_CODE)[BlacklistReason]
 export function toReasonCodes(reason: string): BlacklistReasonCode[] {
   return splitReasons(reason).map((label) => REASON_CODE[label])
 }
+
+/** 백엔드 enum 코드 → 화면 라벨. 목록에 없는 코드는 건너뛴다. */
+const LABEL_BY_CODE = new Map<string, BlacklistReason>(
+  BLACKLIST_REASONS.map((label) => [REASON_CODE[label], label]),
+)
+
+/** 서버가 준 사유 코드 배열을 화면 라벨 배열로 바꾼다. */
+export function toReasonLabels(codes: readonly string[]): BlacklistReason[] {
+  return codes
+    .map((code) => LABEL_BY_CODE.get(code))
+    .filter((label): label is BlacklistReason => label !== undefined)
+}

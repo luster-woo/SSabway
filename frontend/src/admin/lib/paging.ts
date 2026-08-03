@@ -1,14 +1,11 @@
 /**
  * 목록 응답의 page 객체.
  *
- * API 명세서의 `GET /admins/waiting`, `GET /admins/history` 응답 형태를 그대로 따른다.
- * (Spring Data 의 Page 직렬화 형태 — page 가 숫자가 아니라 객체다)
- *
- * shared/types/api.ts 의 Page<T> 는 이 정보를 한 겹 펴놓은 형태라 응답과 맞지 않는다.
- * 어느 쪽을 표준으로 삼을지 정해지면 이 파일을 지우고 shared 쪽으로 합친다.
+ * 백엔드 PageResponse.page 형태를 그대로 따른다. (Spring Data Page 를 펼친 형태)
+ * shared/types/api.ts 의 Page<T> 와 필드가 겹치지만, 목록 응답은 이 형태로 통일한다.
  */
 export interface PageMeta {
-  /** 현재 페이지 번호 (0부터) */
+  /** 현재 페이지 번호 (백엔드·목 모두 1부터) */
   number: number
   /** 페이지당 요소 개수 */
   size: number
@@ -25,25 +22,30 @@ export interface PagedContent<T> {
   page: PageMeta
 }
 
-export const FIRST_PAGE = 0
-
-/** 명세서 예시의 page.size 값 */
-const DEFAULT_PAGE_SIZE = 20
-
 /**
- * 목 응답에 넣을 page 객체를 만든다.
- * 목이 한 페이지만 돌려주므로 number 는 항상 첫 페이지다.
- * BE 연동 시 이 함수는 삭제한다.
+ * 목 배열을 페이지 크기로 잘라 백엔드 PageResponse 와 같은 형태로 만든다.
+ * 페이지 번호는 1부터이며, 범위를 벗어나면 마지막 페이지로 보정한다.
+ * BE 연동이 끝난 목록은 이 함수 대신 서버 응답의 page 를 그대로 쓴다.
  */
-export function toMockPageMeta(totalElements: number): PageMeta {
-  const totalPages = Math.max(1, Math.ceil(totalElements / DEFAULT_PAGE_SIZE))
+export function paginate<T>(
+  all: readonly T[],
+  page: number,
+  size: number,
+): PagedContent<T> {
+  const totalElements = all.length
+  const totalPages = Math.max(1, Math.ceil(totalElements / size))
+  const current = Math.min(Math.max(1, page), totalPages)
+  const start = (current - 1) * size
 
   return {
-    number: FIRST_PAGE,
-    size: DEFAULT_PAGE_SIZE,
-    totalElements,
-    totalPages,
-    first: true,
-    last: totalPages === 1,
+    content: all.slice(start, start + size),
+    page: {
+      number: current,
+      size,
+      totalElements,
+      totalPages,
+      first: current === 1,
+      last: current === totalPages,
+    },
   }
 }

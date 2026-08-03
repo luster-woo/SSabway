@@ -1,12 +1,8 @@
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 
 import { queryKeys } from '@/shared/lib/queryKeys'
 import { isMockBlacklisted } from '@/admin/features/blacklist/mockBlacklistStore'
-import {
-  FIRST_PAGE,
-  toMockPageMeta,
-  type PagedContent,
-} from '@/admin/lib/paging'
+import { paginate, type PagedContent } from '@/admin/lib/paging'
 
 /** GET /admins/history 의 content 한 건 */
 export interface ConsultationHistory {
@@ -82,23 +78,26 @@ function delay(ms: number): Promise<void> {
   })
 }
 
-async function fetchConsultationHistory(): Promise<
-  PagedContent<ConsultationHistory>
-> {
+/** 민원 기록은 페이지당 6건으로 나눈다. BE 연동 시 서버 page.size 로 대체된다. */
+const HISTORY_PAGE_SIZE = 6
+
+async function fetchConsultationHistory(
+  page: number,
+): Promise<PagedContent<ConsultationHistory>> {
   // TODO: BE 연동 시 아래 목 처리를 실제 호출로 교체
   //   const res = await adminApi.get<ApiResponse<PagedContent<ConsultationHistory>>>(
-  //     endpoints.admin.history(FIRST_PAGE),
+  //     endpoints.admin.history(page),
   //   )
   //   return res.data.data
   await delay(MOCK_LATENCY_MS)
 
   // isBlack 은 목 저장소가 소유한다. 등록·해제 결과가 이 목록에 바로 반영된다.
-  const content = MOCK_HISTORY.map((item) => ({
+  const all = MOCK_HISTORY.map((item) => ({
     ...item,
     isBlack: isMockBlacklisted(item.userEmail),
   }))
 
-  return { content, page: toMockPageMeta(content.length) }
+  return paginate(all, page, HISTORY_PAGE_SIZE)
 }
 
 /**
@@ -106,11 +105,12 @@ async function fetchConsultationHistory(): Promise<
  *
  * 대기 목록과 달리 실시간성이 필요 없어 폴링하지 않는다.
  * 상담이 종료되거나 블랙리스트가 바뀔 때 쿼리를 무효화해서 갱신한다.
- * TODO: page.totalPages 를 쓰는 페이지네이션은 목록 UI 확정 후 추가한다.
+ * 페이지 이동 시 이전 데이터를 유지해 목록이 깜빡이지 않게 한다.
  */
-export function useConsultationHistory() {
+export function useConsultationHistory(page: number) {
   return useQuery({
-    queryKey: queryKeys.consultation.history(FIRST_PAGE),
-    queryFn: fetchConsultationHistory,
+    queryKey: queryKeys.consultation.history(page),
+    queryFn: () => fetchConsultationHistory(page),
+    placeholderData: keepPreviousData,
   })
 }
