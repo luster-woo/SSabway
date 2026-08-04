@@ -1,7 +1,10 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
+import { CaptionOverlay } from '@/shared/caption/CaptionOverlay'
+import { useLiveCaption } from '@/shared/caption/useLiveCaption'
+import { useLanguage } from '@/shared/lib/useLanguage'
 import { Button, useToast } from '@/shared/ui'
 import { OpenViduVideo } from '@/shared/webrtc/OpenViduVideo'
 import { OV_STATUS } from '@/shared/webrtc/useOpenViduSession'
@@ -79,6 +82,22 @@ export default function ConsultationPage() {
   } = useCallMedia()
 
   const call = useConsultationCall(consultationId, stream)
+
+  /*
+    역무원 발화 자막. 역무원 음성(staffStream)을 사용자가 고른 언어로 번역해
+    보여준다. 역무원은 한국어로 말한다는 전제라 sourceLang 은 'ko' 고정이다.
+    (명세 /ws/v1/ai/translation 이 auto-detect 가 아니라 화자 언어를 요구한다)
+  */
+  const { language } = useLanguage()
+  const staffAudioStream = useMemo(
+    () => (call.staffStream ? call.staffStream.stream.getMediaStream() : null),
+    [call.staffStream],
+  )
+  const caption = useLiveCaption(staffAudioStream, {
+    speaker: 'ADMIN',
+    sourceLang: 'ko',
+    targetLang: language,
+  })
 
   const [isEndDialogOpen, setIsEndDialogOpen] = useState(false)
 
@@ -214,6 +233,16 @@ export default function ConsultationPage() {
             className="pointer-events-none absolute size-px opacity-0"
           />
         ) : null}
+
+        {/*
+          역무원 발화 자막. 하단 컨트롤 버튼을 가리지 않도록 그 위에 띄운다.
+          (footer 의 pb + 버튼 높이만큼 올림 — 버튼 크기가 바뀌면 같이 조정)
+        */}
+        <CaptionOverlay
+          lines={caption.lines}
+          partial={caption.partial}
+          className="bottom-[calc(env(safe-area-inset-bottom,0px)+7.5rem)]"
+        />
 
         <footer className="mt-auto flex shrink-0 justify-center pb-[calc(env(safe-area-inset-bottom,0px)+1.5rem)]">
           {isStreaming ? (
