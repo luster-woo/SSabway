@@ -45,7 +45,9 @@
         "invalidCredential": "メールアドレスまたはパスワードが正しくありません",
         "unknown": "ログインに失敗しました・しばらくしてから再試行してください",
         "googleRejected": "Google 認証に失敗しました · もう一度お試しください",
-        "googleFailed": "Google ログインに失敗しました · しばらくしてからお試しください"
+        "googleFailed": "Google ログインに失敗しました · しばらくしてからお試しください",
+        "socialAccount": "Google アカウントで登録されたメールです · 下の Google ログインをご利用ください",
+        "localAccount": "すでに通常会員として登録されたメールです · メールとパスワードでログインしてください"
       },
       "googleUnavailable": "Google ログインを利用できません · ネットワークをご確認ください"
     },
@@ -65,7 +67,7 @@
       "codeVerified": "メール認証が完了しました",
       "remainingTime": "残り時間 {{time}}",
       "newPassword": "新しいパスワード",
-      "newPasswordPlaceholder": "8文字以上",
+      "newPasswordPlaceholder": "空白なしで 8 文字以上",
       "confirmPassword": "新しいパスワード（確認）",
       "confirmPasswordPlaceholder": "もう一度入力",
       "submit": "パスワードを変更",
@@ -86,7 +88,12 @@
         "unauthorized": "認証の有効期限が切れました · 最初からやり直してください",
         "resetFailed": "パスワードの変更に失敗しました · しばらくしてからお試しください",
         "verifiedExpired": "認証の有効時間が過ぎました · メール認証をやり直してください",
-        "passwordMismatch": "パスワードが一致しません"
+        "passwordMismatch": "パスワードが一致しません",
+        "attemptExceeded": "認証の試行回数を超えました · 認証メールを再送信してください",
+        "socialAccount": "Google アカウントで登録されたメールのためパスワードがありません · Google ログインをご利用ください",
+        "passwordTooShort": "パスワードは 8 文字以上にしてください",
+        "passwordTooLong": "パスワードは 64 文字を超えられません",
+        "passwordHasSpace": "パスワードに空白は使えません"
       }
     },
     "signUp": {
@@ -107,9 +114,9 @@
       "codeVerified": "メール認証が完了しました",
       "remainingTime": "残り時間 {{time}}",
       "password": "パスワード",
-      "passwordPlaceholder": "8文字以上",
+      "passwordPlaceholder": "空白なしで 8 文字以上",
       "confirmPassword": "パスワード（確認）",
-      "confirmPasswordPlaceholder": "8文字以上",
+      "confirmPasswordPlaceholder": "もう一度入力",
       "submit": "会員登録",
       "submitting": "登録中",
       "success": "会員登録が完了しました。ログインしてください",
@@ -127,7 +134,12 @@
         "invalidForm": "入力形式が正しくありません",
         "signUpFailed": "会員登録に失敗しました · しばらくしてからお試しください",
         "passwordMismatch": "パスワードが一致しません",
-        "verifiedExpired": "認証の有効時間が過ぎました · メール認証をやり直してください"
+        "verifiedExpired": "認証の有効時間が過ぎました · メール認証をやり直してください",
+        "invalidPassword": "パスワードは空白なしで 8 文字以上 64 文字以下で入力してください",
+        "attemptExceeded": "認証の試行回数を超えました · 認証メールを再送信してください",
+        "passwordTooShort": "パスワードは 8 文字以上にしてください",
+        "passwordTooLong": "パスワードは 64 文字を超えられません",
+        "passwordHasSpace": "パスワードに空白は使えません"
       }
     }
   },

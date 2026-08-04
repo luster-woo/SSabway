@@ -6,7 +6,10 @@ import { useAuthStore } from '@/shared/lib/store/useAuthStore'
 import { useLanguage } from '@/shared/lib/useLanguage'
 import type { ApiResponse } from '@/shared/types/api'
 import { toLanguage } from '@/user/features/auth/lib/language'
-import { toErrorKey } from '@/user/features/auth/lib/mockHttpError'
+import {
+  toErrorKey,
+  type ErrorKeyTable,
+} from '@/user/features/auth/lib/mockHttpError'
 
 export interface UserLoginRequest {
   email: string
@@ -26,16 +29,28 @@ interface UserLoginData {
 }
 
 /**
- * 실패 문구의 i18n 키. 상태코드를 키로 쓴다.
+ * 실패 문구의 i18n 키.
  *
- * 401 은 명세의 LOGIN_FAILED(이메일·비밀번호 불일치)와 SOCIAL_LOGIN_REQUIRED
- * (소셜 로그인 필요)가 같이 쓰는 상태코드다. 실패 응답 본문에 code 필드가 없어
- * 지금은 둘을 구분할 수 없다. BE 가 code 를 내려주면 그때 나눈다.
+ * 401 하나에 여러 원인이 몰려 있어 code 로 가른다.
+ *   LOGIN_FAILED          이메일·비밀번호 불일치
+ *   SOCIAL_LOGIN_REQUIRED 구글로 가입한 이메일 → 구글 로그인으로 유도해야 한다
+ * 이전에는 둘 다 "이메일 또는 비밀번호가 올바르지 않아요" 로 나와서, 구글로
+ * 가입한 사용자가 있지도 않은 비밀번호를 계속 고쳐 보는 상황이 됐다.
+ *
+ * USER_NOT_FOUND(404)는 일부러 같은 문구로 보낸다 — 가입 여부를 알려주면
+ * 이메일 존재 여부를 확인하는 통로가 되기 때문이다.
  *
  * 400(형식 오류)은 화면에서 빈 값을 막고 있어 사실상 오지 않으므로 fallback 에 맡긴다.
  */
-const LOGIN_ERROR_KEY: Record<number, string> = {
-  401: 'auth.login.error.invalidCredential',
+const LOGIN_ERROR_KEY: ErrorKeyTable = {
+  byCode: {
+    LOGIN_FAILED: 'auth.login.error.invalidCredential',
+    USER_NOT_FOUND: 'auth.login.error.invalidCredential',
+    SOCIAL_LOGIN_REQUIRED: 'auth.login.error.socialAccount',
+  },
+  byStatus: {
+    401: 'auth.login.error.invalidCredential',
+  },
 }
 
 const FALLBACK_ERROR_KEY = 'auth.login.error.unknown'
