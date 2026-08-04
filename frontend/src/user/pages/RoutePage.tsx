@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom'
 
 import { useDestinationStore } from '@/shared/lib/store/useDestinationStore'
 import { useOriginStationStore } from '@/shared/lib/store/useOriginStationStore'
+import { useStationNodeStore } from '@/shared/lib/store/useStationNodeStore'
 import { useLanguage } from '@/shared/lib/useLanguage'
 import type { RoutePathParams } from '@/shared/types/route'
 import { IS_DEV } from '@/shared/lib/env'
@@ -40,6 +41,7 @@ export default function RoutePage() {
    *    (엉뚱한 좌표로 400/404 를 받는 일도 함께 사라진다)
    */
   const originStation = useOriginStationStore((state) => state.originStation)
+  const setFinalPoint = useStationNodeStore((state) => state.setFinalPoint)
 
   const originName = originStation?.name ?? null
   const destinationName = destination?.name ?? null
@@ -122,8 +124,24 @@ export default function RoutePage() {
     const path = paths[index]
     if (!path) return
     setSelectedIndex(index)
+
+    /*
+      첫 지하철 구간의 개찰구 노드를 역 내 안내의 도착점(finalPoint)으로 담는다.
+      이 값이 이어지는 길안내(/routes/navi) 요청의 finalPoint 가 된다 — 담지
+      않으면 resolveStationNodes 가 파일럿 기본값(GA0_01)으로 폴백해, 어떤
+      노선·방면을 골라도 항상 같은 개찰구로 안내한다.
+
+      pointCode 가 null 이면 BE 가 승강장을 특정하지 못한 것이라(지원하지 않는
+      조합 등) 안내를 시작하지 않는다 — 잘못된 승강장으로 보내는 것이 최악이다.
+    */
+    const pointCode = path.segments[0]?.pointCode ?? null
+    if (pointCode === null) {
+      showToast(t('route.select.noIndoorGuide'))
+      return
+    }
+    setFinalPoint(pointCode)
+
     showToast(t('route.select.started', { station: path.lastEndStation }))
-    // TODO: 선택한 경로를 스토어에 담아 안내 정보 확인 화면으로 넘긴다.
     void navigate('/user-info')
   }
 
