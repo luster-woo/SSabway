@@ -124,6 +124,12 @@ const admin = {
    */
   consultationDetail: (id: number) => `/staffs/consultations?id=${id}`,
   /**
+   * 진행 중 상담의 사용자 정보(이메일·출발지·목적지·언어) 단건 조회.
+   * ⚠️ BE 신설 요청 상태 (8/4) — WaitingResponse 와 같은 필드로 제안.
+   * 위의 consultationDetail(쿼리스트링, 녹취 조회용)과 다른 API 다.
+   */
+  consultationInfo: (id: number) => `/staffs/consultations/${id}`,
+  /**
    * 상담 수락 — ✅ BE 구현됨. ⚠️ 8/4 소유가 webrtc → **ssabway** 로 이동.
    * 상태 잠금 + 세션 생성 + 역무원 토큰 발급을 1-call 로 처리한다
    * (ssabway 가 webrtc 내부 API 를 호출해 세션을 만든다).
