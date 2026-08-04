@@ -3,13 +3,16 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
 import { useDestinationStore } from '@/shared/lib/store/useDestinationStore'
+import { useOriginStationStore } from '@/shared/lib/store/useOriginStationStore'
+import { useLanguage } from '@/shared/lib/useLanguage'
 import type { RoutePathParams } from '@/shared/types/route'
 import { Button, MobileScreen, useToast } from '@/shared/ui'
 import { RouteOptionCard } from '@/user/features/route-select/RouteOptionCard'
 import { ChevronLeftIcon } from '@/user/features/route-select/icons'
+import { toLangCode } from '@/user/features/auth/lib/language'
 import {
-  MOCK_DESTINATION,
-  MOCK_ORIGIN,
+  FALLBACK_DESTINATION,
+  FALLBACK_ORIGIN,
 } from '@/user/features/route-select/lib/mockRoutePaths'
 import { toRouteBadges } from '@/user/features/route-select/lib/routeBadge'
 import { useRoutePaths } from '@/user/features/route-select/useRoutePaths'
@@ -25,19 +28,36 @@ export default function RoutePage() {
   const navigate = useNavigate()
   const { showToast } = useToast()
 
+  const { language } = useLanguage()
   const destination = useDestinationStore((state) => state.destination)
-  // TODO: 출발지는 표지판 분석·GPS 결과가 스토어에 들어오면 그 값으로 교체한다.
-  const originName = MOCK_ORIGIN.name
-  const destinationName = destination?.name ?? MOCK_DESTINATION.name
+  /**
+   * 출발지는 시작 화면의 GPS 결과를 쓴다. 아직 못 잡았거나 위치 동의 전이면
+   * 폴백(대구역)으로 조회한다 — BE 가 지원하는 출발역이 현재 대구역뿐이라,
+   * 폴백이 다른 역이면 서버가 경로를 전부 걸러내고 404 를 준다.
+   *
+   * TODO: 표지판 인식(/routes/sign)이 붙으면 그 결과를 최우선으로 둔다.
+   */
+  const originStation = useOriginStationStore((state) => state.originStation)
+  const origin = originStation ?? FALLBACK_ORIGIN
 
+  const originName = origin.name
+  const destinationName = destination?.name ?? FALLBACK_DESTINATION.name
+
+  /**
+   * 요청 본문. 다섯 필드 모두 필수라 하나라도 빠지면 400 이다.
+   *
+   * language 는 역명 표기 언어를 정한다(ODsay 가 번역해 준다). 대문자 코드로
+   * 보내야 하며, 소문자면 서버의 enum 역직렬화가 실패해 400 이다.
+   */
   const params = useMemo<RoutePathParams>(
     () => ({
-      startX: MOCK_ORIGIN.longitude,
-      startY: MOCK_ORIGIN.latitude,
-      endX: destination?.longitude ?? MOCK_DESTINATION.longitude,
-      endY: destination?.latitude ?? MOCK_DESTINATION.latitude,
+      language: toLangCode(language),
+      startX: origin.longitude,
+      startY: origin.latitude,
+      endX: destination?.longitude ?? FALLBACK_DESTINATION.longitude,
+      endY: destination?.latitude ?? FALLBACK_DESTINATION.latitude,
     }),
-    [destination],
+    [language, origin, destination],
   )
 
   const { data, isPending, isError, refetch } = useRoutePaths(params)
@@ -134,7 +154,7 @@ export default function RoutePage() {
         >
           {paths.map((path, index) => (
             <RouteOptionCard
-              key={`${path.firstStartStation}-${path.lastEndStation}-${path.arriveTime}`}
+              key={`${path.firstStartStation}-${path.lastEndStation}-${path.totalTime}-${path.transferCount}`}
               path={path}
               badge={badges[index] ?? null}
               selected={index === selectedIndex}
