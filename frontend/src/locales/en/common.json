@@ -246,7 +246,8 @@
       "pickOnMap": "Pick on the map",
       "failedNetwork": "Could not reach the route server\nCheck your network and the server status",
       "failedNoRoute": "No subway route for this trip\nTry a different start or destination",
-      "failedOdsay": "Could not load route data\nPlease try again in a moment"
+      "failedOdsay": "Could not load route data\nPlease try again in a moment",
+      "failedUnexpected": "The route server could not handle the request (HTTP {{status}})\nPlease try again shortly"
     }
   },
   "userInfo": {
@@ -346,7 +347,44 @@
     "help": "Get help",
     "loading": "Loading the route guide…",
     "failed": "Could not load the route guide\nPlease try again in a moment",
-    "empty": "No guide steps were found\nPlease photograph a sign again"
+    "empty": "No guide steps were found\nPlease photograph a sign again",
+    "nextPoint": "Next point",
+    "arriveAt": "Arriving at",
+    "totalDistance": "{{meters}}m total",
+    "viaCount": "{{count}} stop(s)",
+    "stepFallback": "Follow the signs ahead",
+    "needAnswers": "We do not have your route details yet\nAnswer a few questions and we will guide you",
+    "goAnswer": "Answer questions",
+    "withoutElevator": "Search without elevator",
+    "retryingWithStairs": "Searching again, stairs included",
+    "failedNetwork": "Could not reach the guide server\nCheck your network",
+    "failedNoRoute": "No walkable route found\nScan the sign again",
+    "failedNoStepFree": "No step-free route is available\nYou can search again including stairs",
+    "failedUnknownPoint": "Could not identify your starting point\nScan the sign again",
+    "failedNeedAnswers": "Some route details are missing\nPlease answer the questions again",
+    "failedNotReady": "Guide data is still loading\nPlease try again shortly",
+    "point": {
+      "signage": "Sign",
+      "elevator": "Elevator",
+      "exit": "Exit",
+      "gate": "Fare gate",
+      "poi": "Facility",
+      "store": "Convenience store",
+      "ticketOffice": "Ticket office",
+      "ticketMachine": "Ticket machine",
+      "atm": "ATM",
+      "toilet": "Restroom"
+    },
+    "todo": {
+      "charge": "Top up here",
+      "buyCard": "Buy a transit card here",
+      "singleTicket": "Get a single ticket here",
+      "withdrawCash": "Withdraw cash here",
+      "toGate": "Head to the fare gate"
+    },
+    "failedUnexpected": "The guide server could not handle the request (HTTP {{status}})\nPlease try again shortly",
+    "failedFacility": "We cannot reach the place you need with these answers\nTry a different option",
+    "changeAnswers": "Change answers"
   },
   "arrival": {
     "back": "Back",

@@ -1,9 +1,18 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
+import { useRoutePreferenceStore } from '@/shared/lib/store/useRoutePreferenceStore'
+import {
+  resolveStationNodes,
+  useStationNodeStore,
+} from '@/shared/lib/store/useStationNodeStore'
+import { useLanguage } from '@/shared/lib/useLanguage'
+import type { NavRouteRequest } from '@/shared/types/navigation'
 import type { GuideStep } from '@/shared/types/routeGuide'
 import { Button, MobileScreen, SectionLabel, useToast } from '@/shared/ui'
+import { toLangCode } from '@/user/features/auth/lib/language'
+import { ArrivalPointCard } from '@/user/features/route-guide/ArrivalPointCard'
 import { GuideInstructionCard } from '@/user/features/route-guide/GuideInstructionCard'
 import { HelpRequestButton } from '@/user/features/route-guide/HelpRequestButton'
 import { RescanButton } from '@/user/features/route-guide/RescanButton'
@@ -12,7 +21,13 @@ import { StationLocationButton } from '@/user/features/route-guide/StationLocati
 import { StationMapOverlay } from '@/user/features/route-guide/StationMapOverlay'
 import { StepNavigator } from '@/user/features/route-guide/StepNavigator'
 import { StepProgressBar } from '@/user/features/route-guide/StepProgressBar'
+import { WaypointSummary } from '@/user/features/route-guide/WaypointSummary'
 import { ChevronLeftIcon } from '@/user/features/route-guide/icons'
+import { buildNaviRequest } from '@/user/features/route-guide/lib/buildNaviRequest'
+import {
+  NAV_RECOVERY,
+  toNavFailure,
+} from '@/user/features/route-guide/lib/naviError'
 import { useRouteGuide } from '@/user/features/route-guide/useRouteGuide'
 
 /** 경로 재탐색을 마치고 돌아올 경로. SignCapturePage가 state로 받는다. */
@@ -21,20 +36,56 @@ const ROUTE_GUIDE_PATH = '/guide'
 /** 마지막 단계에서 [다음]을 누르면 가는 곳 */
 const ARRIVAL_PATH = '/arrival'
 
+/** 질문에 답하는 화면. 답이 없으면 여기로 돌려보낸다. */
+const USER_INFO_PATH = '/user-info'
+
 /**
- * 6. 경로 상세 안내 — 역 내 표지판을 한 장씩 보며 이동하는 화면.
+ * 6. 경로 상세 안내 — 역 내 지점을 하나씩 확인하며 이동하는 화면.
  *
  * 한 화면에 한 단계만 보여준다. [이전]·[다음]으로 단계를 넘기고,
  * 안내와 눈앞 상황이 어긋나면 '경로 재탐색'으로 표지판 촬영 화면(2)에 다시 다녀온다.
- * 재탐색 후에는 이 화면으로 돌아오며 단계가 처음부터 다시 시작된다.
+ *
+ * 요청 본문은 세 곳에서 모인다.
+ *   출발·도착 노드  useStationNodeStore (표지판 인식 결과. 없으면 파일럿 기본값)
+ *   질문 답변       useRoutePreferenceStore (안내 정보 확인 화면에서 저장)
+ *   언어            useLanguage
+ * 하나라도 없으면 요청을 보내지 않는다 — 빈 본문은 400 이고, 화면에는
+ * "경로 없음"으로 보여 사용자가 원인을 오해한다.
  */
 export default function RouteGuidePage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { showToast } = useToast()
+  const { language } = useLanguage()
 
-  const { data, isPending, isError, refetch } = useRouteGuide()
-  const steps = data?.steps ?? []
+  const answers = useRoutePreferenceStore((state) => state.answers)
+  const startPoint = useStationNodeStore((state) => state.startPoint)
+  const finalPoint = useStationNodeStore((state) => state.finalPoint)
+
+  /*
+    "엘리베이터 없이 다시 찾기"를 누르면 켜진다.
+
+    저장된 답을 고치지 않고 이 화면에서만 덮어쓴다. 사용자가 엘리베이터를
+    원한다는 사실 자체는 바뀌지 않았고(이 역에 계단 없는 길이 없을 뿐),
+    답을 덮어쓰면 다른 역에서 다시 안내할 때도 계단을 쓰게 된다.
+  */
+  const [ignoreElevator, setIgnoreElevator] = useState(false)
+
+  const request = useMemo<NavRouteRequest | null>(() => {
+    if (!answers) return null
+
+    const nodes = resolveStationNodes({ startPoint, finalPoint })
+
+    return buildNaviRequest({
+      ...nodes,
+      answers: ignoreElevator ? { ...answers, useElevator: false } : answers,
+      langCode: toLangCode(language),
+    })
+  }, [answers, startPoint, finalPoint, ignoreElevator, language])
+
+  const { data, isPending, isError, error, refetch } = useRouteGuide(request)
+
+  const steps = useMemo(() => data?.steps ?? [], [data])
   const [activeIndex, setActiveIndex] = useState(0)
 
   // 재탐색으로 단계 수가 줄어들면 보고 있던 인덱스가 범위를 벗어나므로 되돌린다.
@@ -57,7 +108,6 @@ export default function RouteGuidePage() {
 
   /** 마지막 단계에서만 노출. 도착 완료 화면(6-1)으로 넘어간다. */
   const completeArrival = () => {
-    // TODO: 도착 완료 화면(6-1)이 붙으면 PlaceholderScreen을 교체한다.
     void navigate(ARRIVAL_PATH)
   }
 
@@ -75,15 +125,43 @@ export default function RouteGuidePage() {
     })
   }
 
+  /** 엘리베이터 조건을 빼고 다시 찾는다. request 가 바뀌어 자동으로 재조회된다. */
+  const retryWithoutElevator = () => {
+    setIgnoreElevator(true)
+    showToast(t('routeGuide.retryingWithStairs'))
+  }
+
   /**
-   * 역 내 현재 위치 지도. 현재 위치는 보고 있는 단계의 표지판 위치와 같다 —
-   * 위치의 근거가 GPS 가 아니라 "마지막으로 확인한 표지판"이기 때문이다.
+   * 역 내 현재 위치 지도. 현재 위치는 보고 있는 단계의 지점과 같다 —
+   * 위치의 근거가 GPS 가 아니라 "마지막으로 확인한 지점"이기 때문이다.
    */
   const [isMapOpen, setIsMapOpen] = useState(false)
 
   const requestHelp = () => {
     void navigate('/help')
   }
+
+  /* 실패 원인별 문구와, 사용자가 할 수 있는 행동. */
+  const failure = isError ? toNavFailure(error, request) : null
+
+  const recoveryAction = {
+    [NAV_RECOVERY.RESCAN]: { labelKey: 'routeGuide.rescan', run: rescanRoute },
+    [NAV_RECOVERY.WITHOUT_ELEVATOR]: {
+      labelKey: 'routeGuide.withoutElevator',
+      run: retryWithoutElevator,
+    },
+    [NAV_RECOVERY.RETRY]: {
+      labelKey: 'common.retry',
+      run: () => void refetch(),
+    },
+    [NAV_RECOVERY.CHANGE_ANSWERS]: {
+      labelKey: 'routeGuide.changeAnswers',
+      run: () => void navigate(USER_INFO_PATH),
+    },
+  }
+
+  // 답이 없으면 조회 자체를 하지 않으므로 로딩·에러가 아니라 이 안내가 뜬다.
+  const needsAnswers = request === null
 
   return (
     <MobileScreen
@@ -122,7 +200,21 @@ export default function RouteGuidePage() {
         </div>
       }
     >
-      {isPending ? (
+      {needsAnswers ? (
+        <div className="flex flex-1 flex-col items-center justify-center gap-4 text-center">
+          <p className="text-ink-muted text-[13.5px] whitespace-pre-line">
+            {t('routeGuide.needAnswers')}
+          </p>
+          <Button
+            variant="secondary"
+            onClick={() => void navigate(USER_INFO_PATH)}
+          >
+            {t('routeGuide.goAnswer')}
+          </Button>
+        </div>
+      ) : null}
+
+      {!needsAnswers && isPending ? (
         <div
           role="status"
           className="flex flex-1 flex-col items-center justify-center gap-3"
@@ -137,18 +229,21 @@ export default function RouteGuidePage() {
         </div>
       ) : null}
 
-      {isError ? (
+      {failure ? (
         <div className="flex flex-1 flex-col items-center justify-center gap-4 text-center">
           <p className="text-ink-muted text-[13.5px] whitespace-pre-line">
-            {t('routeGuide.failed')}
+            {t(failure.messageKey, failure.params)}
           </p>
-          <Button variant="secondary" onClick={() => void refetch()}>
-            {t('common.retry')}
+          <Button
+            variant="secondary"
+            onClick={recoveryAction[failure.recovery].run}
+          >
+            {t(recoveryAction[failure.recovery].labelKey)}
           </Button>
         </div>
       ) : null}
 
-      {!isPending && !isError && !step ? (
+      {!needsAnswers && !isPending && !isError && !step ? (
         <div className="flex flex-1 flex-col items-center justify-center gap-4 text-center">
           <p className="text-ink-muted text-[13.5px] whitespace-pre-line">
             {t('routeGuide.empty')}
@@ -159,14 +254,31 @@ export default function RouteGuidePage() {
         </div>
       ) : null}
 
-      {step ? (
-        // 프로토타입 배치: 지시문 → 표지판 → 이전/다음 → 위치 보기 → (하단 여백) 도움 요청
+      {step && data ? (
+        // 배치: 요약 → 지시문 → 지점 → 이전/다음 → 위치 보기 → (여백) 도움 요청
         <div className="flex flex-1 flex-col gap-5 pt-4 pb-[calc(env(safe-area-inset-bottom,0px)+1rem)]">
+          <WaypointSummary
+            totalDistanceM={data.totalDistanceM}
+            waypoints={data.waypoints}
+          />
+
           <GuideInstructionCard instruction={step.instruction} />
 
           <section className="flex flex-col gap-2">
-            <SectionLabel>{t('routeGuide.nextSign')}</SectionLabel>
-            <SignBoardCard sign={step.sign} />
+            <SectionLabel>
+              {step.sign ? t('routeGuide.nextSign') : t('routeGuide.nextPoint')}
+            </SectionLabel>
+
+            {/* 표지판이 있는 지점과 없는 지점(개찰구·편의점)은 카드가 다르다. */}
+            {step.sign ? (
+              <SignBoardCard sign={step.sign} />
+            ) : (
+              <ArrivalPointCard
+                arriveType={step.arriveType}
+                arriveCategory={step.arriveCategory}
+                arrivedFor={step.arrivedFor}
+              />
+            )}
           </section>
 
           <StepNavigator

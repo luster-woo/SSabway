@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react'
 import { Navigate } from 'react-router-dom'
 
-import { useAuthStore } from '@/shared/lib/store/useAuthStore'
+import { useRestoreSession } from '@/shared/api/useRestoreSession'
+import { RouteLoading } from '@/shared/ui'
 
 export interface RequireAdminAuthProps {
   children: ReactNode
@@ -10,27 +11,35 @@ export interface RequireAdminAuthProps {
 /**
  * 관리자 인증 가드 (NFR-SEC-004).
  *
- * 미인증이면 로그인 화면으로 돌려보낸다. 지금은 idle 도 미인증으로 처리하므로
- * 새로고침하면 로그인 화면으로 돌아간다. (의도된 임시 동작)
+ * 액세스 토큰은 메모리에만 두므로 새로고침하면 사라진다. 그래서 부팅 때
+ * 리프레시 쿠키로 세션을 한 번 되살린다(useRestoreSession). 이 복구가 없으면
+ * 로그인한 관리자가 새로고침만 해도 로그인 화면으로 튕긴다.
  *
- * TODO: user 쪽처럼 useRestoreSession('admin') 을 붙이고, status 가 'idle' 인
- *       동안은 판단을 보류하고 <RouteLoading /> 을 보여줘야 한다.
- *       단, 먼저 아래 두 가지가 해결돼야 한다. 지금 붙이면 오히려 위험하다.
+ * status 세 값을 구분해서 다뤄야 한다.
+ *   'idle'            아직 판정 전이다. "비로그인"이 아니므로 로딩을 보여준다.
+ *   'authenticated'   통과
+ *   'unauthenticated' 복구 실패(쿠키 없음·만료) → 로그인 화면
  *
- *       ① 관리자 로그인이 아직 useAdminLogin 안의 목이라 HTTP 요청이 나가지
- *          않는다. 서버가 관리자용 리프레시 쿠키를 심지 않으므로 복구가 항상
- *          실패하고, 로딩만 한 번 더 보여주고 로그인 화면으로 가게 된다.
- *       ② MSW 의 /auth/refresh 목은 쿠키 존재 여부만 본다. (handlers.ts)
- *          그래서 사용자로 로그인한 브라우저에서 /admin 에 들어가면 재발급이
- *          200 을 돌려주고 관리자로 인증된 것처럼 통과한다. 목을 role 까지
- *          구분하도록 고친 뒤에 붙일 것.
+ * idle 을 비로그인으로 처리하면 새로고침 직후 로그인 화면이 한 번 스쳤다가
+ * 관리자 화면으로 돌아오는 깜빡임이 생긴다.
+ *
+ * 예전에 이 복구를 막아 두었던 두 가지 전제는 해소됐다.
+ *   ① 관리자 로그인이 목이라 리프레시 쿠키가 없던 문제
+ *      → useAdminLogin 이 실제로 POST /staffs/login 을 부른다.
+ *   ② 사용자 세션으로도 재발급이 통과하던 문제
+ *      → refreshAccessToken 이 토큰의 type 클레임을 대조한다
+ *        (shared/api/tokenRole.ts). 사용자 토큰이면 여기서 걸러진다.
  */
 export function RequireAdminAuth({ children }: RequireAdminAuthProps) {
-  const isAuthenticated = useAuthStore(
-    (s) => s.status.admin === 'authenticated',
-  )
+  const status = useRestoreSession('admin')
 
-  if (!isAuthenticated) return <Navigate to="/admin/login" replace />
+  if (status === 'idle') {
+    return <RouteLoading message="로그인 상태를 확인하는 중입니다" />
+  }
+
+  if (status !== 'authenticated') {
+    return <Navigate to="/admin/login" replace />
+  }
 
   return <>{children}</>
 }

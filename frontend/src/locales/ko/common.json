@@ -246,7 +246,8 @@
       "pickOnMap": "지도에서 선택하기",
       "failedNetwork": "경로 서버에 연결하지 못했어요\n네트워크와 서버 상태를 확인해 주세요",
       "failedNoRoute": "이 구간의 지하철 경로를 찾지 못했어요\n출발지·도착지를 다시 선택해 주세요",
-      "failedOdsay": "경로 정보를 가져오지 못했어요\n잠시 후 다시 시도해 주세요"
+      "failedOdsay": "경로 정보를 가져오지 못했어요\n잠시 후 다시 시도해 주세요",
+      "failedUnexpected": "경로 서버가 요청을 처리하지 못했어요 (HTTP {{status}})\n잠시 후 다시 시도해 주세요"
     }
   },
   "userInfo": {
@@ -346,7 +347,44 @@
     "help": "도움 요청",
     "loading": "경로 안내를 불러오는 중이에요…",
     "failed": "경로 안내를 불러오지 못했어요\n잠시 후 다시 시도해 주세요",
-    "empty": "안내할 단계를 찾지 못했어요\n표지판을 다시 촬영해 주세요"
+    "empty": "안내할 단계를 찾지 못했어요\n표지판을 다시 촬영해 주세요",
+    "nextPoint": "다음 지점",
+    "arriveAt": "도착 지점",
+    "totalDistance": "총 {{meters}}m",
+    "viaCount": "{{count}}곳 경유",
+    "stepFallback": "안내 표시를 따라 이동하세요",
+    "needAnswers": "경로에 필요한 정보를 아직 받지 못했어요\n질문에 답하면 경로를 안내해 드릴게요",
+    "goAnswer": "질문에 답하기",
+    "withoutElevator": "엘리베이터 없이 다시 찾기",
+    "retryingWithStairs": "계단을 포함해 다시 찾고 있어요",
+    "failedNetwork": "안내 서버에 연결하지 못했어요\n네트워크 상태를 확인해 주세요",
+    "failedNoRoute": "이동할 수 있는 경로를 찾지 못했어요\n표지판을 다시 찍어 주세요",
+    "failedNoStepFree": "계단을 이용하지 않고 갈 수 있는 경로가 없어요\n계단을 포함해 다시 찾을 수 있어요",
+    "failedUnknownPoint": "출발 지점을 확인하지 못했어요\n표지판을 다시 찍어 주세요",
+    "failedNeedAnswers": "경로에 필요한 정보가 부족해요\n질문에 다시 답해 주세요",
+    "failedNotReady": "안내 데이터를 준비하는 중이에요\n잠시 후 다시 시도해 주세요",
+    "point": {
+      "signage": "안내 표지판",
+      "elevator": "엘리베이터",
+      "exit": "출구",
+      "gate": "개찰구",
+      "poi": "편의시설",
+      "store": "편의점",
+      "ticketOffice": "매표소",
+      "ticketMachine": "발매기",
+      "atm": "ATM",
+      "toilet": "화장실"
+    },
+    "todo": {
+      "charge": "여기서 충전하세요",
+      "buyCard": "여기서 교통카드를 사세요",
+      "singleTicket": "여기서 1회권을 발권하세요",
+      "withdrawCash": "여기서 현금을 뽑으세요",
+      "toGate": "개찰구로 이동하세요"
+    },
+    "failedUnexpected": "안내 서버가 요청을 처리하지 못했어요 (HTTP {{status}})\n잠시 후 다시 시도해 주세요",
+    "failedFacility": "지금 조건으로는 들러야 할 곳에 갈 수 없어요\n다른 방법으로 다시 답해 주세요",
+    "changeAnswers": "답변 다시 하기"
   },
   "arrival": {
     "back": "뒤로가기",
