@@ -56,20 +56,18 @@ export function useConsultationCall(
    * 이 호출이 빠지면 상담이 활성 상태(MATCHED/IN_PROGRESS)로 남아, 같은
    * 사용자의 다음 도움 요청이 409 CONSULTATION_DUPLICATED 로 막힌다.
    *
-   * ① `POST /openvidu/sessions/{sessionId}/end` — ✅ BE 구현됨.
-   *    녹음 정지 → 세션 종료 → ENDED 전이를 서버가 한 번에 한다. 역무원의
-   *    [상담 종료] 와 같은 API 이고, 이미 ENDED 면 멱등이다. 이 엔드포인트는
-   *    `/api/v1/**` → authenticated() 라 STAFF 전용이 아니어서 사용자도 부를 수 있다.
+   * `POST /consultations/{id}/leave` 하나로 끝낸다 — ✅ BE 구현됨 (8/4,
+   * feat/S15P11D104-484-user-close). 사용자 전용 종료 API 로:
+   *   - WAITING·MATCHED → 취소 처리 (OpenVidu 세션까지 정리)
+   *   - IN_PROGRESS     → 녹음·세션 정리 후 ENDED 전이
+   *   - CANCELED·ENDED  → 멱등 성공
+   * 즉 프론트가 상담 상태를 몰라도 된다 — 서버가 상태를 보고 알아서 가른다.
+   * 요청자 본인인지도 서버가 검증한다(CONSULTATION_ACCESS_DENIED).
    *
-   * ② 실패하면 `POST /consultations/{id}/leave` — ⚠️ BE 미구현.
-   *    end 는 `status != IN_PROGRESS` 면 CONSULTATION_NOT_IN_PROGRESS, recordId
-   *    가 없으면 RECORDING_NOT_FOUND 로 거절한다. IN_PROGRESS 는 역무원이
-   *    start 를 부른 뒤에야 되므로, 수락 직후 사용자가 먼저 끊는 구간은 end 로
-   *    닫을 수 없다. 그 구간을 위한 자리가 leave 다.
-   *
-   * 상태로 미리 갈라내지 않고 순차로 시도하는 이유 — 사용자 쪽은 MATCHED 를
-   * 확인한 뒤 폴링을 멈추므로(useConsultationMatch) 서버가 IN_PROGRESS 로
-   * 넘어간 것을 알 수 없다. 즉 프론트의 상담 상태는 거의 항상 MATCHED 다.
+   * 예전의 「end 시도 → 실패하면 leave」 순차 호출은 제거했다. end 는 역무원
+   * 1-call 용이라 recordId 가 없는 수락 직후 구간을 항상 거절해서, 이 화면의
+   * 종료가 매번 실패 요청 한 번을 먼저 내고 시작했다. leave 가 그 구간까지
+   * 덮으면서 폴백일 이유가 없어졌다.
    *
    * 기다리지 않는다(최선형) — 화면은 즉시 닫혀야 하고, 실패해도 사용자가
    * 할 수 있는 일이 없다.
@@ -79,12 +77,10 @@ export function useConsultationCall(
 
     if (consultationId <= 0) return
 
-    void openviduApi
-      .endConsultation(consultationId)
-      .catch(() => openviduApi.leaveConsultation(consultationId))
-      .catch(() => {
-        // 통화 종료 자체를 막지는 않는다. (leave 는 BE 미구현 구간에서 404)
-      })
+    void openviduApi.leaveConsultation(consultationId).catch(() => {
+      // 통화 종료 자체를 막지는 않는다. 서버 정리가 실패해도 사용자가
+      // 할 수 있는 일이 없고, 화면은 이미 닫히는 중이다.
+    })
   }, [consultationId, leave])
 
   return {
