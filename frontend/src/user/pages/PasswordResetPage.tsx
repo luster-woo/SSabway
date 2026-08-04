@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import { endpoints } from '@/shared/api/endpoints'
 import { useLanguage } from '@/shared/lib/useLanguage'
@@ -52,6 +52,8 @@ export default function PasswordResetPage() {
   const { t } = useTranslation()
   const { language } = useLanguage()
   const navigate = useNavigate()
+  // 로그인 화면으로 넘길 state(돌아갈 경로)를 그대로 전달하기 위해 읽는다.
+  const location = useLocation()
   const goBack = useGoBack()
   const { showToast } = useToast()
 
@@ -153,7 +155,8 @@ export default function PasswordResetPage() {
     if (!isChanged) return
 
     showToast(t('auth.passwordReset.success'))
-    void navigate('/login', { replace: true })
+    // 로그인 화면의 `from` 을 잃지 않도록 state 를 그대로 넘긴다.
+    void navigate('/login', { replace: true, state: location.state })
   }
 
   return (
@@ -292,7 +295,9 @@ export default function PasswordResetPage() {
         {t('auth.passwordReset.rememberedPassword')}
         <button
           type="button"
-          onClick={() => void navigate('/login', { replace: true })}
+          onClick={() =>
+            void navigate('/login', { replace: true, state: location.state })
+          }
           className="text-brand-dark font-bold"
         >
           {t('auth.passwordReset.signIn')}

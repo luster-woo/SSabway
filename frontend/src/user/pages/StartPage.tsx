@@ -20,6 +20,7 @@ import {
   useToast,
 } from '@/shared/ui'
 import { AccountMenu } from '@/user/features/auth/AccountMenu'
+import type { LoginFromState } from '@/user/features/auth/loginFrom'
 import { WithdrawDialog } from '@/user/features/auth/WithdrawDialog'
 import { LanguageSelector } from '@/user/features/start/LanguageSelector'
 import { LocationConsentCard } from '@/user/features/start/LocationConsentCard'
@@ -159,8 +160,12 @@ export default function StartPage() {
     showToast(t('auth.signedOut'))
   }
 
+  /**
+   * 로그인 화면으로. 성공하면 이 화면으로 돌아와야 하므로 `from` 을 넘긴다.
+   * (히스토리로 되돌리면 안 되는 이유는 features/auth/loginFrom 주석 참고)
+   */
   const moveToLogin = () => {
-    void navigate('/login')
+    void navigate('/login', { state: { from: '/' } satisfies LoginFromState })
   }
 
   return (
