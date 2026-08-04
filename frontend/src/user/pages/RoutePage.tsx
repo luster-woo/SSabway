@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { isAxiosError } from 'axios'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
@@ -6,14 +7,12 @@ import { useDestinationStore } from '@/shared/lib/store/useDestinationStore'
 import { useOriginStationStore } from '@/shared/lib/store/useOriginStationStore'
 import { useLanguage } from '@/shared/lib/useLanguage'
 import type { RoutePathParams } from '@/shared/types/route'
+import type { ApiErrorBody } from '@/shared/types/api'
 import { Button, MobileScreen, useToast } from '@/shared/ui'
+import { TripEndpointBar } from '@/shared/ui/TripEndpointBar'
 import { RouteOptionCard } from '@/user/features/route-select/RouteOptionCard'
 import { ChevronLeftIcon } from '@/user/features/route-select/icons'
 import { toLangCode } from '@/user/features/auth/lib/language'
-import {
-  FALLBACK_DESTINATION,
-  FALLBACK_ORIGIN,
-} from '@/user/features/route-select/lib/mockRoutePaths'
 import { toRouteBadges } from '@/user/features/route-select/lib/routeBadge'
 import { useRoutePaths } from '@/user/features/route-select/useRoutePaths'
 
@@ -31,36 +30,66 @@ export default function RoutePage() {
   const { language } = useLanguage()
   const destination = useDestinationStore((state) => state.destination)
   /**
-   * 출발지는 시작 화면의 GPS 결과를 쓴다. 아직 못 잡았거나 위치 동의 전이면
-   * 폴백(대구역)으로 조회한다 — BE 가 지원하는 출발역이 현재 대구역뿐이라,
-   * 폴백이 다른 역이면 서버가 경로를 전부 걸러내고 404 를 준다.
+   * 출발지는 목적지 화면에서 정해진다 — 지도에서 직접 고르거나(MANUAL),
+   * 시작 화면의 GPS 결과가 들어와 있거나(GPS) 둘 중 하나다.
    *
-   * TODO: 표지판 인식(/routes/sign)이 붙으면 그 결과를 최우선으로 둔다.
+   * ⚠️ 폴백을 두지 않는다. 예전에는 값이 없으면 대구역으로 대신 조회했는데,
+   *    사용자가 고르지도 않은 출발지의 경로를 보여주는 셈이라 잘못된 안내였다.
+   *    지금은 조회 자체를 하지 않고 "출발지를 정해 주세요" 안내를 띄운다.
+   *    (엉뚱한 좌표로 400/404 를 받는 일도 함께 사라진다)
    */
   const originStation = useOriginStationStore((state) => state.originStation)
-  const origin = originStation ?? FALLBACK_ORIGIN
 
-  const originName = origin.name
-  const destinationName = destination?.name ?? FALLBACK_DESTINATION.name
+  const originName = originStation?.name ?? null
+  const destinationName = destination?.name ?? null
+
+  /** 두 지점이 다 정해져야 조회할 수 있다. */
+  const hasEndpoints = !!originStation && !!destination
 
   /**
    * 요청 본문. 다섯 필드 모두 필수라 하나라도 빠지면 400 이다.
    *
    * language 는 역명 표기 언어를 정한다(ODsay 가 번역해 준다). 대문자 코드로
    * 보내야 하며, 소문자면 서버의 enum 역직렬화가 실패해 400 이다.
+   *
+   * 지점이 없으면 좌표가 0 인 요청이 만들어지지만, 아래 useRoutePaths 의
+   * enabled 가 false 라 실제로 나가지는 않는다. (훅 규칙상 조건부 호출을 할 수
+   * 없어 객체는 항상 만든다)
    */
   const params = useMemo<RoutePathParams>(
     () => ({
       language: toLangCode(language),
-      startX: origin.longitude,
-      startY: origin.latitude,
-      endX: destination?.longitude ?? FALLBACK_DESTINATION.longitude,
-      endY: destination?.latitude ?? FALLBACK_DESTINATION.latitude,
+      startX: originStation?.longitude ?? 0,
+      startY: originStation?.latitude ?? 0,
+      endX: destination?.longitude ?? 0,
+      endY: destination?.latitude ?? 0,
     }),
-    [language, origin, destination],
+    [language, originStation, destination],
   )
 
-  const { data, isPending, isError, refetch } = useRoutePaths(params)
+  const { data, isPending, isError, error, refetch } = useRoutePaths(
+    params,
+    hasEndpoints,
+  )
+
+  /*
+    실패 원인을 문구로 나눈다. 전부 "불러오지 못했어요"로 뭉치면 사용자도
+    개발자도 무엇을 고쳐야 할지 알 수 없다 — 서버 설정 문제와 "그 구간에 경로가
+    없음"은 대응이 완전히 다르다.
+
+    ssabway 는 실패 응답에 항상 code 를 싣는다(ApiResponse.error).
+  */
+  const failedKey = useMemo(() => {
+    if (!isAxiosError(error)) return 'route.select.failed'
+
+    // 응답 자체가 없으면 서버에 닿지 못한 것이다(미기동·프록시 대상 오류).
+    if (!error.response) return 'route.select.failedNetwork'
+
+    const code = (error.response.data as ApiErrorBody | undefined)?.code
+    if (code === 'SUBWAY_ROUTE_NOT_FOUND') return 'route.select.failedNoRoute'
+    if (code === 'EXTERNAL_API_ERROR') return 'route.select.failedOdsay'
+    return 'route.select.failed'
+  }, [error])
   const paths = data ?? []
   // 의존성은 data로 둔다. paths는 매 렌더 새 배열이라 메모이제이션이 무효화된다.
   const badges = useMemo(() => toRouteBadges(data ?? []), [data])
@@ -90,13 +119,16 @@ export default function RoutePage() {
             <ChevronLeftIcon className="size-5" strokeWidth={2} />
           </button>
 
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <h1 className="text-ink text-[clamp(23px,6.6vw,27px)] leading-tight font-extrabold">
               {t('route.select.title')}
             </h1>
-            <p className="text-ink-muted mt-1.5 text-[13.5px]">
-              {originName} → {destinationName}
-            </p>
+            {/* 지도 화면과 같은 컴포넌트라 어느 구간을 보고 있는지 표기가 흔들리지 않는다. */}
+            <TripEndpointBar
+              className="mt-1.5"
+              originName={originName}
+              destinationName={destinationName}
+            />
           </div>
         </div>
       }
@@ -106,7 +138,28 @@ export default function RoutePage() {
         </p>
       }
     >
-      {isPending ? (
+      {!hasEndpoints ? (
+        /*
+          출발지나 도착지가 없으면 조회를 하지 않는다(useRoutePaths enabled=false).
+          비어 있는 요청으로 404 를 받아 "경로 없음"을 보여주면 사용자는 경로가
+          없는 줄 알지만, 실제로는 아직 아무것도 고르지 않은 상태다.
+        */
+        <div className="flex flex-1 flex-col items-center justify-center gap-4 text-center">
+          <p className="text-ink-muted text-[13.5px] whitespace-pre-line">
+            {originStation
+              ? t('route.select.needDestination')
+              : t('route.select.needOrigin')}
+          </p>
+          <Button
+            variant="secondary"
+            onClick={() => void navigate('/destination')}
+          >
+            {t('route.select.pickOnMap')}
+          </Button>
+        </div>
+      ) : null}
+
+      {hasEndpoints && isPending ? (
         <div
           role="status"
           className="flex flex-1 flex-col items-center justify-center gap-3"
@@ -121,10 +174,10 @@ export default function RoutePage() {
         </div>
       ) : null}
 
-      {isError ? (
+      {hasEndpoints && isError ? (
         <div className="flex flex-1 flex-col items-center justify-center gap-4 text-center">
           <p className="text-ink-muted text-[13.5px] whitespace-pre-line">
-            {t('route.select.failed')}
+            {t(failedKey)}
           </p>
           <Button variant="secondary" onClick={() => void refetch()}>
             {t('common.retry')}
@@ -132,7 +185,7 @@ export default function RoutePage() {
         </div>
       ) : null}
 
-      {!isPending && !isError && paths.length === 0 ? (
+      {hasEndpoints && !isPending && !isError && paths.length === 0 ? (
         <div className="flex flex-1 flex-col items-center justify-center gap-4 text-center">
           <p className="text-ink-muted text-[13.5px] whitespace-pre-line">
             {t('route.select.empty')}

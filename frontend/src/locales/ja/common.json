@@ -202,7 +202,15 @@
       "missingKey": "地図キーが設定されていません\nconfig.js の NAVER_MAP_CLIENT_ID を確認してください",
       "authFailed": "地図の認証に失敗しました\nClient ID とコンソールの Web サービス URL 登録をご確認ください",
       "mapFailed": "地図を読み込めませんでした\nネットワーク状態をご確認ください"
-    }
+    },
+    "setOrigin": "出発地に設定",
+    "setDestination": "目的地に設定",
+    "originSet": "出発地に設定済み",
+    "destinationSet": "目的地に設定済み",
+    "originApplied": "{{name}}を出発地に設定しました",
+    "destinationApplied": "{{name}}を目的地に設定しました",
+    "needBoth": "出発地と目的地を両方選んでください",
+    "recenter": "現在地へ移動"
   },
   "location": {
     "captureSign": "案内標識を撮影する",
@@ -232,7 +240,13 @@
       "started": "{{station}}まで案内を開始します",
       "durationMin": "{{m}}分",
       "durationHour": "{{h}}時間{{m}}分",
-      "fare": "{{amount}}ウォン"
+      "fare": "{{amount}}ウォン",
+      "needOrigin": "出発地がまだ決まっていません\n地図で選んでください",
+      "needDestination": "目的地がまだ決まっていません\n地図で選んでください",
+      "pickOnMap": "地図で選ぶ",
+      "failedNetwork": "経路サーバーに接続できませんでした\nネットワークとサーバーの状態を確認してください",
+      "failedNoRoute": "この区間の地下鉄経路が見つかりません\n出発地・目的地を選び直してください",
+      "failedOdsay": "経路情報を取得できませんでした\nしばらくしてからもう一度お試しください"
     }
   },
   "userInfo": {
@@ -415,5 +429,9 @@
       "title": "ページが見つかりません",
       "description": "アドレスが間違っているか、削除された画面です。"
     }
+  },
+  "trip": {
+    "originEmpty": "出発地を選択",
+    "destinationEmpty": "目的地を選択"
   }
 }
