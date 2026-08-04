@@ -5,11 +5,10 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { CaptionOverlay } from '@/shared/caption/CaptionOverlay'
 import { useLiveCaption } from '@/shared/caption/useLiveCaption'
 import { useLanguage } from '@/shared/lib/useLanguage'
-import { Button, useToast } from '@/shared/ui'
+import { Button, Dialog, useToast } from '@/shared/ui'
 import { OpenViduVideo } from '@/shared/webrtc/OpenViduVideo'
 import { OV_STATUS } from '@/shared/webrtc/useOpenViduSession'
 import { CallControls } from '@/user/features/consultation/CallControls'
-import { CallDialog } from '@/user/features/consultation/CallDialog'
 import { CameraStage } from '@/user/features/consultation/CameraStage'
 import { ConnectedBadge } from '@/user/features/consultation/ConnectedBadge'
 import { toCallMediaErrorKey } from '@/user/features/consultation/callMediaErrorKey'
@@ -190,9 +189,9 @@ export default function ConsultationPage() {
       연결을 먼저 끊고 장치를 반납한다. 순서가 반대면 이미 끝난 트랙을 발행하다
       OpenVidu 가 예외를 던진다.
 
-      call.leave() 가 연결 해제와 함께 상담 종료 처리까지 맡는다 — 녹음 정지·
-      세션 종료·ENDED 전이를 서버가 한 번에 한다(역무원의 [상담 종료] 와 같은
-      API). 이게 없으면 상담이 활성 상태로 남아 다음 도움 요청이 409 로 막힌다.
+      call.leave() 가 연결 해제와 함께 상담 종료 처리까지 맡는다 — 사용자
+      전용 leave API 가 상태를 보고 취소/종료를 알아서 가른다 (8/4 BE 구현).
+      이게 없으면 상담이 활성 상태로 남아 다음 도움 요청이 409 로 막힌다.
       자세한 분기는 useConsultationCall 의 leaveCall 주석 참고.
     */
     call.leave()
@@ -210,8 +209,13 @@ export default function ConsultationPage() {
 
   return (
     <div className="relative flex min-h-[100dvh] flex-col overflow-hidden">
-      {/* 미리보기도 가공본 — 사용자가 "실제로 나가는 화면" 을 본다 */}
-      <CameraStage stream={mosaic.stream ?? stream} isCameraOn={isCameraOn} />
+      {/*
+        미리보기는 원본이다 — 모자이크는 관리자에게 전송되는 화면에만
+        적용한다(팀 결정 8/4). 발행은 여전히 mosaic.stream 이므로 원본
+        영상은 기기 밖으로 나가지 않는다. 상단의 "얼굴 모자이크 적용 중"
+        배지가 그 사실을 사용자에게 알린다.
+      */}
+      <CameraStage stream={stream} isCameraOn={isCameraOn} />
 
       <div className="px-safe relative flex flex-1 flex-col">
         <header className="flex shrink-0 flex-col items-center gap-2 pt-[calc(env(safe-area-inset-top,0px)+1rem)]">
@@ -266,7 +270,7 @@ export default function ConsultationPage() {
       </div>
 
       {status === CALL_MEDIA_STATUS.IDLE || isRequesting ? (
-        <CallDialog
+        <Dialog
           header={<MicBadgeIcon />}
           title={t('consultation.video.permission.title')}
           description={t('consultation.video.permission.description')}
@@ -290,11 +294,11 @@ export default function ConsultationPage() {
           >
             {t('consultation.video.permission.deny')}
           </Button>
-        </CallDialog>
+        </Dialog>
       ) : null}
 
       {status === CALL_MEDIA_STATUS.ERROR && errorType ? (
-        <CallDialog
+        <Dialog
           title={t('consultation.video.permission.title')}
           description={t(toCallMediaErrorKey(errorType))}
         >
@@ -309,11 +313,11 @@ export default function ConsultationPage() {
           >
             {t('common.goHome')}
           </Button>
-        </CallDialog>
+        </Dialog>
       ) : null}
 
       {isEndDialogOpen ? (
-        <CallDialog
+        <Dialog
           isDismissable
           title={t('consultation.video.endConfirm.title')}
           description={t('consultation.video.endConfirm.description')}
@@ -330,7 +334,7 @@ export default function ConsultationPage() {
           >
             {t('consultation.video.endConfirm.keep')}
           </Button>
-        </CallDialog>
+        </Dialog>
       ) : null}
     </div>
   )

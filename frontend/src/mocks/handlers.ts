@@ -1,4 +1,4 @@
-import { http, HttpResponse, type HttpHandler, type RequestHandler } from 'msw'
+import { delay, http, HttpResponse, type HttpHandler, type RequestHandler } from 'msw'
 
 import {
   cancelMockConsultation,
@@ -855,6 +855,58 @@ const mockHandlers: HttpHandler[] = [
         recordingId,
         status: 'ENDED',
       }),
+    )
+  }),
+
+  /* ----------------------------------------------------------------
+   * 관리자 — 진행 중 상담 정보 단건 (GET /staffs/consultations/{id})
+   * ⚠️ BE 신설 요청 상태 (8/4). WaitingResponse 와 같은 필드로 제안.
+   * 수락 흐름에서는 라우팅 state 가 우선이라 이 목은 새로고침 경로 전용이다.
+   * ---------------------------------------------------------------- */
+  http.get(`${BASE}/staffs/consultations/:consultationId`, ({ params }) => {
+    const consultationId = Number(params.consultationId)
+
+    if (!Number.isInteger(consultationId) || consultationId <= 0) {
+      return HttpResponse.json(
+        errorBody('존재하지 않는 상담입니다.', 'CONSULTATION_NOT_FOUND'),
+        { status: 404 },
+      )
+    }
+
+    return HttpResponse.json(
+      okBody('조회에 성공하였습니다.', {
+        consultationId,
+        email: USER_ACCOUNT.email,
+        departure: '대구역 3번 출구',
+        destination: '경북대 북문',
+        language: 'EN',
+      }),
+    )
+  }),
+
+  /* ----------------------------------------------------------------
+   * AI — 표지판 인식 ✅ BE 개발완료 (배포 서버에서 테스트됨)
+   *
+   * 화면은 성공 여부만 보고 data 는 쓰지 않는다 (predictSign 주석 참고).
+   * 그래도 이미지가 실렸는지는 검증한다 — multipart 구성이 깨진 채 목만
+   * 통과하면 실서버 전환 때 처음 실패를 보게 되기 때문이다.
+   * ---------------------------------------------------------------- */
+  http.post(`${BASE}/ai/signs/predict`, async ({ request }) => {
+    const form = await request.formData().catch(() => null)
+    const image = form?.get('image')
+
+    if (!(image instanceof File) || image.size === 0) {
+      return HttpResponse.json(
+        errorBody('이미지 파일이 필요합니다.', 'INVALID_INPUT_VALUE'),
+        { status: 400 },
+      )
+    }
+
+    // CPU 추론(YOLO+ResNet) 체감 시간 — 분석 중 오버레이가 보이도록
+    await delay(900)
+
+    return HttpResponse.json(
+      okBody('위치 인식 성공', { signageId: 'S2_03', floor: 'B2' }),
     )
   }),
 ]

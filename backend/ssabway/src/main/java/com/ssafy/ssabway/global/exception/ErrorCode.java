@@ -60,7 +60,14 @@ public enum ErrorCode {
     NAV_NEEDS_REQUIRED(HttpStatus.BAD_REQUEST, "무엇이 필요한지 함께 보내주세요."), // 400
     NAV_ROUTE_NOT_FOUND(HttpStatus.NOT_FOUND, "이동할 수 있는 경로를 찾지 못했습니다."), // 404
     NAV_NO_STEP_FREE_ROUTE(HttpStatus.NOT_FOUND, "계단을 이용하지 않고 갈 수 있는 경로가 없습니다."), // 404
-    NAV_GRAPH_NOT_LOADED(HttpStatus.SERVICE_UNAVAILABLE, "길안내 데이터가 준비되지 않았습니다."); // 503
+    NAV_GRAPH_NOT_LOADED(HttpStatus.SERVICE_UNAVAILABLE, "길안내 데이터가 준비되지 않았습니다."), // 503
+
+    // 표지판 인식
+    AI_IMAGE_REQUIRED(HttpStatus.BAD_REQUEST, "표지판 사진을 함께 보내주세요."), // 400
+    AI_IMAGE_INVALID(HttpStatus.BAD_REQUEST, "이미지를 읽을 수 없습니다."), // 400
+    AI_IMAGE_TOO_LARGE(HttpStatus.CONTENT_TOO_LARGE, "15MB 이하의 사진만 보낼 수 있습니다."), // 413
+    AI_SIGN_NOT_DETECTED(HttpStatus.NOT_FOUND, "사진에서 표지판을 찾지 못했습니다. 다시 촬영해주세요."), // 404
+    AI_SERVER_ERROR(HttpStatus.BAD_GATEWAY, "표지판 인식 서버에 일시적인 문제가 있습니다."); // 502
 
 
     private final HttpStatus httpStatus;

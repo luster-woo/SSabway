@@ -77,7 +77,11 @@ const consultations = {
    *    (BE 에 검증 추가 요청해 둔 상태)
    */
   cancel: (id: number) => `/consultations/${id}/cancel`,
-  /** ⚠️ BE 미구현 — 목만 있다. useConsultationCall 의 leaveCall 주석 참고 */
+  /**
+   * 사용자 쪽 상담 종료 — ✅ BE 구현됨 (8/4). 상태를 보고 서버가 알아서
+   * 취소(WAITING·MATCHED)/종료(IN_PROGRESS)를 가르고, 종료 후 재호출은 멱등.
+   * 요청자 본인 검증 있음. 응답 { consultationId, status }.
+   */
   leave: (id: number) => `/consultations/${id}/leave`,
 } as const
 
@@ -124,6 +128,12 @@ const admin = {
    */
   consultationDetail: (id: number) => `/staffs/consultations?id=${id}`,
   /**
+   * 진행 중 상담의 사용자 정보(이메일·출발지·목적지·언어) 단건 조회.
+   * ⚠️ BE 신설 요청 상태 (8/4) — WaitingResponse 와 같은 필드로 제안.
+   * 위의 consultationDetail(쿼리스트링, 녹취 조회용)과 다른 API 다.
+   */
+  consultationInfo: (id: number) => `/staffs/consultations/${id}`,
+  /**
    * 상담 수락 — ✅ BE 구현됨. ⚠️ 8/4 소유가 webrtc → **ssabway** 로 이동.
    * 상태 잠금 + 세션 생성 + 역무원 토큰 발급을 1-call 로 처리한다
    * (ssabway 가 webrtc 내부 API 를 호출해 세션을 만든다).
@@ -142,6 +152,15 @@ const admin = {
   },
 } as const
 
+/**
+ * AI (백엔드 경유 — ssabway 가 AI 컨테이너로 프록시한다).
+ * `/api/v1/ai/**` 는 permitAll 목록에 없어 로그인(USER) 토큰이 필요하다.
+ */
+const ai = {
+  /** 표지판 인식 — ✅ BE 개발완료. multipart 필드명은 image 하나 */
+  signPredict: '/ai/signs/predict',
+} as const
+
 export const endpoints = {
   auth,
   users,
@@ -149,4 +168,5 @@ export const endpoints = {
   consultations,
   openvidu,
   admin,
+  ai,
 } as const

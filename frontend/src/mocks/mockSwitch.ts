@@ -53,6 +53,16 @@ const SWITCH = {
   'POST /routes/navi': true,
 
   /*
+    AI — 표지판 인식 (✅ BE 개발완료, 배포 서버에서 검증됨).
+
+    true  → 목. 이미지가 multipart 로 실렸는지만 검증하고 성공을 돌려준다.
+    false → 실서버 (.env.local 의 VITE_PROXY_TARGET 이 가리키는 곳).
+            ⚠️ 로컬 도커 compose 에는 ai 컨테이너가 없다 — 끌 때는
+            배포 주소(https://www.ssabway.site)로 붙일 것.
+  */
+  'POST /ai/signs/predict': true,
+
+  /*
     상담 요청·상태·취소 — 셋 다 ✅ BE 구현완료지만 ⚠️ 아직 실서버로 못 붙는다.
 
     `POST /consultations`(ssabway)는 departure **역 이름**으로 담당 역무원을
@@ -69,12 +79,19 @@ const SWITCH = {
   'POST /consultations': false,
   'GET /consultations/:consultationId': false,
   'POST /consultations/:consultationId/cancel': true,
-  // ⚠️ leave 는 BE 미구현이라 끄면 404 다 (실서버에서는 상담이 활성으로 남아
-  //    재요청이 409 로 막힌다 — BE 에 구현 요청해 둔 상태)
-  'POST /consultations/:consultationId/leave': true,
+  // leave — ✅ BE 구현됨 (8/4, 사용자 전용 종료). 기본 실서버.
+  'POST /consultations/:consultationId/leave': false,
 
   // 관리자 — 상담 대기 목록 (✅ BE 개발완료. BACKEND_READY.ADMIN_QUEUE 로 실호출)
   'GET /staffs/waiting': false,
+
+  /*
+    관리자 — 진행 중 상담 정보 단건 (⚠️ BE 신설 요청 상태, 8/4).
+    수락 직후에는 라우팅 state 가 쓰여 이 API 를 부르지 않는다 — 상담방
+    새로고침 때만 나간다. ⚠️ BE 가 신설되기 전까지는 true 로 둘 것 —
+    끄면 새로고침 경로가 404 를 받는다. 신설되면 false 로 내려 실연동 검증.
+  */
+  'GET /staffs/consultations/:consultationId': true,
 
   /*
     관리자 — 블랙리스트 4종 (✅ BE 개발완료).

@@ -1,6 +1,8 @@
 package com.ssafy.ssabway_webrtc.domain.controller;
 
 
+import com.ssafy.ssabway_webrtc.domain.dto.ConsultationLeaveResponse;
+import com.ssafy.ssabway_webrtc.domain.service.ConsultationLeaveService;
 import com.ssafy.ssabway_webrtc.common.response.ApiResponse;
 import com.ssafy.ssabway_webrtc.domain.dto.ConsultationCancelResponse;
 import com.ssafy.ssabway_webrtc.domain.dto.ConsultationStatusResponse;
@@ -19,6 +21,7 @@ public class ConsultationController {
 
     private final ConsultationCancelService consultationCancelService;
     private final ConsultationStatusService consultationStatusService;
+    private final ConsultationLeaveService consultationLeaveService;
 
 
 
@@ -52,6 +55,28 @@ public class ConsultationController {
         );
     }
 
+    /**
+     * 사용자가 상담 화면에서 먼저 나갈 때 상담 상태와
+     * OpenVidu 녹음 및 세션을 함께 정리
+     */
+    @PostMapping("/{consultationId}/leave")
+    public ApiResponse<ConsultationLeaveResponse>
+    leaveConsultation(
+        @PathVariable Long consultationId,
+        Authentication authentication
+    ) throws OpenViduJavaClientException,
+        OpenViduHttpException {
 
+        Long requesterUserId =
+            (Long) authentication.getPrincipal();
+
+        return ApiResponse.ok(
+            consultationLeaveService
+                .leaveConsultation(
+                    consultationId,
+                    requesterUserId
+                )
+        );
+    }
 
 }

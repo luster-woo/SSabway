@@ -40,7 +40,15 @@ export function WaitingPanel() {
       세션 정보(sessionId·token)는 useAcceptConsultation 이 스토어에
       넣어 뒀다. 라우팅 state 로 넘기면 새로고침·뒤로가기에서 사라진다.
     */
-    void navigate(`/admin/consultation/${String(consultation.consultationId)}`)
+    void navigate(`/admin/consultation/${String(consultation.consultationId)}`, {
+      /*
+        상담 정보(이메일·출발지·목적지·언어)를 함께 넘긴다. 상담방의 서버
+        조회(GET /staffs/consultations/{id})가 BE 신설 대기라, 수락 흐름에서는
+        이 값이 유일한 실데이터다. 특히 블랙리스트 등록이 이 email 로 나간다.
+        새로고침하면 사라지고 서버 조회 폴백을 탄다 — useConsultationDetail 참고.
+      */
+      state: { waiting: consultation },
+    })
   }
 
   return (

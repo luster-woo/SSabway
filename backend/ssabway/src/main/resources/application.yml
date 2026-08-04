@@ -18,6 +18,14 @@ spring:
     password: ${SPRING_DATASOURCE_PASSWORD:localonly}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
+  # 표지판 사진 업로드. 기본값이 파일 1MB 라 폰 사진은 그대로 튕긴다.
+  # 앱이 1280px 로 줄여 보내면 0.3MB 안팎이지만, 원본을 올리는 경로가
+  # 남아 있어 여유를 둔다. nginx 의 client_max_body_size 20M 보다는 작게.
+  servlet:
+    multipart:
+      max-file-size: 15MB
+      max-request-size: 16MB
+
   sql:
     init:
       mode: never
@@ -87,6 +95,17 @@ navigation:
   # 데이터에는 파일명(S3_15_B.jpg)만 두고 주소는 여기에만 둔다.
   # 버킷이나 CDN 이 바뀌어도 노드·엣지 데이터를 고칠 필요가 없다.
   sign-image-base-url: ${SIGN_IMAGE_BASE_URL:https://${aws.s3.bucket}.s3.${aws.region}.amazonaws.com/img}
+
+
+# 표지판 인식 AI 서버 (ai/serve — FastAPI)
+#   base-url  도커 네트워크 안의 서비스명. 외부에 포트를 열지 않는다.
+#             (docker-compose.prod.yml 의 ai 서비스, 8000)
+#   read-timeout  CPU 추론이라 순간 부하에서 수 초가 걸린다. 프론트가 20초에
+#             끊으므로(predictSign.ts) 그보다 짧게 두어 서버가 먼저 정리한다.
+ai:
+  base-url: ${AI_BASE_URL:http://ai:8000}
+  connect-timeout: 2000
+  read-timeout: 15000
 
 
 webrtc :

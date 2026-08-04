@@ -115,6 +115,13 @@ export function useFaceMosaic(source: MediaStream | null): FaceMosaicState {
       if (!failed && Date.now() - lastResultAt > STALE_MS) {
         pipeline.setProtectAll(true)
         setStatus((prev) => (prev === 'error' ? prev : 'fallback'))
+        /*
+          응답이 영영 안 온 프레임들의 pending 을 회수한다. 이게 없으면
+          일시 장애 동안 pending 이 2에 고착돼 detect 를 다시 보내지 못하고,
+          서버가 살아나도 전체 블러에서 영원히 못 벗어난다.
+          (늦게 도착하는 옛 응답은 lastAppliedId 가 걸러 준다)
+        */
+        pending = 0
       }
       if (failed || pending >= 2) return // 응답이 밀리면 쌓지 않는다
 
