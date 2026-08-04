@@ -229,7 +229,10 @@
       "failed": "无法加载路线\n请稍后再试",
       "empty": "未找到可用路线\n请重新选择目的地",
       "changeDestination": "重新选择目的地",
-      "started": "开始为您导航至{{station}}"
+      "started": "开始为您导航至{{station}}",
+      "durationMin": "{{m}}分钟",
+      "durationHour": "{{h}}小时{{m}}分钟",
+      "fare": "{{amount}}韩元"
     }
   },
   "userInfo": {
@@ -321,9 +324,9 @@
       },
       "views": {
         "1": "1层",
+        "3": "3层",
         "2A": "2层 A",
-        "2B": "2层 B",
-        "3": "3层"
+        "2B": "2层 B"
       }
     },
     "help": "请求帮助",
