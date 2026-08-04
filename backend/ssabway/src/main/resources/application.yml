@@ -87,5 +87,9 @@ navigation:
 
 
 webrtc :
-  base-url : ${BASE_WEBRTC_BASE_URL:http://localhost:8081}
+  # ⚠️ 변수명은 docker-compose.yml 의 api.environment.WEBRTC_BASE_URL 과
+  #    반드시 같아야 한다. 다르면 조용히 fallback 으로 떨어져 api 가 자기
+  #    컨테이너의 localhost 를 호출하고 상담 수락이 전부 실패한다.
+  #    fallback 은 로컬에서 직접 띄운 signaling 포트(override.yml 의 8082).
+  base-url : ${WEBRTC_BASE_URL:http://localhost:8082}
   api-key : ${WEBRTC_INTERNAL_SECRET}
