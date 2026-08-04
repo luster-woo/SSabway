@@ -23,10 +23,11 @@ export interface UseAcceptConsultationResult {
 }
 
 /**
- * 상담 수락 — accept 1-call (상태 잠금 + 세션 생성 + 토큰 발급, BE 8/3 구현).
+ * 상담 수락 — accept 1-call (상태 잠금 + 세션 생성 + 토큰 발급).
  *
  * 호출은 `@/shared/api/openvidu` 의 openSession 이 책임진다.
  * 여기서는 결과를 스토어에 넣어 상담 화면으로 넘기는 일만 한다.
+ * (8/4 — API 소유가 ssabway 로 이동. openSession 주석 참고)
  *
  * 녹음은 여기서 시작하지 않는다 — 사용자까지 접속한 뒤 상담방 훅
  * (useConsultationRoom)이 start 를 불러 시작한다. 팀 합의(7/31).
@@ -54,8 +55,20 @@ export function useAcceptConsultation(): UseAcceptConsultationResult {
         startSession(session)
         return null
       } catch (error) {
-        // 서버가 상담 상태를 잠그므로 선착순 실패는 409 로 온다
-        return axios.isAxiosError(error) && error.response?.status === 409
+        if (!axios.isAxiosError(error)) return ACCEPT_FAILURE.UNKNOWN
+
+        /*
+          ssabway 이관(8/4)으로 응답에 code 가 실린다. code 가 있으면 그걸로
+          판정하고, 없으면(구버전 서버·프록시 오류 등) 상태코드 409 로
+          폴백한다 — 서버가 상담 상태를 잠그므로 선착순 실패는 409 다.
+        */
+        const code = (error.response?.data as { code?: string } | undefined)
+          ?.code
+        const isAlreadyAccepted =
+          code === 'CONSULTATION_ALREADY_ACCEPTED' ||
+          (code === undefined && error.response?.status === 409)
+
+        return isAlreadyAccepted
           ? ACCEPT_FAILURE.ALREADY_ACCEPTED
           : ACCEPT_FAILURE.UNKNOWN
       } finally {

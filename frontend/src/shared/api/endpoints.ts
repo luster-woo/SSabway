@@ -124,11 +124,12 @@ const admin = {
    */
   consultationDetail: (id: number) => `/staffs/consultations?id=${id}`,
   /**
-   * 상담 수락 — ✅ BE 구현됨 (webrtc StaffConsultationController, 8/3 코드 확인).
-   * 상태 잠금 + 세션 생성 + 역무원 토큰 발급을 1-call 로 처리한다.
-   * 응답 { consultationId, sessionId, token, status }. 녹음 시작은 별도(start).
-   * ⚠️ webrtc 서버 구현이므로 nginx 가 /api/v1/staffs/consultations/ 를
-   *    signaling 으로 보내야 한다.
+   * 상담 수락 — ✅ BE 구현됨. ⚠️ 8/4 소유가 webrtc → **ssabway** 로 이동.
+   * 상태 잠금 + 세션 생성 + 역무원 토큰 발급을 1-call 로 처리한다
+   * (ssabway 가 webrtc 내부 API 를 호출해 세션을 만든다).
+   * 응답 data 는 { consultationId, sessionId, token, status } 그대로이고,
+   * 봉투가 ssabway ApiResponse(code 있음)로 바뀌었다. 녹음 시작은 별도(start).
+   * nginx 는 다른 /staffs/** 와 같이 api 로 보내면 된다 (별도 블록 불필요).
    */
   accept: (id: number) => `/staffs/consultations/${id}/accept`,
   /** 상담 종료 — 녹음 정지 + 세션 종료 + ENDED. ⚠️ BE 작업 중 */

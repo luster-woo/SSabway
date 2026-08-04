@@ -1,6 +1,5 @@
 import { useCallback, useState } from 'react'
 
-import { PROTOTYPE_STATION_ID } from '@/shared/lib/prototypeStation'
 import { useDestinationStore } from '@/shared/lib/store/useDestinationStore'
 import { useOriginStationStore } from '@/shared/lib/store/useOriginStationStore'
 import { openviduApi } from '@/user/features/consultation/openviduApi'
@@ -34,13 +33,17 @@ export interface UseConsultationRequestResult {
  *
  * 요청 본문의 출발지·목적지는 앞선 화면들이 스토어에 담아 둔 값을 쓴다.
  * (`useOriginStationStore` = GPS/표지판으로 잡은 출발역, `useDestinationStore`
- *  = 지도에서 고른 목적지) 역무원은 서버가 departureStationId 로 배정한다.
+ *  = 지도에서 고른 목적지) 역무원은 서버가 departure **역 이름**으로 배정한다
+ * (8/4 — departureStationId 삭제, `ConsultationCreateBody` 주석 참고).
  *
- * ⚠️ departureStationId 는 아직 프로토타입 상수다 — `PROTOTYPE_STATION_ID`
- *    주석 참고. 표지판 분석 API 가 붙으면 그 응답 값으로 바뀐다.
+ * ⚠️ TODO(BE 답변 대기): departure 는 DB `stations.name_ko` 와 정확히 일치해야
+ *    한다. 지금은 Google Places 가 준 역 이름을 그대로 보내는데, 표기가 다르면
+ *    404 STAFF_NOT_FOUND 다. BE 가 시드의 역 이름 표기 목록을 확정하면
+ *    여기서 매핑(또는 정규화)을 넣는다.
  *
- * TODO: 블랙리스트 403 을 화면 문구로 구분해야 한다. 에러 응답에 code 필드가
- *       추가되면(백엔드 요청 중) 403 + BLACKLISTED 로 좁힌다.
+ * TODO: 블랙리스트 403 은 이제 응답의 code(CONSULTATION_BLOCKED)로 구분
+ *       가능하다(ssabway ApiResponse 에 code 추가됨). 화면 문구 분기는 별도
+ *       작업으로 남긴다.
  */
 export function useConsultationRequest(): UseConsultationRequestResult {
   const [isPending, setIsPending] = useState(false)
@@ -61,10 +64,10 @@ export function useConsultationRequest(): UseConsultationRequestResult {
     setIsRejected(false)
 
     try {
+      // 서버가 trim 후 정확 비교하므로 이쪽에서도 미리 다듬어 보낸다.
       const created = await openviduApi.requestConsultation({
-        departureStationId: PROTOTYPE_STATION_ID,
-        departure,
-        destination: arrival,
+        departure: departure.trim(),
+        destination: arrival.trim(),
       })
       return created.consultationId
     } catch {
