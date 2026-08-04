@@ -104,9 +104,6 @@ export function refreshAccessToken(role: AuthRole): Promise<string> {
  * 에러가 원래의 401 이 아니라 refreshError 로 바뀌어, 호출한 훅이 상태코드를
  * 읽지 못해 "구글 인증 거부" 문구 대신 공통 실패 문구를 보여준다.
  *
- * 관리자 로그인은 아직 목이라 HTTP 요청이 나가지 않지만, 연동하는 순간
- * 같은 문제가 생기므로 미리 넣어 둔다.
- *
  * 로그아웃·재발급은 인터셉터가 없는 bareClient 를 쓰므로 여기에 넣지 않는다.
  */
 const NO_RETRY_PATHS: string[] = [

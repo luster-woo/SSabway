@@ -60,8 +60,7 @@ const routes = {
 const consultations = {
   /**
    * 상담 요청 → WAITING 생성. ✅ BE 구현됨 (ssabway UserConsultationController).
-   * 요청 본문은 `ConsultationCreateBody`(3필드 전부 필수), 응답은 `ConsultationCreated`.
-   * 역무원은 서버가 departureStationId 로 자동 배정한다.
+   * 요청 본문은 `ConsultationCreateBody`, 응답은 `ConsultationCreated`.
    */
   create: '/consultations',
   /** 상태 폴링 (3초). 응답은 `ConsultationSnapshot` 타입 참고. STOMP 가 붙으면 폴백으로 남는다 */
@@ -69,12 +68,7 @@ const consultations = {
   /**
    * 대기 취소 — ✅ BE 구현됨 (webrtc ConsultationController).
    * POST 이고 /cancel 이 붙는다 (초기안 DELETE /consultations/{id} 에서 변경).
-   * WAITING 에서만 취소 가능(그 외 409 CONSULTATION_CANCEL_NOT_ALLOWED),
    * 이미 취소된 상담은 재요청해도 성공. 응답 { consultationId, status }.
-   *
-   * ⚠️ 서버가 소유자를 검증하지 않는다(Authentication 을 받지 않음) — 상담 ID 만
-   *    알면 남의 대기도 취소된다. 취소 버튼은 사용자 화면에서만 노출할 것.
-   *    (BE 에 검증 추가 요청해 둔 상태)
    */
   cancel: (id: number) => `/consultations/${id}/cancel`,
   /**
@@ -93,9 +87,6 @@ const consultations = {
  * 호출 순서와 실패 처리는 `@/shared/api/openvidu` 가 책임진다. 화면에서 직접 부르지 말 것.
  * (구 3-call 의 `POST /openvidu/sessions` 와 `DELETE /openvidu/sessions/{id}` 는
  *  백엔드에 존재하지 않아 제거했다 — 8/3)
- *
- * ⚠️ nginx 가 `/api/` 를 ssabway 로만 보내고 있어 배포 환경에서는 아직 404 다.
- *    `location /api/v1/openvidu/ { proxy_pass http://signaling:8080; }` 추가가 필요하다.
  */
 const openvidu = {
   createConnection: (sessionId: string) =>
@@ -142,7 +133,6 @@ const admin = {
    * nginx 는 다른 /staffs/** 와 같이 api 로 보내면 된다 (별도 블록 불필요).
    */
   accept: (id: number) => `/staffs/consultations/${id}/accept`,
-  /** 상담 종료 — 녹음 정지 + 세션 종료 + ENDED. ⚠️ BE 작업 중 */
   end: (id: number) => `/staffs/consultations/${id}/end`,
   blacklist: {
     list: (page: number) => `/staffs/blacklist?page=${page}`,
@@ -154,7 +144,6 @@ const admin = {
 
 /**
  * AI (백엔드 경유 — ssabway 가 AI 컨테이너로 프록시한다).
- * `/api/v1/ai/**` 는 permitAll 목록에 없어 로그인(USER) 토큰이 필요하다.
  */
 const ai = {
   /** 표지판 인식 — ✅ BE 개발완료. multipart 필드명은 image 하나 */
