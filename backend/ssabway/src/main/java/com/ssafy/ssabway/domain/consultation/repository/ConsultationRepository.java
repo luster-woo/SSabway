@@ -1,5 +1,6 @@
 package com.ssafy.ssabway.domain.consultation.repository;
 
+import com.ssafy.ssabway.domain.consultation.dto.response.ConsultationInfoResponse;
 import com.ssafy.ssabway.domain.consultation.dto.response.HistoryResponse;
 import com.ssafy.ssabway.domain.consultation.dto.response.WaitingResponse;
 import com.ssafy.ssabway.domain.consultation.entity.Consultation;
@@ -29,6 +30,20 @@ public interface ConsultationRepository extends JpaRepository<Consultation, Long
     Page<WaitingResponse> findByStaffIdAndStatus(@Param("staffId") Long staffId,
                                                  @Param("status") ConsultationStatus status,
                                                  Pageable pageable);
+
+
+    // 상담방에서 쓰는 사용자 정보 단건. 수락하면 대기 목록에서 사라지므로
+    // 거기서 못 가져오고, 자막이 사용자 언어를 알아야 시작된다.
+    // 위와 같은 이유로 staffId 조건을 같이 건다.
+    @Query("""
+            SELECT new com.ssafy.ssabway.domain.consultation.dto.response.ConsultationInfoResponse(
+                       c.id, u.email, c.departure, c.destination, u.language)
+            FROM Consultation c
+            JOIN User u ON u.id = c.requesterUserId
+            WHERE c.id = :id AND c.staffId = :staffId
+            """)
+    Optional<ConsultationInfoResponse> findInfoByIdAndStaffId(@Param("id") Long id,
+                                                              @Param("staffId") Long staffId);
 
 
     // staffId 조건이 없으면 id만 바꿔가며 남의 역 상담을 훔쳐볼 수 있음

@@ -55,6 +55,19 @@ public class ConsultationService {
         );
     }
 
+    /*
+        상담방에서 쓰는 사용자 정보 단건.
+
+        수락하면 대기 목록에서 사라져 거기서 가져올 수 없다. 특히 language 가
+        없으면 프론트가 실시간 번역 자막을 아예 시작하지 않는다
+        (VideoStage.tsx 의 enabled 인자).
+     */
+    public ConsultationInfoResponse getInfo(Long staffId, Long consultationId) {
+
+        return consultationRepository.findInfoByIdAndStaffId(consultationId, staffId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.CONSULTATION_NOT_FOUND));
+    }
+
     public ConsultationDetailResponse getDetail(Long staffId, Long consultationId) {
 
         ConsultationDetail detail = consultationRepository.findDetailByIdAndStaffId(consultationId, staffId)
