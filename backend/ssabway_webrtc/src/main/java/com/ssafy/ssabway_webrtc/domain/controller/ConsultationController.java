@@ -3,14 +3,14 @@ package com.ssafy.ssabway_webrtc.domain.controller;
 
 import com.ssafy.ssabway_webrtc.common.response.ApiResponse;
 import com.ssafy.ssabway_webrtc.domain.dto.ConsultationCancelResponse;
+import com.ssafy.ssabway_webrtc.domain.dto.ConsultationStatusResponse;
 import com.ssafy.ssabway_webrtc.domain.service.ConsultationCancelService;
-import jakarta.validation.Valid;
+import com.ssafy.ssabway_webrtc.domain.service.ConsultationStatusService;
+import io.openvidu.java.client.OpenViduHttpException;
+import io.openvidu.java.client.OpenViduJavaClientException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import com.ssafy.ssabway_webrtc.domain.dto.ConsultationStatusResponse;
-import com.ssafy.ssabway_webrtc.domain.service.ConsultationStatusService;
 
 @RestController
 @RequestMapping("/api/v1/consultations")
@@ -25,9 +25,13 @@ public class ConsultationController {
 
     @PostMapping("/{consultationId}/cancel")
     public ApiResponse<ConsultationCancelResponse> cancelConsultation (
-        @PathVariable Long consultationId) {
+        @PathVariable Long consultationId, Authentication authentication)
+        throws OpenViduJavaClientException, OpenViduHttpException {
+
+        Long requesterUserId = (Long) authentication.getPrincipal();
+
         return ApiResponse.ok(consultationCancelService.cancelConsultation(
-                consultationId)
+                consultationId, requesterUserId)
         );
     }
 
