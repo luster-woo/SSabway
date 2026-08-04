@@ -1,8 +1,9 @@
-import type { ReactNode } from 'react'
+import { useEffect, type ReactNode } from 'react'
 import { Navigate } from 'react-router-dom'
 
 import { useRestoreSession } from '@/shared/api/useRestoreSession'
 import { RouteLoading } from '@/shared/ui'
+import { useAdminProfileStore } from '@/admin/features/auth/useAdminProfileStore'
 
 export interface RequireAdminAuthProps {
   children: ReactNode
@@ -32,6 +33,21 @@ export interface RequireAdminAuthProps {
  */
 export function RequireAdminAuth({ children }: RequireAdminAuthProps) {
   const status = useRestoreSession('admin')
+  const clearStaffCode = useAdminProfileStore((s) => s.clearStaffCode)
+
+  /*
+    복구 실패로 세션이 끝났으면 사번도 함께 지운다.
+
+    staffCode 는 sessionStorage 에 남으므로(useAdminProfileStore), 지우지 않으면
+    쿠키가 만료된 뒤 다시 /admin 에 들어왔을 때 로그인하지 않았는데도 이전
+    사용자의 사번이 헤더에 스쳐 보인다. 공용 PC 에서는 그것만으로도 문제다.
+
+    렌더 중이 아니라 이펙트에서 지운다 — 렌더 도중 다른 스토어를 쓰면 React 가
+    같은 커밋 안에서 상태를 바꾸는 것이 되어 경고를 낸다.
+  */
+  useEffect(() => {
+    if (status === 'unauthenticated') clearStaffCode()
+  }, [status, clearStaffCode])
 
   if (status === 'idle') {
     return <RouteLoading message="로그인 상태를 확인하는 중입니다" />
