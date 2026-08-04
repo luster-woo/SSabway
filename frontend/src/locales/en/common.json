@@ -343,16 +343,11 @@
       "close": "Close",
       "zoomIn": "Zoom in",
       "zoomOut": "Zoom out",
+      "recenter": "Back to my location",
       "legend": {
-        "current": "Current location",
-        "prev": "Passed signs",
-        "next": "Upcoming signs"
-      },
-      "views": {
-        "1": "1F",
-        "3": "3F",
-        "2A": "2F A",
-        "2B": "2F B"
+        "current": "You are here",
+        "upcoming": "Next stop · route ahead",
+        "passed": "Covered so far"
       }
     },
     "help": "Get help",
