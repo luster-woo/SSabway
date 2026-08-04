@@ -11,6 +11,7 @@ import io.openvidu.java.client.OpenViduJavaClientException;
 import io.openvidu.java.client.Recording;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -21,13 +22,14 @@ public class ConsultationStartService {
     private final OpenViduService openViduService;
     private final ConsultationRepository consultationRepository;
 
+    @Transactional
     public ConsultationStartResponse startConsultation(String sessionId) throws OpenViduJavaClientException,
         OpenViduHttpException {
 
         Long consultationId = extractConsultationId(sessionId);
 
         Consultation consultation = consultationRepository
-            .findById(consultationId)
+            .findByIdForUpdate(consultationId)
             .orElseThrow(() ->
                 new BusinessException(ErrorCode.CONSULTATION_NOT_FOUND));
 
