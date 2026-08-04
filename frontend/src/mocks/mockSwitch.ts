@@ -53,6 +53,16 @@ const SWITCH = {
   'POST /routes/navi': true,
 
   /*
+    AI — 표지판 인식 (✅ BE 개발완료, 배포 서버에서 검증됨).
+
+    true  → 목. 이미지가 multipart 로 실렸는지만 검증하고 성공을 돌려준다.
+    false → 실서버 (.env.local 의 VITE_PROXY_TARGET 이 가리키는 곳).
+            ⚠️ 로컬 도커 compose 에는 ai 컨테이너가 없다 — 끌 때는
+            배포 주소(https://www.ssabway.site)로 붙일 것.
+  */
+  'POST /ai/signs/predict': true,
+
+  /*
     상담 요청·상태·취소 — 셋 다 ✅ BE 구현완료지만 ⚠️ 아직 실서버로 못 붙는다.
 
     `POST /consultations`(ssabway)는 departure **역 이름**으로 담당 역무원을
