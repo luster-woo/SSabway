@@ -63,35 +63,42 @@ const SWITCH = {
   'POST /ai/signs/predict': true,
 
   /*
-    상담 요청·상태·취소 — 셋 다 ✅ BE 구현완료지만 ⚠️ 아직 실서버로 못 붙는다.
+    상담 요청·상태·취소·종료 — ✅ BE 구현완료. 네 개를 함께 실서버로 둔다.
 
-    `POST /consultations`(ssabway)는 departure **역 이름**으로 담당 역무원을
-    찾는데(`stations.name_ko` 정확 비교, 8/4 변경), `deploy/db/schema.sql` 에
-    시드 INSERT 가 없어 `stations`·`staffs` 가 비어 있다. 지금 false 로 내리면
-    404 STAFF_NOT_FOUND 만 받는다. 시드가 들어와도 Google Places 의 역 이름
-    표기와 DB 표기가 일치해야 한다(useConsultationRequest 의 TODO 참고).
+    ⚠️ 네 개가 한 묶음이어야 한다. 하나만 목으로 남기면 **상태가 갈린다** —
+    실제로 cancel 만 true 였던 동안, 실서버에 만들어진 상담을 목이 취소해
+    (목은 자기 큐에만 CANCELED 를 쓴다) 서버에는 WAITING 이 그대로 남았다.
+    useConsultationRequest 가 취소 실패를 삼키므로 화면에도 아무 표시가 없다.
+    실험으로 하나를 켜야 하면 네 개를 함께 켤 것.
 
-    detail·cancel 은 webrtc 소유로 제약이 없지만, 애초에 요청을 만들 방법이
-    없으니(create 가 막혀 있으니) 같이 목으로 둔다.
-
-    시드 + 역 이름 표기가 확정되면 셋을 함께 false 로 내려 실연동 검증한다.
+    ⚠️ 실서버 검증 전제: `POST /consultations`(ssabway)는 departure **역 이름**
+    으로 담당 역무원을 찾는다(`stations.name_ko` 정확 비교, 8/4 변경).
+    `deploy/db/schema.sql` 에 시드 INSERT 가 없어 `stations`·`staffs` 가 비어
+    있으면 404 STAFF_NOT_FOUND 만 받는다 — BE 에 시드 요청 중. 시드가 들어와도
+    Google Places 의 역 이름 표기와 DB 표기가 일치해야 한다
+    (useConsultationRequest 의 TODO 참고).
   */
   'POST /consultations': false,
   'GET /consultations/:consultationId': false,
-  'POST /consultations/:consultationId/cancel': true,
-  // leave — ✅ BE 구현됨 (8/4, 사용자 전용 종료). 기본 실서버.
+  'POST /consultations/:consultationId/cancel': false,
+  // leave — ✅ BE 구현됨 (8/4, 사용자 전용 종료).
   'POST /consultations/:consultationId/leave': false,
 
   // 관리자 — 상담 대기 목록 (✅ BE 개발완료. BACKEND_READY.ADMIN_QUEUE 로 실호출)
   'GET /staffs/waiting': false,
 
   /*
-    관리자 — 진행 중 상담 정보 단건 (⚠️ BE 신설 요청 상태, 8/4).
+    관리자 — 진행 중 상담 정보 단건 (✅ BE 신설 완료, 8/4 `9496b0b`).
+
     수락 직후에는 라우팅 state 가 쓰여 이 API 를 부르지 않는다 — 상담방
-    새로고침 때만 나간다. ⚠️ BE 가 신설되기 전까지는 true 로 둘 것 —
-    끄면 새로고침 경로가 404 를 받는다. 신설되면 false 로 내려 실연동 검증.
+    새로고침 때만 나간다. 목으로 두면 그 새로고침 경로만 검증이 안 되므로
+    실서버로 둔다. 응답(ConsultationInfoResponse: consultationId·email·
+    departure·destination·language)은 useConsultationDetail 의 매핑과 일치한다.
+
+    ⚠️ BE 쿼리 조건이 `c.id = :id AND c.staffId = :staffId` 다. 자기가 수락한
+       상담만 200 이고, 수락 전이거나 남의 상담이면 404 CONSULTATION_NOT_FOUND.
   */
-  'GET /staffs/consultations/:consultationId': true,
+  'GET /staffs/consultations/:consultationId': false,
 
   /*
     관리자 — 블랙리스트 4종 (✅ BE 개발완료).
@@ -119,15 +126,17 @@ const SWITCH = {
     한 컴퓨터 user + admin 매칭 실험 때만 네 개를 함께 true 로 켠다.
     실험 절차는 handlers.ts 의 「화상연결(signaling)」 섹션 주석 참고.
     실험 후 반드시 false 로 되돌릴 것 — 켠 채로 두면 실서버 화상 테스트가
-    조용히 가짜 토큰을 받는다.
+    조용히 가짜 토큰을 받는다. (실제로 네 개가 true 로 커밋된 채 남아 있었다.
+    화면에는 아무 안내도 뜨지 않아 "화상이 안 된다"로만 보인다 — 커밋 전에
+    이 네 줄을 확인할 것.)
 
     (구 3-call 의 'POST /openvidu/sessions' 와 'DELETE /openvidu/sessions/…' 는
      accept 1-call 전환으로 제거됨 — 8/3)
   */
-  'POST /staffs/consultations/:consultationId/accept': true,
-  'POST /openvidu/sessions/:sessionId/connections': true,
-  'POST /openvidu/sessions/:sessionId/start': true,
-  'POST /openvidu/sessions/:sessionId/end': true,
+  'POST /staffs/consultations/:consultationId/accept': false,
+  'POST /openvidu/sessions/:sessionId/connections': false,
+  'POST /openvidu/sessions/:sessionId/start': false,
+  'POST /openvidu/sessions/:sessionId/end': false,
 }
 
 export type MockSwitchKey = keyof typeof SWITCH
