@@ -8,6 +8,7 @@ import { AuthTextField } from '@/user/features/auth/AuthTextField'
 import { FieldError } from '@/user/features/auth/FieldError'
 import { InlineActionField } from '@/user/features/auth/InlineActionField'
 import { formatDuration } from '@/user/features/auth/lib/formatDuration'
+import { findPasswordIssue } from '@/user/features/auth/lib/password'
 import { NoticeBanner } from '@/user/features/auth/NoticeBanner'
 import {
   EMAIL_CHECK,
@@ -98,10 +99,19 @@ export default function SignUpPage() {
    */
   const isMismatched = confirmPassword !== '' && password !== confirmPassword
 
+  /**
+   * BE 와 같은 비밀번호 규칙을 화면에서 먼저 본다. (lib/password 참고)
+   *
+   * 서버에 맡기면 400 INVALID_INPUT_VALUE 하나만 오는데, 그걸 한 번 받는 데
+   * 이메일 인증 유효시간(30분)을 쓴다. 형식 오류로 인증을 다시 받게 할 이유가 없다.
+   */
+  const passwordIssue = findPasswordIssue(password)
+
   const canSubmit =
     isVerified &&
     password !== '' &&
     confirmPassword !== '' &&
+    passwordIssue === null &&
     !isMismatched &&
     !isSigningUp
 
@@ -117,10 +127,18 @@ export default function SignUpPage() {
     availability.errorKey ?? (isCodeSent ? null : verification.errorKey)
   const codeErrorKey = isCodeSent ? verification.errorKey : null
 
-  /** 어느 칸이라고 짚을 수 없는 실패. 불일치는 서버에 보내기 전에 잡는다. */
-  const formErrorKey = isMismatched
-    ? 'auth.signUp.error.passwordMismatch'
-    : signUpErrorKey
+  /**
+   * 어느 칸이라고 짚을 수 없는 실패. 형식·불일치는 서버에 보내기 전에 잡는다.
+   *
+   * 형식을 불일치보다 먼저 보여준다. 두 칸에 같은 값을 짧게 넣으면 규칙 위반만
+   * 걸리고, 규칙을 맞추는 과정에서 불일치는 대개 저절로 사라진다.
+   * 반대 순서면 "비밀번호가 일치하지 않아요"를 보고 확인란만 계속 고치게 된다.
+   */
+  const formErrorKey = passwordIssue
+    ? `auth.signUp.error.${passwordIssue}`
+    : isMismatched
+      ? 'auth.signUp.error.passwordMismatch'
+      : signUpErrorKey
 
   /**
    * 이메일을 고치면 중복 확인 결과와 실패 문구를 함께 지운다.

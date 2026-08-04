@@ -45,7 +45,9 @@
         "invalidCredential": "Email or password is incorrect",
         "unknown": "Sign-in failed · Please try again in a moment",
         "googleRejected": "Google verification failed · Please try again",
-        "googleFailed": "Google sign-in failed · Please try again later"
+        "googleFailed": "Google sign-in failed · Please try again later",
+        "socialAccount": "This email is registered with Google · Please use Google sign-in below",
+        "localAccount": "This email is already registered with a password · Please sign in with your email and password"
       },
       "googleUnavailable": "Google sign-in is unavailable · Please check your connection"
     },
@@ -65,7 +67,7 @@
       "codeVerified": "Email verified",
       "remainingTime": "Time left {{time}}",
       "newPassword": "New password",
-      "newPasswordPlaceholder": "At least 8 characters",
+      "newPasswordPlaceholder": "At least 8 characters, no spaces",
       "confirmPassword": "Confirm new password",
       "confirmPasswordPlaceholder": "Enter it again",
       "submit": "Change password",
@@ -86,7 +88,12 @@
         "unauthorized": "Your verification expired · Please start over",
         "resetFailed": "Couldn't change the password · Please try again later",
         "verifiedExpired": "Your verification expired · Please verify your email again",
-        "passwordMismatch": "Those passwords don't match"
+        "passwordMismatch": "Those passwords don't match",
+        "attemptExceeded": "Too many attempts · Please request a new verification email",
+        "socialAccount": "This email is registered with Google and has no password · Please use Google sign-in",
+        "passwordTooShort": "Password must be at least 8 characters",
+        "passwordTooLong": "Password cannot exceed 64 characters",
+        "passwordHasSpace": "Password cannot contain spaces"
       }
     },
     "signUp": {
@@ -107,9 +114,9 @@
       "codeVerified": "Email verified",
       "remainingTime": "Time left {{time}}",
       "password": "Password",
-      "passwordPlaceholder": "At least 8 characters",
+      "passwordPlaceholder": "At least 8 characters, no spaces",
       "confirmPassword": "Confirm password",
-      "confirmPasswordPlaceholder": "At least 8 characters",
+      "confirmPasswordPlaceholder": "Enter it again",
       "submit": "Sign up",
       "submitting": "Signing up",
       "success": "Your account is ready. Please sign in",
@@ -127,7 +134,12 @@
         "invalidForm": "Some of your input isn't valid",
         "signUpFailed": "Couldn't create your account · Please try again later",
         "passwordMismatch": "Those passwords don't match",
-        "verifiedExpired": "Your verification expired · Please verify your email again"
+        "verifiedExpired": "Your verification expired · Please verify your email again",
+        "invalidPassword": "Password must be 8-64 characters with no spaces",
+        "attemptExceeded": "Too many attempts · Please request a new verification email",
+        "passwordTooShort": "Password must be at least 8 characters",
+        "passwordTooLong": "Password cannot exceed 64 characters",
+        "passwordHasSpace": "Password cannot contain spaces"
       }
     }
   },

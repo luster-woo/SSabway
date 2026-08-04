@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 
-import { useAuthStore } from '@/shared/lib/store/useAuthStore'
+import { requestLogout } from '@/shared/api/client'
 import { useAdminProfileStore } from '@/admin/features/auth/useAdminProfileStore'
 import { WaitingPanel } from '@/admin/features/consultation-receive/WaitingPanel'
 import { HistoryPanel } from '@/admin/features/dashboard/HistoryPanel'
@@ -15,17 +15,26 @@ import { AdminShell } from '@/admin/ui/AdminShell'
  */
 export default function AdminMainPage() {
   const navigate = useNavigate()
-  const clearAccessToken = useAuthStore((s) => s.clearAccessToken)
   const staffCode = useAdminProfileStore((s) => s.staffCode)
   const clearStaffCode = useAdminProfileStore((s) => s.clearStaffCode)
 
   /**
-   * TODO: 관리자 로그인 연동 시 requestLogout('admin') 으로 교체.
-   *   POST /auth/logout 은 사용자·관리자 공통이라 이미 shared/api/client.ts 에 있다.
-   *   staffCode 는 관리자 전용이라 shared 가 지울 수 없으므로 여기서 계속 지운다.
+   * 로그아웃.
+   *
+   * requestLogout 이 POST /auth/logout 으로 서버의 리프레시 토큰(Redis)을
+   * 무효화하고 브라우저 쿠키를 만료시킨 뒤 로컬 액세스 토큰까지 지운다.
+   * 요청이 실패해도 로컬 정리는 보장된다(shared/api/client.ts 참고).
+   *
+   * ⚠️ 로컬 토큰만 지우면 안 된다. refreshToken 쿠키는 httpOnly 라 JS 로
+   *    못 지우고 유효기간이 14일이다. 역무실 공용 PC 에서 로그아웃한 뒤
+   *    다음 사용자가 POST /auth/refresh 한 번만 보내면 STAFF 액세스 토큰이
+   *    그대로 재발급되어 민원 기록·녹취·블랙리스트에 접근할 수 있다.
+   *
+   * staffCode 는 관리자 전용이라 shared 가 지울 수 없으므로 여기서 지운다.
+   * 서버 응답을 기다렸다가 이동해야 화면 전환 중 요청이 취소되지 않는다.
    */
-  const signOut = () => {
-    clearAccessToken('admin')
+  const signOut = async () => {
+    await requestLogout('admin')
     clearStaffCode()
     void navigate('/admin/login', { replace: true })
   }
@@ -38,7 +47,7 @@ export default function AdminMainPage() {
             variant="onDark"
             size="sm"
             className="rounded-full"
-            onClick={signOut}
+            onClick={() => void signOut()}
           >
             로그아웃
           </AdminButton>

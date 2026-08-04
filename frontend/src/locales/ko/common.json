@@ -45,7 +45,9 @@
         "invalidCredential": "이메일 또는 비밀번호가 올바르지 않아요",
         "unknown": "로그인에 실패했어요 · 잠시 후 다시 시도해 주세요",
         "googleRejected": "Google 인증에 실패했어요 · 다시 시도해 주세요",
-        "googleFailed": "Google 로그인에 실패했어요 · 잠시 후 다시 시도해 주세요"
+        "googleFailed": "Google 로그인에 실패했어요 · 잠시 후 다시 시도해 주세요",
+        "socialAccount": "Google 계정으로 가입된 이메일이에요 · 아래 Google 로그인을 이용해 주세요",
+        "localAccount": "이미 일반 회원으로 가입된 이메일이에요 · 이메일과 비밀번호로 로그인해 주세요"
       },
       "googleUnavailable": "Google 로그인을 사용할 수 없어요 · 네트워크를 확인해 주세요"
     },
@@ -65,7 +67,7 @@
       "codeVerified": "이메일 인증이 완료되었어요",
       "remainingTime": "남은 시간 {{time}}",
       "newPassword": "새 비밀번호",
-      "newPasswordPlaceholder": "8자 이상 입력",
+      "newPasswordPlaceholder": "공백 없이 8자 이상",
       "confirmPassword": "새 비밀번호 확인",
       "confirmPasswordPlaceholder": "다시 한 번 입력",
       "submit": "비밀번호 변경",
@@ -86,7 +88,12 @@
         "unauthorized": "인증이 만료됐어요 · 처음부터 다시 시도해 주세요",
         "resetFailed": "비밀번호 변경에 실패했어요 · 잠시 후 다시 시도해 주세요",
         "verifiedExpired": "인증 유효 시간이 지났어요 · 이메일 인증을 다시 해주세요",
-        "passwordMismatch": "비밀번호가 일치하지 않아요"
+        "passwordMismatch": "비밀번호가 일치하지 않아요",
+        "attemptExceeded": "인증 시도 횟수를 초과했어요 · 인증 메일을 다시 받아 주세요",
+        "socialAccount": "Google 계정으로 가입된 이메일이라 비밀번호가 없어요 · Google 로그인을 이용해 주세요",
+        "passwordTooShort": "비밀번호는 8자 이상이어야 해요",
+        "passwordTooLong": "비밀번호는 64자를 넘을 수 없어요",
+        "passwordHasSpace": "비밀번호에 공백을 넣을 수 없어요"
       }
     },
     "signUp": {
@@ -107,9 +114,9 @@
       "codeVerified": "이메일 인증이 완료되었어요",
       "remainingTime": "남은 시간 {{time}}",
       "password": "비밀번호",
-      "passwordPlaceholder": "8자 이상 입력",
+      "passwordPlaceholder": "공백 없이 8자 이상",
       "confirmPassword": "비밀번호 확인",
-      "confirmPasswordPlaceholder": "8자 이상 입력",
+      "confirmPasswordPlaceholder": "다시 한 번 입력",
       "submit": "회원가입",
       "submitting": "가입 중",
       "success": "회원가입이 완료되었어요. 로그인해 주세요",
@@ -127,7 +134,12 @@
         "invalidForm": "입력 형식이 올바르지 않아요",
         "signUpFailed": "회원가입에 실패했어요 · 잠시 후 다시 시도해 주세요",
         "passwordMismatch": "비밀번호가 일치하지 않아요",
-        "verifiedExpired": "인증 유효 시간이 지났어요 · 이메일 인증을 다시 해주세요"
+        "verifiedExpired": "인증 유효 시간이 지났어요 · 이메일 인증을 다시 해주세요",
+        "invalidPassword": "비밀번호는 공백 없이 8자 이상 64자 이하로 입력해 주세요",
+        "attemptExceeded": "인증 시도 횟수를 초과했어요 · 인증 메일을 다시 받아 주세요",
+        "passwordTooShort": "비밀번호는 8자 이상이어야 해요",
+        "passwordTooLong": "비밀번호는 64자를 넘을 수 없어요",
+        "passwordHasSpace": "비밀번호에 공백을 넣을 수 없어요"
       }
     }
   },
