@@ -1,3 +1,4 @@
+import type { NavRouteRequest } from '@/shared/types/navigation'
 import type { ConsultationStatus, RoutePathParams } from '@/shared/types'
 
 export const queryKeys = {
@@ -34,8 +35,15 @@ export const queryKeys = {
     all: ['guide'] as const,
     /** 안내 정보 확인 화면의 출발·도착 정보 */
     info: () => [...queryKeys.guide.all, 'info'] as const,
-    /** 경로 상세 안내의 단계 목록(역 내 표지판 안내) */
-    navi: () => [...queryKeys.guide.all, 'navi'] as const,
+    /**
+     * 경로 상세 안내의 단계 목록(역 내 안내).
+     *
+     * 요청 본문을 키에 넣는다 — 답을 바꾸거나(엘리베이터 없이 다시 찾기)
+     * 표지판을 다시 찍어 출발 지점이 바뀌면 다른 경로이므로 캐시가 갈려야 한다.
+     * 본문이 null 이면(질문 미완료) 조회 자체를 하지 않는다.
+     */
+    navi: (request: NavRouteRequest | null) =>
+      [...queryKeys.guide.all, 'navi', request] as const,
   },
   consultation: {
     all: ['consultation'] as const,

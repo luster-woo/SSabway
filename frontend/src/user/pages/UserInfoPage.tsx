@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
+import { useRoutePreferenceStore } from '@/shared/lib/store/useRoutePreferenceStore'
 import { Button, MobileScreen, SectionLabel, useToast } from '@/shared/ui'
 import { GuideEndpointCard } from '@/user/features/user-info/GuideEndpointCard'
 import { RoutePreferenceCard } from '@/user/features/user-info/RoutePreferenceCard'
@@ -24,6 +25,7 @@ export default function UserInfoPage() {
 
   const { data: info, isPending, isError, refetch } = useGuideInfo()
   const preference = useRoutePreference()
+  const setPreference = useRoutePreferenceStore((state) => state.setPreference)
 
   /** 표지판을 다시 찍어 출발지를 바꾼다. 인식이 끝나면 이 화면으로 돌아온다. */
   const changeOrigin = () => {
@@ -35,7 +37,11 @@ export default function UserInfoPage() {
       showToast(t('userInfo.needAnswers'))
       return
     }
-    // TODO: preference.answers·plan을 경로 계산 요청에 실어 보낸다. (지금은 목 응답)
+    /*
+      답을 스토어에 넘긴다. 경로 상세 안내 화면이 이 값으로 요청 본문을 만든다
+      (buildNaviRequest). 두 화면이 형제라 props 로는 넘길 수 없다.
+    */
+    setPreference(preference.answers, preference.plan)
     showToast(t('userInfo.started'))
     void navigate('/guide')
   }

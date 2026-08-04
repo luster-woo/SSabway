@@ -9,6 +9,7 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.multipart.MultipartFile;
@@ -58,9 +59,20 @@ public class AiClient {
 
             return result;
 
+        } catch (HttpClientErrorException exception) {
+            /*
+                AI 가 4xx 를 낸 것은 우리가 보낸 사진이 잘못됐다는 뜻이다.
+                (읽을 수 없는 파일 400, 지원하지 않는 형식 415, 크기 초과 413)
+                서버 장애로 뭉뚱그리면 사용자가 "다시 찍어보세요" 대신
+                "잠시 후 시도하세요" 를 보게 되어 영영 넘어가지 못한다.
+             */
+            log.warn("AI 가 사진을 거부했습니다: {} - {}",
+                    exception.getStatusCode(), exception.getResponseBodyAsString());
+            throw new BusinessException(ErrorCode.AI_IMAGE_INVALID);
+
         } catch (RestClientException exception) {
             /*
-                타임아웃·연결 실패·4xx·5xx 가 모두 여기로 온다.
+                타임아웃·연결 실패·5xx 가 여기로 온다.
                 가장 흔한 원인은 모델 로딩 중(503)과 컨테이너 미기동(연결 거부)이다.
                 둘 다 사용자가 할 수 있는 일은 "다시 찍기" 뿐이라 구분하지 않는다.
              */

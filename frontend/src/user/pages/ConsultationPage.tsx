@@ -189,9 +189,9 @@ export default function ConsultationPage() {
       연결을 먼저 끊고 장치를 반납한다. 순서가 반대면 이미 끝난 트랙을 발행하다
       OpenVidu 가 예외를 던진다.
 
-      call.leave() 가 연결 해제와 함께 상담 종료 처리까지 맡는다 — 녹음 정지·
-      세션 종료·ENDED 전이를 서버가 한 번에 한다(역무원의 [상담 종료] 와 같은
-      API). 이게 없으면 상담이 활성 상태로 남아 다음 도움 요청이 409 로 막힌다.
+      call.leave() 가 연결 해제와 함께 상담 종료 처리까지 맡는다 — 사용자
+      전용 leave API 가 상태를 보고 취소/종료를 알아서 가른다 (8/4 BE 구현).
+      이게 없으면 상담이 활성 상태로 남아 다음 도움 요청이 409 로 막힌다.
       자세한 분기는 useConsultationCall 의 leaveCall 주석 참고.
     */
     call.leave()
