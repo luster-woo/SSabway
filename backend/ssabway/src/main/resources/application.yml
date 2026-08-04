@@ -115,3 +115,14 @@ webrtc :
   #    fallback 은 로컬에서 직접 띄운 signaling 포트(override.yml 의 8082).
   base-url : ${WEBRTC_BASE_URL:http://localhost:8082}
   api-key : ${WEBRTC_INTERNAL_SECRET}
+
+
+gms:
+  # 상담 종료 후 프론트에서 전달받은 자막을 GMS AI 모델에 전송해 한 문장으로 요약하기 위한 설정이다.
+  # base-url과 chat-path를 조합해 GMS 요청 주소를 만들고, api-key를 Authorization Bearer 헤더에 넣어 GMS 서버에 인증한다.
+  # model은 상담 요약에 사용할 AI 모델을 지정한다.
+  # 전달받은 자막 원문은 DB에 저장하지 않으며, GMS가 생성한 최종 요약만 consultations.summary에 저장한다.
+  base-url: ${GMS_BASE_URL:https://gms.ssafy.io/gmsapi/api.openai.com}
+  chat-path: ${GMS_CHAT_PATH:/v1/chat/completions}
+  api-key: ${GMS_API_KEY}
+  model: ${GMS_MODEL:gpt-5-mini}
