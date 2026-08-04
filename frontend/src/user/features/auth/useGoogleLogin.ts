@@ -6,7 +6,10 @@ import { useAuthStore } from '@/shared/lib/store/useAuthStore'
 import { useLanguage } from '@/shared/lib/useLanguage'
 import type { ApiResponse } from '@/shared/types/api'
 import { toLangCode, toLanguage } from '@/user/features/auth/lib/language'
-import { toErrorKey } from '@/user/features/auth/lib/mockHttpError'
+import {
+  toErrorKey,
+  type ErrorKeyTable,
+} from '@/user/features/auth/lib/mockHttpError'
 
 interface GoogleLoginRequest {
   /** 구글 SDK 가 준 ID Token(JWT) */
@@ -32,12 +35,20 @@ interface GoogleLoginData {
 /**
  * 실패 문구의 i18n 키.
  *
- * 명세에 상태코드 표가 비어 있어 일반 로그인 기준으로 잡았다.
- * 401 은 토큰 검증 실패(만료·서명 불일치·aud 불일치)를 포함한다.
- * BE 가 code 를 내려주면 그때 세분화한다.
+ * 401 이 두 가지 다른 상황을 덮고 있어 code 로 가른다.
+ *   INVALID_GOOGLE_TOKEN 토큰 검증 실패(만료·서명 불일치·aud 불일치) → 재시도 안내
+ *   LOCAL_LOGIN_REQUIRED 이미 일반 가입된 이메일 → 일반 로그인으로 유도해야 한다
+ * 후자를 "Google 인증에 실패했어요" 로 보여주면 사용자는 구글 계정 문제라고
+ * 오해해 계정을 바꿔 가며 다시 시도한다.
  */
-const GOOGLE_LOGIN_ERROR_KEY: Record<number, string> = {
-  401: 'auth.login.error.googleRejected',
+const GOOGLE_LOGIN_ERROR_KEY: ErrorKeyTable = {
+  byCode: {
+    INVALID_GOOGLE_TOKEN: 'auth.login.error.googleRejected',
+    LOCAL_LOGIN_REQUIRED: 'auth.login.error.localAccount',
+  },
+  byStatus: {
+    401: 'auth.login.error.googleRejected',
+  },
 }
 
 const FALLBACK_ERROR_KEY = 'auth.login.error.googleFailed'

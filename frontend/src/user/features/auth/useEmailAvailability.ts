@@ -3,7 +3,10 @@ import { useCallback, useState } from 'react'
 import { userApi } from '@/shared/api/client'
 import { endpoints } from '@/shared/api/endpoints'
 import type { ApiResponse } from '@/shared/types/api'
-import { toErrorKey } from '@/user/features/auth/lib/mockHttpError'
+import {
+  toErrorKey,
+  type ErrorKeyTable,
+} from '@/user/features/auth/lib/mockHttpError'
 
 /** 중복 확인 결과. 아직 확인하지 않았으면 UNCHECKED. */
 export const EMAIL_CHECK = {
@@ -14,8 +17,13 @@ export const EMAIL_CHECK = {
 
 export type EmailCheck = (typeof EMAIL_CHECK)[keyof typeof EMAIL_CHECK]
 
-const CHECK_ERROR_KEY: Record<number, string> = {
-  400: 'auth.signUp.error.invalidEmail',
+const CHECK_ERROR_KEY: ErrorKeyTable = {
+  byCode: {
+    INVALID_INPUT_VALUE: 'auth.signUp.error.invalidEmail',
+  },
+  byStatus: {
+    400: 'auth.signUp.error.invalidEmail',
+  },
 }
 
 const FALLBACK_ERROR_KEY = 'auth.signUp.error.checkFailed'

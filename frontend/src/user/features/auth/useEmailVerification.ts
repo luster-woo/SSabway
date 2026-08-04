@@ -1,10 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { isAxiosError } from 'axios'
 
-import { userApi } from '@/shared/api/client'
+import { publicApi } from '@/shared/api/client'
 import { endpoints } from '@/shared/api/endpoints'
-import type { ApiResponse } from '@/shared/types/api'
+import type { ApiErrorBody, ApiResponse } from '@/shared/types/api'
 import type { Language } from '@/shared/types/user'
-import { toErrorKey } from '@/user/features/auth/lib/mockHttpError'
+import {
+  toErrorKey,
+  type ErrorKeyTable,
+} from '@/user/features/auth/lib/mockHttpError'
 
 /** 명세가 요구하는 언어 코드. */
 export type LangCode = Uppercase<Language>
@@ -63,26 +67,57 @@ export const VERIFY_STEP = {
 export type VerifyStep = (typeof VERIFY_STEP)[keyof typeof VERIFY_STEP]
 
 /**
- * 실패 문구의 i18n 키 묶음. 상태코드는 명세에 적힌 것을 그대로 옮겼다.
+ * 실패 문구의 i18n 키 묶음.
  *
  * 같은 인증 API 를 비밀번호 재설정과 회원가입이 함께 쓰는데 화면 문구는 다르다.
  * 그래서 키를 훅에 박지 않고 접두사를 받아 만든다.
  * (auth.passwordReset → auth.passwordReset.error.invalidCode)
+ *
+ * 분기는 BE ErrorCode 이름(code)으로 한다. 상태코드로는 못 가르는 조합이 많다 —
+ * 400 에 코드 불일치·코드 만료가, 429 에 발송 횟수 초과·인증 시도 초과가,
+ * 401 에 소셜 계정 안내가 겹쳐 있다. byStatus 는 code 가 없는 응답을 위한
+ * 그물로만 남긴다.
  */
 function buildErrorKeys(prefix: string) {
   return {
     send: {
-      400: `${prefix}.error.invalidEmail`,
-      // 404: 재설정용 발송 API 전용 — 가입되지 않은 이메일.
-      //      회원가입 발송에서는 나오지 않으므로 signUp 쪽 번역 키는 없다.
-      404: `${prefix}.error.emailNotFound`,
-      // 409: 회원가입 발송 API 전용 — 이미 가입된 이메일.
-      409: `${prefix}.error.duplicateEmail`,
-      429: `${prefix}.error.tooManyRequests`,
-    } as Record<number, string>,
+      byCode: {
+        INVALID_INPUT_VALUE: `${prefix}.error.invalidEmail`,
+        // 재설정용 발송 API 전용 — 가입되지 않은 이메일.
+        // 회원가입 발송에서는 나오지 않으므로 signUp 쪽 번역 키는 없다.
+        USER_NOT_FOUND: `${prefix}.error.emailNotFound`,
+        // 회원가입 발송 API 전용 — 이미 가입된 이메일.
+        EMAIL_DUPLICATED: `${prefix}.error.duplicateEmail`,
+        EMAIL_SEND_LIMIT_EXCEEDED: `${prefix}.error.tooManyRequests`,
+        EMAIL_SEND_FAILED: `${prefix}.error.sendFailed`,
+        // 재설정용 발송 전용 — 구글로 가입한 이메일은 비밀번호가 아예 없다.
+        // (BE PasswordResetService: provider != LOCAL 이면 401)
+        SOCIAL_LOGIN_REQUIRED: `${prefix}.error.socialAccount`,
+      },
+      byStatus: {
+        400: `${prefix}.error.invalidEmail`,
+        404: `${prefix}.error.emailNotFound`,
+        409: `${prefix}.error.duplicateEmail`,
+        429: `${prefix}.error.tooManyRequests`,
+      },
+    } satisfies ErrorKeyTable,
     verify: {
-      400: `${prefix}.error.invalidCode`,
-    } as Record<number, string>,
+      byCode: {
+        VERIFICATION_CODE_MISMATCH: `${prefix}.error.invalidCode`,
+        // 코드가 만료됐거나(5분) 시도 초과로 서버가 지웠을 때. 둘 다
+        // "다시 발송받아야 한다" 는 같은 안내로 수렴한다.
+        VERIFICATION_CODE_EXPIRED: `${prefix}.error.codeExpired`,
+        // 5회 실패하면 BE 가 Redis 의 코드를 삭제한다
+        // (EmailVerificationService.increaseTryCount). 이후에는 메일에 온
+        // 코드가 맞아도 계속 실패하므로 재발송 외에는 방법이 없다.
+        // 문구와 함께 step 도 되돌린다 — 아래 CODE_GONE_ERROR_CODES 참고.
+        VERIFICATION_ATTEMPT_EXCEEDED: `${prefix}.error.attemptExceeded`,
+      },
+      byStatus: {
+        400: `${prefix}.error.invalidCode`,
+        429: `${prefix}.error.attemptExceeded`,
+      },
+    } satisfies ErrorKeyTable,
     sendFallback: `${prefix}.error.sendFailed`,
     verifyFallback: `${prefix}.error.verifyFailed`,
     /** 인증코드 입력 제한 시간이 지났을 때 */
@@ -103,12 +138,65 @@ function buildErrorKeys(prefix: string) {
  */
 const VERIFIED_TTL_SEC = 30 * 60
 
+/**
+ * "서버에 저장된 인증코드가 더 이상 없다"는 뜻의 에러 코드.
+ *
+ *   VERIFICATION_ATTEMPT_EXCEEDED  5회 틀리면 BE 가 코드를 지운다
+ *                                  (EmailVerificationService.increaseTryCount →
+ *                                   redisTemplate.delete(codeKey))
+ *   VERIFICATION_CODE_EXPIRED      TTL(서버 timeLimit) 만료로 사라졌다
+ *
+ * 둘 다 재발송 말고는 진행할 방법이 없으므로 발송 전(IDLE)으로 되돌려야 한다.
+ * 문구만 바꾸고 SENT 에 남겨 두면 사용자는 메일에 온 코드가 맞는데도 계속
+ * "올바르지 않아요" 만 보게 되고, 재발송 버튼은 두 화면 모두 SENT 동안
+ * 감춰져 있어(SignUpPage: hasRequested && !isCodeSent, PasswordResetPage:
+ * isEmailLocked) 타이머가 0 이 될 때까지 빠져나갈 방법이 없다.
+ */
+const CODE_GONE_ERROR_CODES: ReadonlySet<string> = new Set([
+  'VERIFICATION_ATTEMPT_EXCEEDED',
+  'VERIFICATION_CODE_EXPIRED',
+])
+
+function isCodeGone(error: unknown): boolean {
+  if (!isAxiosError(error) || !error.response) return false
+
+  const code = (error.response.data as ApiErrorBody | undefined)?.code
+  if (code) return CODE_GONE_ERROR_CODES.has(code)
+
+  /*
+    code 가 없는 응답(목·프록시 오류 등)은 429 만 신호로 본다.
+    400 은 단순 코드 불일치(VERIFICATION_CODE_MISMATCH)와 코드 만료가 겹쳐
+    있어서, 되돌리면 오타 한 번에 인증을 처음부터 다시 하게 된다.
+  */
+  return error.response.status === 429
+}
+
+/**
+ * ⚠️ 이 두 요청은 반드시 publicApi(인터셉터 없음)로 보낸다.
+ *
+ * 회원가입·비밀번호 재설정 인증은 전부 비로그인 상태에서 부르는 공개 API 다
+ * (BE SecurityConfig 의 /api/v1/users/email/**, /api/v1/users/password/** permitAll).
+ * 여기서 오는 401 은 "액세스 토큰 만료"가 아니라 업무 실패다 — 재설정 발송에
+ * 구글 가입 이메일을 넣으면 BE 가 401 SOCIAL_LOGIN_REQUIRED 를 준다
+ * (PasswordResetService: provider != LOCAL).
+ *
+ * 이걸 userApi 로 보내면 인터셉터가 401 을 토큰 만료로 보고
+ * 재발급 시도 → (비로그인이라) 실패 → redirectToLogin →
+ * window.location.href = '/login' 까지 가버린다. 사용자는 아무 안내도 못 보고
+ * 입력하던 이메일도 날아간다. 화면이 문구를 띄울 기회 자체가 사라지는 것이다.
+ *
+ * 같은 이유로 usePasswordReset(실행 단계)도 publicApi 를 쓴다. 셋 다 맞춰 둘 것.
+ */
+
 /** 인증 메일 발송. 응답의 timeLimit(초)을 돌려준다. */
 async function requestEmailCode(
   path: string,
   body: EmailRequestBody,
 ): Promise<number> {
-  const res = await userApi.post<ApiResponse<{ timeLimit: number }>>(path, body)
+  const res = await publicApi.post<ApiResponse<{ timeLimit: number }>>(
+    path,
+    body,
+  )
   return res.data.data.timeLimit
 }
 
@@ -117,7 +205,7 @@ async function verifyEmailCode(
   path: string,
   body: EmailVerifyBody,
 ): Promise<void> {
-  await userApi.post(path, body)
+  await publicApi.post(path, body)
 }
 
 export interface UseEmailVerificationResult {
@@ -254,6 +342,24 @@ export function useEmailVerification(
         setErrorKey(
           toErrorKey(error, errorKeys.verify, errorKeys.verifyFallback),
         )
+
+        /*
+          서버 쪽 코드가 사라졌으면 발송 전으로 되돌려 재발송을 열어 준다.
+          타이머 만료 처리(위 useEffect)와 같은 자리로 보내는 것이고,
+          errorKey 는 방금 세팅한 값이 그대로 남아 무엇이 잘못됐는지 알려준다.
+
+          step 이 IDLE 이 되면 두 화면 모두 인증코드 칸을 닫고 이메일 칸 아래에
+          문구를 보여준다(emailErrorKey 분기). 재발송 버튼 바로 옆이라
+          다음에 뭘 해야 하는지가 문구와 같은 자리에 놓인다.
+
+          hasRequested 는 건드리지 않는다 — 버튼 문구가 "인증 발송"으로
+          되돌아가면 이미 한 번 보냈다는 사실이 화면에서 지워진다.
+        */
+        if (isCodeGone(error)) {
+          expiresAtRef.current = null
+          setRemainingSec(0)
+          setStep(VERIFY_STEP.IDLE)
+        }
         return false
       } finally {
         setIsVerifying(false)
