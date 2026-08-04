@@ -177,8 +177,6 @@
     "analyzeFailedTitle": "分析に失敗しました",
     "analyzeFailedDescription": "AI分析に失敗しました。\nもう一度撮影してください。",
     "analyzeFailedRetake": "再撮影",
-    "lowConfidenceTitle": "位置を正確に認識できませんでした",
-    "lowConfidenceDescription": "標識に近づいてもう一度撮影してください。",
     "capturedAlt": "撮影した標識の写真",
     "error": {
       "insecure": "カメラは安全な接続(HTTPS)でのみ使用できます",
@@ -227,7 +225,6 @@
     "prev": "戻る",
     "arrived": "到着しました",
     "select": {
-      "noIndoorGuide": "この経路は屋内案内に対応していません\n別の経路を選んでください",
       "title": "おすすめルート",
       "back": "戻る",
       "badge": {
@@ -262,9 +259,14 @@
     "origin": "出発",
     "destination": "到着",
     "change": "変更",
+    "detail": {
+      "gps": "現在地を基準",
+      "manual": "地図で選択",
+      "finalDestination": "最終目的地 {{name}}"
+    },
+    "needRoute": "まず経路を選んでください\n出発駅と到着駅が決まると案内を開始できます",
+    "pickRoute": "経路を選ぶ",
     "start": "ルート案内を開始",
-    "loading": "案内情報を読み込んでいます…",
-    "failed": "案内情報を読み込めませんでした\nしばらくしてからもう一度お試しください",
     "needAnswers": "すべての質問にお答えください",
     "started": "選択した条件で案内を開始します",
     "preference": {
@@ -395,16 +397,12 @@
   "arrival": {
     "back": "戻る",
     "title": "目的地に到着しました！",
+    "finalDestination": "最終目的地 {{name}}",
     "duration": "所要時間",
     "origin": "出発地",
     "destination": "到着地",
-    "newDestination": "新しい目的地の案内を受ける",
-    "feedback": {
-      "question": "案内は役に立ちましたか？",
-      "helpful": "役に立った",
-      "notHelpful": "いまいち",
-      "thanks": "ご意見ありがとうございます"
-    }
+    "noSummary": "今回の移動情報が見つかりませんでした\n目的地をもう一度選んでください",
+    "newDestination": "新しい目的地の案内を受ける"
   },
   "helpChat": {
     "back": "戻る",
