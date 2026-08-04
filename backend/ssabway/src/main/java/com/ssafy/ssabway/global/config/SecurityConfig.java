@@ -74,6 +74,7 @@ public class SecurityConfig {
                         // users와 staff 권한 구분
                         .requestMatchers("/api/v1/users/**").hasAuthority("USER")
                         .requestMatchers(HttpMethod.POST, "/api/v1/consultations").hasAuthority("USER")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/consultations/*/summary").hasAuthority("USER")
                         .requestMatchers("/api/v1/staffs/**").hasAuthority("STAFF")
 
                         // 나머지는 모두 인증 필요함

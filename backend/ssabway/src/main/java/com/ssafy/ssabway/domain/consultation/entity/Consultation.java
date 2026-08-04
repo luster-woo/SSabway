@@ -52,7 +52,7 @@ public class Consultation {
     @Column(name = "record_s3", length = 500)
     private String recordS3;
 
-    @Column
+    @Column(length = 255)
     private String summary;
 
     // 로그인 사용자와 출발역 담당 역무원을 이용해
@@ -73,5 +73,11 @@ public class Consultation {
         consultation.requestedAt = LocalDateTime.now();
 
         return consultation;
+    }
+
+    // GMS가 생성한 최종 상담 요약만 저장
+    // 상담 자막 원문은 Entity에 저장하지 않음
+    public void updateSummary(String summary) {
+        this.summary = summary;
     }
 }
