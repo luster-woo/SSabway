@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/shared/lib/store/useAuthStore'
 import { useHelpChatStore } from '@/shared/lib/store/useHelpChatStore'
 import { MobileViewport, useToast } from '@/shared/ui'
+import type { LoginFromState } from '@/user/features/auth/loginFrom'
 import { useConsultationRequest } from '@/user/features/consultation/useConsultationRequest'
 import { useConsultationWaiting } from '@/user/features/consultation/useConsultationWaiting'
 import { BotBubble } from '@/user/features/help-chat/BotBubble'
@@ -94,8 +95,9 @@ export default function HelpChatPage() {
   }
 
   const goLogin = () => {
-    // 로그인 성공 시 LoginPage가 히스토리를 한 칸 되돌려 이 화면으로 돌아온다.
-    void navigate('/login')
+    // 로그인 성공 시 LoginPage 가 이 `from` 으로 돌아온다.
+    // (히스토리로 되돌리면 안 되는 이유는 features/auth/loginFrom 주석 참고)
+    void navigate('/login', { state: { from: '/help' } satisfies LoginFromState })
   }
 
   /** 상담을 요청하고 이 화면에서 대기 상태로 전환한다. (페이지 이동 없음) */
