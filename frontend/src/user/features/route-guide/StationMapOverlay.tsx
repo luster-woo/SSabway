@@ -8,36 +8,47 @@ import {
 } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { cn } from '@/shared/lib/cn'
-import { MARKER_COLOR, StationMap } from '@/shared/station-map/StationMap'
 import {
-  STATION_MAP_SIZE,
-  STATION_MAP_VIEWS,
-  type StationMapView,
-} from '@/shared/station-map/stationMapData'
+  DAEGU_MAP_HEIGHT,
+  DAEGU_MAP_WIDTH,
+} from '@/shared/station-map/daeguMap'
+import { StationRouteMap } from '@/shared/station-map/StationRouteMap'
 import {
-  PROTOTYPE_STATION_ROUTE,
-  type UserRouteStep,
-} from '@/shared/station-map/stationRoute'
+  ROUTE_COLOR,
+  toRouteBounds,
+  toStepPath,
+} from '@/shared/station-map/routePath'
 import type { GuideStep } from '@/shared/types/routeGuide'
 
 export interface StationMapOverlayProps {
-  /** 경로 상세 안내 응답의 단계들. point(도면 좌표)가 지도의 데이터 소스다. */
+  /** 경로 상세 안내 응답의 단계들. edgeId·from·to 가 지도의 데이터 소스다. */
   steps: readonly GuideStep[]
   /** 경로 상세 안내에서 보고 있던 단계 인덱스 (0부터) */
   currentIndex: number
   onClose: () => void
 }
 
-/** 지도의 보이는 영역. StationMap 의 viewBox 로 그대로 들어간다. */
+/** 지도의 보이는 영역. StationRouteMap 의 viewBox 로 그대로 들어간다. */
 interface Viewport {
   cx: number
   cy: number
   half: number
 }
 
-/** 최대 확대 = 도면 좌표 기준 반경 150 (뷰 기본 반경의 약 1/7) */
-const MIN_HALF = 150
+/** 최대 축소 = 도면 전체가 들어오는 반경 (긴 변 기준) */
+const MAX_HALF = Math.max(DAEGU_MAP_WIDTH, DAEGU_MAP_HEIGHT) / 2
+
+/** 최대 확대 = 도면 좌표 기준 반경 250 (약 20m 폭) */
+const MIN_HALF = 250
+
+/**
+ * 마커가 화면에서 알맞게 보이는 기준 반경. markerScale = half / 이 값이라
+ * 확대·축소해도 마커·선의 화면 크기가 일정하다.
+ */
+const MARKER_REFERENCE_HALF = 900
+
+/** 처음 열 때 현재 구간 주변을 보여줄 최소 반경 */
+const INITIAL_MIN_HALF = 500
 
 /** ± 버튼 한 번의 배율. 프로토타입의 0.2 스텝과 비슷한 체감이다. */
 const BUTTON_ZOOM_FACTOR = 1.25
@@ -52,18 +63,20 @@ function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max)
 }
 
-/** 확대·이동 결과가 도면 밖이나 과도한 줌으로 벗어나지 않게 고정한다. */
-function clampViewport(viewport: Viewport, maxHalf: number): Viewport {
-  const half = clamp(viewport.half, MIN_HALF, maxHalf)
-  return {
-    half,
-    cx: clamp(viewport.cx, half, STATION_MAP_SIZE - half),
-    cy: clamp(viewport.cy, half, STATION_MAP_SIZE - half),
-  }
+/** 한 축의 중심 좌표를 도면 안으로 고정한다. 뷰가 도면보다 크면 가운데 둔다. */
+function clampCenter(value: number, half: number, size: number): number {
+  if (half * 2 >= size) return size / 2
+  return clamp(value, half, size - half)
 }
 
-function toViewport(view: StationMapView): Viewport {
-  return { cx: view.cx, cy: view.cy, half: view.half }
+/** 확대·이동 결과가 도면 밖이나 과도한 줌으로 벗어나지 않게 고정한다. */
+function clampViewport(viewport: Viewport): Viewport {
+  const half = clamp(viewport.half, MIN_HALF, MAX_HALF)
+  return {
+    half,
+    cx: clampCenter(viewport.cx, half, DAEGU_MAP_WIDTH),
+    cy: clampCenter(viewport.cy, half, DAEGU_MAP_HEIGHT),
+  }
 }
 
 function distanceBetween(
@@ -104,9 +117,8 @@ function zoomViewportAt(
   factor: number,
   fx: number,
   fy: number,
-  maxHalf: number,
 ): Viewport {
-  const half = clamp(prev.half * factor, MIN_HALF, maxHalf)
+  const half = clamp(prev.half * factor, MIN_HALF, MAX_HALF)
   if (half === prev.half) return prev
 
   // 고정점 아래의 도면 좌표
@@ -114,27 +126,62 @@ function zoomViewportAt(
   const mapY = prev.cy - prev.half + fy * 2 * prev.half
 
   // 새 배율에서도 같은 화면 위치에 같은 도면 좌표가 오도록 중심을 역산한다
-  return clampViewport(
-    {
-      half,
-      cx: mapX - half * (2 * fx - 1),
-      cy: mapY - half * (2 * fy - 1),
-    },
-    maxHalf,
-  )
+  return clampViewport({
+    half,
+    cx: mapX - half * (2 * fx - 1),
+    cy: mapY - half * (2 * fy - 1),
+  })
 }
 
 /**
- * '역 내에서 현재 위치 보기' 전체 화면 오버레이. (프로토타입 6페이지 지도)
+ * 처음 열 때의 뷰 — 현재 구간(현재 위치 → 다음 위치)이 여유 있게 들어오는 뷰.
+ * 현재 구간을 모르면 전체 경로를, 그것도 없으면 도면 전체를 보여준다.
+ */
+function toInitialViewport(
+  steps: readonly GuideStep[],
+  currentIndex: number,
+): Viewport {
+  const currentPath = steps[currentIndex]
+    ? toStepPath(steps[currentIndex])
+    : null
+  const bounds = currentPath
+    ? toRouteBounds([currentPath])
+    : toRouteBounds(steps.map(toStepPath))
+
+  if (!bounds) {
+    return clampViewport({
+      cx: DAEGU_MAP_WIDTH / 2,
+      cy: DAEGU_MAP_HEIGHT / 2,
+      half: MAX_HALF,
+    })
+  }
+
+  // 구간 주변 맥락(주변 시설·통로)이 보이도록 1.6배 여유를 준다.
+  const half = Math.max(
+    ((Math.max(bounds.maxX - bounds.minX, bounds.maxY - bounds.minY) / 2) *
+      16) /
+      10,
+    INITIAL_MIN_HALF,
+  )
+
+  return clampViewport({
+    cx: (bounds.minX + bounds.maxX) / 2,
+    cy: (bounds.minY + bounds.maxY) / 2,
+    half,
+  })
+}
+
+/**
+ * '역 내에서 현재 위치 보기' 전체 화면 오버레이.
  *
- * 관리자 화상 화면과 같은 도면·경로(shared/station-map)를 쓴다 — 상담 중
- * 역무원이 보는 지도와 사용자가 보는 지도가 어긋나면 안 되기 때문이다.
+ * 배경은 daegu_map.svg 한 장이다 — 모든 층이 한 화면에 그려진 지도라 층 탭
+ * 없이 그대로 쓴다(팀 결정 8/4). 경로는 서버 응답 steps 의 edgeId 를 도면
+ * 그래프(daeguNavigation)와 맞춰 그린다.
  *
- * 현재 위치 = 보고 있던 안내 단계의 표지판 위치다. GPS 가 아니라 "마지막으로
+ * 현재 위치 = 보고 있던 안내 단계의 from 노드다. GPS 가 아니라 "마지막으로
  * 인식·확인한 표지판"이 위치의 근거라서, 단계와 위치는 항상 함께 움직인다.
  *
- * 조작: 층 탭 전환 · 한 손가락 드래그 이동 · 두 손가락 핀치 줌 · ± 버튼.
- * 좌표 포함 경로 응답이 생기기 전까지 경로는 PROTOTYPE_STATION_ROUTE 를 쓴다.
+ * 조작: 한 손가락 드래그 이동 · 두 손가락 핀치 줌 · 휠 줌 · 더블탭 · ± 버튼.
  */
 export function StationMapOverlay({
   steps,
@@ -143,66 +190,16 @@ export function StationMapOverlay({
 }: StationMapOverlayProps) {
   const { t } = useTranslation()
 
-  /*
-    안내 응답의 point(도면 좌표)로 지도 경로를 만든다.
+  const clampedIndex = clamp(currentIndex, 0, Math.max(steps.length - 1, 0))
 
-    좌표는 명세 제안 필드라 BE 가 아직 안 줄 수 있다(point: null).
-    - 좌표가 하나도 없으면: 프로토타입 경로로 대체해 지도는 계속 보여준다.
-    - 일부만 없으면: 있는 단계만 찍는다. 그래서 안내 단계 인덱스와 지도
-      마커 인덱스가 어긋날 수 있어 guideIndex 를 함께 들고 다닌다.
-  */
-  const positions = useMemo(
-    () =>
-      steps.flatMap((step, guideIndex) => {
-        const point = step.point
-        if (!point) return []
-
-        const routeStep: UserRouteStep = {
-          id: `guide-${String(step.order)}`,
-          floor: point.floor,
-          view: point.view,
-          x: point.x,
-          y: point.y,
-          name: step.instruction,
-          // 표지판이 없는 지점(개찰구·편의점)은 지시문을 대신 쓴다.
-          sign: step.sign?.title ?? step.instruction,
-          up: point.up,
-        }
-        return [{ guideIndex, routeStep }]
-      }),
-    [steps],
-  )
-
-  const hasPoints = positions.length > 0
-  const route: readonly UserRouteStep[] = hasPoints
-    ? positions.map((position) => position.routeStep)
-    : PROTOTYPE_STATION_ROUTE
-
-  // 현재 위치 = 좌표가 있는 단계 중, 보고 있던 단계를 넘지 않는 마지막 단계
-  const clampedGuideIndex = clamp(
-    currentIndex,
-    0,
-    Math.max(steps.length - 1, 0),
-  )
-  let clampedIndex = 0
-  if (hasPoints) {
-    for (let index = 0; index < positions.length; index += 1) {
-      if (positions[index].guideIndex <= clampedGuideIndex) clampedIndex = index
-    }
-  } else {
-    clampedIndex = clamp(currentIndex, 0, route.length - 1)
-  }
-  const currentStep = route[clampedIndex]
-
-  // 처음 열 때는 현재 단계가 있는 층(뷰)을 보여준다
-  const [activeView, setActiveView] = useState<StationMapView>(
-    () =>
-      STATION_MAP_VIEWS.find((view) => view.key === currentStep.view) ??
-      STATION_MAP_VIEWS[0],
-  )
   const [viewport, setViewport] = useState<Viewport>(() =>
-    toViewport(activeView),
+    toInitialViewport(steps, clampedIndex),
   )
+
+  /** 현재 구간으로 시점을 되돌린다. 지도를 헤매다 눌러 복귀하는 용도. */
+  const recenter = () => {
+    setViewport(toInitialViewport(steps, clampedIndex))
+  }
 
   const containerRef = useRef<HTMLDivElement>(null)
   /** 눌려 있는 포인터들의 마지막 위치. 드래그·핀치 판정의 근거다. */
@@ -229,8 +226,6 @@ export function StationMapOverlay({
     const container = containerRef.current
     if (!container) return
 
-    const maxHalf = activeView.half
-
     const handleWheel = (event: WheelEvent) => {
       event.preventDefault()
 
@@ -243,26 +238,18 @@ export function StationMapOverlay({
       const factor =
         event.deltaY > 0 ? WHEEL_ZOOM_FACTOR : 1 / WHEEL_ZOOM_FACTOR
 
-      setViewport((prev) => zoomViewportAt(prev, factor, fx, fy, maxHalf))
+      setViewport((prev) => zoomViewportAt(prev, factor, fx, fy))
     }
 
     container.addEventListener('wheel', handleWheel, { passive: false })
     return () => {
       container.removeEventListener('wheel', handleWheel)
     }
-  }, [activeView.half])
-
-  const selectView = (view: StationMapView) => {
-    setActiveView(view)
-    setViewport(toViewport(view))
-    pinchRef.current = null
-  }
+  }, [])
 
   /** 프로토타입처럼 화면 중심을 고정한 채 배율만 바꾼다. */
   const zoomBy = (factor: number) => {
-    setViewport((prev) =>
-      clampViewport({ ...prev, half: prev.half * factor }, activeView.half),
-    )
+    setViewport((prev) => clampViewport({ ...prev, half: prev.half * factor }))
   }
 
   const handlePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
@@ -309,7 +296,7 @@ export function StationMapOverlay({
       )
 
       setViewport((prev) =>
-        zoomViewportAt(prev, targetHalf / prev.half, fx, fy, activeView.half),
+        zoomViewportAt(prev, targetHalf / prev.half, fx, fy),
       )
       return
     }
@@ -322,14 +309,11 @@ export function StationMapOverlay({
         1,
       )
       const unitsPerPixel = (prev.half * 2) / side
-      return clampViewport(
-        {
-          ...prev,
-          cx: prev.cx - (point.x - previous.x) * unitsPerPixel,
-          cy: prev.cy - (point.y - previous.y) * unitsPerPixel,
-        },
-        activeView.half,
-      )
+      return clampViewport({
+        ...prev,
+        cx: prev.cx - (point.x - previous.x) * unitsPerPixel,
+        cy: prev.cy - (point.y - previous.y) * unitsPerPixel,
+      })
     })
   }
 
@@ -351,14 +335,25 @@ export function StationMapOverlay({
     )
 
     setViewport((prev) =>
-      zoomViewportAt(prev, 1 / DOUBLE_TAP_ZOOM_FACTOR, fx, fy, activeView.half),
+      zoomViewportAt(prev, 1 / DOUBLE_TAP_ZOOM_FACTOR, fx, fy),
     )
   }
 
+  /** 지도용 단계 참조. GuideStep 에서 필요한 필드만 뽑는다. */
+  const mapSteps = useMemo(
+    () =>
+      steps.map((step) => ({
+        edgeId: step.edgeId,
+        from: step.from,
+        to: step.to,
+      })),
+    [steps],
+  )
+
   const legendItems = [
-    { key: 'current', color: MARKER_COLOR.current },
-    { key: 'prev', color: MARKER_COLOR.passed },
-    { key: 'next', color: MARKER_COLOR.upcoming },
+    { key: 'current', color: ROUTE_COLOR.current },
+    { key: 'upcoming', color: ROUTE_COLOR.upcoming },
+    { key: 'passed', color: ROUTE_COLOR.passed },
   ] as const
 
   return (
@@ -394,34 +389,6 @@ export function StationMapOverlay({
               </svg>
             </button>
           </div>
-
-          {/* 층(뷰) 탭 */}
-          <div
-            role="tablist"
-            aria-label={t('routeGuide.stationMap.title')}
-            className="flex gap-1.5 pb-3"
-          >
-            {STATION_MAP_VIEWS.map((view) => {
-              const isActive = view.key === activeView.key
-              return (
-                <button
-                  key={view.key}
-                  type="button"
-                  role="tab"
-                  aria-selected={isActive}
-                  onClick={() => selectView(view)}
-                  className={cn(
-                    'rounded-full border px-3.5 py-1.5 text-[12.5px] font-bold transition',
-                    isActive
-                      ? 'border-brand bg-brand text-white'
-                      : 'border-line bg-surface text-ink-muted',
-                  )}
-                >
-                  {t(`routeGuide.stationMap.views.${view.key}`)}
-                </button>
-              )
-            })}
-          </div>
         </div>
 
         {/* 지도 */}
@@ -434,22 +401,38 @@ export function StationMapOverlay({
           onDoubleClick={handleDoubleClick}
           className="relative min-h-0 flex-1 touch-none overflow-hidden select-none"
         >
-          <StationMap
-            floor={activeView.floor}
+          <StationRouteMap
             cx={viewport.cx}
             cy={viewport.cy}
             half={viewport.half}
-            route={route}
+            steps={mapSteps}
             currentIndex={clampedIndex}
-            /*
-              확대해도 마커의 화면 크기가 (거의) 일정하도록 뷰포트에 비례해
-              역보정한다. 최소 0.35 — 그 밑으로 줄이면 번호가 안 읽힌다.
-            */
-            markerScale={clamp(viewport.half / activeView.half, 0.35, 1)}
+            // 확대해도 마커·선의 화면 크기가 일정하도록 뷰포트에 비례해 역보정한다.
+            markerScale={viewport.half / MARKER_REFERENCE_HALF}
           />
 
-          {/* 줌 버튼 */}
+          {/* 줌·복귀 버튼 */}
           <div className="absolute right-3 bottom-3 flex flex-col gap-2">
+            <button
+              type="button"
+              aria-label={t('routeGuide.stationMap.recenter')}
+              onClick={recenter}
+              className="border-line bg-surface text-ink flex size-10 items-center justify-center rounded-xl border shadow-sm active:brightness-95"
+            >
+              <svg
+                viewBox="0 0 20 20"
+                aria-hidden
+                className="size-5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+              >
+                <circle cx="10" cy="10" r="5.5" />
+                <circle cx="10" cy="10" r="1.4" fill="currentColor" />
+                <path d="M10 1.5v3M10 15.5v3M1.5 10h3M15.5 10h3" />
+              </svg>
+            </button>
             <button
               type="button"
               aria-label={t('routeGuide.stationMap.zoomIn')}
