@@ -77,7 +77,11 @@ const consultations = {
    *    (BE 에 검증 추가 요청해 둔 상태)
    */
   cancel: (id: number) => `/consultations/${id}/cancel`,
-  /** ⚠️ BE 미구현 — 목만 있다. useConsultationCall 의 leaveCall 주석 참고 */
+  /**
+   * 사용자 쪽 상담 종료 — ✅ BE 구현됨 (8/4). 상태를 보고 서버가 알아서
+   * 취소(WAITING·MATCHED)/종료(IN_PROGRESS)를 가르고, 종료 후 재호출은 멱등.
+   * 요청자 본인 검증 있음. 응답 { consultationId, status }.
+   */
   leave: (id: number) => `/consultations/${id}/leave`,
 } as const
 
