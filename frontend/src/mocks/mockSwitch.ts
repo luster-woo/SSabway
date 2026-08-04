@@ -87,6 +87,14 @@ const SWITCH = {
   'GET /staffs/waiting': false,
 
   /*
+    관리자 — 진행 중 상담 정보 단건 (⚠️ BE 신설 요청 상태, 8/4).
+    수락 직후에는 라우팅 state 가 쓰여 이 API 를 부르지 않는다 — 상담방
+    새로고침 때만 나간다. ⚠️ BE 가 신설되기 전까지는 true 로 둘 것 —
+    끄면 새로고침 경로가 404 를 받는다. 신설되면 false 로 내려 실연동 검증.
+  */
+  'GET /staffs/consultations/:consultationId': true,
+
+  /*
     관리자 — 블랙리스트 4종 (✅ BE 개발완료).
 
     핸들러가 없던 동안에는 스위치도 없어서 이 요청만 항상 실서버로 나갔다.
