@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Navigate, useNavigate, useParams } from 'react-router-dom'
+import { Navigate, useLocation, useNavigate, useParams } from 'react-router-dom'
 
 import { useToast } from '@/shared/ui'
 import { OV_STATUS } from '@/shared/webrtc/useOpenViduSession'
@@ -7,7 +7,11 @@ import { BlacklistReasonModal } from '@/admin/features/blacklist/BlacklistReason
 import { useBlacklist } from '@/admin/features/blacklist/useBlacklist'
 import { ConsultationInfoPanel } from '@/admin/features/consultation-room/ConsultationInfoPanel'
 import { EndConsultationDialog } from '@/admin/features/consultation-room/EndConsultationDialog'
-import { useConsultationDetail } from '@/admin/features/consultation-room/useConsultationDetail'
+import type { WaitingConsultation } from '@/admin/features/consultation-receive/useWaitingConsultations'
+import {
+  toConsultationDetail,
+  useConsultationDetail,
+} from '@/admin/features/consultation-room/useConsultationDetail'
 import { useConsultationRoom } from '@/admin/features/consultation-room/useConsultationRoom'
 import { useEndConsultation } from '@/admin/features/consultation-room/useEndConsultation'
 import { UserLocationModal } from '@/admin/features/consultation-room/UserLocationModal'
@@ -28,11 +32,24 @@ export default function AdminConsultationPage() {
   const consultationId = Number(consultationIdParam)
   const isValidId = Number.isInteger(consultationId) && consultationId > 0
 
+  /*
+    수락 화면(WaitingPanel)이 넘긴 대기 항목. 새로고침하면 사라지므로
+    그때만 useConsultationDetail 의 서버 조회가 돈다. 다른 상담의 잔여
+    state 가 섞이지 않게 ID 가 일치할 때만 쓴다.
+  */
+  const { state } = useLocation()
+  const fromWaiting =
+    (state as { waiting?: WaitingConsultation } | null)?.waiting ?? null
+  const initialDetail =
+    fromWaiting && fromWaiting.consultationId === consultationId
+      ? toConsultationDetail(fromWaiting)
+      : null
+
   const {
     data: detail,
     isPending,
     isError,
-  } = useConsultationDetail(isValidId ? consultationId : 0)
+  } = useConsultationDetail(isValidId ? consultationId : 0, initialDetail)
   const { registerBlacklist, pendingEmail } = useBlacklist()
   const { endConsultation, isPending: isEndPending } = useEndConsultation()
   const room = useConsultationRoom(isValidId ? consultationId : 0)
