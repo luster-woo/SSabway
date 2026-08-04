@@ -4,11 +4,12 @@
 
 Spring 백엔드가 사진을 넘기면 어느 표지판인지 돌려준다.
 
-  POST /predict          사진 1장 → 표지판 id
-  WS   /ws/v1/ai/faces   영상 프레임 → 얼굴 좌표 (화상 상담 모자이크용)
-  GET  /health           살아있는지 + 모델이 올라왔는지
-  GET  /classes          인식 가능한 표지판 목록
-  GET  /docs             자동 생성된 테스트 화면
+  POST /predict                사진 1장 → 표지판 id
+  WS   /ws/v1/ai/faces         영상 프레임 → 얼굴 좌표 (화상 상담 모자이크용)
+  WS   /ws/v1/ai/translation   음성 → 번역 자막 (화상 상담)
+  GET  /health                 살아있는지 + 모델이 올라왔는지
+  GET  /classes                인식 가능한 표지판 목록
+  GET  /docs                   자동 생성된 테스트 화면
 
 실행:
   uvicorn main:app --host 0.0.0.0 --port 8000
@@ -29,6 +30,7 @@ from PIL import Image, UnidentifiedImageError
 
 from face import FaceDetector, resolve_model_path as resolve_face_model_path
 from inference import SignRecognizer, resolve_model_paths
+from translate import TranslationSession, is_configured as is_speech_configured
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(levelname)s %(message)s')
@@ -42,6 +44,9 @@ recognizer: SignRecognizer | None = None
 
 # 얼굴 검출기는 연결마다 새로 만든다(face.py 주석 참고). 여기서는 파일 존재만 기억한다.
 face_model_ready: bool = False
+
+# 자막도 연결마다 인식기를 만든다. 키가 있는지만 기동 시 확인해 둔다.
+speech_ready: bool = False
 
 
 @asynccontextmanager
@@ -81,6 +86,15 @@ async def lifespan(app: FastAPI):
     else:
         log.warning('얼굴 검출 모델이 없습니다(%s). /ws/v1/ai/faces 는 즉시 닫힙니다.', face_path)
 
+    # 자막도 독립이다. 키가 없어도 표지판·얼굴은 그대로 서비스한다.
+    global speech_ready
+    speech_ready = is_speech_configured()
+    if speech_ready:
+        log.info('Azure Speech 설정 확인 (region=%s)', os.getenv('AZURE_SPEECH_REGION'))
+    else:
+        log.warning('AZURE_SPEECH_KEY/REGION 이 없습니다. '
+                    '/ws/v1/ai/translation 은 즉시 닫힙니다.')
+
     yield
 
     log.info('종료')
@@ -105,9 +119,10 @@ def health():
         'arch': recognizer.arch,
         'inputSize': recognizer.input_hw,
         'classCount': len(recognizer.classes),
-        # 얼굴 검출은 없어도 표지판 인식은 정상이라 status 를 낮추지 않는다.
+        # 얼굴 검출·자막은 없어도 표지판 인식은 정상이라 status 를 낮추지 않는다.
         # 대신 여기로 드러내서 배포 후 바로 확인할 수 있게 한다.
         'faceDetection': face_model_ready,
+        'translation': speech_ready,
     }
 
 
@@ -199,6 +214,99 @@ async def faces(websocket: WebSocket):
         log.info('얼굴 검출 연결 종료 (프레임 %d장)', frames)
     except Exception:
         log.exception('얼굴 검출 연결 오류 (프레임 %d장)', frames)
+
+
+@app.websocket('/ws/v1/ai/translation')
+async def translation(websocket: WebSocket):
+    """
+    상대방 음성 → 내 언어 자막.
+
+      ① 연결 직후 세션 설정 1건 (텍스트)
+         {"speaker":"ADMIN","sourceLanguage":"ko-KR","targetLanguage":"en-US"}
+      ② 이후 binary — 16kHz mono PCM16 (pcmStreamer.ts)
+      ③ 서버 →
+         {"speaker","type":"INTERIM"|"FINAL","sourceLanguage","targetLanguage",
+          "sourceText","translatedText"}
+
+    소켓 하나가 화자 한 명을 맡는다. 상담 1건에 양방향 2개가 열린다 —
+    인식 언어가 서로 달라 하나로 합칠 수 없다.
+
+    자막이 실패해도 통화는 계속되어야 한다. 여기서 죽으면 소켓만 닫히고
+    브라우저는 재연결 3회 후 조용히 포기한다(wsTransport.ts).
+    """
+    await websocket.accept()
+
+    if not speech_ready:
+        log.warning('Azure Speech 설정이 없어 연결을 닫습니다.')
+        await websocket.close(code=1011)
+        return
+
+    # 첫 메시지는 반드시 세션 설정이다. 오디오부터 오면 어느 언어인지 알 수 없다.
+    try:
+        config = json.loads(await websocket.receive_text())
+        source = config['sourceLanguage']
+        target = config['targetLanguage']
+        speaker = config.get('speaker')
+    except WebSocketDisconnect:
+        return
+    except (json.JSONDecodeError, KeyError, TypeError):
+        log.warning('세션 설정을 읽지 못했습니다.')
+        await websocket.close(code=1003)
+        return
+
+    loop = asyncio.get_running_loop()
+    outbox: asyncio.Queue = asyncio.Queue()
+
+    def emit(payload):
+        """Azure SDK 스레드에서 불린다. 루프로 넘기기만 하고 아무것도 더 하지 않는다."""
+        payload['speaker'] = speaker
+        loop.call_soon_threadsafe(outbox.put_nowait, payload)
+
+    try:
+        session = TranslationSession(source, target, emit)
+    except (RuntimeError, ValueError) as exception:
+        log.warning('자막 세션을 만들지 못했습니다: %s', exception)
+        await websocket.close(code=1011)
+        return
+
+    log.info('자막 연결 시작 %s → %s (speaker=%s)', source, target, speaker)
+
+    async def pump():
+        """SDK 콜백과 전송을 분리한다. 콜백에서 직접 보내면 루프를 침범한다."""
+        while True:
+            payload = await outbox.get()
+            if payload.get('type') == 'CANCELED':
+                # 인증 실패·쿼터 초과 등. 브라우저는 재연결로 해결하지 못한다.
+                log.error('Azure 인식 취소: %s / %s',
+                          payload.get('reason'), payload.get('error'))
+                continue
+            await websocket.send_text(json.dumps(payload, ensure_ascii=False))
+
+    sender = asyncio.create_task(pump())
+    chunks = 0
+
+    try:
+        while True:
+            message = await websocket.receive()
+
+            if message['type'] == 'websocket.disconnect':
+                break
+
+            audio = message.get('bytes')
+            if audio:
+                session.write(audio)
+                chunks += 1
+            # 텍스트가 또 오면 무시한다. 설정은 연결당 한 번이다.
+
+    except WebSocketDisconnect:
+        pass
+    except Exception:
+        log.exception('자막 연결 오류')
+    finally:
+        sender.cancel()
+        # stop_continuous_recognition 은 블로킹이라 루프를 막는다
+        await asyncio.to_thread(session.close)
+        log.info('자막 연결 종료 (조각 %d개)', chunks)
 
 
 # async def 가 아니라 def 로 둔다.
