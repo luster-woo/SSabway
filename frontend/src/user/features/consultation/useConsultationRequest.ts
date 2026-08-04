@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react'
 
 import { useDestinationStore } from '@/shared/lib/store/useDestinationStore'
 import { useOriginStationStore } from '@/shared/lib/store/useOriginStationStore'
+import { useSelectedRouteStore } from '@/shared/lib/store/useSelectedRouteStore'
 import { openviduApi } from '@/user/features/consultation/openviduApi'
 
 export interface UseConsultationRequestResult {
@@ -21,9 +22,9 @@ export interface UseConsultationRequestResult {
   /**
    * 출발지·목적지를 몰라서 요청을 보낼 수조차 없다.
    *
-   * 정상 흐름(경로 안내 → 도움 요청)에서는 두 값이 스토어에 차 있다.
-   * 이 화면에 URL 로 직접 들어왔거나, GPS 를 거부하고 표지판 분석도 아직
-   * 붙지 않아 출발역을 못 잡은 경우에 true 가 된다.
+   * 정상 흐름(경로 선택 → 경로 안내 → 도움 요청)에서는 선택 경로가 차 있다.
+   * 이 화면에 URL 로 직접 들어왔거나, 세션이 만료돼 스토어가 비었을 때
+   * true 가 된다.
    */
   isRouteMissing: boolean
 }
@@ -31,15 +32,19 @@ export interface UseConsultationRequestResult {
 /**
  * 상담 요청 — 대기열 등록 + 취소.
  *
- * 요청 본문의 출발지·목적지는 앞선 화면들이 스토어에 담아 둔 값을 쓴다.
- * (`useOriginStationStore` = GPS/표지판으로 잡은 출발역, `useDestinationStore`
- *  = 지도에서 고른 목적지) 역무원은 서버가 departure **역 이름**으로 배정한다
- * (8/4 — departureStationId 삭제, `ConsultationCreateBody` 주석 참고).
+ * 요청 본문의 출발지·목적지는 **사용자가 고른 경로의 역 이름**을 쓴다
+ * (`useSelectedRouteStore`). 서버가 departure 로 담당 역무원을 배정하는데
+ * (8/4 — departureStationId 삭제) `stations.name_ko` 와 정확 비교이므로,
+ * Google Places 가 준 장소명("경북대 북문")이 아니라 ODsay 가 준 역 이름이어야
+ * 한다. destination 도 같은 이유로 도착역을 보낸다 — 역무원 화면에 표시되는
+ * 구간이 사용자가 실제로 타는 구간과 같아야 한다.
  *
- * ⚠️ TODO(BE 답변 대기): departure 는 DB `stations.name_ko` 와 정확히 일치해야
- *    한다. 지금은 Google Places 가 준 역 이름을 그대로 보내는데, 표기가 다르면
- *    404 STAFF_NOT_FOUND 다. BE 가 시드의 역 이름 표기 목록을 확정하면
- *    여기서 매핑(또는 정규화)을 넣는다.
+ * 경로를 고르기 전(URL 직접 진입, 세션 만료)에는 출발지·목적지 스토어의
+ * 이름으로 폴백한다. 그마저 없으면 요청 자체를 보내지 않는다(isRouteMissing).
+ *
+ * ⚠️ TODO(BE 답변 대기): ODsay 역 표기와 DB 시드 표기가 다르면 여전히
+ *    404 STAFF_NOT_FOUND 다("대구역" vs "대구"). BE 가 시드의 역 이름 표기를
+ *    확정하면 여기서 매핑(또는 정규화)을 넣는다.
  *
  * TODO: 블랙리스트 403 은 이제 응답의 code(CONSULTATION_BLOCKED)로 구분
  *       가능하다(ssabway ApiResponse 에 code 추가됨). 화면 문구 분기는 별도
@@ -49,11 +54,13 @@ export function useConsultationRequest(): UseConsultationRequestResult {
   const [isPending, setIsPending] = useState(false)
   const [isRejected, setIsRejected] = useState(false)
 
+  const selectedRoute = useSelectedRouteStore((state) => state.selectedRoute)
   const originStation = useOriginStationStore((state) => state.originStation)
   const destination = useDestinationStore((state) => state.destination)
 
-  const departure = originStation?.name ?? null
-  const arrival = destination?.name ?? null
+  const departure =
+    selectedRoute?.departureStation ?? originStation?.name ?? null
+  const arrival = selectedRoute?.arrivalStation ?? destination?.name ?? null
   const isRouteMissing = departure === null || arrival === null
 
   const requestConsultation = useCallback(async (): Promise<number | null> => {
