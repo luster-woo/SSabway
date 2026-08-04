@@ -202,7 +202,15 @@
       "missingKey": "지도 키가 설정되지 않았어요\nconfig.js의 NAVER_MAP_CLIENT_ID를 확인해 주세요",
       "authFailed": "지도 인증에 실패했어요\nClient ID와 콘솔의 Web 서비스 URL 등록을 확인해 주세요",
       "mapFailed": "지도를 불러오지 못했어요\n네트워크 상태를 확인해 주세요"
-    }
+    },
+    "setOrigin": "출발지로 설정",
+    "setDestination": "도착지로 설정",
+    "originSet": "출발지로 설정됨",
+    "destinationSet": "도착지로 설정됨",
+    "originApplied": "{{name}}을(를) 출발지로 설정했어요",
+    "destinationApplied": "{{name}}을(를) 도착지로 설정했어요",
+    "needBoth": "출발지와 도착지를 모두 선택해 주세요",
+    "recenter": "현재 위치로 이동"
   },
   "location": {
     "captureSign": "표지판 촬영하기",
@@ -232,7 +240,13 @@
       "started": "{{station}}까지 안내를 시작해요",
       "durationMin": "{{m}}분",
       "durationHour": "{{h}}시간 {{m}}분",
-      "fare": "{{amount}}원"
+      "fare": "{{amount}}원",
+      "needOrigin": "출발지가 아직 정해지지 않았어요\n지도에서 출발지를 선택해 주세요",
+      "needDestination": "도착지가 아직 정해지지 않았어요\n지도에서 도착지를 선택해 주세요",
+      "pickOnMap": "지도에서 선택하기",
+      "failedNetwork": "경로 서버에 연결하지 못했어요\n네트워크와 서버 상태를 확인해 주세요",
+      "failedNoRoute": "이 구간의 지하철 경로를 찾지 못했어요\n출발지·도착지를 다시 선택해 주세요",
+      "failedOdsay": "경로 정보를 가져오지 못했어요\n잠시 후 다시 시도해 주세요"
     }
   },
   "userInfo": {
@@ -415,5 +429,9 @@
       "title": "페이지를 찾을 수 없어요",
       "description": "주소가 잘못되었거나 삭제된 화면이에요."
     }
+  },
+  "trip": {
+    "originEmpty": "출발지 선택",
+    "destinationEmpty": "도착지 선택"
   }
 }

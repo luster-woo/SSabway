@@ -4,9 +4,13 @@ import { useNavigate } from 'react-router-dom'
 
 import { cn } from '@/shared/lib/cn'
 import { useDestinationStore } from '@/shared/lib/store/useDestinationStore'
-import { useOriginStationStore } from '@/shared/lib/store/useOriginStationStore'
+import {
+  ORIGIN_SOURCE,
+  useOriginStationStore,
+} from '@/shared/lib/store/useOriginStationStore'
 import type { Place } from '@/shared/types/place'
 import { MobileViewport, useToast } from '@/shared/ui'
+import { TripEndpointBar } from '@/shared/ui/TripEndpointBar'
 import { DestinationSearchBar } from '@/user/features/destination-search/DestinationSearchBar'
 import { MapLoadErrorNotice } from '@/user/features/destination-search/MapLoadErrorNotice'
 import { PlaceResultList } from '@/user/features/destination-search/PlaceResultList'
@@ -20,12 +24,16 @@ import { useMyLocation } from '@/user/features/destination-search/hooks/useMyLoc
 import { usePlaceSearch } from '@/user/features/destination-search/hooks/usePlaceSearch'
 
 /**
- * 3. 목적지 설정 — 지도에서 목적지를 확정하는 화면.
+ * 3. 목적지 설정 — 지도에서 출발지와 도착지를 확정하는 화면.
  *
- * 진입 직후에는 지도와 검색창만 보인다. GPS 동의가 돼 있으면 내 위치(파란 원)를
- * 지도에 표시하고 그 위치로 화면을 맞춘다. 우측 하단 "현재 위치" 버튼으로 언제든
- * 내 위치로 다시 돌아올 수 있다. 키워드를 검색하면 후보 목록이 뜨고 첫 번째 후보가
- * 자동 선택되어 마커가 찍히며 그 위치로 확대 이동한다.
+ * 장소를 검색해 고르면 하단 카드에 [출발지로 설정]·[도착지로 설정]이 뜬다.
+ * 한 장소를 골라 어느 쪽으로 쓸지 사용자가 정하는 구조라, "구미역"처럼 출발도
+ * 도착도 될 수 있는 지점을 한 화면에서 양쪽 다 지정할 수 있다.
+ *
+ * 지도 초기 위치는 GPS 동의 여부로 갈린다.
+ *   동의  → 실제 좌표(또는 시작 화면에서 찾은 인근역)로 맞춘다
+ *   비동의 → 서울역에서 시작한다 (useGoogleDestinationMap 의 DEFAULT_CENTER)
+ * 어느 쪽이든 경로 조회의 출발지는 사용자가 직접 지정해야 정해진다.
  */
 export default function DestinationPage() {
   const { t } = useTranslation()
@@ -40,31 +48,45 @@ export default function DestinationPage() {
   const [submittedQuery, setSubmittedQuery] = useState('')
   const [selected, setSelected] = useState<Place | null>(null)
 
+  const destination = useDestinationStore((state) => state.destination)
   const setDestination = useDestinationStore((state) => state.setDestination)
+  const originStation = useOriginStationStore((state) => state.originStation)
+  const setOriginStation = useOriginStationStore(
+    (state) => state.setOriginStation,
+  )
+
   const { results, isSearching, hasSearched, errorType } =
     usePlaceSearch(submittedQuery)
 
   // GPS 동의가 돼 있으면 실제 좌표를 받아온다. (동의 전/거부면 null)
   const rawLocation = useMyLocation(status === SDK_STATUS.READY)
-  // 시작 화면에서 GPS로 찾은 인근역(이름+좌표).
-  const originStation = useOriginStationStore((state) => state.originStation)
 
-  // 파란 원은 "찾은 인근역" 위치에 찍는다. 인근역이 없으면(직접 진입/거부 등)
-  // 실제 GPS 좌표로 폴백한다. 새 객체 리터럴이 매 렌더 지도를 다시 맞추지 않도록 메모한다.
+  /*
+    파란 원("내 위치")의 위치.
+
+    시작 화면이 GPS 로 찾아 둔 인근역이 있으면 그 좌표를, 없으면 방금 받은 GPS
+    좌표를 쓴다. 단 사용자가 지도에서 출발지를 직접 골랐다면(MANUAL) 그 값은
+    "내 위치"가 아니므로 여기서는 쓰지 않는다 — 그건 출발지 마커가 따로 그린다.
+
+    새 객체 리터럴이 매 렌더 지도를 다시 맞추지 않도록 메모한다.
+  */
+  const originSource = useOriginStationStore((state) => state.originSource)
   const myLocation = useMemo(
     () =>
-      originStation
+      originStation && originSource === ORIGIN_SOURCE.GPS
         ? {
             latitude: originStation.latitude,
             longitude: originStation.longitude,
           }
         : rawLocation,
-    [originStation, rawLocation],
+    [originStation, originSource, rawLocation],
   )
 
   const { recenterToMyLocation } = useGoogleDestinationMap(mapContainerRef, {
     isReady: status === SDK_STATUS.READY,
     selected,
+    origin: originStation,
+    destination,
     myLocation,
   })
 
@@ -100,9 +122,38 @@ export default function DestinationPage() {
     setSubmittedQuery('')
   }
 
-  const confirmDestination = () => {
+  /*
+    같은 지점인지 좌표로 판정한다. placeId 는 검색 소스가 달라지면 바뀌지만
+    (GPS 로 찾은 인근역에는 아예 없다) 좌표는 어느 경로로 들어와도 같다.
+  */
+  const isSamePoint = (
+    a: { latitude: number; longitude: number } | null,
+    b: { latitude: number; longitude: number } | null,
+  ) => !!a && !!b && a.latitude === b.latitude && a.longitude === b.longitude
+
+  const applyOrigin = () => {
+    if (!selected) return
+    setOriginStation(
+      {
+        name: selected.name,
+        latitude: selected.latitude,
+        longitude: selected.longitude,
+      },
+      ORIGIN_SOURCE.MANUAL,
+    )
+    showToast(t('destination.originApplied', { name: selected.name }))
+  }
+
+  const applyDestination = () => {
     if (!selected) return
     setDestination(selected)
+    showToast(t('destination.destinationApplied', { name: selected.name }))
+  }
+
+  const canProceed = !!originStation && !!destination
+
+  const confirmTrip = () => {
+    if (!canProceed) return
     void navigate('/route')
   }
 
@@ -133,7 +184,7 @@ export default function DestinationPage() {
         <MapLoadErrorNotice errorType={sdkErrorType} onRetry={retry} />
       ) : null}
 
-      {/* 검색창 + 결과 목록 (지도 위 레이어) */}
+      {/* 검색창 + 구간 표시 + 결과 목록 (지도 위 레이어) */}
       <div className="pointer-events-none absolute inset-x-0 top-0 z-10 flex flex-col gap-2 px-4 pt-[calc(env(safe-area-inset-top,0px)+0.75rem)]">
         <div className="pointer-events-auto">
           <DestinationSearchBar
@@ -142,6 +193,16 @@ export default function DestinationPage() {
             onSubmit={submitSearch}
             onBack={() => void navigate(-1)}
             onClear={resetSearch}
+          />
+        </div>
+
+        {/* 지금까지 무엇이 정해졌는지 항상 보이게 둔다.
+            지도 타일 위라 평문이면 묻혀서, 여기서만 흰 배경을 깔아 준다. */}
+        <div className="pointer-events-auto">
+          <TripEndpointBar
+            className="border-line bg-surface/95 rounded-2xl border px-3.5 py-2 shadow-sm backdrop-blur"
+            originName={originStation?.name ?? null}
+            destinationName={destination?.name ?? null}
           />
         </div>
 
@@ -162,13 +223,13 @@ export default function DestinationPage() {
       {myLocation ? (
         <button
           type="button"
-          aria-label="현재 위치로 이동"
+          aria-label={t('destination.recenter')}
           onClick={recenterToMyLocation}
           className={cn(
             'bg-surface text-brand-dark border-line absolute right-4 z-20 flex size-11 items-center justify-center rounded-full border shadow-lg transition active:scale-95',
-            // 목적지를 고르면 하단 카드가 뜨므로 그 위로 버튼을 올린다. (카드 높이 근사값)
+            // 장소를 고르면 하단 카드가 뜨므로 그 위로 버튼을 올린다. (카드 높이 근사값)
             selected
-              ? 'bottom-[calc(env(safe-area-inset-bottom,0px)+11rem)]'
+              ? 'bottom-[calc(env(safe-area-inset-bottom,0px)+15rem)]'
               : 'bottom-[calc(env(safe-area-inset-bottom,0px)+1.5rem)]',
           )}
         >
@@ -195,7 +256,12 @@ export default function DestinationPage() {
         <div className="absolute inset-x-0 bottom-0 z-10">
           <SelectedPlaceCard
             place={selected}
-            onConfirm={confirmDestination}
+            isOrigin={isSamePoint(selected, originStation)}
+            isDestination={isSamePoint(selected, destination)}
+            canProceed={canProceed}
+            onSetOrigin={applyOrigin}
+            onSetDestination={applyDestination}
+            onConfirm={confirmTrip}
             onReset={resetSearch}
           />
         </div>

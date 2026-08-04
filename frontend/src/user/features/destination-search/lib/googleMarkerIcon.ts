@@ -19,6 +19,26 @@ export function buildDestinationMarkerIcon(): google.maps.Icon {
   }
 }
 
+/** 출발지 마커 SVG. 도착지(파랑)와 색으로 구분되도록 초록 계열로 그린다. */
+const ORIGIN_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 34 44" fill="none"><path d="M17 43C17 43 32 27.5 32 17A15 15 0 1 0 2 17C2 27.5 17 43 17 43Z" fill="#0f9d58" stroke="#0b6b3a" stroke-width="2" stroke-linejoin="round"/><circle cx="17" cy="17" r="5.6" fill="#ffffff"/></svg>`;
+
+/**
+ * 출발지 마커 아이콘 (Google 지도용).
+ *
+ * 도착지와 같은 물방울 모양에 색만 다르다 — 모양까지 바꾸면 지도 위에서 두
+ * 마커가 서로 다른 종류의 정보처럼 읽힌다. 둘은 같은 성격의 지점이고
+ * 방향(출발/도착)만 다르므로 색으로 구분하는 편이 맞다.
+ *
+ * buildDestinationMarkerIcon 과 마찬가지로 SDK 로드 후에 호출해야 한다.
+ */
+export function buildOriginMarkerIcon(): google.maps.Icon {
+  return {
+    url: `data:image/svg+xml,${encodeURIComponent(ORIGIN_SVG)}`,
+    scaledSize: new google.maps.Size(WIDTH, HEIGHT),
+    anchor: new google.maps.Point(WIDTH / 2, HEIGHT),
+  }
+}
+
 /** "내 위치" 파란 점 크기(px). */
 const MY_LOCATION_SIZE = 24
 
