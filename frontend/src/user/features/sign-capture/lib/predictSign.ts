@@ -1,18 +1,36 @@
 import { userApi } from '@/shared/api/client'
 import { endpoints } from '@/shared/api/endpoints'
 
+/** 확신도가 낮을 때 사용자에게 고르게 할 후보 하나. (BE SignPredictResponse.Candidate 와 1:1) */
+export interface SignCandidate {
+  signageId: string
+  floor: string
+  confidence: number
+}
+
 /**
  * 표지판 인식 응답의 data.
  * 명세: Notion API 명세서 > AI > 표지판 인식 (POST /api/v1/ai/signs/predict)
  *
- * ⚠️ 지금 화면 흐름에서는 이 값을 쓰지 않는다 — 경로 상세 화면이 전체 지도와
- *    경로 데이터를 처음부터 끝까지 제공하므로, 여기서는 "요청이 성공했는지"만
- *    확인하고 다음 화면으로 넘어간다. 위치 기반 분기가 생기면 그때 이 값을
- *    스토어에 담는 코드를 붙인다.
+ * signageId 는 지도 노드 id 와 같은 값이라(예: S3_02) 길안내의 출발 지점
+ * (useStationNodeStore.setStartPoint)으로 그대로 넘긴다.
+ *
+ * confident 로 신뢰 여부를 가른다 — true 면 signageId 를 그대로 쓰고, false 면
+ * 확신도가 낮다는 뜻이라 그대로 진행하지 않는다. BE 는 확신도가 낮아도
+ * signageId 를 비우지 않고 가장 가까운 후보를 담아 보낸다(candidates 참고).
+ *
+ * ⚠️ BE 는 이 다섯 필드를 모두 내려준다. 예전에는 signageId/floor 만 받고
+ *    나머지를 버려서 "확신도 낮음 → 확인" 흐름 자체를 만들 수 없었다.
  */
 export interface SignPrediction {
   signageId?: string
   floor?: string
+  /** 0~1. 최상위 후보의 확신도 */
+  confidence?: number
+  /** true 면 signageId 를 그대로 사용, false 면 candidates 로 확인이 필요하다 */
+  confident?: boolean
+  /** 확신도가 낮을 때 제시할 후보들. 신뢰할 만하면 비어 있을 수 있다 */
+  candidates?: SignCandidate[]
 }
 
 /** 명세 예시 봉투. success/isSuccess 표기가 문서마다 갈려 둘 다 받는다 */
