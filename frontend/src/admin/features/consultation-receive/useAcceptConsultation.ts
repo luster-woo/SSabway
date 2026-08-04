@@ -35,9 +35,6 @@ export interface UseAcceptConsultationResult {
  * 선착순은 서버가 상담 상태 잠금으로 판정한다. 늦게 누른 역무원은
  * 409 CONSULTATION_ALREADY_ACCEPTED 를 받는다.
  *
- * ⚠️ admin 로그인이 목 토큰인 동안(mockSwitch 'POST /staffs/login': true)에는
- *    실서버에서 401 이다 — 실서버 수락 테스트는 실존 staff 계정으로 로그인할 것.
- *
  * 실패해도 대기 목록 쿼리를 무효화한다. 이미 없어진 항목이 화면에 남으면 안 된다.
  */
 export function useAcceptConsultation(): UseAcceptConsultationResult {

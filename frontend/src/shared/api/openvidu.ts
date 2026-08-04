@@ -246,8 +246,7 @@ export function createOpenViduApi(api: AxiosInstance) {
   /**
    * 상담 요청 → 대기열 등록.
    *
-   * 역무원은 서버가 `departureStationId` 로 배정하므로 보내지 않는다.
-   * 세 필드 모두 필수다 — 자세한 계약은 `ConsultationCreateBody` 참고.
+   * 자세한 계약은 `ConsultationCreateBody` 참고.
    */
   async function requestConsultation(
     body: ConsultationCreateBody,
@@ -270,7 +269,7 @@ export function createOpenViduApi(api: AxiosInstance) {
   }
 
   /**
-   * 대기 취소. WAITING 에서만 가능하고(그 외 409), 이미 취소된 상담에
+   * 대기 취소. 이미 취소된 상담에
    * 재요청해도 성공(멱등)이다 — 호출부가 상태를 가리지 않고 불러도 된다.
    */
   async function cancelConsultation(consultationId: number): Promise<void> {
@@ -278,14 +277,11 @@ export function createOpenViduApi(api: AxiosInstance) {
   }
 
   /**
-   * 사용자가 통화에서 나갔음을 알린다. ⚠️ BE 미구현 (목만 있다).
+   * 사용자가 통화에서 나갔음을 알린다.
    *
    * 이 호출이 없으면 상담이 MATCHED/IN_PROGRESS 로 남아, 같은 사용자가 다시
    * 도움을 요청할 때 409 CONSULTATION_DUPLICATED 로 막힌다. 역무원이
    * [상담 종료] 를 눌러 주기 전까지 사용자는 재요청을 못 하게 된다.
-   *
-   * 녹음 정지·세션 종료는 여기서 하지 않는다 — 역무원 쪽 end 와 OpenVidu
-   * 세션 종료 웹훅이 담당한다.
    */
   async function leaveConsultation(consultationId: number): Promise<void> {
     await api.post(endpoints.consultations.leave(consultationId))

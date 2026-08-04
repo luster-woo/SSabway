@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { useToast } from '@/shared/ui'
@@ -19,6 +19,20 @@ import { Panel } from '@/admin/ui/Panel'
 export function WaitingPanel() {
   const [page, setPage] = useState(1)
   const { data, isPending, isError, isFetching } = useWaitingConsultations(page)
+
+  /*
+    목록이 줄어 현재 페이지가 총 페이지 수를 넘으면 마지막 페이지로 되돌린다.
+    대기 목록은 3초마다 폴링해 건수가 계속 바뀌는데, 보정하지 않으면 서버가
+    빈 목록을 주고 `totalPages > 1` 도 거짓이 되어 페이지 이동 버튼까지 사라진다
+    — 빈 화면에 갇혀 새 대기자가 와도 보지 못한다.
+    (건수 0 이면 totalPages 도 0 이라 최소 1 페이지로 막는다)
+  */
+  useEffect(() => {
+    if (data && page > data.page.totalPages) {
+      setPage(Math.max(1, data.page.totalPages))
+    }
+  }, [data, page])
+
   const { accept, pendingId } = useAcceptConsultation()
   const { showToast } = useToast()
   const navigate = useNavigate()
@@ -40,15 +54,18 @@ export function WaitingPanel() {
       세션 정보(sessionId·token)는 useAcceptConsultation 이 스토어에
       넣어 뒀다. 라우팅 state 로 넘기면 새로고침·뒤로가기에서 사라진다.
     */
-    void navigate(`/admin/consultation/${String(consultation.consultationId)}`, {
-      /*
+    void navigate(
+      `/admin/consultation/${String(consultation.consultationId)}`,
+      {
+        /*
         상담 정보(이메일·출발지·목적지·언어)를 함께 넘긴다. 상담방의 서버
         조회(GET /staffs/consultations/{id})가 BE 신설 대기라, 수락 흐름에서는
         이 값이 유일한 실데이터다. 특히 블랙리스트 등록이 이 email 로 나간다.
         새로고침하면 사라지고 서버 조회 폴백을 탄다 — useConsultationDetail 참고.
       */
-      state: { waiting: consultation },
-    })
+        state: { waiting: consultation },
+      },
+    )
   }
 
   return (

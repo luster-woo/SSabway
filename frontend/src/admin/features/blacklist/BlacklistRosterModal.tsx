@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import {
   joinReasons,
@@ -28,6 +28,17 @@ export function BlacklistRosterModal({
     true,
     page,
   )
+
+  /*
+    마지막 페이지에서 사용자를 해제해 목록이 줄면 현재 페이지가 총 페이지 수를
+    넘을 수 있다. 그대로 두면 빈 명단에 페이지 이동 버튼까지 사라지므로 마지막
+    페이지로 되돌린다. (전원 해제로 0명이 되면 최소 1 페이지로 막는다)
+  */
+  useEffect(() => {
+    if (data && page > data.page.totalPages) {
+      setPage(Math.max(1, data.page.totalPages))
+    }
+  }, [data, page])
 
   return (
     <Modal title="블랙리스트 명단" onClose={onClose}>
