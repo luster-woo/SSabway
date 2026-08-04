@@ -4,24 +4,30 @@
 
 Spring 백엔드가 사진을 넘기면 어느 표지판인지 돌려준다.
 
-  POST /predict   사진 1장 → 표지판 id
-  GET  /health    살아있는지 + 모델이 올라왔는지
-  GET  /classes   인식 가능한 표지판 목록
-  GET  /docs      자동 생성된 테스트 화면
+  POST /predict          사진 1장 → 표지판 id
+  WS   /ws/v1/ai/faces   영상 프레임 → 얼굴 좌표 (화상 상담 모자이크용)
+  GET  /health           살아있는지 + 모델이 올라왔는지
+  GET  /classes          인식 가능한 표지판 목록
+  GET  /docs             자동 생성된 테스트 화면
 
 실행:
   uvicorn main:app --host 0.0.0.0 --port 8000
 """
+import asyncio
+import base64
+import binascii
 import io
+import json
 import logging
 import os
 from contextlib import asynccontextmanager
 
 import torch
-from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi import FastAPI, File, HTTPException, UploadFile, WebSocket, WebSocketDisconnect
 from fastapi.responses import JSONResponse
 from PIL import Image, UnidentifiedImageError
 
+from face import FaceDetector, resolve_model_path as resolve_face_model_path
 from inference import SignRecognizer, resolve_model_paths
 
 logging.basicConfig(level=logging.INFO,
@@ -33,6 +39,9 @@ ALLOWED_TYPES = {'image/jpeg', 'image/jpg', 'image/png', 'image/webp'}
 
 # 프로세스 하나가 물고 있는 모델. 요청마다 다시 만들지 않는다.
 recognizer: SignRecognizer | None = None
+
+# 얼굴 검출기는 연결마다 새로 만든다(face.py 주석 참고). 여기서는 파일 존재만 기억한다.
+face_model_ready: bool = False
 
 
 @asynccontextmanager
@@ -63,6 +72,15 @@ async def lifespan(app: FastAPI):
              recognizer.load_seconds, recognizer.device, recognizer.arch,
              recognizer.input_hw[0], recognizer.input_hw[1], len(recognizer.classes))
 
+    # 얼굴 검출은 표지판과 독립이다 — 모델이 없어도 표지판 인식은 계속 서비스한다
+    global face_model_ready
+    face_path = resolve_face_model_path()
+    face_model_ready = face_path.exists()
+    if face_model_ready:
+        log.info('얼굴 검출 모델 확인 %s', face_path)
+    else:
+        log.warning('얼굴 검출 모델이 없습니다(%s). /ws/v1/ai/faces 는 즉시 닫힙니다.', face_path)
+
     yield
 
     log.info('종료')
@@ -87,6 +105,9 @@ def health():
         'arch': recognizer.arch,
         'inputSize': recognizer.input_hw,
         'classCount': len(recognizer.classes),
+        # 얼굴 검출은 없어도 표지판 인식은 정상이라 status 를 낮추지 않는다.
+        # 대신 여기로 드러내서 배포 후 바로 확인할 수 있게 한다.
+        'faceDetection': face_model_ready,
     }
 
 
@@ -95,6 +116,89 @@ def classes():
     if recognizer is None:
         raise HTTPException(503, '모델 로딩 중입니다.')
     return {'classes': recognizer.classes}
+
+
+@app.websocket('/ws/v1/ai/faces')
+async def faces(websocket: WebSocket):
+    """
+    화상 상담 얼굴 모자이크용 좌표 제공.
+
+      받고  {"frameId": 12, "timestamp": 1712..., "image": "<base64 JPEG>"}
+      주고  {"frameId": 12, "timestamp": 1712..., "faces": [
+                {"x": 100, "y": 80, "width": 120, "height": 140, "confidence": 0.95}]}
+
+    좌표는 보내온 이미지의 픽셀 기준이다. 브라우저가 원본 해상도로 환산한다
+    (useFaceMosaic.ts — 보낸 프레임 크기를 frameId 로 기억해 뒀다가 쓴다).
+
+    ⚠️ 여기 들어오는 프레임은 아직 가려지지 않은 원본이다. 좌표만 뽑고 즉시
+       버린다 — 절대 디스크나 로그에 남기지 말 것. 모자이크의 존재 이유가
+       사라진다.
+    """
+    await websocket.accept()
+
+    if not face_model_ready:
+        # 그냥 닫는다. 브라우저는 재연결 3회 후 전체 블러로 방어한다
+        # (wsFaceDetector.ts MAX_RETRIES). 얼굴이 안 가려진 채 나가는 것보다 낫다.
+        log.warning('얼굴 검출 모델이 없어 연결을 닫습니다.')
+        await websocket.close(code=1011)
+        return
+
+    try:
+        detector = FaceDetector()
+    except (FileNotFoundError, RuntimeError):
+        log.exception('얼굴 검출기 생성 실패')
+        await websocket.close(code=1011)
+        return
+
+    log.info('얼굴 검출 연결 시작')
+    frames = 0
+
+    try:
+        while True:
+            raw = await websocket.receive_text()
+
+            try:
+                message = json.loads(raw)
+                frame_id = message['frameId']
+                encoded = message['image']
+            except (json.JSONDecodeError, KeyError, TypeError):
+                log.warning('알 수 없는 형식의 메시지를 버립니다.')
+                continue
+
+            # data URL 로 보내는 클라이언트도 받아 준다
+            if ',' in encoded[:64] and encoded.lstrip().startswith('data:'):
+                encoded = encoded.split(',', 1)[1]
+
+            try:
+                image = base64.b64decode(encoded, validate=False)
+            except (binascii.Error, ValueError):
+                log.warning('frame %s: base64 디코딩 실패', frame_id)
+                continue
+
+            try:
+                # blocking 추론이라 스레드로 뺀다. 여기서 그냥 부르면 이벤트
+                # 루프가 프레임마다 멈춰 다른 연결까지 같이 밀린다.
+                boxes = await asyncio.to_thread(detector.detect_jpeg, image)
+            except ValueError:
+                # 깨진 프레임. 응답하지 않는다 — 빈 목록을 보내면 브라우저가
+                # "얼굴 없음" 으로 받아 모자이크를 풀어 버린다.
+                log.warning('frame %s: 이미지 디코딩 실패', frame_id)
+                continue
+            except Exception:
+                log.exception('frame %s: 검출 실패', frame_id)
+                continue
+
+            await websocket.send_text(json.dumps({
+                'frameId': frame_id,
+                'timestamp': message.get('timestamp'),
+                'faces': boxes,
+            }))
+            frames += 1
+
+    except WebSocketDisconnect:
+        log.info('얼굴 검출 연결 종료 (프레임 %d장)', frames)
+    except Exception:
+        log.exception('얼굴 검출 연결 오류 (프레임 %d장)', frames)
 
 
 # async def 가 아니라 def 로 둔다.

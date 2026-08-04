@@ -6,10 +6,35 @@ import { createMosaicPipeline } from '@/user/features/mosaic/mosaicPipeline'
 import type { FaceDetector } from '@/user/features/mosaic/types'
 import { createWsFaceDetector } from '@/user/features/mosaic/wsFaceDetector'
 
-/** 검출 요청 주기. AI 왕복 + 처리 시간을 고려해 초당 4장 */
-const DETECT_INTERVAL_MS = 250
-/** 검출용 프레임의 긴 변. 작을수록 전송·검출이 빠르다 */
-const DETECT_MAX_SIDE = 320
+/**
+ * 검출 요청 주기.
+ *
+ * 해상도를 올린 만큼(아래 DETECT_MAX_SIDE) 장당 전송량이 커져 초당 4장은
+ * 업링크를 감당하기 어렵다. 2.5장으로 낮춰 264KB/s 선에서 맞춘다.
+ * WebRTC 영상이 같은 업링크를 쓰므로 여기서 과하게 쓰면 통화 화질이 깎인다.
+ *
+ * 대신 박스가 최대 400ms 뒤처진다 — BOX_MARGIN 이 그만큼을 흡수한다.
+ */
+const DETECT_INTERVAL_MS = 400
+/**
+ * 검출용 프레임의 긴 변.
+ *
+ * ⚠️ 320 으로 두면 안 된다. 역 사진 120장으로 잰 결과 —
+ *      1280px  34/120 장에서 검출
+ *       960px  12/120
+ *       640px   4/120
+ *       320px   0/120   ← 단 한 장도 못 잡는다
+ *    표지판을 비추는 화면이라 주변 사람이 멀리 작게 찍히는데, 축소하면
+ *    얼굴이 몇 픽셀로 뭉개져 사라진다.
+ *
+ *    검출이 0 이면 서버가 faces: [] 를 돌려주고, 그것은 "얼굴 없음" 으로
+ *    해석되어 setProtectAll(false) — 즉 모자이크가 완전히 꺼진다.
+ *    가려지지 않은 영상이 그대로 나가므로, 낮추려면 반드시 다시 측정할 것.
+ *
+ * JPEG 품질을 낮추는 것은 검출력에 거의 영향이 없다(같은 측정에서 q60→q30
+ * 차이 없음). 대역폭을 줄여야 하면 해상도가 아니라 품질·주기를 건드릴 것.
+ */
+const DETECT_MAX_SIDE = 1280
 /**
  * 이 시간 동안 검출 결과가 없으면 전체 블러로 전환한다.
  * 검출이 죽었는데 얼굴만 안 가려진 채 나가는 것이 최악의 실패라서,
