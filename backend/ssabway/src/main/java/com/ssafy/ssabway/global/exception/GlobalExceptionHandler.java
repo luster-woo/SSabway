@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.stream.Collectors;
@@ -124,6 +126,34 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleTypeMismatch(MethodArgumentTypeMismatchException e) {
         ErrorCode errorCode = ErrorCode.INVALID_INPUT_VALUE;
         log.warn("파라미터 타입 불일치: {} - {}", errorCode.name(), e.getName());
+
+        return ResponseEntity.status(errorCode.getHttpStatus())
+                .body(ApiResponse.error(errorCode));
+    }
+
+    /*
+       [AI_IMAGE_REQUIRED 400]
+       multipart 요청인데 필수 파트가 없는 경우
+       예: POST /ai/signs/predict 에 image 파트 누락
+    */
+    @ExceptionHandler(MissingServletRequestPartException.class)
+    public ResponseEntity<ApiResponse<Void>> handleMissingPart(MissingServletRequestPartException e) {
+        ErrorCode errorCode = ErrorCode.AI_IMAGE_REQUIRED;
+        log.warn("필수 파트 누락: {} - {}", errorCode.name(), e.getRequestPartName());
+
+        return ResponseEntity.status(errorCode.getHttpStatus())
+                .body(ApiResponse.error(errorCode));
+    }
+
+    /*
+       [AI_IMAGE_TOO_LARGE 413]
+       spring.servlet.multipart 한도를 넘긴 업로드.
+       핸들러가 없으면 500 으로 떨어져 사용자가 원인을 알 수 없다.
+    */
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ApiResponse<Void>> handleMaxUploadSize(MaxUploadSizeExceededException e) {
+        ErrorCode errorCode = ErrorCode.AI_IMAGE_TOO_LARGE;
+        log.warn("업로드 크기 초과: {} - {}", errorCode.name(), e.getMessage());
 
         return ResponseEntity.status(errorCode.getHttpStatus())
                 .body(ApiResponse.error(errorCode));
