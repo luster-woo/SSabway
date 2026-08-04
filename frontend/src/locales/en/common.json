@@ -202,7 +202,15 @@
       "missingKey": "Map key is not configured\nCheck NAVER_MAP_CLIENT_ID in config.js",
       "authFailed": "Map authentication failed\nCheck the Client ID and the registered Web service URL",
       "mapFailed": "Could not load the map\nPlease check your network connection"
-    }
+    },
+    "setOrigin": "Set as start",
+    "setDestination": "Set as destination",
+    "originSet": "Set as start ✓",
+    "destinationSet": "Set as destination ✓",
+    "originApplied": "{{name}} set as your starting point",
+    "destinationApplied": "{{name}} set as your destination",
+    "needBoth": "Pick both a start and a destination",
+    "recenter": "Go to my location"
   },
   "location": {
     "captureSign": "Take a photo of a sign",
@@ -232,7 +240,13 @@
       "started": "Starting the guide to {{station}}",
       "durationMin": "{{m}} min",
       "durationHour": "{{h}} hr {{m}} min",
-      "fare": "₩{{amount}}"
+      "fare": "₩{{amount}}",
+      "needOrigin": "No starting point yet\nPick one on the map",
+      "needDestination": "No destination yet\nPick one on the map",
+      "pickOnMap": "Pick on the map",
+      "failedNetwork": "Could not reach the route server\nCheck your network and the server status",
+      "failedNoRoute": "No subway route for this trip\nTry a different start or destination",
+      "failedOdsay": "Could not load route data\nPlease try again in a moment"
     }
   },
   "userInfo": {
@@ -415,5 +429,9 @@
       "title": "Page not found",
       "description": "The address is wrong or the page was removed."
     }
+  },
+  "trip": {
+    "originEmpty": "Set start",
+    "destinationEmpty": "Set destination"
   }
 }
