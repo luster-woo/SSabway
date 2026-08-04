@@ -12,18 +12,22 @@ import { useRoutePreference } from '@/user/features/user-info/useRoutePreference
 /** 표지판 촬영을 마치고 돌아올 경로. SignCapturePage가 state로 받는다. */
 const USER_INFO_PATH = '/user-info'
 
+/** 표시할 출발·도착이 없을 때 돌려보낼 곳. */
+const ROUTE_PATH = '/route'
+
 /**
  * 5. 안내 정보 확인 — 출발지·도착지와 이용 수단을 확정하는 화면.
  *
  * 출발지 '변경'을 누르면 표지판 촬영 화면으로 갔다가 인식이 끝나면 다시 이 화면으로
- * 돌아온다. 출발·도착 정보는 BE가 내려줄 값이라 지금은 목 응답을 쓴다.
+ * 돌아온다. 출발역·도착역 자체는 앞 화면(경로 선택)에서 고른 경로가 정한다
+ * (`useSelectedRouteStore`).
  */
 export default function UserInfoPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { showToast } = useToast()
 
-  const { data: info, isPending, isError, refetch } = useGuideInfo()
+  const { info, isRouteMissing } = useGuideInfo()
   const preference = useRoutePreference()
   const setPreference = useRoutePreferenceStore((state) => state.setPreference)
 
@@ -69,33 +73,25 @@ export default function UserInfoPage() {
         <Button
           size="lg"
           fullWidth
-          disabled={isPending || isError || !preference.plan}
+          disabled={isRouteMissing || !preference.plan}
           onClick={startGuide}
         >
           {t('userInfo.start')}
         </Button>
       }
     >
-      {isPending ? (
-        <div
-          role="status"
-          className="flex flex-1 flex-col items-center justify-center gap-3"
-        >
-          <span
-            aria-hidden
-            className="border-line border-t-brand size-9 animate-spin rounded-full border-4"
-          />
-          <p className="text-ink-muted text-[13px]">{t('userInfo.loading')}</p>
-        </div>
-      ) : null}
-
-      {isError ? (
+      {/*
+        경로 선택을 거치지 않으면 보여줄 출발·도착이 없다(URL 직접 진입,
+        세션 만료로 스토어가 빈 경우). 로딩·에러 상태는 없다 — 서버 조회가
+        아니라 스토어 파생이라 실패할 구간이 없다.
+      */}
+      {isRouteMissing ? (
         <div className="flex flex-1 flex-col items-center justify-center gap-4 text-center">
           <p className="text-ink-muted text-[13.5px] whitespace-pre-line">
-            {t('userInfo.failed')}
+            {t('userInfo.needRoute')}
           </p>
-          <Button variant="secondary" onClick={() => void refetch()}>
-            {t('common.retry')}
+          <Button variant="secondary" onClick={() => void navigate(ROUTE_PATH)}>
+            {t('userInfo.pickRoute')}
           </Button>
         </div>
       ) : null}

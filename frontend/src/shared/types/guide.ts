@@ -1,39 +1,29 @@
 /**
  * 안내 정보 확인(사용자 정보 입력) 화면에서 쓰는 타입.
  *
- * 출발지는 표지판 인식(POST /routes/sign) 결과, 도착지는 사용자가 고른 목적지에서
- * 정해진다. 두 값 모두 최종적으로는 BE가 내려주므로 한 덩어리로 묶어 둔다.
+ * 출발·도착은 사용자가 경로 선택 화면에서 고른 경로에서 정해진다
+ * (`useSelectedRouteStore`). 좌표는 이 화면에 필요하지 않아 담지 않는다 —
+ * 좌표가 필요한 쪽(경로 재조회·지도)은 출발지·목적지 스토어를 직접 본다.
  */
 
 /** 안내 구간의 한쪽 끝(출발 또는 도착) */
 export interface GuideEndpoint {
-  /** 화면에 크게 보여줄 이름 ("홍대입구역 3번 출구") */
+  /** 화면에 크게 보여줄 이름. 역 이름이다 ("대구역") */
   name: string
-  /** 이름 위에 붙는 보조 설명 ("표지판 인식 결과") */
+  /**
+   * 이름 위에 붙는 보조 설명.
+   *
+   * 출발은 그 지점을 어떻게 잡았는지("현재 위치 기준"·"지도에서 선택"),
+   * 도착은 사용자가 고른 최종 목적지("최종 목적지 경북대 북문")를 넣는다.
+   * 번역된 문자열이므로 만드는 쪽(useGuideInfo)이 i18n 을 거친다.
+   */
   detail: string
-  /** 역 이름 ("홍대입구역"). 노선 뱃지·경로 조회에 쓴다. */
-  stationName: string
-  latitude: number
-  longitude: number
 }
-
-/** 출발지 정보를 무엇으로 잡았는지 */
-export const ORIGIN_SOURCE = {
-  /** 표지판 촬영 → AI 인식 */
-  SIGN: 'SIGN',
-  /** GPS 기반 최근접 역 */
-  GPS: 'GPS',
-  /** 사용자가 직접 선택 */
-  MANUAL: 'MANUAL',
-} as const
-
-export type OriginSource = (typeof ORIGIN_SOURCE)[keyof typeof ORIGIN_SOURCE]
 
 /** 안내 정보 확인 화면에 필요한 전체 데이터 */
 export interface GuideInfo {
   origin: GuideEndpoint
   destination: GuideEndpoint
-  originSource: OriginSource
 }
 
 /**

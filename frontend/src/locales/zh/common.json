@@ -177,8 +177,6 @@
     "analyzeFailedTitle": "分析失败",
     "analyzeFailedDescription": "AI 分析失败。\n请重新拍摄。",
     "analyzeFailedRetake": "重新拍摄",
-    "lowConfidenceTitle": "未能准确识别位置",
-    "lowConfidenceDescription": "请靠近指示牌重新拍摄。",
     "capturedAlt": "已拍摄的指示牌照片",
     "error": {
       "insecure": "摄像头仅在安全连接(HTTPS)下可用",
@@ -227,7 +225,6 @@
     "prev": "上一步",
     "arrived": "已到达",
     "select": {
-      "noIndoorGuide": "该路线暂不支持站内引导\n请选择其他路线",
       "title": "推荐路线",
       "back": "返回",
       "badge": {
@@ -262,9 +259,14 @@
     "origin": "出发",
     "destination": "到达",
     "change": "更改",
+    "detail": {
+      "gps": "基于当前位置",
+      "manual": "在地图上选择",
+      "finalDestination": "最终目的地 {{name}}"
+    },
+    "needRoute": "请先选择路线\n确定出发站和到达站后即可开始导航",
+    "pickRoute": "选择路线",
     "start": "开始路线导航",
-    "loading": "正在加载导航信息…",
-    "failed": "无法加载导航信息\n请稍后再试",
     "needAnswers": "请回答所有问题",
     "started": "将按所选条件开始导航",
     "preference": {
@@ -395,16 +397,12 @@
   "arrival": {
     "back": "返回",
     "title": "已到达目的地！",
+    "finalDestination": "最终目的地 {{name}}",
     "duration": "用时",
     "origin": "出发地",
     "destination": "目的地",
-    "newDestination": "导航到新目的地",
-    "feedback": {
-      "question": "本次导航对您有帮助吗？",
-      "helpful": "有帮助",
-      "notHelpful": "不太满意",
-      "thanks": "感谢您的反馈"
-    }
+    "noSummary": "未找到本次出行信息\n请重新选择目的地",
+    "newDestination": "导航到新目的地"
   },
   "helpChat": {
     "back": "返回",

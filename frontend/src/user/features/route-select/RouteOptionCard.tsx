@@ -2,6 +2,7 @@ import type { KeyboardEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { cn } from '@/shared/lib/cn'
+import { toDurationLabel } from '@/shared/lib/routeDuration'
 import type { RoutePath } from '@/shared/types/route'
 import { Button, Card } from '@/shared/ui'
 import { RouteTimeline } from '@/user/features/route-select/RouteTimeline'
@@ -23,8 +24,6 @@ const BADGE_LABEL_KEY: Record<RouteBadge, string> = {
   [ROUTE_BADGE.NO_TRANSFER]: 'route.select.badge.noTransfer',
   [ROUTE_BADGE.CHEAPEST]: 'route.select.badge.cheapest',
 }
-
-const MINUTES_PER_HOUR = 60
 
 export interface RouteOptionCardProps {
   path: RoutePath
@@ -53,13 +52,8 @@ export function RouteOptionCard({
   const { t, i18n } = useTranslation()
   const stations = toStationSequence(path)
 
-  /** 60분을 넘으면 "1시간 24분"으로 끊어 읽는다. */
-  const hours = Math.floor(path.totalTime / MINUTES_PER_HOUR)
-  const minutes = path.totalTime % MINUTES_PER_HOUR
-  const durationLabel =
-    hours > 0
-      ? t('route.select.durationHour', { h: hours, m: minutes })
-      : t('route.select.durationMin', { m: minutes })
+  /** 60분을 넘으면 "1시간 24분"으로 끊어 읽는다. 도착 요약과 같은 규칙이다. */
+  const durationLabel = toDurationLabel(t, path.totalTime)
 
   /** 천 단위 구분은 로케일에 맡긴다. (1550 → "1,550" / "1 550") */
   const fareLabel = t('route.select.fare', {
