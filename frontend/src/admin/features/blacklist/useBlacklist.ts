@@ -115,13 +115,6 @@ export function useBlacklist(): UseBlacklistResult {
         setPendingEmail(null)
         void queryClient.invalidateQueries({
           queryKey: queryKeys.consultation.all,
-          /*
-            상담 정보 단건(['consultation', id, 'info'])은 제외한다.
-            블랙리스트로 바뀌는 값이 아니고(이메일·출발지·목적지·언어),
-            refetch 가 BE 신설 대기 중인 GET /staffs/consultations/{id} 를
-            불러 404 만 낸다 — useConsultationDetail 참고.
-          */
-          predicate: (query) => !query.queryKey.includes('info'),
         })
         void queryClient.invalidateQueries({
           queryKey: queryKeys.blacklist.all,

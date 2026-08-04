@@ -46,8 +46,8 @@ export function toConsultationDetail(
 }
 
 /**
- * GET /staffs/consultations/{id} 응답 — ⚠️ BE 신설 요청 상태 (8/4).
- * WaitingResponse 와 같은 필드를 consultationId 단건으로 돌려달라고 제안했다.
+ * GET /staffs/consultations/{id} 응답. (BE ConsultationInfoResponse)
+ * WaitingResponse 와 같은 필드를 consultationId 단건으로 돌려준다.
  *
  * ⚠️ endpoints.admin.consultationDetail(= GET /staffs/consultations?id=) 과
  *    다른 API 다. 그쪽은 민원 기록의 녹취 조회용이고 응답이
@@ -85,9 +85,11 @@ async function fetchConsultationDetail(
  * 아니라 staleTime 을 무한으로 두고, 새로고침해도 스토어가 살아 있어 서버
  * 조회가 필요 없다.
  *
- * 서버 조회는 스토어가 빌 때(직접 URL 진입, 다른 탭)만 도는 폴백이다 —
- * ⚠️ BE 신설 전까지 실서버에서 이 경로는 404 라 "불러오지 못했습니다"가
- * 뜬다. 목(MSW)은 동작한다.
+ * 서버 조회는 스토어가 빌 때(직접 URL 진입, 다른 탭)만 도는 폴백이다.
+ *
+ * ⚠️ BE 쿼리 조건이 `c.id = :id AND c.staffId = :staffId` 라, 수락해서
+ *    자기 앞으로 배정된 상담만 200 이다. 다른 역무원이 URL 로 들어가거나
+ *    아직 수락 전이면 404(CONSULTATION_NOT_FOUND) 가 온다.
  *
  * 스토어 값은 URL 의 consultationId 와 일치할 때만 쓴다. 지난 상담의
  * 잔여 값이 다른 상담에 섞이면 안 된다.
