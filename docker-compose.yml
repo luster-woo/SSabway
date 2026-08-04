@@ -33,6 +33,9 @@ services:
       SPRING_DATA_REDIS_HOST: redis
       WEBRTC_BASE_URL: http://signaling:8080
       WEBRTC_INTERNAL_SECRET: ${INTERNAL_API_SECRET}
+      # 표지판 인식 AI. ai 서비스는 docker-compose.prod.yml 에만 있으므로
+      # 로컬에서는 이 주소가 뜨지 않고 인식 요청만 502 로 떨어진다.
+      AI_BASE_URL: ${AI_BASE_URL:-http://ai:8000}
       TZ: Asia/Seoul
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
