@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
+import { useQueryClient } from '@tanstack/react-query'
 
+import { queryKeys } from '@/shared/lib/queryKeys'
 import { useToast } from '@/shared/ui'
 import { OV_STATUS } from '@/shared/webrtc/useOpenViduSession'
 import { BlacklistReasonModal } from '@/admin/features/blacklist/BlacklistReasonModal'
@@ -25,6 +27,7 @@ export default function AdminConsultationPage() {
   const navigate = useNavigate()
   const { consultationId: consultationIdParam } = useParams()
   const { showToast } = useToast()
+  const queryClient = useQueryClient()
 
   const consultationId = Number(consultationIdParam)
   const isValidId = Number.isInteger(consultationId) && consultationId > 0
@@ -73,9 +76,29 @@ export default function AdminConsultationPage() {
     if (!hasConnectedRef.current) return
     if (room.status !== OV_STATUS.DISCONNECTED) return
 
+    /*
+      상담 관련 쿼리를 무효화하고 나간다.
+
+      이게 없으면 사용자가 끊은 상담이 민원 기록에 새로고침 전까지 안 나온다.
+      돌아갈 /admin 의 HistoryPanel 은 폴링하지 않고(useConsultationHistory),
+      전역 staleTime 이 60초라(app/providers/QueryProvider) 다시 마운트돼도
+      캐시를 fresh 로 보고 재조회하지 않기 때문이다. 역무원이 직접 종료하는
+      경로는 useEndConsultation 이 같은 무효화를 하고 있다.
+
+      ⚠️ 이것만으로 완전하지는 않다. BE 의 ConsultationEndService 가 OpenVidu
+         세션을 먼저 닫고(closeSessionIfActive) 그다음에 ENDED 를 쓰는데,
+         이 화면이 받는 sessionDisconnected 는 앞쪽에서 발생한다. 즉 재조회가
+         ENDED 기록보다 먼저 도착할 수 있다. 근본 해결은 BE 에서 상태 갱신을
+         세션 종료보다 앞으로 옮기는 것이다. (역무원 종료 경로가 항상 맞는
+         이유도 그쪽은 end 응답을 받은 뒤에 무효화하기 때문이다)
+    */
+    void queryClient.invalidateQueries({
+      queryKey: queryKeys.consultation.all,
+    })
+
     showToast('사용자가 통화를 종료했습니다.')
     void navigate('/admin', { replace: true })
-  }, [navigate, room.status, showToast])
+  }, [navigate, queryClient, room.status, showToast])
 
   // 잘못된 URL 로 들어온 경우. 조회를 시도하지 않고 목록으로 돌린다.
   if (!isValidId) return <Navigate to="/admin" replace />
@@ -126,7 +149,15 @@ export default function AdminConsultationPage() {
           </section>
         ) : null}
 
-        {isError ? (
+        {/*
+          데이터가 있으면 에러를 띄우지 않는다.
+
+          이 쿼리는 스토어 값을 initialData 로 받으므로(useConsultationDetail),
+          뒤이은 재조회가 실패해도 data 는 남고 isError 만 켜진다. 두 조건을
+          독립으로 두면 정상 정보 패널 옆에 "불러오지 못했습니다" 카드가 같이
+          뜬다. 보여줄 값이 아예 없을 때만 실패로 취급한다.
+        */}
+        {isError && !detail ? (
           <section className="border-line bg-surface flex w-[340px] shrink-0 items-center justify-center rounded-3xl border px-7">
             <p role="alert" className="text-danger text-center text-[13px]">
               상담 정보를 불러오지 못했습니다.

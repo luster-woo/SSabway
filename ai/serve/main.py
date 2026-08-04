@@ -48,6 +48,9 @@ face_model_ready: bool = False
 # 자막도 연결마다 인식기를 만든다. 키가 있는지만 기동 시 확인해 둔다.
 speech_ready: bool = False
 
+# 표지판 가중치가 애초에 있었는지. /health 가 "기동 중"과 "아예 없음"을 구분한다.
+sign_model_present: bool = False
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -64,18 +67,29 @@ async def lifespan(app: FastAPI):
     threads = int(os.getenv('TORCH_THREADS', '2'))
     torch.set_num_threads(threads)
 
+    # 표지판 가중치가 없어도 기동한다.
+    #
+    # 예전에는 여기서 예외를 던져 서버가 아예 뜨지 않았다. 그러면 로컬에서
+    # 자막·얼굴 검출만 개발할 때도 90MB 짜리 가중치를 받아야 했다.
+    # (배포에는 영향이 없다 — /opt/models 마운트로 늘 존재한다)
+    #
+    # 얼굴·자막이 이미 "없으면 그 기능만 닫힌다" 방식이라 여기에 맞춘다.
+    # 가중치가 없으면 /predict 만 503 이 되고 나머지는 정상 동작한다.
+    global sign_model_present
     det, cls = resolve_model_paths()
-    for p in (det, cls):
-        if not p.exists():
-            raise RuntimeError(
-                f'가중치를 찾을 수 없습니다: {p}\n'
-                f'MODEL_DIR 환경변수를 확인하거나 models/ 에 파일을 두세요.')
+    missing = [str(p) for p in (det, cls) if not p.exists()]
+    sign_model_present = not missing
 
-    log.info('모델 로딩 시작 (torch threads=%d)', threads)
-    recognizer = SignRecognizer(det, cls)
-    log.info('모델 로딩 완료 %.2fs | device=%s | %s %dx%d | 클래스 %d개',
-             recognizer.load_seconds, recognizer.device, recognizer.arch,
-             recognizer.input_hw[0], recognizer.input_hw[1], len(recognizer.classes))
+    if missing:
+        log.warning('표지판 가중치가 없습니다(%s). /predict 는 503 을 돌려줍니다. '
+                    'MODEL_DIR 환경변수를 확인하거나 models/ 에 파일을 두세요.',
+                    ', '.join(missing))
+    else:
+        log.info('모델 로딩 시작 (torch threads=%d)', threads)
+        recognizer = SignRecognizer(det, cls)
+        log.info('모델 로딩 완료 %.2fs | device=%s | %s %dx%d | 클래스 %d개',
+                 recognizer.load_seconds, recognizer.device, recognizer.arch,
+                 recognizer.input_hw[0], recognizer.input_hw[1], len(recognizer.classes))
 
     # 얼굴 검출은 표지판과 독립이다 — 모델이 없어도 표지판 인식은 계속 서비스한다
     global face_model_ready
@@ -110,20 +124,32 @@ app = FastAPI(
 
 @app.get('/health')
 def health():
-    """로드밸런서와 배포 스크립트가 찌르는 곳. 모델이 없으면 503."""
-    if recognizer is None:
+    """
+    로드밸런서와 배포 스크립트가 찌르는 곳.
+
+    가중치가 있는데 아직 안 올라왔으면 503 이다(기동 중). 가중치가 아예 없는
+    환경(로컬)에서는 표지판만 못 쓰는 것이므로 200 을 준다 — 여기서 503 을
+    돌려주면 컨테이너가 영영 unhealthy 로 남아 얼굴·자막까지 못 쓴다.
+    """
+    if sign_model_present and recognizer is None:
         return JSONResponse(status_code=503, content={'status': 'loading'})
-    return {
+
+    payload = {
         'status': 'ok',
-        'device': str(recognizer.device),
-        'arch': recognizer.arch,
-        'inputSize': recognizer.input_hw,
-        'classCount': len(recognizer.classes),
-        # 얼굴 검출·자막은 없어도 표지판 인식은 정상이라 status 를 낮추지 않는다.
-        # 대신 여기로 드러내서 배포 후 바로 확인할 수 있게 한다.
+        # 기능별로 드러내서 배포 후 바로 확인할 수 있게 한다.
+        # 하나가 없어도 나머지는 정상 동작하므로 status 를 낮추지 않는다.
+        'signRecognition': recognizer is not None,
         'faceDetection': face_model_ready,
         'translation': speech_ready,
     }
+    if recognizer is not None:
+        payload.update({
+            'device': str(recognizer.device),
+            'arch': recognizer.arch,
+            'inputSize': recognizer.input_hw,
+            'classCount': len(recognizer.classes),
+        })
+    return payload
 
 
 @app.get('/classes')
