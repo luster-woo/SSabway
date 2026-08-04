@@ -53,6 +53,21 @@ public class NavigationGraph {
         return adjacency.getOrDefault(nodeId, List.of());
     }
 
+    /*
+        층을 오르내리는 엘리베이터 구간인가.
+
+        양 끝이 모두 엘리베이터인 엣지만 해당한다. "표지판에서 엘리베이터까지
+        걸어가는" 엣지는 그냥 통로이므로, 엘리베이터를 쓰지 않겠다는 요청에서도
+        막으면 안 된다. 막으면 엘리베이터 앞을 지나는 길 자체가 사라진다.
+     */
+    public boolean isElevatorRide(NavEdge edge) {
+        NavNode a = node(edge.from());
+        NavNode b = node(edge.to());
+        return a != null && b != null
+                && a.type() == NodeType.ELEVATOR
+                && b.type() == NodeType.ELEVATOR;
+    }
+
     public List<NavNode> allNodes() {
         return List.copyOf(nodes.values());
     }
