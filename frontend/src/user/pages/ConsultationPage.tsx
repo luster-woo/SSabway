@@ -18,6 +18,7 @@ import {
   useCallMedia,
 } from '@/user/features/consultation/useCallMedia'
 import { useConsultationCall } from '@/user/features/consultation/useConsultationCall'
+import { useFaceMosaic } from '@/user/features/mosaic/useFaceMosaic'
 
 /** 마이크 권한 안내 모달의 아이콘 */
 function MicBadgeIcon() {
@@ -50,8 +51,8 @@ function MicBadgeIcon() {
  * 권한을 얻으면 그 스트림으로 OpenVidu 세션에 접속한다. 세션은 역무원이
  * 수락해야 생기므로 그때까지 대기 문구를 보여준다.
  *
- * TODO: 얼굴 모자이크(선택지 A)는 이 화면에서 canvas 로 처리한 뒤 publish 한다.
- *       지금은 원본 스트림을 그대로 발행한다.
+ * 얼굴 모자이크(선택지 A)는 useFaceMosaic 이 canvas 로 처리한다 — 원본이
+ * 아니라 가공된 스트림을 발행하므로, 원본은 이 기기 밖으로 나가지 않는다.
  */
 export default function ConsultationPage() {
   const { t } = useTranslation()
@@ -81,7 +82,13 @@ export default function ConsultationPage() {
     stop,
   } = useCallMedia()
 
-  const call = useConsultationCall(consultationId, stream)
+  /*
+    얼굴 모자이크. 원본(stream)은 검출·가공에만 쓰고, 발행과 미리보기는
+    가공된 스트림(mosaic.stream)을 쓴다. 검출이 죽으면 전체 블러로 방어한다.
+  */
+  const mosaic = useFaceMosaic(stream)
+
+  const call = useConsultationCall(consultationId, mosaic.stream)
 
   /*
     역무원 발화 자막. 역무원 음성(staffStream)을 사용자가 고른 언어로 번역해
@@ -203,7 +210,8 @@ export default function ConsultationPage() {
 
   return (
     <div className="relative flex min-h-[100dvh] flex-col overflow-hidden">
-      <CameraStage stream={stream} isCameraOn={isCameraOn} />
+      {/* 미리보기도 가공본 — 사용자가 "실제로 나가는 화면" 을 본다 */}
+      <CameraStage stream={mosaic.stream ?? stream} isCameraOn={isCameraOn} />
 
       <div className="px-safe relative flex flex-1 flex-col">
         <header className="flex shrink-0 flex-col items-center gap-2 pt-[calc(env(safe-area-inset-top,0px)+1rem)]">
