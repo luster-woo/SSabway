@@ -1,4 +1,3 @@
-import { useMemo } from 'react'
 import type { StreamManager } from 'openvidu-browser'
 
 import { CaptionOverlay } from '@/shared/caption/CaptionOverlay'
@@ -6,6 +5,7 @@ import { useLiveCaption } from '@/shared/caption/useLiveCaption'
 import type { Language } from '@/shared/types/user'
 import { OpenViduVideo } from '@/shared/webrtc/OpenViduVideo'
 import { OV_STATUS, type OpenViduStatus } from '@/shared/webrtc/useOpenViduSession'
+import { useRemoteMediaStream } from '@/shared/webrtc/useRemoteMediaStream'
 import type { LangCode } from '@/admin/lib/language'
 import { RecordingBadge } from '@/admin/features/consultation-room/RecordingBadge'
 
@@ -67,14 +67,13 @@ export function VideoStage({
   userLang,
 }: VideoStageProps) {
   /*
-    자막용 원격 오디오. StreamManager 에서 MediaStream 을 꺼낸다.
-    getMediaStream() 은 같은 스트림에 대해 같은 객체를 돌려주지만,
-    렌더마다 호출해 훅의 deps 를 흔들 이유가 없어 memo 로 고정한다.
+    자막용 원격 오디오.
+
+    memo 로 고정하면 안 된다 — subscribe 직후에는 MediaStream 이 아직 없어
+    undefined 가 나오는데, Subscriber 참조는 그대로라 다시 계산되지 않는다.
+    자세한 내용은 useRemoteMediaStream 주석 참고.
   */
-  const userAudioStream = useMemo(
-    () => (userStream ? userStream.stream.getMediaStream() : null),
-    [userStream],
-  )
+  const userAudioStream = useRemoteMediaStream(userStream)
 
   const caption = useLiveCaption(
     userAudioStream,

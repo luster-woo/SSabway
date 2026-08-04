@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
@@ -8,6 +8,7 @@ import { useLanguage } from '@/shared/lib/useLanguage'
 import { Button, Dialog, useToast } from '@/shared/ui'
 import { OpenViduVideo } from '@/shared/webrtc/OpenViduVideo'
 import { OV_STATUS } from '@/shared/webrtc/useOpenViduSession'
+import { useRemoteMediaStream } from '@/shared/webrtc/useRemoteMediaStream'
 import { CallControls } from '@/user/features/consultation/CallControls'
 import { CameraStage } from '@/user/features/consultation/CameraStage'
 import { ConnectedBadge } from '@/user/features/consultation/ConnectedBadge'
@@ -95,10 +96,7 @@ export default function ConsultationPage() {
     (명세 /ws/v1/ai/translation 이 auto-detect 가 아니라 화자 언어를 요구한다)
   */
   const { language } = useLanguage()
-  const staffAudioStream = useMemo(
-    () => (call.staffStream ? call.staffStream.stream.getMediaStream() : null),
-    [call.staffStream],
-  )
+  const staffAudioStream = useRemoteMediaStream(call.staffStream)
   const caption = useLiveCaption(staffAudioStream, {
     speaker: 'ADMIN',
     sourceLang: 'ko',

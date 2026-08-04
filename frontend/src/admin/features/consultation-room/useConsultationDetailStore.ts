@@ -20,10 +20,9 @@ interface ConsultationDetailState {
  * 것과 같은 이유. (팀 방침: 화면 간 데이터 전달에 라우팅 state 지양)
  *
  * ⚠️ sessionStorage 에 저장한다. 메모리에만 두면 상담 중 새로고침 한 번에
- *    상담 정보가 사라지는데, 이를 복구할 서버 조회
- *    (GET /staffs/consultations/{id})가 아직 BE 신설 대기(8/4)라 화면이
- *    "불러오지 못했습니다"로 굳는다. 특히 블랙리스트 등록이 이 email 로
- *    나가므로 잃어버리면 안 된다.
+ *    상담 정보가 사라진다. 서버 조회(GET /staffs/consultations/{id})가
+ *    폴백으로 있긴 하지만, 그 왕복 동안 화면이 비고 실패하면 블랙리스트
+ *    등록에 쓰는 email 까지 잃는다. 여기 남겨 두면 왕복 자체가 없다.
  *
  *    localStorage 가 아니라 sessionStorage 인 이유: 역무실 공용 PC 를
  *    전제하므로 탭을 닫으면 함께 사라지는 쪽이 맞다(useAdminProfileStore 와
