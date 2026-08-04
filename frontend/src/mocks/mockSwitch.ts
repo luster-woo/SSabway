@@ -55,15 +55,16 @@ const SWITCH = {
   /*
     상담 요청·상태·취소 — 셋 다 ✅ BE 구현완료지만 ⚠️ 아직 실서버로 못 붙는다.
 
-    `POST /consultations`(ssabway)는 `departureStationId` 로 담당 역무원을
-    찾는데, `deploy/db/schema.sql` 에 시드 INSERT 가 없어 `stations`·`staffs`
-    가 비어 있다. 지금 false 로 내리면 404 STAFF_NOT_FOUND 만 받는다.
-    (프론트가 보내는 값은 PROTOTYPE_STATION_ID — 시드의 실제 id 로 맞출 것)
+    `POST /consultations`(ssabway)는 departure **역 이름**으로 담당 역무원을
+    찾는데(`stations.name_ko` 정확 비교, 8/4 변경), `deploy/db/schema.sql` 에
+    시드 INSERT 가 없어 `stations`·`staffs` 가 비어 있다. 지금 false 로 내리면
+    404 STAFF_NOT_FOUND 만 받는다. 시드가 들어와도 Google Places 의 역 이름
+    표기와 DB 표기가 일치해야 한다(useConsultationRequest 의 TODO 참고).
 
     detail·cancel 은 webrtc 소유로 제약이 없지만, 애초에 요청을 만들 방법이
     없으니(create 가 막혀 있으니) 같이 목으로 둔다.
 
-    시드 데이터가 들어오면 셋을 함께 false 로 내려 실연동 검증한다.
+    시드 + 역 이름 표기가 확정되면 셋을 함께 false 로 내려 실연동 검증한다.
   */
   'POST /consultations': true,
   'GET /consultations/:consultationId': true,

@@ -500,10 +500,8 @@ const mockHandlers: HttpHandler[] = [
       typeof value !== 'string' || value.trim() === ''
 
     // BE 의 필드 선언 순서대로 메시지를 모은다 (DTO 의 message 문구 그대로).
+    // 8/4 — departureStationId 삭제됨. 두 필드만 검증한다.
     const violations: string[] = []
-    if (typeof body.departureStationId !== 'number') {
-      violations.push('출발역 번호는 필수입니다.')
-    }
     if (isBlank(body.departure)) {
       violations.push('출발역 이름은 필수입니다.')
     } else if ((body.departure ?? '').length > MAX_PLACE_NAME_LENGTH) {
@@ -523,10 +521,11 @@ const mockHandlers: HttpHandler[] = [
     }
 
     /*
-      실서버는 여기서 `staffs.station_id = departureStationId` 인 역무원을 찾고,
-      없으면 404 STAFF_NOT_FOUND 를 던진다. 목은 역 데이터를 갖고 있지 않으므로
-      그 분기는 흉내 내지 않는다 — 시드 데이터가 들어오면 실서버로 검증할 것.
-      블랙리스트 차단(403 CONSULTATION_BLOCKED)도 같은 이유로 생략한다.
+      실서버는 여기서 `stations.name_ko = departure`(trim 후 정확 비교)인 역의
+      역무원을 찾고, 없으면 404 STAFF_NOT_FOUND 를 던진다. 목은 역 데이터를
+      갖고 있지 않으므로 그 분기는 흉내 내지 않는다 — 시드의 역 이름 표기가
+      확정되면 실서버로 검증할 것. 블랙리스트 차단(403 CONSULTATION_BLOCKED)도
+      같은 이유로 생략한다.
     */
     const result = createMockConsultation()
 
@@ -785,7 +784,9 @@ const mockHandlers: HttpHandler[] = [
    * 한 컴퓨터에서 user + admin 매칭 실험을 할 때만 네 개를 함께 켠다.
    * 켜면: admin 수락(accept)이 공유 상태를 MATCHED 로 바꾸고,
    * user 의 커넥션 폴링(joinSession)이 404 → 토큰 발급으로 풀린다.
-   * 응답 모양은 BE 실코드(StaffConsultationController·OpenViduController, 8/3) 기준.
+   * 응답 모양: accept 는 ssabway ConsultationController(8/4 이관) 기준,
+   * 나머지는 webrtc OpenViduController 기준. (okBody 가 두 봉투의 성공
+   * 형태를 모두 만족한다 — ssabway 는 성공 시 code 를 생략하기 때문)
    * ---------------------------------------------------------------- */
 
   // 역무원 수락 — accept 1-call (상태 잠금 + 세션 생성 + 토큰 발급)

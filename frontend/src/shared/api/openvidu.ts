@@ -137,24 +137,29 @@ export function createOpenViduApi(api: AxiosInstance) {
   }
 
   /**
-   * 역무원이 상담을 수락할 때 — accept 1-call (BE 8/3 확정 구현).
+   * 역무원이 상담을 수락할 때 — accept 1-call.
    *
    * `POST /staffs/consultations/{id}/accept` 하나가 상태 잠금(WAITING→MATCHED)
    * + 세션 생성 + 역무원 토큰 발급을 서버 트랜잭션으로 처리한다.
-   * 예전 3-call(sessions → connections, 실패 시 DELETE 롤백)은 백엔드에서
-   * 제거되어 더 이상 존재하지 않는다 — 롤백도 서버 책임이 됐다.
+   *
+   * ⚠️ 8/4 — 이 API 의 소유가 webrtc 에서 **ssabway(메인 백엔드)** 로 이동했다.
+   *    URL 은 그대로지만, ssabway 가 webrtc 의 내부 API(/internal/v1/openvidu)
+   *    를 호출해 세션·토큰을 받아오는 구조가 됐다. 응답 봉투도 ssabway 의
+   *    `ApiResponse`(code 필드 있음)로 바뀌었다 — 그래서 이 함수만 다른 화상
+   *    API 들과 달리 `WebrtcApiResponse` 가 아니라 `ApiResponse` 로 읽는다.
+   *    nginx 도 이 경로를 api 로 보내야 한다 (deploy/nginx.conf 참고).
    *
    * 녹음은 여기서 시작하지 않는다 — start 가 사용자 접속 이후로 합의됐다.
    *
-   * 실패 분기:
+   * 실패 분기 (이제 code 로 구분 가능):
    *   409 CONSULTATION_ALREADY_ACCEPTED — 다른 역무원이 먼저 수락(선착순)
    *   403 CONSULTATION_ACCESS_DENIED — 이 상담에 배정된 역무원이 아님
-   *       (⚠️ 현 BE 는 상담 생성 시 staffId 를 고정한다 — 3.2 정책 합의와 연동)
+   *   502 WEBRTC_SERVER_ERROR — 내부 세션 생성 실패 (MATCHED 는 롤백됨)
    */
   async function openSession(
     consultationId: number,
   ): Promise<ConsultationSession> {
-    const res = await api.post<WebrtcApiResponse<ConsultationAccepted>>(
+    const res = await api.post<ApiResponse<ConsultationAccepted>>(
       endpoints.admin.accept(consultationId),
     )
     const { sessionId, token } = res.data.data

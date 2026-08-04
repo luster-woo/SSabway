@@ -81,19 +81,20 @@ export interface ConnectionData {
 }
 
 /**
- * `POST /api/v1/consultations` 요청 본문 (BE ssabway ConsultationCreateRequest).
+ * `POST /api/v1/consultations` 요청 본문 (BE ssabway ConsultationCreateRequest,
+ * 8/4 갱신 — `departureStationId` 가 삭제되고 두 필드만 남았다).
  *
- * 역무원은 클라이언트가 지정하지 않는다 — 서버가 `departureStationId` 로
- * 담당 역무원을 찾아 배정한다(`staffs.station_id` UNIQUE, 역 1개당 1명).
- * 그래서 이 본문에 staffId 가 없고, DB `staff_id NOT NULL` 도 그대로 유효하다.
+ * 역무원은 클라이언트가 지정하지 않는다 — 서버가 `departure` **역 이름**으로
+ * 담당 역무원을 찾아 배정한다(`stations.name_ko = :departure` 정확 비교,
+ * StaffRepository.findByDepartureStationName). 서버는 trim 만 하므로
+ * "동대구"/"동대구역" 같은 표기 차이도 404 STAFF_NOT_FOUND 다.
  *
- * departure/destination 은 화면에 보여줄 자유 입력 문자열이라 DB 에서 FK 로
- * 묶지 않는다(schema.sql 주석). 우리 DB 의 역명과 일치할 필요가 없다.
+ * ⚠️ 그래서 departure 는 더 이상 자유 입력이 아니다 — DB `stations.name_ko`
+ *    표기와 완전히 일치해야 한다. destination 은 여전히 자유 입력.
  *
- * ⚠️ 세 필드 모두 필수다(@NotNull / @NotBlank + @Size(255)). 하나라도 빠지면 400.
+ * 두 필드 모두 필수다(@NotBlank + @Size(255)). 하나라도 빠지면 400.
  */
 export interface ConsultationCreateBody {
-  departureStationId: number
   departure: string
   destination: string
 }
