@@ -34,10 +34,10 @@ const SWITCH = {
   'PATCH /users/password': true,
 
   // 사용자 — 로그인 / 인증
-  'POST /users/login': true,
+  'POST /users/login': false,
   'POST /users/login/google': true,
   'POST /auth/logout': true,
-  'POST /auth/refresh': true,
+  'POST /auth/refresh': false,
 
   /*
     관리자(역무원) 로그인 — ✅ BE 개발완료.
@@ -46,11 +46,21 @@ const SWITCH = {
     false → 실서버로 나간다 (.env.local 의 VITE_PROXY_TARGET 이 가리키는 곳).
             이때는 해당 백엔드 DB 에 실존하는 staff 계정이 필요하다.
   */
-  'POST /staffs/login': true,
+  'POST /staffs/login': false,
 
   // 경로
   'GET /routes/gps': true,
   'POST /routes/navi': true,
+
+  /*
+    AI — 표지판 인식 (✅ BE 개발완료, 배포 서버에서 검증됨).
+
+    true  → 목. 이미지가 multipart 로 실렸는지만 검증하고 성공을 돌려준다.
+    false → 실서버 (.env.local 의 VITE_PROXY_TARGET 이 가리키는 곳).
+            ⚠️ 로컬 도커 compose 에는 ai 컨테이너가 없다 — 끌 때는
+            배포 주소(https://www.ssabway.site)로 붙일 것.
+  */
+  'POST /ai/signs/predict': true,
 
   /*
     상담 요청·상태·취소 — 셋 다 ✅ BE 구현완료지만 ⚠️ 아직 실서버로 못 붙는다.
@@ -66,15 +76,15 @@ const SWITCH = {
 
     시드 + 역 이름 표기가 확정되면 셋을 함께 false 로 내려 실연동 검증한다.
   */
-  'POST /consultations': true,
-  'GET /consultations/:consultationId': true,
+  'POST /consultations': false,
+  'GET /consultations/:consultationId': false,
   'POST /consultations/:consultationId/cancel': true,
   // ⚠️ leave 는 BE 미구현이라 끄면 404 다 (실서버에서는 상담이 활성으로 남아
   //    재요청이 409 로 막힌다 — BE 에 구현 요청해 둔 상태)
   'POST /consultations/:consultationId/leave': true,
 
   // 관리자 — 상담 대기 목록 (✅ BE 개발완료. BACKEND_READY.ADMIN_QUEUE 로 실호출)
-  'GET /staffs/waiting': true,
+  'GET /staffs/waiting': false,
 
   /*
     관리자 — 블랙리스트 4종 (✅ BE 개발완료).
@@ -82,10 +92,10 @@ const SWITCH = {
     핸들러가 없던 동안에는 스위치도 없어서 이 요청만 항상 실서버로 나갔다.
     그래서 USE_MSW 를 켠 로컬에서도 등록·해제가 조용히 실패했다.
   */
-  'POST /staffs/blacklist': true,
-  'GET /staffs/blacklist': true,
-  'POST /staffs/blacklist/release': true,
-  'PATCH /staffs/blacklist': true,
+  'POST /staffs/blacklist': false,
+  'GET /staffs/blacklist': false,
+  'POST /staffs/blacklist/release': false,
+  'PATCH /staffs/blacklist': false,
 
   /*
     관리자 — 원본 상담 내역(녹취) 조회는 목을 두지 않는다. ✅ BE 개발완료.

@@ -44,21 +44,30 @@ export const BACKEND_READY: BackendReadyFlags = {
   ADMIN_QUEUE: true,
 
   /**
-   * `POST /api/v1/routes/navi` — 역 내 단계별 경로 안내. ⚠️ BE 컨트롤러 없음.
+   * `POST /api/v1/routes/navi` — 역 내 단계별 경로 안내.
    *
-   * `/api/v1/routes/**` 는 어느 서비스에도 구현되어 있지 않다(ssabway·webrtc
-   * 양쪽에 routes 컨트롤러 0건). 그래서 false 인 동안 `fetchRouteGuide` 는
-   * HTTP 를 아예 보내지 않고 `MOCK_ROUTE_GUIDE` 를 돌려준다.
+   *    그런데도 이 플래그를 켜지 못하는 이유는 "BE 가 없어서"가 아니라
+   *    프론트 계약이 어긋나 있어서다.
+   *      - `fetchRouteGuide` 가 **본문 없이** POST 한다. BE 는 startPoint·
+   *        finalPoint·readyToGo·langCode 가 @NotNull 이라 그대로면 400 이다.
+   *      - 응답 형태가 다르다. FE `GuideStep.sign`(exitNumber·title·direction…)
+   *        에 대응하는 것이 BE 에는 `imageUrl` 문자열 하나뿐이고,
+   *        `instruction` 은 `text`(nullable)다. 지금 붙이면 SignBoardCard 가
+   *        `sign.photoUrl` 에서 TypeError 를 낸다.
+   *      - 애초에 `startPoint`(역 내 노드 id)를 만들 방법이 프론트에 없다.
+   *        표지판 인식(`POST /routes/sign`)이 그 유일한 공급원인데 양쪽 다 미구현이다.
    *
-   * ⚠️ 이 플래그가 있는 이유 — 배포 환경에는 MSW 가 없다.
-   *    (main.tsx 의 `IS_DEV && env.USE_MSW` 이중 게이트, 운영 번들에서 제외)
-   *    HTTP 를 보내면 로컬은 MSW 가 받아 주지만 배포에서는 404 로 떨어져
-   *    경로 안내 화면이 실패 상태에 갇히고, 그 뒤 도움 요청·화상까지 막힌다.
-   *    형제 함수인 fetchRoutePaths·fetchGuideInfo 는 처음부터 목을 직접
-   *    돌려주고 있어 배포에서도 동작한다 — 이 함수만 예외였다.
+   *    즉 켜기 전에 `shared/types/routeGuide.ts` 를 BE DTO 기준으로 다시 쓰고
+   *    출발 지점 스토어를 만들어야 한다. `/routes/path` 는 그 작업을 먼저 끝낸
+   *    선례다 — 참고할 것.
    *
-   * BE 배포 시: 이 플래그를 true 로 바꾸고, mocks/handlers.ts 의
-   * `POST /routes/navi` 목과 mockRouteGuide.ts 를 정리한다.
+   * false 인 동안 `fetchRouteGuide` 는 HTTP 를 아예 보내지 않고
+   * `MOCK_ROUTE_GUIDE` 를 돌려준다. 배포 환경에는 MSW 가 없어서
+   * (main.tsx 의 `IS_DEV && env.USE_MSW` 이중 게이트) HTTP 를 보내면 화면이
+   * 실패 상태에 갇히고 그 뒤 도움 요청·화상까지 막히기 때문이다.
+   *
+   * 연동 시: 위 세 가지를 정리하고 플래그를 true 로, 그 다음 mocks/handlers.ts 의
+   * `POST /routes/navi` 목과 mockRouteGuide.ts 를 지운다.
    */
   ROUTE_GUIDE: false,
 }

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router-dom'
 
-import { LoadingOverlay, MobileViewport, useToast } from '@/shared/ui'
+import { Button, Dialog, LoadingOverlay, MobileViewport, useToast } from '@/shared/ui'
 import { CameraErrorNotice } from '@/user/features/sign-capture/CameraErrorNotice'
 import { CameraPreview } from '@/user/features/sign-capture/CameraPreview'
 import { CaptureControls } from '@/user/features/sign-capture/CaptureControls'
@@ -12,9 +12,7 @@ import {
 } from '@/user/features/sign-capture/hooks/useCameraStream'
 import { usePinchZoom } from '@/user/features/sign-capture/hooks/usePinchZoom'
 import { captureFrame } from '@/user/features/sign-capture/lib/captureFrame'
-
-/** 분석 API 연동 전 로딩 연출용 지연 */
-const FAKE_ANALYZE_MS = 1400
+import { predictSign } from '@/user/features/sign-capture/lib/predictSign'
 
 /** 인식 후 기본 이동 경로. 시작 화면에서 바로 들어온 경우다. */
 const DEFAULT_NEXT_PATH = '/destination'
@@ -44,6 +42,7 @@ export default function SignCapturePage() {
   const [capturedUrl, setCapturedUrl] = useState<string | null>(null)
   const [isFlashing, setIsFlashing] = useState(false)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
+  const [isAnalyzeFailed, setIsAnalyzeFailed] = useState(false)
 
   // 촬영본을 보여주는 동안에는 확대해도 반영되지 않으므로 제스처를 끈다
   const { zoom, resetZoom } = usePinchZoom(previewRef, capturedUrl === null)
@@ -78,31 +77,51 @@ export default function SignCapturePage() {
     }
   }
 
+  /** 촬영본을 버리고 카메라 프리뷰로 되돌린다 (재촬영·분석 실패 공용) */
+  const clearCapture = () => {
+    if (capturedUrl) URL.revokeObjectURL(capturedUrl)
+    capturedBlobRef.current = null
+    setCapturedUrl(null)
+  }
+
   const retake = () => {
     if (!capturedUrl) {
       showToast(t('signCapture.needCaptureFirst'))
       return
     }
-    URL.revokeObjectURL(capturedUrl)
-    capturedBlobRef.current = null
-    setCapturedUrl(null)
+    clearCapture()
     showToast(t('signCapture.retaken'))
   }
 
-  const analyze = () => {
+  const analyze = async () => {
     if (!capturedBlobRef.current) {
       showToast(t('signCapture.needCaptureFirst'))
       return
     }
     setIsAnalyzing(true)
-    // TODO: capturedBlobRef.current 를 표지판 분석 API로 전송하고
-    //       응답의 위치 정보를 스토어에 담은 뒤 다음 화면으로 이동
-    window.setTimeout(() => {
-      // 되돌아갈 때는 replace로 남겨 뒤로가기가 카메라 화면에 다시 걸리지 않게 한다.
-      void navigate(returnTo ?? DEFAULT_NEXT_PATH, {
-        replace: returnTo !== null,
-      })
-    }, FAKE_ANALYZE_MS)
+
+    /*
+      응답의 위치 정보(signageId/floor)는 지금 흐름에서 쓰지 않는다 —
+      경로 상세가 전체 지도·경로 데이터를 제공하므로 요청 성공만 확인한다.
+      (predictSign 의 주석 참고. 위치 기반 분기가 생기면 여기서 스토어에 담는다)
+
+      실패하면 화면에 남긴다 — 촬영본이 그대로 있으니 재시도나 재촬영을
+      바로 할 수 있다. 성공했을 때만 다음 화면으로 넘어간다.
+    */
+    try {
+      await predictSign(capturedBlobRef.current)
+    } catch {
+      // 토스트는 금방 사라져 원인을 놓치기 쉽다 — 재촬영을 유도하는
+      // 모달로 띄운다 (버튼이 촬영본을 지우고 카메라로 되돌린다).
+      setIsAnalyzing(false)
+      setIsAnalyzeFailed(true)
+      return
+    }
+
+    // 되돌아갈 때는 replace로 남겨 뒤로가기가 카메라 화면에 다시 걸리지 않게 한다.
+    void navigate(returnTo ?? DEFAULT_NEXT_PATH, {
+      replace: returnTo !== null,
+    })
   }
 
   return (
@@ -132,7 +151,7 @@ export default function SignCapturePage() {
           hasCapture={capturedUrl !== null}
           onRetake={retake}
           onCapture={() => void shoot()}
-          onAnalyze={analyze}
+          onAnalyze={() => void analyze()}
         />
       </div>
 
@@ -154,6 +173,24 @@ export default function SignCapturePage() {
 
       {isAnalyzing ? (
         <LoadingOverlay message={t('signCapture.analyzing')} />
+      ) : null}
+
+      {isAnalyzeFailed ? (
+        <Dialog
+          title={t('signCapture.analyzeFailedTitle')}
+          description={t('signCapture.analyzeFailedDescription')}
+        >
+          <Button
+            size="lg"
+            fullWidth
+            onClick={() => {
+              setIsAnalyzeFailed(false)
+              clearCapture()
+            }}
+          >
+            {t('signCapture.analyzeFailedRetake')}
+          </Button>
+        </Dialog>
       ) : null}
     </MobileViewport>
   )

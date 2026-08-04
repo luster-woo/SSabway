@@ -41,10 +41,11 @@ public class NavigationService {
     private final RoutePlanner routePlanner;
 
     /*
-        표지판 사진 주소의 앞부분.
+        표지판 사진 주소의 앞부분. S3 버킷의 img 폴더까지를 가리킨다.
 
-        지금은 "{base}/{표지판id}_{면}.jpg" 로 만든다. S3 에 어떤 구조로 올릴지
-        정해지면 buildImageUrl 한 곳만 고치면 된다.
+        파일명은 "{표지판id}_{면}.jpg" 규칙이라 여기에 이어 붙이면 된다.
+        데이터에는 파일명만 두고 주소는 설정에만 두어서, 버킷이나 CDN 이 바뀌어도
+        노드·엣지 데이터를 고칠 필요가 없다.
      */
     @Value("${navigation.sign-image-base-url}")
     private String signImageBaseUrl;
@@ -74,15 +75,15 @@ public class NavigationService {
     /*
         경로를 찾고, 실패하면 왜 실패했는지 구분한다.
 
-        계단을 피해 달라는 요청이 실패했을 때, 계단을 허용하면 갈 수 있는 경로가
-        있는지 한 번 더 확인한다. 있다면 "길이 없다"가 아니라 "계단 없이는 못 간다"이므로
+        엘리베이터를 쓰겠다는 요청이 실패했을 때, 계단을 쓰면 갈 수 있는지 한 번 더
+        확인한다. 갈 수 있다면 "길이 없다"가 아니라 "계단 없이는 못 간다"이므로
         프론트가 역무원 호출 같은 다른 안내를 띄울 수 있다.
 
         실제로 대구역 1층은 야외 엘리베이터뿐이라 위층에서 계단 없이 내려갈 수 없다.
         데이터를 고쳐서 해결되는 문제가 아니라 계속 발생한다.
      */
     private Plan findPlan(NavigationGraph graph, RouteRequest request) {
-        boolean avoidStairs = request.avoidStairsOrDefault();
+        boolean useElevator = request.useElevatorOrDefault();
 
         Optional<Plan> plan = routePlanner.plan(
                 graph,
@@ -90,13 +91,13 @@ public class NavigationService {
                 request.finalPoint(),
                 request.effectiveNeeds(),
                 request.hasCashOrDefault(),
-                avoidStairs);
+                useElevator);
 
         if (plan.isPresent()) {
             return plan.get();
         }
 
-        if (avoidStairs) {
+        if (useElevator) {
             boolean reachableWithStairs = routePlanner.plan(
                     graph,
                     request.startPoint(),

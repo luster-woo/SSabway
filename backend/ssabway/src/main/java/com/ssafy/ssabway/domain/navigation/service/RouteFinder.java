@@ -23,8 +23,13 @@ import java.util.Set;
     겹쳐 그린 도면이라 두 노드 사이 직선거리가 실제 이동거리와 무관하다.
     잘못된 휴리스틱은 최단경로를 놓치게 만든다.
 
-    avoidStairs 는 가중치를 늘리는 게 아니라 해당 엣지를 아예 지나가지 않는다.
-    계단을 못 쓰는 사용자를 위한 기능이라 "돌아가더라도 계단은 안 됨"이 맞다.
+    useElevator 는 가중치를 늘리는 게 아니라 못 쓰는 쪽을 아예 지나가지 않는다.
+    "돌아가더라도 그 수단은 안 됨"이 맞기 때문이다.
+
+        true   계단을 못 쓰는 사용자. 계단 엣지를 뺀다
+        false  엘리베이터를 안 쓰겠다는 사용자. 층간 엘리베이터 엣지를 뺀다
+
+    표지판에서 엘리베이터까지 걸어가는 엣지는 그냥 통로라 어느 쪽에서도 막지 않는다.
  */
 @Component
 public class RouteFinder {
@@ -63,7 +68,7 @@ public class RouteFinder {
         경유지 후보가 여러 곳일 때(충전 가능한 곳 5곳 등) 목적지마다 탐색을
         반복할 필요가 없다. 한 번 돌리고 후보들의 거리를 비교하면 된다.
      */
-    public Distances distancesFrom(NavigationGraph graph, String origin, boolean avoidStairs) {
+    public Distances distancesFrom(NavigationGraph graph, String origin, boolean useElevator) {
 
         Map<String, Double> cost = new HashMap<>();
         Map<String, String> prevNode = new HashMap<>();
@@ -84,7 +89,7 @@ public class RouteFinder {
             }
 
             for (NavEdge edge : graph.edgesOf(current)) {
-                if (avoidStairs && edge.containsStairs()) {
+                if (blocked(graph, edge, useElevator)) {
                     continue;
                 }
                 if (!edge.traversableFrom(current)) {
@@ -134,11 +139,16 @@ public class RouteFinder {
         return Optional.of(new Path(nodeIds, edgeIds, distances.costTo(goal)));
     }
 
+    /* 이번 요청에서 쓸 수 없는 구간인가 */
+    private boolean blocked(NavigationGraph graph, NavEdge edge, boolean useElevator) {
+        return useElevator ? edge.containsStairs() : graph.isElevatorRide(edge);
+    }
+
     /* 두 점 사이 최단경로. 경유지가 없을 때 쓴다 */
-    public Optional<Path> find(NavigationGraph graph, String start, String goal, boolean avoidStairs) {
+    public Optional<Path> find(NavigationGraph graph, String start, String goal, boolean useElevator) {
         if (start.equals(goal)) {
             return Optional.of(new Path(List.of(start), List.of(), 0));
         }
-        return pathTo(distancesFrom(graph, start, avoidStairs), goal);
+        return pathTo(distancesFrom(graph, start, useElevator), goal);
     }
 }

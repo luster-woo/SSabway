@@ -1,9 +1,32 @@
+# 로컬 개발용 오버라이드.
+#
+# 배포(docker-compose.prod.yml)와 동일하게 nginx 리버스 프록시를 앞단에 둔다.
+# 이게 없으면 8080 이 frontend 컨테이너(정적 nginx)로 바로 붙어 /api 요청이
+# try_files → index.html 로 떨어지고, 정적 파일에 대한 POST 라 405 가 난다.
+# 백엔드에 CORS 설정이 없으므로 8081 직접 호출로 우회할 수도 없다.
 services:
-  frontend:
+  nginx:
+    image: nginx:alpine
+    volumes:
+      - ./deploy/nginx.conf:/etc/nginx/conf.d/default.conf:ro
     ports: ["8080:80"]
+    depends_on: [frontend, api, signaling]
+    restart: unless-stopped
+
+  # frontend 는 포트를 열지 않는다 — nginx 가 http://frontend:80 으로 넘긴다.
+  # (deploy/nginx.conf 의 location / )
+
   mysql:
     ports: ["127.0.0.1:3307:3306"]
   redis:
     ports: ["127.0.0.1:6379:6379"]
+
+  # 아래 둘은 nginx 를 거치지 않고 직접 찔러 볼 때(Postman·curl)와
+  # vite dev 서버(5173)의 프록시 대상으로 쓴다.
+  #   frontend/.env.local:
+  #     VITE_PROXY_TARGET=http://localhost:8081
+  #     VITE_SIGNAL_TARGET=http://localhost:8082
   api:
     ports: ["127.0.0.1:8081:8080"]
+  signaling:
+    ports: ["127.0.0.1:8082:8080"]

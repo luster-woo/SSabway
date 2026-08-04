@@ -142,6 +142,15 @@ const admin = {
   },
 } as const
 
+/**
+ * AI (백엔드 경유 — ssabway 가 AI 컨테이너로 프록시한다).
+ * `/api/v1/ai/**` 는 permitAll 목록에 없어 로그인(USER) 토큰이 필요하다.
+ */
+const ai = {
+  /** 표지판 인식 — ✅ BE 개발완료. multipart 필드명은 image 하나 */
+  signPredict: '/ai/signs/predict',
+} as const
+
 export const endpoints = {
   auth,
   users,
@@ -149,4 +158,5 @@ export const endpoints = {
   consultations,
   openvidu,
   admin,
+  ai,
 } as const
