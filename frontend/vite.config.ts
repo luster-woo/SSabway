@@ -37,6 +37,9 @@ export default defineConfig(({ mode }) => {
   const envVars = loadEnv(mode, process.cwd(), 'VITE_')
   const apiTarget = envVars.VITE_PROXY_TARGET || 'http://localhost:8080'
   const signalTarget = envVars.VITE_SIGNAL_TARGET || apiTarget
+  // AI 자막 서버 (음성 → 번역 텍스트, WebSocket). 배포에서는 nginx 가
+  // /ai 프리픽스를 떼고 ai:8000 으로 넘긴다 — dev 프록시도 같은 규칙.
+  const aiTarget = envVars.VITE_AI_TARGET || 'http://localhost:8000'
 
   return {
     resolve: {
@@ -165,6 +168,14 @@ export default defineConfig(({ mode }) => {
         // WebRTC 시그널링 (backend/ssabway_webrtc). WebSocket 업그레이드 필요.
         '/signal': {
           target: signalTarget,
+          changeOrigin: true,
+          ws: true,
+        },
+        // 실시간 번역 자막 (shared/caption/wsTransport.ts).
+        // 경로는 API 명세서(Notion)의 /ws/v1/ai/translation 그대로 —
+        // 프리픽스를 떼지 않고 AI 서버에 전체 경로로 전달한다.
+        '/ws/v1/ai': {
+          target: aiTarget,
           changeOrigin: true,
           ws: true,
         },
