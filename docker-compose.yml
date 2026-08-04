@@ -45,6 +45,7 @@ services:
       ODSAY_API_KEY : ${ODSAY_API_KEY}
       MAIL_USERNAME: ${MAIL_USERNAME}
       MAIL_PASSWORD: ${MAIL_PASSWORD}
+      GMS_API_KEY: ${GMS_API_KEY}
     depends_on:
       mysql: { condition: service_healthy }
     restart: unless-stopped
