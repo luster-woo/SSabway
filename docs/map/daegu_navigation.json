@@ -1,0 +1,2847 @@
+{
+ "svg": {
+  "file": "daegu_map_0_only.svg",
+  "viewBox": [
+   0,
+   0,
+   6935.65,
+   3747.6
+  ],
+  "unitsPerMeter": 26.077
+ },
+ "nodes": [
+  {
+   "id": "EV2_02",
+   "type": "ELEVATOR",
+   "floor": "2",
+   "x": 2383.8,
+   "y": 2903.8
+  },
+  {
+   "id": "EV2_03",
+   "type": "ELEVATOR",
+   "floor": "2",
+   "x": 2383.8,
+   "y": 3463.8
+  },
+  {
+   "id": "EV2_01",
+   "type": "ELEVATOR",
+   "floor": "2",
+   "x": 2463.8,
+   "y": 1063.8
+  },
+  {
+   "id": "EV3_01",
+   "type": "ELEVATOR",
+   "floor": "3",
+   "x": 2543.8,
+   "y": 1323.8
+  },
+  {
+   "id": "EV3_02",
+   "type": "ELEVATOR",
+   "floor": "3",
+   "x": 3023.8,
+   "y": 1923.8
+  },
+  {
+   "id": "EV3_03",
+   "type": "ELEVATOR",
+   "floor": "3",
+   "x": 3223.8,
+   "y": 2443.8
+  },
+  {
+   "id": "EV1_01",
+   "type": "ELEVATOR",
+   "floor": "1",
+   "x": 3543.8,
+   "y": 1063.8
+  },
+  {
+   "id": "S1_05",
+   "type": "SIGNAGE",
+   "floor": "1",
+   "x": 4483.8,
+   "y": 1303.8
+  },
+  {
+   "id": "S1_08",
+   "type": "SIGNAGE",
+   "floor": "1",
+   "x": 4623.8,
+   "y": 1463.8
+  },
+  {
+   "id": "S2_01",
+   "type": "SIGNAGE",
+   "floor": "2",
+   "x": 2043.8,
+   "y": 503.8
+  },
+  {
+   "id": "S2_02",
+   "type": "SIGNAGE",
+   "floor": "2",
+   "x": 2043.8,
+   "y": 363.8
+  },
+  {
+   "id": "S2_03",
+   "type": "SIGNAGE",
+   "floor": "2",
+   "x": 3983.8,
+   "y": 1183.8
+  },
+  {
+   "id": "S2_04",
+   "type": "SIGNAGE",
+   "floor": "2",
+   "x": 3823.8,
+   "y": 1543.8
+  },
+  {
+   "id": "S2_05",
+   "type": "SIGNAGE",
+   "floor": "2",
+   "x": 3823.8,
+   "y": 1763.8
+  },
+  {
+   "id": "S2_06",
+   "type": "SIGNAGE",
+   "floor": "2",
+   "x": 4203.8,
+   "y": 2203.8
+  },
+  {
+   "id": "S2_07",
+   "type": "SIGNAGE",
+   "floor": "2",
+   "x": 3983.8,
+   "y": 2483.8
+  },
+  {
+   "id": "S3_01",
+   "type": "SIGNAGE",
+   "floor": "3",
+   "x": 2843.8,
+   "y": 2643.8
+  },
+  {
+   "id": "S3_02",
+   "type": "SIGNAGE",
+   "floor": "3",
+   "x": 2863.8,
+   "y": 2383.8
+  },
+  {
+   "id": "S3_03",
+   "type": "SIGNAGE",
+   "floor": "3",
+   "x": 3043.8,
+   "y": 2383.8
+  },
+  {
+   "id": "S3_04",
+   "type": "SIGNAGE",
+   "floor": "3",
+   "x": 3043.8,
+   "y": 2103.8
+  },
+  {
+   "id": "S3_05",
+   "type": "SIGNAGE",
+   "floor": "3",
+   "x": 2683.8,
+   "y": 1903.8
+  },
+  {
+   "id": "S3_06",
+   "type": "SIGNAGE",
+   "floor": "3",
+   "x": 2503.8,
+   "y": 1923.8
+  },
+  {
+   "id": "S3_07",
+   "type": "SIGNAGE",
+   "floor": "3",
+   "x": 2083.8,
+   "y": 2143.8
+  },
+  {
+   "id": "S3_08",
+   "type": "SIGNAGE",
+   "floor": "3",
+   "x": 1723.8,
+   "y": 2143.8
+  },
+  {
+   "id": "S3_09",
+   "type": "SIGNAGE",
+   "floor": "3",
+   "x": 1723.8,
+   "y": 2283.8
+  },
+  {
+   "id": "S3_10",
+   "type": "SIGNAGE",
+   "floor": "3",
+   "x": 1903.8,
+   "y": 2403.8
+  },
+  {
+   "id": "S3_11",
+   "type": "SIGNAGE",
+   "floor": "3",
+   "x": 1543.8,
+   "y": 2403.8
+  },
+  {
+   "id": "S3_12",
+   "type": "SIGNAGE",
+   "floor": "3",
+   "x": 1883.8,
+   "y": 1963.8
+  },
+  {
+   "id": "S3_13",
+   "type": "SIGNAGE",
+   "floor": "3",
+   "x": 1523.8,
+   "y": 1963.8
+  },
+  {
+   "id": "S3_14",
+   "type": "SIGNAGE",
+   "floor": "3",
+   "x": 2323.8,
+   "y": 2143.8
+  },
+  {
+   "id": "S3_15",
+   "type": "SIGNAGE",
+   "floor": "3",
+   "x": 2843.8,
+   "y": 2143.8
+  },
+  {
+   "id": "S3_16",
+   "type": "SIGNAGE",
+   "floor": "3",
+   "x": 2623.8,
+   "y": 2383.8
+  },
+  {
+   "id": "S3_17",
+   "type": "SIGNAGE",
+   "floor": "3",
+   "x": 1483.8,
+   "y": 2903.8
+  },
+  {
+   "id": "S3_18",
+   "type": "SIGNAGE",
+   "floor": "3",
+   "x": 743.8,
+   "y": 2903.8
+  },
+  {
+   "id": "S3_19",
+   "type": "SIGNAGE",
+   "floor": "3",
+   "x": 1483.8,
+   "y": 3463.8
+  },
+  {
+   "id": "S3_20",
+   "type": "SIGNAGE",
+   "floor": "3",
+   "x": 743.8,
+   "y": 3463.8
+  },
+  {
+   "id": "GA0_01",
+   "type": "GATE",
+   "floor": "0",
+   "x": 463.8,
+   "y": 2903.8
+  },
+  {
+   "id": "GA0_02",
+   "type": "GATE",
+   "floor": "0",
+   "x": 463.8,
+   "y": 3463.8
+  },
+  {
+   "id": "S1_06",
+   "type": "SIGNAGE",
+   "floor": "1",
+   "x": 4263.8,
+   "y": 1643.8
+  },
+  {
+   "id": "S2_10",
+   "type": "SIGNAGE",
+   "floor": "2",
+   "x": 4303.8,
+   "y": 1703.8
+  },
+  {
+   "id": "S1_04",
+   "type": "SIGNAGE",
+   "floor": "1",
+   "x": 4703.8,
+   "y": 1083.8
+  },
+  {
+   "id": "S1_09",
+   "type": "SIGNAGE",
+   "floor": "1",
+   "x": 4843.8,
+   "y": 1263.8
+  },
+  {
+   "id": "S1_10",
+   "type": "SIGNAGE",
+   "floor": "1",
+   "x": 5043.8,
+   "y": 1023.8
+  },
+  {
+   "id": "S1_03",
+   "type": "SIGNAGE",
+   "floor": "1",
+   "x": 4923.8,
+   "y": 863.8
+  },
+  {
+   "id": "S1_02",
+   "type": "SIGNAGE",
+   "floor": "1",
+   "x": 5123.8,
+   "y": 683.8
+  },
+  {
+   "id": "S1_11",
+   "type": "SIGNAGE",
+   "floor": "1",
+   "x": 5243.8,
+   "y": 823.8
+  },
+  {
+   "id": "S1_12",
+   "type": "SIGNAGE",
+   "floor": "1",
+   "x": 5403.8,
+   "y": 663.8
+  },
+  {
+   "id": "S1_01",
+   "type": "SIGNAGE",
+   "floor": "1",
+   "x": 5283.8,
+   "y": 523.8
+  },
+  {
+   "id": "S2_08",
+   "type": "SIGNAGE",
+   "floor": "2",
+   "x": 6320.48,
+   "y": 1137.79
+  },
+  {
+   "id": "S2_09",
+   "type": "SIGNAGE",
+   "floor": "2",
+   "x": 5603.8,
+   "y": 1843.8
+  },
+  {
+   "id": "GA0_03",
+   "type": "GATE",
+   "floor": "0",
+   "x": 5283.8,
+   "y": 883.8
+  },
+  {
+   "id": "GA0_04",
+   "type": "GATE",
+   "floor": "0",
+   "x": 5063.8,
+   "y": 623.8
+  },
+  {
+   "id": "EX0_01",
+   "type": "EXIT",
+   "floor": "0",
+   "x": 6303.8,
+   "y": 923.8
+  },
+  {
+   "id": "EX0_02",
+   "type": "EXIT",
+   "floor": "0",
+   "x": 6523.8,
+   "y": 1143.8
+  },
+  {
+   "id": "EX0_03",
+   "type": "EXIT",
+   "floor": "0",
+   "x": 5443.8,
+   "y": 1983.8
+  },
+  {
+   "id": "EX0_04",
+   "type": "EXIT",
+   "floor": "0",
+   "x": 5583.8,
+   "y": 2063.8
+  },
+  {
+   "id": "EX0_05",
+   "type": "EXIT",
+   "floor": "0",
+   "x": 1843.8,
+   "y": 443.8
+  },
+  {
+   "id": "EV1_02",
+   "type": "ELEVATOR",
+   "floor": "1",
+   "x": 4923.8,
+   "y": 1363.8
+  },
+  {
+   "id": "EV1_03",
+   "type": "ELEVATOR",
+   "floor": "1",
+   "x": 4583.8,
+   "y": 1003.8
+  },
+  {
+   "id": "EV1_04",
+   "type": "ELEVATOR",
+   "floor": "1",
+   "x": 5623.8,
+   "y": 663.8
+  },
+  {
+   "id": "EV1_05",
+   "type": "ELEVATOR",
+   "floor": "1",
+   "x": 5263.8,
+   "y": 283.8
+  },
+  {
+   "id": "EX0_06",
+   "type": "EXIT",
+   "floor": "0",
+   "x": 2783.8,
+   "y": 2643.8
+  },
+  {
+   "id": "BO0_01",
+   "type": "POI",
+   "category": "TICKET_MACHINE",
+   "floor": "0",
+   "x": 1963.8,
+   "y": 1663.8
+  },
+  {
+   "id": "TI0_01",
+   "type": "POI",
+   "category": "TICKET_OFFICE",
+   "floor": "0",
+   "x": 1963.8,
+   "y": 1483.8
+  },
+  {
+   "id": "BO0_02",
+   "type": "POI",
+   "category": "TICKET_MACHINE",
+   "floor": "0",
+   "x": 1383.8,
+   "y": 2183.8
+  },
+  {
+   "id": "AT0_01",
+   "type": "POI",
+   "category": "ATM",
+   "floor": "0",
+   "x": 2503.8,
+   "y": 1803.8
+  },
+  {
+   "id": "AT0_02",
+   "type": "POI",
+   "category": "ATM",
+   "floor": "0",
+   "x": 4303.8,
+   "y": 2383.8
+  },
+  {
+   "id": "CO0_01",
+   "type": "POI",
+   "category": "STORE",
+   "floor": "0",
+   "x": 4303.8,
+   "y": 2443.8
+  },
+  {
+   "id": "TI0_02",
+   "type": "POI",
+   "category": "TICKET_OFFICE",
+   "floor": "0",
+   "x": 5123.8,
+   "y": 1063.8
+  },
+  {
+   "id": "BO0_03",
+   "type": "POI",
+   "category": "TICKET_MACHINE",
+   "floor": "0",
+   "x": 5083.8,
+   "y": 1103.8
+  },
+  {
+   "id": "BO0_04",
+   "type": "POI",
+   "category": "TICKET_MACHINE",
+   "floor": "0",
+   "x": 5183.8,
+   "y": 503.8
+  },
+  {
+   "id": "TI0_03",
+   "type": "POI",
+   "category": "TICKET_OFFICE",
+   "floor": "0",
+   "x": 5223.8,
+   "y": 463.8
+  },
+  {
+   "id": "CO0_02",
+   "type": "POI",
+   "category": "STORE",
+   "floor": "0",
+   "x": 1963.8,
+   "y": 1363.8
+  }
+ ],
+ "edges": [
+  {
+   "id": "E001",
+   "from": "S3_01",
+   "to": "S3_02",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 260.77,
+   "arriveSide": {
+    "S3_02": "F",
+    "S3_01": "B"
+   },
+   "geometry": [
+    {
+     "x": 2843.8,
+     "y": 2643.8
+    },
+    {
+     "x": 2863.8,
+     "y": 2383.8
+    }
+   ]
+  },
+  {
+   "id": "E002",
+   "from": "S3_01",
+   "to": "S3_16",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 340.59,
+   "arriveSide": {
+    "S3_16": "F",
+    "S3_01": "B"
+   },
+   "geometry": [
+    {
+     "x": 2843.8,
+     "y": 2643.8
+    },
+    {
+     "x": 2623.8,
+     "y": 2383.8
+    }
+   ]
+  },
+  {
+   "id": "E003",
+   "from": "S3_02",
+   "to": "S3_03",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 180,
+   "arriveSide": {
+    "S3_03": "B",
+    "S3_02": "B"
+   },
+   "geometry": [
+    {
+     "x": 2863.8,
+     "y": 2383.8
+    },
+    {
+     "x": 3043.8,
+     "y": 2383.8
+    }
+   ]
+  },
+  {
+   "id": "E004",
+   "from": "S3_02",
+   "to": "S3_15",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 240.83,
+   "arriveSide": {
+    "S3_15": "F",
+    "S3_02": "B"
+   },
+   "geometry": [
+    {
+     "x": 2863.8,
+     "y": 2383.8
+    },
+    {
+     "x": 2843.8,
+     "y": 2143.8
+    }
+   ]
+  },
+  {
+   "id": "E005",
+   "from": "S3_04",
+   "to": "S3_15",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 203.96,
+   "arriveSide": {
+    "S3_15": "B",
+    "S3_04": "F"
+   },
+   "geometry": [
+    {
+     "x": 3043.8,
+     "y": 2103.8
+    },
+    {
+     "x": 2843.8,
+     "y": 2143.8
+    }
+   ]
+  },
+  {
+   "id": "E006",
+   "from": "S3_05",
+   "to": "S3_15",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 288.44,
+   "arriveSide": {
+    "S3_15": "B",
+    "S3_05": "F"
+   },
+   "geometry": [
+    {
+     "x": 2683.8,
+     "y": 1903.8
+    },
+    {
+     "x": 2843.8,
+     "y": 2143.8
+    }
+   ]
+  },
+  {
+   "id": "E007",
+   "from": "EV3_02",
+   "to": "S3_15",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 284.25,
+   "arriveSide": {
+    "S3_15": "B"
+   },
+   "geometry": [
+    {
+     "x": 3023.8,
+     "y": 1923.8
+    },
+    {
+     "x": 2843.8,
+     "y": 2143.8
+    }
+   ]
+  },
+  {
+   "id": "E008",
+   "from": "S3_03",
+   "to": "EV3_03",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 189.74,
+   "arriveSide": {
+    "S3_03": "F"
+   },
+   "geometry": [
+    {
+     "x": 3043.8,
+     "y": 2383.8
+    },
+    {
+     "x": 3223.8,
+     "y": 2443.8
+    }
+   ]
+  },
+  {
+   "id": "E009",
+   "from": "S3_06",
+   "to": "S3_15",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 404.97,
+   "arriveSide": {
+    "S3_15": "B",
+    "S3_06": "F"
+   },
+   "geometry": [
+    {
+     "x": 2503.8,
+     "y": 1923.8
+    },
+    {
+     "x": 2843.8,
+     "y": 2143.8
+    }
+   ]
+  },
+  {
+   "id": "E010",
+   "from": "S3_06",
+   "to": "S3_14",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 284.25,
+   "arriveSide": {
+    "S3_14": "F",
+    "S3_06": "B"
+   },
+   "geometry": [
+    {
+     "x": 2503.8,
+     "y": 1923.8
+    },
+    {
+     "x": 2323.8,
+     "y": 2143.8
+    }
+   ]
+  },
+  {
+   "id": "E011",
+   "from": "S3_07",
+   "to": "S3_14",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 240,
+   "arriveSide": {
+    "S3_14": "B",
+    "S3_07": "F"
+   },
+   "geometry": [
+    {
+     "x": 2083.8,
+     "y": 2143.8
+    },
+    {
+     "x": 2323.8,
+     "y": 2143.8
+    }
+   ]
+  },
+  {
+   "id": "E012",
+   "from": "S3_14",
+   "to": "S3_15",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 520,
+   "arriveSide": {
+    "S3_15": "B",
+    "S3_14": "B"
+   },
+   "geometry": [
+    {
+     "x": 2323.8,
+     "y": 2143.8
+    },
+    {
+     "x": 2843.8,
+     "y": 2143.8
+    }
+   ]
+  },
+  {
+   "id": "E013",
+   "from": "S3_12",
+   "to": "S3_08",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 240.83,
+   "arriveSide": {
+    "S3_08": "F",
+    "S3_12": "B"
+   },
+   "geometry": [
+    {
+     "x": 1883.8,
+     "y": 1963.8
+    },
+    {
+     "x": 1723.8,
+     "y": 2143.8
+    }
+   ]
+  },
+  {
+   "id": "E014",
+   "from": "S3_08",
+   "to": "S3_09",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 140,
+   "arriveSide": {
+    "S3_09": "B",
+    "S3_08": "F"
+   },
+   "geometry": [
+    {
+     "x": 1723.8,
+     "y": 2143.8
+    },
+    {
+     "x": 1723.8,
+     "y": 2283.8
+    }
+   ]
+  },
+  {
+   "id": "E015",
+   "from": "S3_09",
+   "to": "S3_10",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 216.33,
+   "arriveSide": {
+    "S3_10": "B",
+    "S3_09": "F"
+   },
+   "geometry": [
+    {
+     "x": 1723.8,
+     "y": 2283.8
+    },
+    {
+     "x": 1843.8,
+     "y": 2363.8
+    },
+    {
+     "x": 1903.8,
+     "y": 2403.8
+    }
+   ]
+  },
+  {
+   "id": "E016",
+   "from": "S3_09",
+   "to": "S3_11",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 216.33,
+   "arriveSide": {
+    "S3_11": "F",
+    "S3_09": "F"
+   },
+   "geometry": [
+    {
+     "x": 1723.8,
+     "y": 2283.8
+    },
+    {
+     "x": 1543.8,
+     "y": 2403.8
+    }
+   ]
+  },
+  {
+   "id": "E017",
+   "from": "S3_13",
+   "to": "S3_08",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 269.07,
+   "arriveSide": {
+    "S3_08": "F",
+    "S3_13": "F"
+   },
+   "geometry": [
+    {
+     "x": 1523.8,
+     "y": 1963.8
+    },
+    {
+     "x": 1723.8,
+     "y": 2143.8
+    }
+   ]
+  },
+  {
+   "id": "E018",
+   "from": "S3_08",
+   "to": "S3_07",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 360,
+   "arriveSide": {
+    "S3_07": "B",
+    "S3_08": "F"
+   },
+   "geometry": [
+    {
+     "x": 1723.8,
+     "y": 2143.8
+    },
+    {
+     "x": 2083.8,
+     "y": 2143.8
+    }
+   ]
+  },
+  {
+   "id": "E019",
+   "from": "S3_10",
+   "to": "S3_19",
+   "bidirectional": true,
+   "containsStairs": true,
+   "weight": 1140.18,
+   "arriveSide": {
+    "S3_19": "F",
+    "S3_10": "F"
+   },
+   "geometry": [
+    {
+     "x": 1903.8,
+     "y": 2403.8
+    },
+    {
+     "x": 1483.8,
+     "y": 3463.8
+    }
+   ]
+  },
+  {
+   "id": "E020",
+   "from": "S3_12",
+   "to": "S3_17",
+   "bidirectional": true,
+   "containsStairs": true,
+   "weight": 1032.48,
+   "arriveSide": {
+    "S3_17": "F",
+    "S3_12": "F"
+   },
+   "geometry": [
+    {
+     "x": 1883.8,
+     "y": 1963.8
+    },
+    {
+     "x": 1743.8,
+     "y": 2483.8
+    },
+    {
+     "x": 1483.8,
+     "y": 2903.8
+    }
+   ]
+  },
+  {
+   "id": "E021",
+   "from": "EV2_03",
+   "to": "S3_19",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 900,
+   "arriveSide": {
+    "S3_19": "F"
+   },
+   "geometry": [
+    {
+     "x": 2383.8,
+     "y": 3463.8
+    },
+    {
+     "x": 1483.8,
+     "y": 3463.8
+    }
+   ]
+  },
+  {
+   "id": "E022",
+   "from": "S3_17",
+   "to": "EV2_02",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 900,
+   "arriveSide": {
+    "S3_17": "F"
+   },
+   "geometry": [
+    {
+     "x": 1483.8,
+     "y": 2903.8
+    },
+    {
+     "x": 2383.8,
+     "y": 2903.8
+    }
+   ]
+  },
+  {
+   "id": "E023",
+   "from": "S3_17",
+   "to": "S3_18",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 740,
+   "arriveSide": {
+    "S3_18": "F",
+    "S3_17": "B"
+   },
+   "geometry": [
+    {
+     "x": 1483.8,
+     "y": 2903.8
+    },
+    {
+     "x": 743.8,
+     "y": 2903.8
+    }
+   ]
+  },
+  {
+   "id": "E024",
+   "from": "S3_18",
+   "to": "GA0_01",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 280,
+   "arriveSide": {
+    "S3_18": "B"
+   },
+   "geometry": [
+    {
+     "x": 743.8,
+     "y": 2903.8
+    },
+    {
+     "x": 463.8,
+     "y": 2903.8
+    }
+   ]
+  },
+  {
+   "id": "E025",
+   "from": "GA0_02",
+   "to": "S3_20",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 280,
+   "arriveSide": {
+    "S3_20": "B"
+   },
+   "geometry": [
+    {
+     "x": 463.8,
+     "y": 3463.8
+    },
+    {
+     "x": 623.8,
+     "y": 3463.8
+    },
+    {
+     "x": 743.8,
+     "y": 3463.8
+    }
+   ]
+  },
+  {
+   "id": "E026",
+   "from": "S3_20",
+   "to": "S3_19",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 740,
+   "arriveSide": {
+    "S3_19": "B",
+    "S3_20": "F"
+   },
+   "geometry": [
+    {
+     "x": 743.8,
+     "y": 3463.8
+    },
+    {
+     "x": 1483.8,
+     "y": 3463.8
+    }
+   ]
+  },
+  {
+   "id": "E027",
+   "from": "S3_13",
+   "to": "S3_18",
+   "bidirectional": true,
+   "containsStairs": true,
+   "weight": 1720,
+   "arriveSide": {
+    "S3_18": "F",
+    "S3_13": "B"
+   },
+   "geometry": [
+    {
+     "x": 1523.8,
+     "y": 1963.8
+    },
+    {
+     "x": 743.8,
+     "y": 1963.8
+    },
+    {
+     "x": 743.8,
+     "y": 2903.8
+    }
+   ]
+  },
+  {
+   "id": "E028",
+   "from": "S3_11",
+   "to": "S3_20",
+   "bidirectional": true,
+   "containsStairs": true,
+   "weight": 1921.7,
+   "arriveSide": {
+    "S3_20": "F",
+    "S3_11": "B"
+   },
+   "geometry": [
+    {
+     "x": 1543.8,
+     "y": 2403.8
+    },
+    {
+     "x": 683.8,
+     "y": 2403.8
+    },
+    {
+     "x": 743.8,
+     "y": 3463.8
+    }
+   ]
+  },
+  {
+   "id": "E029",
+   "from": "EV3_01",
+   "to": "S3_06",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 601.33,
+   "arriveSide": {
+    "S3_06": "F"
+   },
+   "geometry": [
+    {
+     "x": 2543.8,
+     "y": 1323.8
+    },
+    {
+     "x": 2503.8,
+     "y": 1923.8
+    }
+   ]
+  },
+  {
+   "id": "E030",
+   "from": "S3_05",
+   "to": "S2_01",
+   "bidirectional": true,
+   "containsStairs": true,
+   "weight": 2060.15,
+   "arriveSide": {
+    "S2_01": "B",
+    "S3_05": "B"
+   },
+   "geometry": [
+    {
+     "x": 2683.8,
+     "y": 1903.8
+    },
+    {
+     "x": 2703.8,
+     "y": 603.8
+    },
+    {
+     "x": 2043.8,
+     "y": 603.8
+    },
+    {
+     "x": 2043.8,
+     "y": 503.8
+    }
+   ]
+  },
+  {
+   "id": "E031",
+   "from": "S2_01",
+   "to": "EV2_01",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 1137.23,
+   "arriveSide": {
+    "S2_01": "B"
+   },
+   "geometry": [
+    {
+     "x": 2043.8,
+     "y": 503.8
+    },
+    {
+     "x": 1903.8,
+     "y": 1063.8
+    },
+    {
+     "x": 2463.8,
+     "y": 1063.8
+    }
+   ]
+  },
+  {
+   "id": "E033",
+   "from": "S2_03",
+   "to": "S2_02",
+   "bidirectional": true,
+   "containsStairs": true,
+   "weight": 2703.91,
+   "arriveSide": {
+    "S2_02": "B",
+    "S2_03": "F"
+   },
+   "geometry": [
+    {
+     "x": 3983.8,
+     "y": 1183.8
+    },
+    {
+     "x": 3903.8,
+     "y": 343.8
+    },
+    {
+     "x": 2043.8,
+     "y": 363.8
+    }
+   ]
+  },
+  {
+   "id": "E032",
+   "from": "S2_02",
+   "to": "S2_01",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 140,
+   "arriveSide": {
+    "S2_01": "F",
+    "S2_02": "F"
+   },
+   "geometry": [
+    {
+     "x": 2043.8,
+     "y": 363.8
+    },
+    {
+     "x": 2043.8,
+     "y": 503.8
+    }
+   ]
+  },
+  {
+   "id": "E034",
+   "from": "S2_03",
+   "to": "EV1_01",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 805.6,
+   "arriveSide": {
+    "S2_03": "F"
+   },
+   "geometry": [
+    {
+     "x": 3983.8,
+     "y": 1183.8
+    },
+    {
+     "x": 3403.8,
+     "y": 1183.8
+    },
+    {
+     "x": 3403.8,
+     "y": 1103.8
+    },
+    {
+     "x": 3543.8,
+     "y": 1063.8
+    }
+   ]
+  },
+  {
+   "id": "E035",
+   "from": "S2_03",
+   "to": "S2_04",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 393.95,
+   "arriveSide": {
+    "S2_04": "F",
+    "S2_03": "F"
+   },
+   "geometry": [
+    {
+     "x": 3983.8,
+     "y": 1183.8
+    },
+    {
+     "x": 3823.8,
+     "y": 1543.8
+    }
+   ]
+  },
+  {
+   "id": "E036",
+   "from": "S2_04",
+   "to": "S2_05",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 220,
+   "arriveSide": {
+    "S2_05": "F",
+    "S2_04": "B"
+   },
+   "geometry": [
+    {
+     "x": 3823.8,
+     "y": 1543.8
+    },
+    {
+     "x": 3823.8,
+     "y": 1763.8
+    }
+   ]
+  },
+  {
+   "id": "E037",
+   "from": "S2_05",
+   "to": "S2_10",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 483.74,
+   "arriveSide": {
+    "S2_10": "F",
+    "S2_05": "F"
+   },
+   "geometry": [
+    {
+     "x": 3823.8,
+     "y": 1763.8
+    },
+    {
+     "x": 4303.8,
+     "y": 1703.8
+    }
+   ]
+  },
+  {
+   "id": "E038",
+   "from": "S2_10",
+   "to": "S2_06",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 509.9,
+   "arriveSide": {
+    "S2_06": "F",
+    "S2_10": "F"
+   },
+   "geometry": [
+    {
+     "x": 4303.8,
+     "y": 1703.8
+    },
+    {
+     "x": 4203.8,
+     "y": 2203.8
+    }
+   ]
+  },
+  {
+   "id": "E039",
+   "from": "S2_06",
+   "to": "S2_07",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 500,
+   "arriveSide": {
+    "S2_07": "F",
+    "S2_06": "B"
+   },
+   "geometry": [
+    {
+     "x": 4203.8,
+     "y": 2203.8
+    },
+    {
+     "x": 4203.8,
+     "y": 2483.8
+    },
+    {
+     "x": 3983.8,
+     "y": 2483.8
+    }
+   ]
+  },
+  {
+   "id": "E040",
+   "from": "S2_10",
+   "to": "S1_08",
+   "bidirectional": true,
+   "containsStairs": true,
+   "weight": 400,
+   "arriveSide": {
+    "S1_08": "F",
+    "S2_10": "F"
+   },
+   "geometry": [
+    {
+     "x": 4303.8,
+     "y": 1703.8
+    },
+    {
+     "x": 4623.8,
+     "y": 1463.8
+    }
+   ]
+  },
+  {
+   "id": "E041",
+   "from": "S1_08",
+   "to": "S1_05",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 212.6,
+   "arriveSide": {
+    "S1_05": "F",
+    "S1_08": "F"
+   },
+   "geometry": [
+    {
+     "x": 4623.8,
+     "y": 1463.8
+    },
+    {
+     "x": 4483.8,
+     "y": 1303.8
+    }
+   ]
+  },
+  {
+   "id": "E042",
+   "from": "S1_05",
+   "to": "S1_04",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 311.13,
+   "arriveSide": {
+    "S1_04": "B",
+    "S1_05": "F"
+   },
+   "geometry": [
+    {
+     "x": 4483.8,
+     "y": 1303.8
+    },
+    {
+     "x": 4703.8,
+     "y": 1083.8
+    }
+   ]
+  },
+  {
+   "id": "E043",
+   "from": "S1_04",
+   "to": "S1_09",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 228.04,
+   "arriveSide": {
+    "S1_09": "F",
+    "S1_04": "B"
+   },
+   "geometry": [
+    {
+     "x": 4703.8,
+     "y": 1083.8
+    },
+    {
+     "x": 4843.8,
+     "y": 1263.8
+    }
+   ]
+  },
+  {
+   "id": "E044",
+   "from": "S1_09",
+   "to": "S1_08",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 297.32,
+   "arriveSide": {
+    "S1_08": "F",
+    "S1_09": "B"
+   },
+   "geometry": [
+    {
+     "x": 4843.8,
+     "y": 1263.8
+    },
+    {
+     "x": 4623.8,
+     "y": 1463.8
+    }
+   ]
+  },
+  {
+   "id": "E045",
+   "from": "S1_09",
+   "to": "S1_10",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 312.41,
+   "arriveSide": {
+    "S1_10": "F",
+    "S1_09": "F"
+   },
+   "geometry": [
+    {
+     "x": 4843.8,
+     "y": 1263.8
+    },
+    {
+     "x": 5043.8,
+     "y": 1023.8
+    }
+   ]
+  },
+  {
+   "id": "E046",
+   "from": "S1_03",
+   "to": "S1_04",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 311.13,
+   "arriveSide": {
+    "S1_04": "F",
+    "S1_03": "B"
+   },
+   "geometry": [
+    {
+     "x": 4923.8,
+     "y": 863.8
+    },
+    {
+     "x": 4703.8,
+     "y": 1083.8
+    }
+   ]
+  },
+  {
+   "id": "E047",
+   "from": "S1_10",
+   "to": "S1_03",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 200,
+   "arriveSide": {
+    "S1_03": "F",
+    "S1_10": "F"
+   },
+   "geometry": [
+    {
+     "x": 5043.8,
+     "y": 1023.8
+    },
+    {
+     "x": 4923.8,
+     "y": 863.8
+    }
+   ]
+  },
+  {
+   "id": "E048",
+   "from": "S1_11",
+   "to": "S1_10",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 282.84,
+   "arriveSide": {
+    "S1_10": "F",
+    "S1_11": "F"
+   },
+   "geometry": [
+    {
+     "x": 5243.8,
+     "y": 823.8
+    },
+    {
+     "x": 5043.8,
+     "y": 1023.8
+    }
+   ]
+  },
+  {
+   "id": "E049",
+   "from": "S1_03",
+   "to": "S1_02",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 269.07,
+   "arriveSide": {
+    "S1_02": "B",
+    "S1_03": "F"
+   },
+   "geometry": [
+    {
+     "x": 4923.8,
+     "y": 863.8
+    },
+    {
+     "x": 5123.8,
+     "y": 683.8
+    }
+   ]
+  },
+  {
+   "id": "E050",
+   "from": "S1_02",
+   "to": "S1_11",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 184.39,
+   "arriveSide": {
+    "S1_11": "F",
+    "S1_02": "B"
+   },
+   "geometry": [
+    {
+     "x": 5123.8,
+     "y": 683.8
+    },
+    {
+     "x": 5243.8,
+     "y": 823.8
+    }
+   ]
+  },
+  {
+   "id": "E051",
+   "from": "S1_11",
+   "to": "GA0_03",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 72.11,
+   "arriveSide": {
+    "S1_11": "F"
+   },
+   "geometry": [
+    {
+     "x": 5243.8,
+     "y": 823.8
+    },
+    {
+     "x": 5283.8,
+     "y": 883.8
+    }
+   ]
+  },
+  {
+   "id": "E052",
+   "from": "S1_02",
+   "to": "GA0_04",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 84.85,
+   "arriveSide": {
+    "S1_02": "B"
+   },
+   "geometry": [
+    {
+     "x": 5123.8,
+     "y": 683.8
+    },
+    {
+     "x": 5063.8,
+     "y": 623.8
+    }
+   ]
+  },
+  {
+   "id": "E053",
+   "from": "S1_12",
+   "to": "S1_11",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 226.27,
+   "arriveSide": {
+    "S1_11": "F",
+    "S1_12": "B"
+   },
+   "geometry": [
+    {
+     "x": 5403.8,
+     "y": 663.8
+    },
+    {
+     "x": 5243.8,
+     "y": 823.8
+    }
+   ]
+  },
+  {
+   "id": "E054",
+   "from": "S1_01",
+   "to": "S1_02",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 226.27,
+   "arriveSide": {
+    "S1_02": "F",
+    "S1_01": "B"
+   },
+   "geometry": [
+    {
+     "x": 5283.8,
+     "y": 523.8
+    },
+    {
+     "x": 5123.8,
+     "y": 683.8
+    }
+   ]
+  },
+  {
+   "id": "E055",
+   "from": "S1_12",
+   "to": "S1_01",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 184.39,
+   "arriveSide": {
+    "S1_01": "B",
+    "S1_12": "F"
+   },
+   "geometry": [
+    {
+     "x": 5403.8,
+     "y": 663.8
+    },
+    {
+     "x": 5283.8,
+     "y": 523.8
+    }
+   ]
+  },
+  {
+   "id": "E056",
+   "from": "S1_12",
+   "to": "S2_08",
+   "bidirectional": true,
+   "containsStairs": true,
+   "weight": 1031.97,
+   "arriveSide": {
+    "S2_08": "F",
+    "S1_12": "F"
+   },
+   "geometry": [
+    {
+     "x": 5403.8,
+     "y": 663.8
+    },
+    {
+     "x": 6320.48,
+     "y": 1137.79
+    }
+   ]
+  },
+  {
+   "id": "E057",
+   "from": "S1_01",
+   "to": "S2_08",
+   "bidirectional": true,
+   "containsStairs": true,
+   "weight": 1325.9,
+   "arriveSide": {
+    "S2_08": "F",
+    "S1_01": "B"
+   },
+   "geometry": [
+    {
+     "x": 5283.8,
+     "y": 523.8
+    },
+    {
+     "x": 6023.8,
+     "y": 643.8
+    },
+    {
+     "x": 6320.48,
+     "y": 1137.79
+    }
+   ]
+  },
+  {
+   "id": "E058",
+   "from": "S1_09",
+   "to": "S2_09",
+   "bidirectional": true,
+   "containsStairs": true,
+   "weight": 956.03,
+   "arriveSide": {
+    "S2_09": "F",
+    "S1_09": "B"
+   },
+   "geometry": [
+    {
+     "x": 4843.8,
+     "y": 1263.8
+    },
+    {
+     "x": 5603.8,
+     "y": 1843.8
+    }
+   ]
+  },
+  {
+   "id": "E059",
+   "from": "S2_09",
+   "to": "S1_04",
+   "bidirectional": true,
+   "containsStairs": true,
+   "weight": 1276.09,
+   "arriveSide": {
+    "S1_04": "F",
+    "S2_09": "F"
+   },
+   "geometry": [
+    {
+     "x": 5603.8,
+     "y": 1843.8
+    },
+    {
+     "x": 5343.8,
+     "y": 1303.8
+    },
+    {
+     "x": 4703.8,
+     "y": 1083.8
+    }
+   ]
+  },
+  {
+   "id": "E060",
+   "from": "S1_05",
+   "to": "S1_06",
+   "bidirectional": true,
+   "containsStairs": true,
+   "weight": 404.97,
+   "arriveSide": {
+    "S1_06": "F",
+    "S1_05": "F"
+   },
+   "geometry": [
+    {
+     "x": 4483.8,
+     "y": 1303.8
+    },
+    {
+     "x": 4263.8,
+     "y": 1643.8
+    }
+   ]
+  },
+  {
+   "id": "E061",
+   "from": "S1_06",
+   "to": "S2_05",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 456.09,
+   "arriveSide": {
+    "S2_05": "B",
+    "S1_06": "F"
+   },
+   "geometry": [
+    {
+     "x": 4263.8,
+     "y": 1643.8
+    },
+    {
+     "x": 4183.8,
+     "y": 1663.8
+    },
+    {
+     "x": 3823.8,
+     "y": 1763.8
+    }
+   ]
+  },
+  {
+   "id": "E062",
+   "from": "S2_05",
+   "to": "S2_06",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 581.38,
+   "arriveSide": {
+    "S2_06": "F",
+    "S2_05": "B"
+   },
+   "geometry": [
+    {
+     "x": 3823.8,
+     "y": 1763.8
+    },
+    {
+     "x": 4203.8,
+     "y": 2203.8
+    }
+   ]
+  },
+  {
+   "id": "E063",
+   "from": "S1_06",
+   "to": "S2_06",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 568.2,
+   "arriveSide": {
+    "S2_06": "F",
+    "S1_06": "F"
+   },
+   "geometry": [
+    {
+     "x": 4263.8,
+     "y": 1643.8
+    },
+    {
+     "x": 4223.8,
+     "y": 1743.8
+    },
+    {
+     "x": 4223.8,
+     "y": 1803.8
+    },
+    {
+     "x": 4203.8,
+     "y": 2203.8
+    }
+   ]
+  },
+  {
+   "id": "E064",
+   "from": "S2_09",
+   "to": "EX0_03",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 212.6,
+   "arriveSide": {
+    "S2_09": "F"
+   },
+   "geometry": [
+    {
+     "x": 5603.8,
+     "y": 1843.8
+    },
+    {
+     "x": 5443.8,
+     "y": 1983.8
+    }
+   ]
+  },
+  {
+   "id": "E065",
+   "from": "S2_09",
+   "to": "EX0_04",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 220.91,
+   "arriveSide": {
+    "S2_09": "F"
+   },
+   "geometry": [
+    {
+     "x": 5603.8,
+     "y": 1843.8
+    },
+    {
+     "x": 5583.8,
+     "y": 2063.8
+    }
+   ]
+  },
+  {
+   "id": "E066",
+   "from": "S2_08",
+   "to": "EX0_01",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 214.64,
+   "arriveSide": {
+    "S2_08": "F"
+   },
+   "geometry": [
+    {
+     "x": 6320.48,
+     "y": 1137.79
+    },
+    {
+     "x": 6303.8,
+     "y": 923.8
+    }
+   ]
+  },
+  {
+   "id": "E067",
+   "from": "S2_08",
+   "to": "EX0_02",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 203.41,
+   "arriveSide": {
+    "S2_08": "F"
+   },
+   "geometry": [
+    {
+     "x": 6320.48,
+     "y": 1137.79
+    },
+    {
+     "x": 6523.8,
+     "y": 1143.8
+    }
+   ]
+  },
+  {
+   "id": "E068",
+   "from": "EX0_05",
+   "to": "S2_02",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 215.41,
+   "arriveSide": {
+    "S2_02": "F"
+   },
+   "geometry": [
+    {
+     "x": 1843.8,
+     "y": 443.8
+    },
+    {
+     "x": 2043.8,
+     "y": 363.8
+    }
+   ]
+  },
+  {
+   "id": "E069",
+   "from": "S2_01",
+   "to": "EX0_05",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 208.81,
+   "arriveSide": {
+    "S2_01": "F"
+   },
+   "geometry": [
+    {
+     "x": 2043.8,
+     "y": 503.8
+    },
+    {
+     "x": 1843.8,
+     "y": 443.8
+    }
+   ]
+  },
+  {
+   "id": "E070",
+   "from": "EV1_04",
+   "to": "EX0_01",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 728.01,
+   "arriveSide": {},
+   "geometry": [
+    {
+     "x": 5623.8,
+     "y": 663.8
+    },
+    {
+     "x": 6303.8,
+     "y": 923.8
+    }
+   ]
+  },
+  {
+   "id": "E071",
+   "from": "EV1_04",
+   "to": "EX0_02",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 1020,
+   "arriveSide": {},
+   "geometry": [
+    {
+     "x": 5623.8,
+     "y": 663.8
+    },
+    {
+     "x": 6523.8,
+     "y": 1143.8
+    }
+   ]
+  },
+  {
+   "id": "E072",
+   "from": "EV1_05",
+   "to": "EX0_01",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 1477.16,
+   "arriveSide": {},
+   "geometry": [
+    {
+     "x": 5263.8,
+     "y": 283.8
+    },
+    {
+     "x": 6203.8,
+     "y": 403.8
+    },
+    {
+     "x": 6303.8,
+     "y": 923.8
+    }
+   ]
+  },
+  {
+   "id": "E073",
+   "from": "EV1_05",
+   "to": "EX0_02",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 1642.41,
+   "arriveSide": {},
+   "geometry": [
+    {
+     "x": 5263.8,
+     "y": 283.8
+    },
+    {
+     "x": 6123.8,
+     "y": 503.8
+    },
+    {
+     "x": 6523.8,
+     "y": 1143.8
+    }
+   ]
+  },
+  {
+   "id": "E074",
+   "from": "EV1_02",
+   "to": "EX0_03",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 876.67,
+   "arriveSide": {},
+   "geometry": [
+    {
+     "x": 4923.8,
+     "y": 1363.8
+    },
+    {
+     "x": 5023.8,
+     "y": 1743.8
+    },
+    {
+     "x": 5443.8,
+     "y": 1983.8
+    }
+   ]
+  },
+  {
+   "id": "E075",
+   "from": "EV1_02",
+   "to": "EX0_04",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 974.02,
+   "arriveSide": {},
+   "geometry": [
+    {
+     "x": 4923.8,
+     "y": 1363.8
+    },
+    {
+     "x": 5123.8,
+     "y": 1683.8
+    },
+    {
+     "x": 5583.8,
+     "y": 2063.8
+    }
+   ]
+  },
+  {
+   "id": "E076",
+   "from": "EV1_03",
+   "to": "EX0_03",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 1418.94,
+   "arriveSide": {},
+   "geometry": [
+    {
+     "x": 4583.8,
+     "y": 1003.8
+    },
+    {
+     "x": 4903.8,
+     "y": 1783.8
+    },
+    {
+     "x": 5443.8,
+     "y": 1983.8
+    }
+   ]
+  },
+  {
+   "id": "E077",
+   "from": "EV1_03",
+   "to": "EX0_04",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 1693.18,
+   "arriveSide": {},
+   "geometry": [
+    {
+     "x": 4583.8,
+     "y": 1003.8
+    },
+    {
+     "x": 4783.8,
+     "y": 1843.8
+    },
+    {
+     "x": 5583.8,
+     "y": 2063.8
+    }
+   ]
+  },
+  {
+   "id": "E078",
+   "from": "S1_09",
+   "to": "EV1_02",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 128.06,
+   "arriveSide": {
+    "S1_09": "F"
+   },
+   "geometry": [
+    {
+     "x": 4843.8,
+     "y": 1263.8
+    },
+    {
+     "x": 4923.8,
+     "y": 1363.8
+    }
+   ]
+  },
+  {
+   "id": "E079",
+   "from": "S1_04",
+   "to": "EV1_03",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 144.22,
+   "arriveSide": {
+    "S1_04": "F"
+   },
+   "geometry": [
+    {
+     "x": 4703.8,
+     "y": 1083.8
+    },
+    {
+     "x": 4583.8,
+     "y": 1003.8
+    }
+   ]
+  },
+  {
+   "id": "E080",
+   "from": "S1_01",
+   "to": "EV1_05",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 240.83,
+   "arriveSide": {
+    "S1_01": "B"
+   },
+   "geometry": [
+    {
+     "x": 5283.8,
+     "y": 523.8
+    },
+    {
+     "x": 5263.8,
+     "y": 283.8
+    }
+   ]
+  },
+  {
+   "id": "E081",
+   "from": "S1_12",
+   "to": "EV1_04",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 220,
+   "arriveSide": {
+    "S1_12": "F"
+   },
+   "geometry": [
+    {
+     "x": 5403.8,
+     "y": 663.8
+    },
+    {
+     "x": 5623.8,
+     "y": 663.8
+    }
+   ]
+  },
+  {
+   "id": "E082",
+   "from": "S3_14",
+   "to": "S3_16",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 384.19,
+   "arriveSide": {
+    "S3_16": "B",
+    "S3_14": "F"
+   },
+   "geometry": [
+    {
+     "x": 2323.8,
+     "y": 2143.8
+    },
+    {
+     "x": 2623.8,
+     "y": 2383.8
+    }
+   ]
+  },
+  {
+   "id": "E083",
+   "from": "S3_16",
+   "to": "S3_15",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 325.58,
+   "arriveSide": {
+    "S3_15": "F",
+    "S3_16": "B"
+   },
+   "geometry": [
+    {
+     "x": 2623.8,
+     "y": 2383.8
+    },
+    {
+     "x": 2843.8,
+     "y": 2143.8
+    }
+   ]
+  },
+  {
+   "id": "E084",
+   "from": "EX0_06",
+   "to": "S3_01",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 60,
+   "arriveSide": {
+    "S3_01": "F"
+   },
+   "geometry": [
+    {
+     "x": 2783.8,
+     "y": 2643.8
+    },
+    {
+     "x": 2843.8,
+     "y": 2643.8
+    }
+   ]
+  },
+  {
+   "id": "E085",
+   "from": "EV2_01",
+   "to": "EV3_01",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 272.03,
+   "arriveSide": {},
+   "geometry": [
+    {
+     "x": 2463.8,
+     "y": 1063.8
+    },
+    {
+     "x": 2543.8,
+     "y": 1323.8
+    }
+   ]
+  },
+  {
+   "id": "E086",
+   "from": "EV3_01",
+   "to": "EV1_01",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 1033.25,
+   "arriveSide": {},
+   "geometry": [
+    {
+     "x": 2543.8,
+     "y": 1323.8
+    },
+    {
+     "x": 3543.8,
+     "y": 1063.8
+    }
+   ]
+  },
+  {
+   "id": "E087",
+   "from": "EV2_01",
+   "to": "EV1_01",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 1080,
+   "arriveSide": {},
+   "geometry": [
+    {
+     "x": 2463.8,
+     "y": 1063.8
+    },
+    {
+     "x": 3543.8,
+     "y": 1063.8
+    }
+   ]
+  },
+  {
+   "id": "E088",
+   "from": "EV3_02",
+   "to": "EV2_02",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 1170.47,
+   "arriveSide": {},
+   "geometry": [
+    {
+     "x": 3023.8,
+     "y": 1923.8
+    },
+    {
+     "x": 2383.8,
+     "y": 2903.8
+    }
+   ]
+  },
+  {
+   "id": "E089",
+   "from": "EV3_03",
+   "to": "EV2_03",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 1321.36,
+   "arriveSide": {},
+   "geometry": [
+    {
+     "x": 3223.8,
+     "y": 2443.8
+    },
+    {
+     "x": 2383.8,
+     "y": 3463.8
+    }
+   ]
+  },
+  {
+   "id": "E090",
+   "from": "AT0_01",
+   "to": "S3_06",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 120,
+   "arriveSide": {
+    "S3_06": "B"
+   },
+   "geometry": [
+    {
+     "x": 2503.8,
+     "y": 1803.8
+    },
+    {
+     "x": 2503.8,
+     "y": 1923.8
+    }
+   ]
+  },
+  {
+   "id": "E091",
+   "from": "AT0_01",
+   "to": "BO0_01",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 557.85,
+   "arriveSide": {},
+   "geometry": [
+    {
+     "x": 2503.8,
+     "y": 1803.8
+    },
+    {
+     "x": 1963.8,
+     "y": 1663.8
+    }
+   ]
+  },
+  {
+   "id": "E092",
+   "from": "AT0_01",
+   "to": "TI0_01",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 627.69,
+   "arriveSide": {},
+   "geometry": [
+    {
+     "x": 2503.8,
+     "y": 1803.8
+    },
+    {
+     "x": 1963.8,
+     "y": 1483.8
+    }
+   ]
+  },
+  {
+   "id": "E093",
+   "from": "S3_08",
+   "to": "BO0_02",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 342.34,
+   "arriveSide": {
+    "S3_08": "F"
+   },
+   "geometry": [
+    {
+     "x": 1723.8,
+     "y": 2143.8
+    },
+    {
+     "x": 1383.8,
+     "y": 2183.8
+    }
+   ]
+  },
+  {
+   "id": "E094",
+   "from": "CO0_02",
+   "to": "AT0_01",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 696.56,
+   "arriveSide": {},
+   "geometry": [
+    {
+     "x": 1963.8,
+     "y": 1363.8
+    },
+    {
+     "x": 2503.8,
+     "y": 1803.8
+    }
+   ]
+  },
+  {
+   "id": "E095",
+   "from": "CO0_02",
+   "to": "TI0_01",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 120,
+   "arriveSide": {},
+   "geometry": [
+    {
+     "x": 1963.8,
+     "y": 1363.8
+    },
+    {
+     "x": 1963.8,
+     "y": 1483.8
+    }
+   ]
+  },
+  {
+   "id": "E096",
+   "from": "TI0_01",
+   "to": "BO0_01",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 180,
+   "arriveSide": {},
+   "geometry": [
+    {
+     "x": 1963.8,
+     "y": 1483.8
+    },
+    {
+     "x": 1963.8,
+     "y": 1663.8
+    }
+   ]
+  },
+  {
+   "id": "E097",
+   "from": "S2_06",
+   "to": "AT0_02",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 205.91,
+   "arriveSide": {
+    "S2_06": "B"
+   },
+   "geometry": [
+    {
+     "x": 4203.8,
+     "y": 2203.8
+    },
+    {
+     "x": 4303.8,
+     "y": 2383.8
+    }
+   ]
+  },
+  {
+   "id": "E098",
+   "from": "AT0_02",
+   "to": "CO0_01",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 60,
+   "arriveSide": {},
+   "geometry": [
+    {
+     "x": 4303.8,
+     "y": 2383.8
+    },
+    {
+     "x": 4303.8,
+     "y": 2443.8
+    }
+   ]
+  },
+  {
+   "id": "E099",
+   "from": "S1_10",
+   "to": "BO0_03",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 89.44,
+   "arriveSide": {
+    "S1_10": "F"
+   },
+   "geometry": [
+    {
+     "x": 5043.8,
+     "y": 1023.8
+    },
+    {
+     "x": 5083.8,
+     "y": 1103.8
+    }
+   ]
+  },
+  {
+   "id": "E100",
+   "from": "BO0_03",
+   "to": "TI0_02",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 56.57,
+   "arriveSide": {},
+   "geometry": [
+    {
+     "x": 5083.8,
+     "y": 1103.8
+    },
+    {
+     "x": 5123.8,
+     "y": 1063.8
+    }
+   ]
+  },
+  {
+   "id": "E101",
+   "from": "S1_01",
+   "to": "TI0_03",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 84.85,
+   "arriveSide": {
+    "S1_01": "B"
+   },
+   "geometry": [
+    {
+     "x": 5283.8,
+     "y": 523.8
+    },
+    {
+     "x": 5223.8,
+     "y": 463.8
+    }
+   ]
+  },
+  {
+   "id": "E102",
+   "from": "TI0_03",
+   "to": "BO0_04",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 56.57,
+   "arriveSide": {},
+   "geometry": [
+    {
+     "x": 5223.8,
+     "y": 463.8
+    },
+    {
+     "x": 5183.8,
+     "y": 503.8
+    }
+   ]
+  },
+  {
+   "id": "E103",
+   "from": "BO0_04",
+   "to": "S1_01",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 101.98,
+   "arriveSide": {
+    "S1_01": "B"
+   },
+   "geometry": [
+    {
+     "x": 5183.8,
+     "y": 503.8
+    },
+    {
+     "x": 5283.8,
+     "y": 523.8
+    }
+   ]
+  },
+  {
+   "id": "E104",
+   "from": "S1_10",
+   "to": "TI0_02",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 89.44,
+   "arriveSide": {
+    "S1_10": "F"
+   },
+   "geometry": [
+    {
+     "x": 5043.8,
+     "y": 1023.8
+    },
+    {
+     "x": 5123.8,
+     "y": 1063.8
+    }
+   ]
+  },
+  {
+   "id": "E105",
+   "from": "BO0_01",
+   "to": "S3_06",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 599.33,
+   "arriveSide": {
+    "S3_06": "B"
+   },
+   "geometry": [
+    {
+     "x": 1963.8,
+     "y": 1663.8
+    },
+    {
+     "x": 2503.8,
+     "y": 1923.8
+    }
+   ]
+  }
+ ]
+}

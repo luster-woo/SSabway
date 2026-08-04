@@ -1,6 +1,6 @@
 interface BackendReadyFlags {
-  CONSULTATION_STATUS: boolean
   ADMIN_QUEUE: boolean
+  ROUTE_GUIDE: boolean
 }
 
 /*
@@ -23,38 +23,42 @@ interface BackendReadyFlags {
  *   ERROR_CODES: GlobalExceptionHandler 도입으로 상시 적용 (7/31)
  *   CONSULTATION_ACCEPT / CONSULTATION_END: accept 통합안을 철회하고
  *     백엔드의 sessions → connections → start 3-call 로 확정 (7/31)
+ *   CONSULTATION_STATUS: `POST /consultations` + `GET /consultations/{id}`
+ *     상시 실호출로 전환 (8/3). useConsultationMatch 의 임시 세션 폴링 분기 제거.
+ *     ⚠️ 단, 이 API 들은 백엔드가 `staffId` 를 nullable 로 바꾸는 것을 전제로
+ *        한다 — 그 전환이 아직이면 `POST /consultations` 가 400 을 낸다.
+ *        (`endpoints.ts` 의 consultations 블록 주석 참고)
  *
  * ⚠️ 플래그를 켤 때는 반드시 짝이 되는 임시 코드를 함께 지울 것.
  *    남겨두면 테스트되지 않는 죽은 분기가 된다.
  */
 export const BACKEND_READY: BackendReadyFlags = {
   /**
-   * `POST /api/v1/consultations` + `GET /api/v1/consultations/{id}`
-   * 상담 요청과 상태 조회. 대기 순번(queuePosition)이 여기서 온다.
+   * `GET /api/v1/staffs/waiting?page=` — 역무원 대기 목록. ✅ BE 개발완료.
    *
-   * 목 준비됨 — mocks/consultationQueue.ts (8/1).
-   * 로컬에서 이 플래그를 true 로 켜면 MSW 만으로 요청 → 순번 감소 → 매칭 →
-   * 토큰 발급까지 확인할 수 있다. (가짜 토큰이라 화상 접속은 실패가 정상)
-   *
-   * BE 배포 시 실연동 절차:
-   *   1. .env.local 에 VITE_PROXY_TARGET 지정
-   *   2. mockSwitch.ts 의 상담 3종을 false 로
-   *   3. 이 플래그를 true 로
-   *
-   * ⚠️ 이 플래그를 켠 채 커밋하려면(=BE 실배포 후) 아래 임시 코드를 함께 지울 것 —
-   *    useConsultationMatch 의 세션 폴링 분기,
-   *    ConsultationPage 의 ?consultationId= 쿼리 파싱.
-   *    그 전까지 false 로 두는 이유: 배포 환경에는 MSW 가 없어서, 켜 두면
-   *    실서버 404 로 상담 요청이 전부 실패 화면으로 빠진다.
+   * true 면 실호출로 나간다. `useWaitingConsultations.ts` 의 MOCK_WAITING·
+   * mockAcceptedIds 계열은 이제 도달하지 않는 죽은 폴백이다 — accept 가
+   * 1-call 로 전환되며(8/3) markMockAccepted 호출도 사라졌다. 정리는 별도
+   * 작업으로 남겨 둔다.
    */
-  CONSULTATION_STATUS: false,
+  ADMIN_QUEUE: true,
 
   /**
-   * `GET /api/v1/admin/consultations?status=WAITING`
-   * 역무원 대기 목록.
+   * `POST /api/v1/routes/navi` — 역 내 단계별 경로 안내. ⚠️ BE 컨트롤러 없음.
    *
-   * 켜면 지울 것 — useWaitingConsultations 의 MOCK_WAITING,
-   *              mockAcceptedIds 와 markMockAccepted/isMockAccepted
+   * `/api/v1/routes/**` 는 어느 서비스에도 구현되어 있지 않다(ssabway·webrtc
+   * 양쪽에 routes 컨트롤러 0건). 그래서 false 인 동안 `fetchRouteGuide` 는
+   * HTTP 를 아예 보내지 않고 `MOCK_ROUTE_GUIDE` 를 돌려준다.
+   *
+   * ⚠️ 이 플래그가 있는 이유 — 배포 환경에는 MSW 가 없다.
+   *    (main.tsx 의 `IS_DEV && env.USE_MSW` 이중 게이트, 운영 번들에서 제외)
+   *    HTTP 를 보내면 로컬은 MSW 가 받아 주지만 배포에서는 404 로 떨어져
+   *    경로 안내 화면이 실패 상태에 갇히고, 그 뒤 도움 요청·화상까지 막힌다.
+   *    형제 함수인 fetchRoutePaths·fetchGuideInfo 는 처음부터 목을 직접
+   *    돌려주고 있어 배포에서도 동작한다 — 이 함수만 예외였다.
+   *
+   * BE 배포 시: 이 플래그를 true 로 바꾸고, mocks/handlers.ts 의
+   * `POST /routes/navi` 목과 mockRouteGuide.ts 를 정리한다.
    */
-  ADMIN_QUEUE: false,
+  ROUTE_GUIDE: false,
 }

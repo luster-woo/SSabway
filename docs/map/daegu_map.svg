@@ -1,0 +1,559 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="0 0 6935.65 3747.6"
+     width="6936" height="3748">
+  <title>대구역 0F (지도만)</title>
+  <rect x="0" y="0" width="6935.65" height="3747.6" fill="#ffffff"/>
+<g transform="scale(1) translate(3903.8 -1496.2)">
+  <rect x="-120" y="3440" width="443.23" height="177.29" fill="#64b5f6" fill-opacity="0.18" stroke="#64b5f6" stroke-width="2" stroke-dasharray="6 4"/>
+  <text x="101.62" y="3528.65" fill="rgb(55,100,135)" font-family="Malgun Gothic, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" dominant-baseline="middle"> 상점</text>
+  <rect x="-320" y="3320" width="143.61" height="186.68" fill="#64b5f6" fill-opacity="0.18" stroke="#64b5f6" stroke-width="2" stroke-dasharray="6 4"/>
+  <text x="-248.19" y="3413.34" fill="rgb(55,100,135)" font-family="Malgun Gothic, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" dominant-baseline="middle">MUJI</text>
+  <rect x="-320" y="2980" width="141.84" height="212.75" fill="#64b5f6" fill-opacity="0.18" stroke="#64b5f6" stroke-width="2" stroke-dasharray="6 4"/>
+  <text x="-249.08" y="3086.38" fill="rgb(55,100,135)" font-family="Malgun Gothic, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" dominant-baseline="middle">UNIQLO</text>
+  <rect x="-2500" y="1740" width="300" height="380" fill="#64b5f6" fill-opacity="0.18" stroke="#64b5f6" stroke-width="2" stroke-dasharray="6 4"/>
+  <text x="-2350" y="1930" fill="rgb(55,100,135)" font-family="Malgun Gothic, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" dominant-baseline="middle">흡연장</text>
+  <rect x="-320" y="3640" width="114" height="95" fill="#64b5f6" fill-opacity="0.18" stroke="#64b5f6" stroke-width="2" stroke-dasharray="6 4"/>
+  <rect x="-320" y="3740" width="320" height="160" fill="#64b5f6" fill-opacity="0.18" stroke="#64b5f6" stroke-width="2" stroke-dasharray="6 4"/>
+  <text x="-160" y="3820" fill="rgb(55,100,135)" font-family="Malgun Gothic, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" dominant-baseline="middle">롯데백화점</text>
+  <rect x="1958.98" y="2957.54" width="180" height="60" fill="#64b5f6" fill-opacity="0.18" stroke="#64b5f6" stroke-width="2" stroke-dasharray="6 4"/>
+  <text x="2048.98" y="2987.54" fill="rgb(55,100,135)" font-family="Malgun Gothic, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" dominant-baseline="middle">중앙</text>
+  <polyline points="-1220,4240 -920,4240 -1220,4240 -1360,4240" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="-920,4240 -920,4140 -820,4140 -820,4000 -320,4000" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="-320,4000 -320,3240 -1060,3240 -1060,2800 -2560,2800 -2560,4000 -1820,4000 -1820,3840 -1520,3840 -1660,4000 -1520,4140 -1360,4000 -1360,4240" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="-460,4000 -460,3540 -620,3540 -620,3400 -1120,3400" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="-1120,3400 -1120,2800" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="-1300,2800 -1300,3400 -1480,3400 -1480,2880" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="-1480,2880 -1300,2880" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="-620,3700 -620,3640" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="-620,3640 -460,3640" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="-1820,3400 -2560,3400" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="-2020,2800 -2020,3400" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="-1820,3400 -1480,3400" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="-1660,2800 -1660,2940" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="-1720,2800 -1720,2940" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="-1600,2800 -1600,2940 -1780,2940 -1780,2800" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="-1880,3400 -1880,3100 -2020,3100" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="-1880,3240 -2020,3240" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="-1880,3100 -1880,2800" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="-760,3400 -760,3540 -680,3540 -920,3540 -920,3460 -860,3460 -860,3400" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="-2560,3760 -2420,3760 -2420,3840 -2560,3840" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="-2560,3540 -2420,3540 -2420,3640 -2560,3640" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="-1820,3540 -1960,3540" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="-1820,3840 -1960,3840 -1960,3780 -1820,3780" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="-1820,3400 -1820,3540" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="-1820,3780 -1820,3840" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="-1960,3600 -1820,3600 -1820,3720" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="-1960,3720 -1820,3720" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="-1820,3780 -1520,3780 -1520,3840" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="-1660,3780 -1660,3840" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="-1520,3840 -1360,4000" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="-820,3940 -820,4000" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="-920,4140 -920,3940" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="-620,3840 -620,4000" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="-620,3700 -760,3700 -760,3840 -620,3840" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="-3760,4440 -3760,5100 -1200,5080 -1200,4380" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="-1200,4320 -1200,4340" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="-3760,4320 -3760,4440" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="-3760,4320 -1200,4320" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="-3760,4880 -1200,4880" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="-3760,4480 -1200,4480" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="-1120,2760 -1120,2040 -1760,2040" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="-1300,2760 -1300,2260 -1720,2260" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="-1380,2620 -1720,2620 -1380,2620 -1380,2500 -1720,2500" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="420,4040 -40,4040" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="420,4040 420,3260 300,3140 200,3140 80,3040" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="80,3040 80,2920 -240,2920 -240,3600" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="200,3920 -40,3920" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="200,3920 200,3800 200,3700 -120,3700 -240,3600" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="-240,2920 -240,2740" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="-240,1900 -1440,1900" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="-1440,1900 -1720,1900" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="-1540,1640 -1720,1640" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="-1880,1920 -1880,1960 -1840,1960 -1840,1920 -1880,1920" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="-1720,2260 -1720,2500" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="-1720,2620 -1720,2660" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="-240,2920 -240,2740 -620,2740 -620,2520 -320,2520 -320,2620 -460,2620 -460,2660 -240,2660 -240,1880" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="-1540,1640 80,1640 80,2920" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="1653,2945.12 1723.71,2874.4" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="1766.14,3058.25 1836.85,2987.54" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="1935.84,2662.27 2006.56,2591.56" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="2048.98,2775.41 2119.69,2704.7" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="1978.27,3270.38 2048.98,3199.67" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="2091.41,3383.52 2162.12,3312.81" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="2261.11,2987.54 2331.82,2916.83" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="2374.25,3100.68 2444.96,3029.97" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="1766.14,3058.25 1808.57,3100.68" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="1978.27,3270.38 1935.84,3227.96" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="2119.69,2704.7 2162.12,2747.13" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="2331.82,2916.83 2289.4,2874.4" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="1667.14,3242.1 1808.57,3100.68" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="1935.84,3227.96 1794.42,3369.38" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="2162.12,2747.13 2303.54,2605.7" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="2289.4,2874.4 2430.82,2732.98" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="300,3140 460,2960" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="420,3260 580,3080" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="580,3080 660,3160 960,2840 1020,2900 1100,2820 1040,2760" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="460,2960 380,2880 700,2560 640,2500 720,2420 780,2480" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="1040,2760 1380,2420 1420,2460 1380,2500 1420,2540 1500,2460 1420,2380 1620,2180 1680,2240 1760,2160" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="780,2480 1120,2140 1080,2100 1040,2140 1000,2100 1100,2000" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="1100,2000 1180,2080 1360,1900 1280,1820" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="1280,1820 1360,1740 1760,2160" fill="none" stroke="#37474f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <line x1="-1460" y1="2580" x2="-1383.35" y2="2790.79" stroke="#e53935" stroke-width="4" stroke-linecap="round"/>
+  <polygon points="-1380,2800 -1390.03,2790.23 -1378.59,2786.07" fill="#e53935"/>
+  <line x1="-1360" y1="2800" x2="-1436.65" y2="2589.21" stroke="#e53935" stroke-width="4" stroke-linecap="round"/>
+  <polygon points="-1440,2580 -1429.97,2589.77 -1441.41,2593.93" fill="#e53935"/>
+  <line x1="-1440" y1="2540" x2="-389.8" y2="2540" stroke="#e53935" stroke-width="4" stroke-linecap="round"/>
+  <polygon points="-380,2540 -392.61,2546.09 -392.61,2533.91" fill="#e53935"/>
+  <line x1="-380" y1="2560" x2="-1410.2" y2="2560" stroke="#e53935" stroke-width="4" stroke-linecap="round"/>
+  <polygon points="-1420,2560 -1407.39,2553.91 -1407.39,2566.09" fill="#e53935"/>
+  <line x1="-2480" y1="3460" x2="-2876.16" y2="4390.98" stroke="#e53935" stroke-width="4" stroke-linecap="round"/>
+  <polygon points="-2880,4400 -2880.67,4386.02 -2869.46,4390.78" fill="#e53935"/>
+  <line x1="-1900" y1="3460" x2="-2157.39" y2="4390.55" stroke="#e53935" stroke-width="4" stroke-linecap="round"/>
+  <polygon points="-2160,4400 -2162.51,4386.23 -2150.77,4389.47" fill="#e53935"/>
+  <line x1="-2480" y1="3860" x2="-2876.65" y2="4950.79" stroke="#e53935" stroke-width="4" stroke-linecap="round"/>
+  <polygon points="-2880,4960 -2881.41,4946.07 -2869.97,4950.23" fill="#e53935"/>
+  <line x1="-1900" y1="3900" x2="-2157.67" y2="4950.48" stroke="#e53935" stroke-width="4" stroke-linecap="round"/>
+  <polygon points="-2160,4960 -2162.91,4946.31 -2151.08,4949.21" fill="#e53935"/>
+  <line x1="-1520" y1="4380" x2="-905.32" y2="3428.23" stroke="#e53935" stroke-width="4" stroke-linecap="round"/>
+  <polygon points="-900,3420 -901.72,3433.89 -911.95,3427.29" fill="#e53935"/>
+  <line x1="-1520" y1="4960" x2="-689.34" y2="3951.35" stroke="#e53935" stroke-width="6" stroke-linecap="round"/>
+  <polygon points="-680,3940 -684.97,3960.4 -699.07,3948.79" fill="#e53935"/>
+  <rect x="-1141" y="4219" width="42" height="42" rx="8" fill="#7b1fa2"/>
+  <text x="-1120" y="4233" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🪜</text>
+  <text x="-1120" y="4252" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">ST</text>
+  <rect x="-1241" y="3219" width="42" height="42" rx="8" fill="#7b1fa2"/>
+  <text x="-1220" y="3233" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🪜</text>
+  <text x="-1220" y="3252" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">ST</text>
+  <rect x="-1381" y="2799" width="42" height="42" rx="8" fill="#00897b"/>
+  <text x="-1360" y="2813" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🛗</text>
+  <text x="-1360" y="2832" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">EV</text>
+  <rect x="-1961" y="2839" width="42" height="42" rx="8" fill="#f57c00"/>
+  <text x="-1940" y="2853" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🏪</text>
+  <text x="-1940" y="2872" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">CO</text>
+  <rect x="-1681" y="3099" width="42" height="42" rx="8" fill="#0288d1"/>
+  <text x="-1660" y="3113" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">💺</text>
+  <text x="-1660" y="3132" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">TH</text>
+  <rect x="-1961" y="2959" width="42" height="42" rx="8" fill="#6d4c41"/>
+  <text x="-1940" y="2973" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🎟</text>
+  <text x="-1940" y="2992" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">TI</text>
+  <rect x="-1961" y="3139" width="42" height="42" rx="8" fill="#455a64"/>
+  <text x="-1940" y="3153" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🎫</text>
+  <text x="-1940" y="3172" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">BO</text>
+  <rect x="-1421" y="3279" width="42" height="42" rx="8" fill="#ef6c00"/>
+  <text x="-1400" y="3293" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🏧</text>
+  <text x="-1400" y="3312" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">AT</text>
+  <rect x="-1421" y="3139" width="42" height="42" rx="8" fill="#1976d2"/>
+  <text x="-1400" y="3153" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🚻</text>
+  <text x="-1400" y="3172" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">TO</text>
+  <rect x="-1141" y="4119" width="42" height="42" rx="8" fill="#2e7d32"/>
+  <text x="-1120" y="4133" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🚪</text>
+  <text x="-1120" y="4152" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">EX</text>
+  <rect x="-1241" y="3319" width="42" height="42" rx="8" fill="#2e7d32"/>
+  <text x="-1220" y="3333" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🚪</text>
+  <text x="-1220" y="3352" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">EX</text>
+  <rect x="-2501" y="3439" width="42" height="42" rx="8" fill="#7b1fa2"/>
+  <text x="-2480" y="3453" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🪜</text>
+  <text x="-2480" y="3472" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">ST</text>
+  <rect x="-1921" y="3439" width="42" height="42" rx="8" fill="#7b1fa2"/>
+  <text x="-1900" y="3453" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🪜</text>
+  <text x="-1900" y="3472" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">ST</text>
+  <rect x="-2501" y="3879" width="42" height="42" rx="8" fill="#7b1fa2"/>
+  <text x="-2480" y="3893" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🪜</text>
+  <text x="-2480" y="3912" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">ST</text>
+  <rect x="-1921" y="3879" width="42" height="42" rx="8" fill="#7b1fa2"/>
+  <text x="-1900" y="3893" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🪜</text>
+  <text x="-1900" y="3912" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">ST</text>
+  <rect x="-901" y="3399" width="42" height="42" rx="8" fill="#00897b"/>
+  <text x="-880" y="3413" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🛗</text>
+  <text x="-880" y="3432" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">EV</text>
+  <rect x="-701" y="3919" width="42" height="42" rx="8" fill="#00897b"/>
+  <text x="-680" y="3933" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🛗</text>
+  <text x="-680" y="3952" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">EV</text>
+  <rect x="-1541" y="4379" width="42" height="42" rx="8" fill="#00897b"/>
+  <text x="-1520" y="4393" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🛗</text>
+  <text x="-1520" y="4412" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">EV</text>
+  <rect x="-1541" y="4939" width="42" height="42" rx="8" fill="#00897b"/>
+  <text x="-1520" y="4953" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🛗</text>
+  <text x="-1520" y="4972" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">EV</text>
+  <rect x="-3461" y="4379" width="42" height="42" rx="8" fill="#d81b60"/>
+  <text x="-3440" y="4393" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">⛩</text>
+  <text x="-3440" y="4412" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">GA</text>
+  <rect x="-3461" y="4939" width="42" height="42" rx="8" fill="#d81b60"/>
+  <text x="-3440" y="4953" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">⛩</text>
+  <text x="-3440" y="4972" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">GA</text>
+  <rect x="-2901" y="4379" width="42" height="42" rx="8" fill="#7b1fa2"/>
+  <text x="-2880" y="4393" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🪜</text>
+  <text x="-2880" y="4412" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">ST</text>
+  <rect x="-2901" y="4939" width="42" height="42" rx="8" fill="#7b1fa2"/>
+  <text x="-2880" y="4953" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🪜</text>
+  <text x="-2880" y="4972" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">ST</text>
+  <rect x="-2181" y="4379" width="42" height="42" rx="8" fill="#7b1fa2"/>
+  <text x="-2160" y="4393" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🪜</text>
+  <text x="-2160" y="4412" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">ST</text>
+  <rect x="-2181" y="4939" width="42" height="42" rx="8" fill="#7b1fa2"/>
+  <text x="-2160" y="4953" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🪜</text>
+  <text x="-2160" y="4972" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">ST</text>
+  <rect x="-1261" y="2479" width="42" height="42" rx="8" fill="#7b1fa2"/>
+  <text x="-1240" y="2493" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🪜</text>
+  <text x="-1240" y="2512" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">ST</text>
+  <rect x="-1481" y="2179" width="42" height="42" rx="8" fill="#7b1fa2"/>
+  <text x="-1460" y="2193" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🪜</text>
+  <text x="-1460" y="2212" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">ST</text>
+  <rect x="-1461" y="2539" width="42" height="42" rx="8" fill="#00897b"/>
+  <text x="-1440" y="2553" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🛗</text>
+  <text x="-1440" y="2572" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">EV</text>
+  <rect x="379" y="3719" width="42" height="42" rx="8" fill="#1976d2"/>
+  <text x="400" y="3733" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🚻</text>
+  <text x="400" y="3752" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">TO</text>
+  <rect x="379" y="3859" width="42" height="42" rx="8" fill="#ef6c00"/>
+  <text x="400" y="3873" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🏧</text>
+  <text x="400" y="3892" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">AT</text>
+  <rect x="379" y="3919" width="42" height="42" rx="8" fill="#f57c00"/>
+  <text x="400" y="3933" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🏪</text>
+  <text x="400" y="3952" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">CO</text>
+  <rect x="419" y="3139" width="42" height="42" rx="8" fill="#7b1fa2"/>
+  <text x="440" y="3153" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🪜</text>
+  <text x="440" y="3172" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">ST</text>
+  <rect x="379" y="3079" width="42" height="42" rx="8" fill="#7b1fa2"/>
+  <text x="400" y="3093" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🪜</text>
+  <text x="400" y="3112" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">ST</text>
+  <rect x="-1" y="2899" width="42" height="42" rx="8" fill="#2e7d32"/>
+  <text x="20" y="2913" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🚪</text>
+  <text x="20" y="2932" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">EX</text>
+  <rect x="-101" y="2899" width="42" height="42" rx="8" fill="#2e7d32"/>
+  <text x="-80" y="2913" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🚪</text>
+  <text x="-80" y="2932" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">EX</text>
+  <rect x="-221" y="2899" width="42" height="42" rx="8" fill="#2e7d32"/>
+  <text x="-200" y="2913" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🚪</text>
+  <text x="-200" y="2932" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">EX</text>
+  <rect x="-41" y="3959" width="42" height="42" rx="8" fill="#7b1fa2"/>
+  <text x="-20" y="3973" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🪜</text>
+  <text x="-20" y="3992" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">ST</text>
+  <rect x="-381" y="2539" width="42" height="42" rx="8" fill="#00897b"/>
+  <text x="-360" y="2553" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🛗</text>
+  <text x="-360" y="2572" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">EV</text>
+  <rect x="-21" y="2539" width="42" height="42" rx="8" fill="#7b1fa2"/>
+  <text x="0" y="2553" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🪜</text>
+  <text x="0" y="2572" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">ST</text>
+  <rect x="-1381" y="1699" width="42" height="42" rx="8" fill="#7b1fa2"/>
+  <text x="-1360" y="1713" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🪜</text>
+  <text x="-1360" y="1732" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">ST</text>
+  <rect x="-2081" y="1919" width="42" height="42" rx="8" fill="#2e7d32"/>
+  <text x="-2060" y="1933" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🚪</text>
+  <text x="-2060" y="1952" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">EX</text>
+  <rect x="-1381" y="1799" width="42" height="42" rx="8" fill="#7b1fa2"/>
+  <text x="-1360" y="1813" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🪜</text>
+  <text x="-1360" y="1832" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">ST</text>
+  <rect x="-1481" y="2099" width="42" height="42" rx="8" fill="#7b1fa2"/>
+  <text x="-1460" y="2113" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🪜</text>
+  <text x="-1460" y="2132" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">ST</text>
+  <rect x="-1201" y="2479" width="42" height="42" rx="8" fill="#7b1fa2"/>
+  <text x="-1180" y="2493" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🪜</text>
+  <text x="-1180" y="2512" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">ST</text>
+  <rect x="-161" y="2539" width="42" height="42" rx="8" fill="#7b1fa2"/>
+  <text x="-140" y="2553" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🪜</text>
+  <text x="-140" y="2572" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">ST</text>
+  <rect x="1719" y="2939" width="42" height="42" rx="8" fill="#7b1fa2"/>
+  <text x="1740" y="2953" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🪜</text>
+  <text x="1740" y="2972" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">ST</text>
+  <rect x="1999" y="2659" width="42" height="42" rx="8" fill="#7b1fa2"/>
+  <text x="2020" y="2673" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🪜</text>
+  <text x="2020" y="2692" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">ST</text>
+  <rect x="2039" y="3279" width="42" height="42" rx="8" fill="#7b1fa2"/>
+  <text x="2060" y="3293" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🪜</text>
+  <text x="2060" y="3312" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">ST</text>
+  <rect x="2319" y="2999" width="42" height="42" rx="8" fill="#7b1fa2"/>
+  <text x="2340" y="3013" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🪜</text>
+  <text x="2340" y="3032" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">ST</text>
+  <rect x="1745.14" y="3178.67" width="42" height="42" rx="8" fill="#7b1fa2"/>
+  <text x="1766.14" y="3192.67" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🪜</text>
+  <text x="1766.14" y="3211.67" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">ST</text>
+  <rect x="1787.57" y="3221.1" width="42" height="42" rx="8" fill="#7b1fa2"/>
+  <text x="1808.57" y="3235.1" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🪜</text>
+  <text x="1808.57" y="3254.1" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">ST</text>
+  <rect x="1829.99" y="3263.53" width="42" height="42" rx="8" fill="#7b1fa2"/>
+  <text x="1850.99" y="3277.53" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🪜</text>
+  <text x="1850.99" y="3296.53" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">ST</text>
+  <rect x="2225.97" y="2697.84" width="42" height="42" rx="8" fill="#7b1fa2"/>
+  <text x="2246.97" y="2711.84" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🪜</text>
+  <text x="2246.97" y="2730.84" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">ST</text>
+  <rect x="2268.4" y="2740.27" width="42" height="42" rx="8" fill="#7b1fa2"/>
+  <text x="2289.4" y="2754.27" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🪜</text>
+  <text x="2289.4" y="2773.27" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">ST</text>
+  <rect x="2310.82" y="2782.69" width="42" height="42" rx="8" fill="#7b1fa2"/>
+  <text x="2331.82" y="2796.69" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🪜</text>
+  <text x="2331.82" y="2815.69" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">ST</text>
+  <rect x="1559" y="3399" width="42" height="42" rx="8" fill="#7b1fa2"/>
+  <text x="1580" y="3413" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🪜</text>
+  <text x="1580" y="3432" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">ST</text>
+  <rect x="1659" y="3459" width="42" height="42" rx="8" fill="#7b1fa2"/>
+  <text x="1680" y="3473" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🪜</text>
+  <text x="1680" y="3492" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">ST</text>
+  <rect x="1519" y="3459" width="42" height="42" rx="8" fill="#2e7d32"/>
+  <text x="1540" y="3473" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🚪</text>
+  <text x="1540" y="3492" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">EX</text>
+  <rect x="1659" y="3539" width="42" height="42" rx="8" fill="#2e7d32"/>
+  <text x="1680" y="3553" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🚪</text>
+  <text x="1680" y="3572" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">EX</text>
+  <rect x="2399" y="2479" width="42" height="42" rx="8" fill="#7b1fa2"/>
+  <text x="2420" y="2493" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🪜</text>
+  <text x="2420" y="2512" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">ST</text>
+  <rect x="2499" y="2599" width="42" height="42" rx="8" fill="#7b1fa2"/>
+  <text x="2520" y="2613" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🪜</text>
+  <text x="2520" y="2632" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">ST</text>
+  <rect x="2379" y="2399" width="42" height="42" rx="8" fill="#2e7d32"/>
+  <text x="2400" y="2413" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🚪</text>
+  <text x="2400" y="2432" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">EX</text>
+  <rect x="2599" y="2619" width="42" height="42" rx="8" fill="#2e7d32"/>
+  <text x="2620" y="2633" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🚪</text>
+  <text x="2620" y="2652" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">EX</text>
+  <rect x="999" y="2839" width="42" height="42" rx="8" fill="#00897b"/>
+  <text x="1020" y="2853" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🛗</text>
+  <text x="1020" y="2872" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">EV</text>
+  <rect x="1039" y="2799" width="42" height="42" rx="8" fill="#7b1fa2"/>
+  <text x="1060" y="2813" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🪜</text>
+  <text x="1060" y="2832" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">ST</text>
+  <rect x="659" y="2479" width="42" height="42" rx="8" fill="#00897b"/>
+  <text x="680" y="2493" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🛗</text>
+  <text x="680" y="2512" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">EV</text>
+  <rect x="699" y="2439" width="42" height="42" rx="8" fill="#7b1fa2"/>
+  <text x="720" y="2453" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🪜</text>
+  <text x="720" y="2472" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">ST</text>
+  <rect x="1019" y="2079" width="42" height="42" rx="8" fill="#7b1fa2"/>
+  <text x="1040" y="2093" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🪜</text>
+  <text x="1040" y="2112" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">ST</text>
+  <rect x="1399" y="2479" width="42" height="42" rx="8" fill="#7b1fa2"/>
+  <text x="1420" y="2493" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🪜</text>
+  <text x="1420" y="2512" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">ST</text>
+  <rect x="1139" y="2099" width="42" height="42" rx="8" fill="#d81b60"/>
+  <text x="1160" y="2113" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">⛩</text>
+  <text x="1160" y="2132" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">GA</text>
+  <rect x="1359" y="2359" width="42" height="42" rx="8" fill="#d81b60"/>
+  <text x="1380" y="2373" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">⛩</text>
+  <text x="1380" y="2392" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">GA</text>
+  <rect x="1159" y="2579" width="42" height="42" rx="8" fill="#455a64"/>
+  <text x="1180" y="2593" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🎫</text>
+  <text x="1180" y="2612" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">BO</text>
+  <rect x="1199" y="2539" width="42" height="42" rx="8" fill="#6d4c41"/>
+  <text x="1220" y="2553" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🎟</text>
+  <text x="1220" y="2572" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">TI</text>
+  <rect x="1299" y="1939" width="42" height="42" rx="8" fill="#6d4c41"/>
+  <text x="1320" y="1953" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🎟</text>
+  <text x="1320" y="1972" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">TI</text>
+  <rect x="1259" y="1979" width="42" height="42" rx="8" fill="#455a64"/>
+  <text x="1280" y="1993" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🎫</text>
+  <text x="1280" y="2012" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">BO</text>
+  <rect x="1299" y="1799" width="42" height="42" rx="8" fill="#7b1fa2"/>
+  <text x="1320" y="1813" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🪜</text>
+  <text x="1320" y="1832" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">ST</text>
+  <rect x="1659" y="2179" width="42" height="42" rx="8" fill="#7b1fa2"/>
+  <text x="1680" y="2193" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🪜</text>
+  <text x="1680" y="2212" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">ST</text>
+  <rect x="1339" y="1759" width="42" height="42" rx="8" fill="#00897b"/>
+  <text x="1360" y="1773" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🛗</text>
+  <text x="1360" y="1792" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">EV</text>
+  <rect x="1699" y="2139" width="42" height="42" rx="8" fill="#00897b"/>
+  <text x="1720" y="2153" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🛗</text>
+  <text x="1720" y="2172" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">EV</text>
+  <rect x="1539" y="2219" width="42" height="42" rx="8" fill="#1976d2"/>
+  <text x="1560" y="2233" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🚻</text>
+  <text x="1560" y="2252" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">TO</text>
+  <rect x="-3321" y="4419" width="42" height="42" rx="8" fill="#455a64"/>
+  <text x="-3300" y="4433" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🎫</text>
+  <text x="-3300" y="4452" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">BO</text>
+  <rect x="-3321" y="4899" width="42" height="42" rx="8" fill="#455a64"/>
+  <text x="-3300" y="4913" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🎫</text>
+  <text x="-3300" y="4932" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">BO</text>
+  <rect x="-2541" y="3659" width="42" height="42" rx="8" fill="#455a64"/>
+  <text x="-2520" y="3673" font-size="17" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🎫</text>
+  <text x="-2520" y="3692" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">BO</text>
+  <circle cx="-1060" cy="4140" r="19" fill="#ffb300" stroke="#e65100" stroke-width="2.5"/>
+  <text x="-1060" y="4141" font-size="19" font-weight="bold" fill="#4e2600" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S</text>
+  <rect x="-1089.5" y="4164" width="59" height="24" rx="5" fill="#fff" stroke="#e65100" stroke-width="1.5"/>
+  <text x="-1060" y="4176" font-size="15" font-weight="bold" fill="#bf360c" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S3_01</text>
+  <circle cx="-1040" cy="3880" r="19" fill="#ffb300" stroke="#e65100" stroke-width="2.5"/>
+  <text x="-1040" y="3881" font-size="19" font-weight="bold" fill="#4e2600" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S</text>
+  <rect x="-1069.5" y="3904" width="59" height="24" rx="5" fill="#fff" stroke="#e65100" stroke-width="1.5"/>
+  <text x="-1040" y="3916" font-size="15" font-weight="bold" fill="#bf360c" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S3_02</text>
+  <circle cx="-860" cy="3880" r="19" fill="#ffb300" stroke="#e65100" stroke-width="2.5"/>
+  <text x="-860" y="3881" font-size="19" font-weight="bold" fill="#4e2600" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S</text>
+  <rect x="-889.5" y="3904" width="59" height="24" rx="5" fill="#fff" stroke="#e65100" stroke-width="1.5"/>
+  <text x="-860" y="3916" font-size="15" font-weight="bold" fill="#bf360c" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S3_03</text>
+  <circle cx="-860" cy="3600" r="19" fill="#ffb300" stroke="#e65100" stroke-width="2.5"/>
+  <text x="-860" y="3601" font-size="19" font-weight="bold" fill="#4e2600" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S</text>
+  <rect x="-889.5" y="3624" width="59" height="24" rx="5" fill="#fff" stroke="#e65100" stroke-width="1.5"/>
+  <text x="-860" y="3636" font-size="15" font-weight="bold" fill="#bf360c" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S3_04</text>
+  <circle cx="-1220" cy="3400" r="19" fill="#ffb300" stroke="#e65100" stroke-width="2.5"/>
+  <text x="-1220" y="3401" font-size="19" font-weight="bold" fill="#4e2600" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S</text>
+  <rect x="-1249.5" y="3424" width="59" height="24" rx="5" fill="#fff" stroke="#e65100" stroke-width="1.5"/>
+  <text x="-1220" y="3436" font-size="15" font-weight="bold" fill="#bf360c" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S3_05</text>
+  <circle cx="-1400" cy="3420" r="19" fill="#ffb300" stroke="#e65100" stroke-width="2.5"/>
+  <text x="-1400" y="3421" font-size="19" font-weight="bold" fill="#4e2600" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S</text>
+  <rect x="-1429.5" y="3444" width="59" height="24" rx="5" fill="#fff" stroke="#e65100" stroke-width="1.5"/>
+  <text x="-1400" y="3456" font-size="15" font-weight="bold" fill="#bf360c" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S3_06</text>
+  <circle cx="-1820" cy="3640" r="19" fill="#ffb300" stroke="#e65100" stroke-width="2.5"/>
+  <text x="-1820" y="3641" font-size="19" font-weight="bold" fill="#4e2600" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S</text>
+  <rect x="-1849.5" y="3664" width="59" height="24" rx="5" fill="#fff" stroke="#e65100" stroke-width="1.5"/>
+  <text x="-1820" y="3676" font-size="15" font-weight="bold" fill="#bf360c" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S3_07</text>
+  <circle cx="-2180" cy="3640" r="19" fill="#ffb300" stroke="#e65100" stroke-width="2.5"/>
+  <text x="-2180" y="3641" font-size="19" font-weight="bold" fill="#4e2600" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S</text>
+  <rect x="-2209.5" y="3664" width="59" height="24" rx="5" fill="#fff" stroke="#e65100" stroke-width="1.5"/>
+  <text x="-2180" y="3676" font-size="15" font-weight="bold" fill="#bf360c" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S3_08</text>
+  <circle cx="-2180" cy="3780" r="19" fill="#ffb300" stroke="#e65100" stroke-width="2.5"/>
+  <text x="-2180" y="3781" font-size="19" font-weight="bold" fill="#4e2600" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S</text>
+  <rect x="-2209.5" y="3804" width="59" height="24" rx="5" fill="#fff" stroke="#e65100" stroke-width="1.5"/>
+  <text x="-2180" y="3816" font-size="15" font-weight="bold" fill="#bf360c" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S3_09</text>
+  <circle cx="-2000" cy="3900" r="19" fill="#ffb300" stroke="#e65100" stroke-width="2.5"/>
+  <text x="-2000" y="3901" font-size="19" font-weight="bold" fill="#4e2600" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S</text>
+  <rect x="-2029.5" y="3924" width="59" height="24" rx="5" fill="#fff" stroke="#e65100" stroke-width="1.5"/>
+  <text x="-2000" y="3936" font-size="15" font-weight="bold" fill="#bf360c" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S3_10</text>
+  <circle cx="-2360" cy="3900" r="19" fill="#ffb300" stroke="#e65100" stroke-width="2.5"/>
+  <text x="-2360" y="3901" font-size="19" font-weight="bold" fill="#4e2600" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S</text>
+  <rect x="-2389.5" y="3924" width="59" height="24" rx="5" fill="#fff" stroke="#e65100" stroke-width="1.5"/>
+  <text x="-2360" y="3936" font-size="15" font-weight="bold" fill="#bf360c" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S3_11</text>
+  <circle cx="-2020" cy="3460" r="19" fill="#ffb300" stroke="#e65100" stroke-width="2.5"/>
+  <text x="-2020" y="3461" font-size="19" font-weight="bold" fill="#4e2600" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S</text>
+  <rect x="-2049.5" y="3484" width="59" height="24" rx="5" fill="#fff" stroke="#e65100" stroke-width="1.5"/>
+  <text x="-2020" y="3496" font-size="15" font-weight="bold" fill="#bf360c" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S3_12</text>
+  <circle cx="-2380" cy="3460" r="19" fill="#ffb300" stroke="#e65100" stroke-width="2.5"/>
+  <text x="-2380" y="3461" font-size="19" font-weight="bold" fill="#4e2600" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S</text>
+  <rect x="-2409.5" y="3484" width="59" height="24" rx="5" fill="#fff" stroke="#e65100" stroke-width="1.5"/>
+  <text x="-2380" y="3496" font-size="15" font-weight="bold" fill="#bf360c" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S3_13</text>
+  <circle cx="-1580" cy="3640" r="19" fill="#ffb300" stroke="#e65100" stroke-width="2.5"/>
+  <text x="-1580" y="3641" font-size="19" font-weight="bold" fill="#4e2600" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S</text>
+  <rect x="-1609.5" y="3664" width="59" height="24" rx="5" fill="#fff" stroke="#e65100" stroke-width="1.5"/>
+  <text x="-1580" y="3676" font-size="15" font-weight="bold" fill="#bf360c" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S3_14</text>
+  <circle cx="-1060" cy="3640" r="19" fill="#ffb300" stroke="#e65100" stroke-width="2.5"/>
+  <text x="-1060" y="3641" font-size="19" font-weight="bold" fill="#4e2600" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S</text>
+  <rect x="-1089.5" y="3664" width="59" height="24" rx="5" fill="#fff" stroke="#e65100" stroke-width="1.5"/>
+  <text x="-1060" y="3676" font-size="15" font-weight="bold" fill="#bf360c" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S3_15</text>
+  <circle cx="-1280" cy="3880" r="19" fill="#ffb300" stroke="#e65100" stroke-width="2.5"/>
+  <text x="-1280" y="3881" font-size="19" font-weight="bold" fill="#4e2600" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S</text>
+  <rect x="-1309.5" y="3904" width="59" height="24" rx="5" fill="#fff" stroke="#e65100" stroke-width="1.5"/>
+  <text x="-1280" y="3916" font-size="15" font-weight="bold" fill="#bf360c" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S3_16</text>
+  <circle cx="-2420" cy="4400" r="19" fill="#ffb300" stroke="#e65100" stroke-width="2.5"/>
+  <text x="-2420" y="4401" font-size="19" font-weight="bold" fill="#4e2600" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S</text>
+  <rect x="-2449.5" y="4424" width="59" height="24" rx="5" fill="#fff" stroke="#e65100" stroke-width="1.5"/>
+  <text x="-2420" y="4436" font-size="15" font-weight="bold" fill="#bf360c" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S3_17</text>
+  <circle cx="-3160" cy="4400" r="19" fill="#ffb300" stroke="#e65100" stroke-width="2.5"/>
+  <text x="-3160" y="4401" font-size="19" font-weight="bold" fill="#4e2600" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S</text>
+  <rect x="-3189.5" y="4424" width="59" height="24" rx="5" fill="#fff" stroke="#e65100" stroke-width="1.5"/>
+  <text x="-3160" y="4436" font-size="15" font-weight="bold" fill="#bf360c" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S3_18</text>
+  <circle cx="-2420" cy="4960" r="19" fill="#ffb300" stroke="#e65100" stroke-width="2.5"/>
+  <text x="-2420" y="4961" font-size="19" font-weight="bold" fill="#4e2600" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S</text>
+  <rect x="-2449.5" y="4984" width="59" height="24" rx="5" fill="#fff" stroke="#e65100" stroke-width="1.5"/>
+  <text x="-2420" y="4996" font-size="15" font-weight="bold" fill="#bf360c" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S3_19</text>
+  <circle cx="-3160" cy="4960" r="19" fill="#ffb300" stroke="#e65100" stroke-width="2.5"/>
+  <text x="-3160" y="4961" font-size="19" font-weight="bold" fill="#4e2600" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S</text>
+  <rect x="-3189.5" y="4984" width="59" height="24" rx="5" fill="#fff" stroke="#e65100" stroke-width="1.5"/>
+  <text x="-3160" y="4996" font-size="15" font-weight="bold" fill="#bf360c" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S3_20</text>
+  <circle cx="80" cy="2680" r="19" fill="#ffb300" stroke="#e65100" stroke-width="2.5"/>
+  <text x="80" y="2681" font-size="19" font-weight="bold" fill="#4e2600" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S</text>
+  <rect x="50.5" y="2704" width="59" height="24" rx="5" fill="#fff" stroke="#e65100" stroke-width="1.5"/>
+  <text x="80" y="2716" font-size="15" font-weight="bold" fill="#bf360c" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S2_03</text>
+  <circle cx="-80" cy="3040" r="19" fill="#ffb300" stroke="#e65100" stroke-width="2.5"/>
+  <text x="-80" y="3041" font-size="19" font-weight="bold" fill="#4e2600" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S</text>
+  <rect x="-109.5" y="3064" width="59" height="24" rx="5" fill="#fff" stroke="#e65100" stroke-width="1.5"/>
+  <text x="-80" y="3076" font-size="15" font-weight="bold" fill="#bf360c" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S2_04</text>
+  <circle cx="-80" cy="3260" r="19" fill="#ffb300" stroke="#e65100" stroke-width="2.5"/>
+  <text x="-80" y="3261" font-size="19" font-weight="bold" fill="#4e2600" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S</text>
+  <rect x="-109.5" y="3284" width="59" height="24" rx="5" fill="#fff" stroke="#e65100" stroke-width="1.5"/>
+  <text x="-80" y="3296" font-size="15" font-weight="bold" fill="#bf360c" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S2_05</text>
+  <circle cx="400" cy="3200" r="19" fill="#ffb300" stroke="#e65100" stroke-width="2.5"/>
+  <text x="400" y="3201" font-size="19" font-weight="bold" fill="#4e2600" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S</text>
+  <rect x="370.5" y="3224" width="59" height="24" rx="5" fill="#fff" stroke="#e65100" stroke-width="1.5"/>
+  <text x="400" y="3236" font-size="15" font-weight="bold" fill="#bf360c" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S2_10</text>
+  <circle cx="300" cy="3700" r="19" fill="#ffb300" stroke="#e65100" stroke-width="2.5"/>
+  <text x="300" y="3701" font-size="19" font-weight="bold" fill="#4e2600" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S</text>
+  <rect x="270.5" y="3724" width="59" height="24" rx="5" fill="#fff" stroke="#e65100" stroke-width="1.5"/>
+  <text x="300" y="3736" font-size="15" font-weight="bold" fill="#bf360c" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S2_06</text>
+  <circle cx="80" cy="3980" r="19" fill="#ffb300" stroke="#e65100" stroke-width="2.5"/>
+  <text x="80" y="3981" font-size="19" font-weight="bold" fill="#4e2600" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S</text>
+  <rect x="50.5" y="4004" width="59" height="24" rx="5" fill="#fff" stroke="#e65100" stroke-width="1.5"/>
+  <text x="80" y="4016" font-size="15" font-weight="bold" fill="#bf360c" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S2_07</text>
+  <circle cx="-1860" cy="1860" r="19" fill="#ffb300" stroke="#e65100" stroke-width="2.5"/>
+  <text x="-1860" y="1861" font-size="19" font-weight="bold" fill="#4e2600" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S</text>
+  <rect x="-1889.5" y="1884" width="59" height="24" rx="5" fill="#fff" stroke="#e65100" stroke-width="1.5"/>
+  <text x="-1860" y="1896" font-size="15" font-weight="bold" fill="#bf360c" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S2_02</text>
+  <circle cx="-1860" cy="2000" r="19" fill="#ffb300" stroke="#e65100" stroke-width="2.5"/>
+  <text x="-1860" y="2001" font-size="19" font-weight="bold" fill="#4e2600" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S</text>
+  <rect x="-1889.5" y="2024" width="59" height="24" rx="5" fill="#fff" stroke="#e65100" stroke-width="1.5"/>
+  <text x="-1860" y="2036" font-size="15" font-weight="bold" fill="#bf360c" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S2_01</text>
+  <circle cx="1380" cy="2020" r="19" fill="#ffb300" stroke="#e65100" stroke-width="2.5"/>
+  <text x="1380" y="2021" font-size="19" font-weight="bold" fill="#4e2600" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S</text>
+  <rect x="1350.5" y="2044" width="59" height="24" rx="5" fill="#fff" stroke="#e65100" stroke-width="1.5"/>
+  <text x="1380" y="2056" font-size="15" font-weight="bold" fill="#bf360c" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S1_01</text>
+  <circle cx="1220" cy="2180" r="19" fill="#ffb300" stroke="#e65100" stroke-width="2.5"/>
+  <text x="1220" y="2181" font-size="19" font-weight="bold" fill="#4e2600" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S</text>
+  <rect x="1190.5" y="2204" width="59" height="24" rx="5" fill="#fff" stroke="#e65100" stroke-width="1.5"/>
+  <text x="1220" y="2216" font-size="15" font-weight="bold" fill="#bf360c" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S1_02</text>
+  <circle cx="1020" cy="2360" r="19" fill="#ffb300" stroke="#e65100" stroke-width="2.5"/>
+  <text x="1020" y="2361" font-size="19" font-weight="bold" fill="#4e2600" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S</text>
+  <rect x="990.5" y="2384" width="59" height="24" rx="5" fill="#fff" stroke="#e65100" stroke-width="1.5"/>
+  <text x="1020" y="2396" font-size="15" font-weight="bold" fill="#bf360c" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S1_03</text>
+  <circle cx="800" cy="2580" r="19" fill="#ffb300" stroke="#e65100" stroke-width="2.5"/>
+  <text x="800" y="2581" font-size="19" font-weight="bold" fill="#4e2600" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S</text>
+  <rect x="770.5" y="2604" width="59" height="24" rx="5" fill="#fff" stroke="#e65100" stroke-width="1.5"/>
+  <text x="800" y="2616" font-size="15" font-weight="bold" fill="#bf360c" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S1_04</text>
+  <circle cx="580" cy="2800" r="19" fill="#ffb300" stroke="#e65100" stroke-width="2.5"/>
+  <text x="580" y="2801" font-size="19" font-weight="bold" fill="#4e2600" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S</text>
+  <rect x="550.5" y="2824" width="59" height="24" rx="5" fill="#fff" stroke="#e65100" stroke-width="1.5"/>
+  <text x="580" y="2836" font-size="15" font-weight="bold" fill="#bf360c" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S1_05</text>
+  <circle cx="360" cy="3140" r="19" fill="#ffb300" stroke="#e65100" stroke-width="2.5"/>
+  <text x="360" y="3141" font-size="19" font-weight="bold" fill="#4e2600" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S</text>
+  <rect x="330.5" y="3164" width="59" height="24" rx="5" fill="#fff" stroke="#e65100" stroke-width="1.5"/>
+  <text x="360" y="3176" font-size="15" font-weight="bold" fill="#bf360c" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S1_06</text>
+  <circle cx="720" cy="2960" r="19" fill="#ffb300" stroke="#e65100" stroke-width="2.5"/>
+  <text x="720" y="2961" font-size="19" font-weight="bold" fill="#4e2600" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S</text>
+  <rect x="690.5" y="2984" width="59" height="24" rx="5" fill="#fff" stroke="#e65100" stroke-width="1.5"/>
+  <text x="720" y="2996" font-size="15" font-weight="bold" fill="#bf360c" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S1_08</text>
+  <circle cx="940" cy="2760" r="19" fill="#ffb300" stroke="#e65100" stroke-width="2.5"/>
+  <text x="940" y="2761" font-size="19" font-weight="bold" fill="#4e2600" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S</text>
+  <rect x="910.5" y="2784" width="59" height="24" rx="5" fill="#fff" stroke="#e65100" stroke-width="1.5"/>
+  <text x="940" y="2796" font-size="15" font-weight="bold" fill="#bf360c" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S1_09</text>
+  <circle cx="1140" cy="2520" r="19" fill="#ffb300" stroke="#e65100" stroke-width="2.5"/>
+  <text x="1140" y="2521" font-size="19" font-weight="bold" fill="#4e2600" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S</text>
+  <rect x="1110.5" y="2544" width="59" height="24" rx="5" fill="#fff" stroke="#e65100" stroke-width="1.5"/>
+  <text x="1140" y="2556" font-size="15" font-weight="bold" fill="#bf360c" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S1_10</text>
+  <circle cx="1340" cy="2320" r="19" fill="#ffb300" stroke="#e65100" stroke-width="2.5"/>
+  <text x="1340" y="2321" font-size="19" font-weight="bold" fill="#4e2600" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S</text>
+  <rect x="1310.5" y="2344" width="59" height="24" rx="5" fill="#fff" stroke="#e65100" stroke-width="1.5"/>
+  <text x="1340" y="2356" font-size="15" font-weight="bold" fill="#bf360c" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S1_11</text>
+  <circle cx="1500" cy="2160" r="19" fill="#ffb300" stroke="#e65100" stroke-width="2.5"/>
+  <text x="1500" y="2161" font-size="19" font-weight="bold" fill="#4e2600" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S</text>
+  <rect x="1470.5" y="2184" width="59" height="24" rx="5" fill="#fff" stroke="#e65100" stroke-width="1.5"/>
+  <text x="1500" y="2196" font-size="15" font-weight="bold" fill="#bf360c" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S1_12</text>
+  <circle cx="1700" cy="3340" r="19" fill="#ffb300" stroke="#e65100" stroke-width="2.5"/>
+  <text x="1700" y="3341" font-size="19" font-weight="bold" fill="#4e2600" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S</text>
+  <rect x="1670.5" y="3364" width="59" height="24" rx="5" fill="#fff" stroke="#e65100" stroke-width="1.5"/>
+  <text x="1700" y="3376" font-size="15" font-weight="bold" fill="#bf360c" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S2_09</text>
+  <circle cx="2416.68" cy="2633.99" r="19" fill="#ffb300" stroke="#e65100" stroke-width="2.5"/>
+  <text x="2416.68" y="2634.99" font-size="19" font-weight="bold" fill="#4e2600" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S</text>
+  <rect x="2387.18" y="2657.99" width="59" height="24" rx="5" fill="#fff" stroke="#e65100" stroke-width="1.5"/>
+  <text x="2416.68" y="2669.99" font-size="15" font-weight="bold" fill="#bf360c" text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S2_08</text>
+  <text x="-560" y="3360" font-size="16" font-weight="bold" fill="#212121" dominant-baseline="hanging" font-family="Malgun Gothic, sans-serif">주차장</text>
+  <text x="-1540" y="4000" font-size="16" font-weight="bold" fill="#212121" dominant-baseline="hanging" font-family="Malgun Gothic, sans-serif">백화점</text>
+  <text x="-880" y="4000" font-size="16" font-weight="bold" fill="#212121" dominant-baseline="hanging" font-family="Malgun Gothic, sans-serif">백화점</text>
+  <text x="-740" y="3460" font-size="16" font-weight="bold" fill="#212121" dominant-baseline="hanging" font-family="Malgun Gothic, sans-serif">회의실</text>
+  <text x="-1940" y="3780" font-size="16" font-weight="bold" fill="#212121" dominant-baseline="hanging" font-family="Malgun Gothic, sans-serif">경찰서</text>
+  <text x="-1760" y="3820" font-size="16" font-weight="bold" fill="#212121" dominant-baseline="hanging" font-family="Malgun Gothic, sans-serif">식당</text>
+  <text x="-1600" y="3780" font-size="16" font-weight="bold" fill="#212121" dominant-baseline="hanging" font-family="Malgun Gothic, sans-serif">식당</text>
+  <text x="-1760" y="2820" font-size="16" font-weight="bold" fill="#212121" dominant-baseline="hanging" font-family="Malgun Gothic, sans-serif">식당</text>
+  <text x="-1960" y="3240" font-size="16" font-weight="bold" fill="#212121" dominant-baseline="hanging" font-family="Malgun Gothic, sans-serif">수유실</text>
+  <text x="-860" y="3480" font-size="16" font-weight="bold" fill="#212121" dominant-baseline="hanging" font-family="Malgun Gothic, sans-serif">식당</text>
+  <text x="-3740" y="4960" font-size="16" font-weight="bold" fill="#212121" dominant-baseline="hanging" font-family="Malgun Gothic, sans-serif">대경선 (구미방면)</text>
+  <text x="-3740" y="4980" font-size="16" font-weight="bold" fill="#212121" dominant-baseline="hanging" font-family="Malgun Gothic, sans-serif">&lt;----</text>
+  <text x="-3740" y="5000" font-size="16" font-weight="bold" fill="#212121" dominant-baseline="hanging" font-family="Malgun Gothic, sans-serif">1번 승강장) 서울 / 대전 / 영주 / 김천 방면</text>
+  <text x="-3720" y="4380" font-size="16" font-weight="bold" fill="#212121" dominant-baseline="hanging" font-family="Malgun Gothic, sans-serif">대경선 (경산방면)</text>
+  <text x="-3720" y="4400" font-size="16" font-weight="bold" fill="#212121" dominant-baseline="hanging" font-family="Malgun Gothic, sans-serif">--&gt;</text>
+  <text x="-3720" y="4440" font-size="16" font-weight="bold" fill="#212121" dominant-baseline="hanging" font-family="Malgun Gothic, sans-serif">6번 승강장 ) 부산 / 진주 / 부전 / 신해운대 방면</text>
+  <text x="1340" y="3520" font-size="32" font-weight="bold" fill="#212121" dominant-baseline="hanging" font-family="Malgun Gothic, sans-serif">대구역 3번 출구</text>
+  <text x="1620" y="3600" font-size="32" font-weight="bold" fill="#212121" dominant-baseline="hanging" font-family="Malgun Gothic, sans-serif">대구역 4번 출구</text>
+  <text x="2320" y="2340" font-size="32" font-weight="bold" fill="#212121" dominant-baseline="hanging" font-family="Malgun Gothic, sans-serif">대구역 2번 출구</text>
+  <text x="2660" y="2620" font-size="32" font-weight="bold" fill="#212121" dominant-baseline="hanging" font-family="Malgun Gothic, sans-serif">대구역 1번 출구</text>
+  <text x="-1320" y="3660" font-size="90" font-weight="bold" fill="#212121" dominant-baseline="hanging" font-family="Malgun Gothic, sans-serif">3F</text>
+  <text x="80" y="3260" font-size="90" font-weight="bold" fill="#212121" dominant-baseline="hanging" font-family="Malgun Gothic, sans-serif">2F</text>
+  <text x="960" y="2480" font-size="90" font-weight="bold" fill="#212121" dominant-baseline="hanging" font-family="Malgun Gothic, sans-serif">1F</text>
+</g>
+</svg>

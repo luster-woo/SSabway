@@ -29,8 +29,6 @@ interface AdminLoginData {
 /**
  * 로그인에서 마주칠 전역 에러코드 → 화면 문구. HTTP 상태코드로 분기한다.
  * (API 명세서 상단 에러코드 표: 401 UNAUTHORIZED, 403 FORBIDDEN)
- *
- * 실패 응답 본문에 code 필드가 없어 상태코드로 구분한다 — useUserLogin 과 같은 방식.
  */
 const ERROR_MESSAGE: Record<number, string> = {
   401: '관리자 코드 또는 비밀번호가 올바르지 않습니다.',

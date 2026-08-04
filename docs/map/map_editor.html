@@ -1,0 +1,3070 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>대구역 2D 맵 에디터</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; font-family: "Malgun Gothic", "Segoe UI", sans-serif; font-size: 13px; }
+  body { display: flex; flex-direction: column; overflow: hidden; background: #eceff1; }
+
+  #topbar {
+    display: flex; align-items: center; gap: 6px; padding: 6px 10px;
+    background: #263238; color: #fff; flex-wrap: wrap;
+  }
+  #topbar .title { font-weight: bold; margin-right: 10px; }
+  #floors { display: flex; gap: 4px; align-items: center; }
+  .ftab {
+    padding: 5px 12px; border-radius: 6px 6px 0 0; background: #455a64; color: #cfd8dc;
+    cursor: pointer; user-select: none; border: none; font-size: 13px;
+  }
+  .ftab.on { background: #fff; color: #263238; font-weight: bold; }
+  .ftab .x { margin-left: 6px; color: #ef9a9a; }
+  .spacer { flex: 1; }
+  #topbar button.act {
+    padding: 5px 10px; border: none; border-radius: 5px; background: #546e7a;
+    color: #fff; cursor: pointer; font-size: 12px;
+  }
+  #topbar button.act:hover { background: #78909c; }
+  #topbar button.act.primary { background: #1e88e5; }
+
+  #main { flex: 1; display: flex; min-height: 0; }
+
+  #side {
+    width: 168px; background: #fff; border-right: 1px solid #cfd8dc;
+    overflow-y: auto; padding: 8px; flex-shrink: 0;
+  }
+  #side h4 { font-size: 11px; color: #90a4ae; margin: 10px 0 4px; }
+  #side h4:first-child { margin-top: 0; }
+  .tbtn {
+    display: flex; align-items: center; gap: 8px; width: 100%;
+    padding: 7px 8px; margin: 2px 0; border: 1px solid #eceff1; border-radius: 6px;
+    background: #fff; cursor: pointer; font-size: 13px; text-align: left;
+  }
+  .tbtn:hover { background: #f5f5f5; }
+  .tbtn.on { background: #e3f2fd; border-color: #1e88e5; font-weight: bold; }
+  .tbtn .key { margin-left: auto; color: #b0bec5; font-size: 11px; }
+  .fbtn {
+    display: inline-flex; flex-direction: column; align-items: center; justify-content: center;
+    width: 47px; height: 47px; margin: 1px; border: 1px solid #eceff1; border-radius: 6px;
+    background: #fff; cursor: pointer; font-size: 15px;
+  }
+  .fbtn small { font-size: 10px; font-weight: bold; }
+  .fbtn:hover { background: #f5f5f5; }
+  .fbtn.on { background: #e3f2fd; border-color: #1e88e5; }
+  #side label.opt { display: flex; align-items: center; gap: 6px; padding: 4px 2px; cursor: pointer; }
+  #side .bgrow { display: flex; align-items: center; gap: 4px; padding: 3px 2px; font-size: 12px; }
+  #side .bgrow input[type=range] { flex: 1; width: 60px; }
+  #side button.small {
+    width: 100%; padding: 5px; margin: 2px 0; border: 1px solid #cfd8dc;
+    border-radius: 5px; background: #fafafa; cursor: pointer; font-size: 12px;
+  }
+
+  #wrap { flex: 1; position: relative; min-width: 0; }
+  #cv { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+  #txtIn {
+    position: absolute; display: none; z-index: 5; font-size: 15px; padding: 3px 6px;
+    border: 2px solid #1e88e5; border-radius: 4px; outline: none; min-width: 140px;
+  }
+
+  #props {
+    display: none; align-items: center; gap: 10px; padding: 6px 12px;
+    background: #fff; border-top: 1px solid #cfd8dc; flex-wrap: wrap;
+  }
+  #props.show { display: flex; }
+  #props .pt { font-weight: bold; color: #37474f; }
+  #props label { display: flex; align-items: center; gap: 5px; font-size: 12px; color: #546e7a; }
+  #props input[type=text] { padding: 4px 6px; border: 1px solid #cfd8dc; border-radius: 4px; width: 130px; }
+  #props input[type=number] { padding: 4px; border: 1px solid #cfd8dc; border-radius: 4px; width: 55px; }
+  #props button.del {
+    padding: 4px 10px; border: none; border-radius: 4px; background: #ef5350;
+    color: #fff; cursor: pointer; margin-left: auto;
+  }
+  #props select { padding: 3px 4px; border: 1px solid #cfd8dc; border-radius: 4px; }
+  #props button.mv {
+    padding: 4px 9px; border: 1px solid #90a4ae; border-radius: 4px;
+    background: #eceff1; cursor: pointer; font-size: 12px;
+  }
+  #props button.mv:hover { background: #cfd8dc; }
+
+  #status {
+    padding: 4px 12px; background: #37474f; color: #b0bec5; font-size: 12px;
+    display: flex; gap: 16px;
+  }
+  #status .zoom { margin-left: auto; }
+
+  /* ===== 경로(Navigation Graph) 편집 ===== */
+  #modeTabs { display: flex; gap: 0; margin-right: 8px; }
+  #modeTabs button {
+    padding: 5px 12px; border: none; background: #455a64; color: #cfd8dc;
+    cursor: pointer; font-size: 12px;
+  }
+  #modeTabs button:first-child { border-radius: 5px 0 0 5px; }
+  #modeTabs button:last-child { border-radius: 0 5px 5px 0; }
+  #modeTabs button.on { background: #ffb300; color: #263238; font-weight: bold; }
+  #topbar button.act.nav { background: #00897b; }
+  #topbar button.act.nav:hover { background: #26a69a; }
+  #navSide { display: none; }
+  /* 힌트는 기본 2줄만 보여주고 클릭하면 펼친다 (사이드바 높이를 아끼기 위함) */
+  #navSide .navinfo {
+    background: #f5f5f5; border-radius: 5px; padding: 5px 6px; margin: 4px 0;
+    font-size: 11px; color: #546e7a; line-height: 1.5; cursor: pointer;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  #navSide .navinfo.open { -webkit-line-clamp: unset; }
+  #navSide h4 { display: flex; align-items: baseline; gap: 5px; }
+  #navProps {
+    border-top: 1px solid #cfd8dc; margin-top: 6px; padding-top: 6px; font-size: 12px;
+  }
+  #navProps .row { display: flex; align-items: center; gap: 5px; margin: 4px 0; }
+  #navProps .row label { color: #78909c; min-width: 42px; }
+  #navProps .idlbl { font-weight: bold; color: #00695c; font-size: 13px; }
+  #navProps select, #navProps input[type=text] {
+    flex: 1; padding: 3px; border: 1px solid #cfd8dc; border-radius: 4px; font-size: 12px;
+  }
+  #navProps button {
+    width: 100%; padding: 5px; margin: 3px 0; border: 1px solid #cfd8dc;
+    border-radius: 5px; background: #fafafa; cursor: pointer; font-size: 12px;
+  }
+  #navProps button.danger { background: #ffebee; border-color: #ef9a9a; color: #c62828; }
+  #navProps .empty { color: #b0bec5; padding: 8px 2px; }
+
+  /* 진행 방향별로 보이는 표지판 면(앞/뒤) 고르기 */
+  .sideBox { margin: 7px 0 3px; padding: 6px; background: #f3e5f5; border-radius: 5px; }
+  .sideBox h5 { margin: 0 0 5px; font-size: 11px; color: #6a1b9a; font-weight: bold; }
+  .sideDir { margin-bottom: 7px; }
+  .sideDir:last-child { margin-bottom: 0; }
+  .sideDir .cap { font-size: 10.5px; color: #4a148c; margin-bottom: 3px; }
+  .sideDir .cap b { color: #1b5e20; }
+  .sidePick { display: flex; gap: 5px; }
+  .sideOpt {
+    flex: 1; border: 2px solid #d1c4e9; border-radius: 5px; background: #fff;
+    padding: 3px; cursor: pointer; text-align: center; font-size: 10.5px; color: #78909c;
+  }
+  .sideOpt:hover { border-color: #9575cd; }
+  .sideOpt.on { border-color: #6a1b9a; background: #ede7f6; color: #4a148c; font-weight: bold; }
+  .sideOpt.none { opacity: .45; cursor: not-allowed; }
+  .sideOpt img { display: block; width: 100%; height: 52px; object-fit: cover; border-radius: 3px; margin-bottom: 2px; }
+  .sideOpt .noimg {
+    display: block; height: 52px; line-height: 52px; border-radius: 3px;
+    background: #eceff1; color: #b0bec5; font-size: 9.5px; margin-bottom: 2px;
+  }
+  /* 사이드바가 좁아 썸네일이 작으므로, 올려두면 큰 사진을 옆에 띄운다 */
+  #sidePeek {
+    position: fixed; z-index: 60; display: none; pointer-events: none;
+    background: #fff; border: 2px solid #6a1b9a; border-radius: 6px; padding: 3px;
+    box-shadow: 0 6px 22px rgba(0,0,0,.3);
+  }
+  #sidePeek img { display: block; width: 420px; max-height: 70vh; object-fit: contain; border-radius: 3px; }
+  #sidePeek .cap { font-size: 11px; color: #4a148c; text-align: center; padding: 2px 0 1px; }
+  #listTabs { display: flex; gap: 4px; margin: 4px 0; }
+  #listTabs button {
+    flex: 1; padding: 4px; border: 1px solid #cfd8dc; border-radius: 5px;
+    background: #fafafa; cursor: pointer; font-size: 11.5px;
+  }
+  #listTabs button.on { background: #00897b; border-color: #00897b; color: #fff; font-weight: bold; }
+  #listTabs button b { font-size: 12px; }
+  #navList { max-height: 190px; overflow-y: auto; border: 1px solid #eceff1; border-radius: 5px; }
+  #navList .row {
+    display: flex; align-items: center; gap: 5px; padding: 4px 6px;
+    border-bottom: 1px solid #f5f5f5; cursor: pointer; font-size: 11.5px;
+  }
+  #navList .row:last-child { border-bottom: none; }
+  #navList .row:hover { background: #f5f5f5; }
+  #navList .row.on { background: #e0f2f1; }
+  #navList .row.orphan { background: #ffebee; }
+  #navList .dot {
+    width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+  }
+  #navList .dot.sq { border-radius: 2px; }
+  #navList .dot.di { border-radius: 2px; transform: rotate(45deg); }
+  #navList .nid { font-weight: bold; color: #37474f; }
+  #navList .meta { margin-left: auto; color: #b0bec5; font-size: 10.5px; white-space: nowrap; }
+  #navList .empty { padding: 10px; color: #b0bec5; text-align: center; font-size: 11.5px; }
+  #dijkBox { border-top: 1px solid #cfd8dc; margin-top: 6px; padding-top: 6px; }
+  #dijkBox .res {
+    background: #fff3e0; border-radius: 5px; padding: 6px; margin-top: 4px;
+    font-size: 11.5px; color: #e65100; word-break: break-all; line-height: 1.5;
+  }
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <span class="title">🗺️ 대구역 2D 맵</span>
+  <div id="floors"></div>
+  <button class="act" id="btnAddFloor">＋ 층 추가</button>
+  <div class="spacer"></div>
+  <div id="modeTabs">
+    <button id="tabMap" class="on">지도 편집</button>
+    <button id="tabGraph">경로 편집</button>
+  </div>
+  <button class="act" id="btnUndo" title="Ctrl+Z">↩ 취소</button>
+  <button class="act" id="btnRedo" title="Ctrl+Y">↪ 복구</button>
+  <button class="act" id="btnFit">🔍 전체보기</button>
+  <span style="display:flex;align-items:center;gap:3px;font-size:11px;color:#b0bec5">
+    범위
+    <select id="expRange" style="padding:3px;border-radius:4px;border:0;font-size:11px">
+      <option value="view">현재 화면</option>
+      <option value="content">전체 내용</option>
+    </select>
+    배율
+    <select id="expScale" style="padding:3px;border-radius:4px;border:0;font-size:11px">
+      <option value="2">2×</option>
+      <option value="4" selected>4×</option>
+      <option value="6">6×</option>
+      <option value="8">8×</option>
+    </select>
+  </span>
+  <button class="act primary" id="btnPng">📷 PNG 저장</button>
+  <button class="act primary" id="btnSvg" title="지도 + 경로. 확대해도 깨지지 않는 벡터 이미지">🔷 SVG 저장</button>
+  <button class="act primary" id="btnSvgMap" title="경로선 없이 지도만. 프론트에서 마커를 얹을 배경용">🔷 SVG (지도만)</button>
+  <button class="act" id="btnJson">💾 저장(JSON)</button>
+  <button class="act nav" id="btnNavJson">🧭 Navigation JSON</button>
+  <button class="act nav" id="btnGraphPng">🕸 그래프 맵</button>
+  <button class="act nav" id="btnMapGraphPng">🗺 지도+경로</button>
+  <button class="act" id="btnLoad">📂 불러오기</button>
+  <button class="act" id="btnNew">🗑 새 문서</button>
+</div>
+
+<div id="sidePeek"><img alt=""><div class="cap"></div></div>
+<div id="main">
+  <div id="side">
+    <h4>도구</h4>
+    <button class="tbtn" data-tool="select">🖱 선택/이동 <span class="key">V</span></button>
+    <button class="tbtn" data-tool="wall">🧱 벽 그리기 <span class="key">W</span></button>
+    <button class="tbtn" data-tool="area">▭ 영역(공간) <span class="key">A</span></button>
+    <button class="tbtn" data-tool="arrow">➡ 화살표 <span class="key">R</span></button>
+    <button class="tbtn" data-tool="sign">🪧 표지판 <span class="key">S</span></button>
+    <button class="tbtn" data-tool="text">✏️ 텍스트 <span class="key">T</span></button>
+    <button class="tbtn" data-tool="erase">🧹 지우개 <span class="key">E</span></button>
+    <h4>시설 배치 (클릭 후 지도 클릭)</h4>
+    <div id="facs"></div>
+    <h4>옵션</h4>
+    <label class="opt"><input type="checkbox" id="chkSnap" checked> 격자 스냅</label>
+    <h4>배경 이미지 (따라 그리기)</h4>
+    <button class="small" id="btnBg">이미지 불러오기…</button>
+    <div id="bgCtrl" style="display:none">
+      <div class="bgrow">투명도 <input type="range" id="bgOp" min="10" max="100" value="45"></div>
+      <div class="bgrow">크기 <input type="range" id="bgSc" min="10" max="300" value="100"></div>
+      <label class="opt"><input type="checkbox" id="chkBgExport"> PNG에 배경 포함</label>
+      <button class="small" id="btnBgDel">배경 제거</button>
+    </div>
+
+    <!-- ===== 경로 편집 모드 사이드바 ===== -->
+    <div id="navSide">
+      <h4>경로 편집 도구</h4>
+      <button class="tbtn nav-tbtn on" data-navtool="select">🖱 선택 / 형태 수정</button>
+      <button class="tbtn nav-tbtn" data-navtool="node">📍 노드 등록</button>
+      <button class="tbtn nav-tbtn" data-navtool="edge">🔗 엣지 연결</button>
+      <div class="navinfo" id="navHint"></div>
+
+      <h4>목록 <span style="font-weight:normal;color:#b0bec5">클릭하면 이동</span></h4>
+      <div id="listTabs">
+        <button data-list="node" class="on">노드 <b id="cntNode">0</b></button>
+        <button data-list="edge">엣지 <b id="cntEdge">0</b></button>
+      </div>
+      <label class="opt"><input type="checkbox" id="chkListAll"> 전체 층 보기</label>
+      <label class="opt"><input type="checkbox" id="chkSideTodo"> 🪧 면 미지정 엣지만</label>
+      <div class="navinfo" id="sideStat" style="margin:2px 0 4px"></div>
+      <div id="navList"></div>
+
+      <div id="navProps"></div>
+
+      <h4>내보내기 좌표</h4>
+      <label class="opt"><input type="checkbox" id="chkNorm" checked> 0,0 기준으로 정규화</label>
+      <div class="row" style="display:flex;align-items:center;gap:5px;margin:3px 0">
+        <label style="color:#78909c;min-width:52px;font-size:12px">가로 크기</label>
+        <input type="number" id="normW" placeholder="원본" min="100" step="100"
+               style="width:74px;padding:3px 5px;border:1px solid #cfd8dc;border-radius:4px;font-size:12px">
+        <span style="color:#b0bec5;font-size:10.5px">비우면 원본</span>
+      </div>
+      <div class="navinfo" id="normInfo" style="margin:2px 0 4px"></div>
+
+      <h4>표시</h4>
+      <label class="opt"><input type="checkbox" id="chkNavShow" checked> 그래프 표시</label>
+      <label class="opt"><input type="checkbox" id="chkNavOnly"> 지도 흐리게</label>
+      <label class="opt"><input type="checkbox" id="chkSideMark" checked> 🪧 면 지정 여부 (✓ / 남은 수)</label>
+
+      <div id="dijkBox">
+        <h4>테스트용 Dijkstra</h4>
+        <div class="row"><label>출발</label><select id="dijkFrom"></select></div>
+        <div class="row"><label>도착</label><select id="dijkTo"></select></div>
+        <button id="btnDijk" style="width:100%;padding:5px;margin:3px 0;border:1px solid #cfd8dc;border-radius:5px;background:#fafafa;cursor:pointer;font-size:12px">최단경로 계산</button>
+        <button id="btnDijkClear" style="width:100%;padding:5px;margin:3px 0;border:1px solid #cfd8dc;border-radius:5px;background:#fafafa;cursor:pointer;font-size:12px">경로 지우기</button>
+        <div class="res" id="dijkRes" style="display:none"></div>
+      </div>
+    </div>
+  </div>
+  <div id="wrap">
+    <canvas id="cv"></canvas>
+    <input id="txtIn" placeholder="텍스트 입력 후 Enter">
+  </div>
+</div>
+
+<div id="props"></div>
+
+<div id="status">
+  <span id="hint"></span>
+  <span class="zoom" id="zoomLbl">100%</span>
+</div>
+
+<input type="file" id="fileJson" accept=".json" hidden>
+<input type="file" id="fileBg" accept="image/*" hidden>
+
+<script>
+'use strict';
+
+// ===== 상수 =====
+const GRID = 20;
+const LS_KEY = 'daegu-map-editor-v1';
+const FACS = [
+  ['GA','⛩','개찰구','#d81b60'],
+  ['ST','🪜','계단/에스컬레이터','#7b1fa2'],
+  ['EV','🛗','엘리베이터','#00897b'],
+  ['TO','🚻','화장실','#1976d2'],
+  ['EX','🚪','출구','#2e7d32'],
+  ['TI','🎟','매표소','#6d4c41'],
+  ['BO','🎫','승차권 발매기','#455a64'],
+  ['TH','💺','대합실','#0288d1'],
+  ['CO','🏪','편의점','#f57c00'],
+  ['AT','🏧','ATM','#ef6c00'],
+];
+const FAC_MAP = {};
+FACS.forEach(f => FAC_MAP[f[0]] = f);
+
+const HINTS = {
+  select: '클릭: 선택 · 빈 곳 드래그: 범위 선택 · 드래그: 이동 · Ctrl+드래그: 복사 · Shift+클릭: 추가 선택 · 우클릭 드래그: 화면 이동 · Del: 삭제',
+  wall:   '클릭으로 벽의 꼭짓점을 이어서 찍고, 더블클릭·Enter·우클릭으로 완료 (Esc 취소)',
+  area:   '드래그하여 사각형 영역을 그립니다 (통로, 대합실 등 공간 표시)',
+  arrow:  '드래그하여 화살표를 그립니다 (누른 곳 → 놓은 곳 방향)',
+  sign:   '클릭한 위치에 표지판 마커가 생성되고 ID가 자동 부여됩니다 (예: S1_01)',
+  text:   '클릭한 위치에 텍스트를 입력합니다',
+  erase:  '클릭한 객체를 삭제합니다',
+  fac:    '클릭한 위치에 시설 아이콘을 배치합니다',
+};
+
+// ===== 상태 =====
+function newFloor(code) {
+  return { code, signN: 0, bg: null, bgOp: 0.45, bgSc: 1, bgExport: false, objects: [] };
+}
+let state = { floors: [newFloor('1')], cur: 0 };
+let view = { x: 80, y: 60, scale: 1 };
+let tool = 'select';
+let facCode = null;
+let selSet = [];   // 선택된 객체 인덱스 목록
+let undoStack = [], redoStack = [];
+function isSel(i) { return selSet.indexOf(i) >= 0; }
+function singleSel() { return selSet.length === 1 ? selSet[0] : -1; }
+function deleteSelected() {
+  if (!selSet.length) return;
+  pushUndo();
+  selSet.slice().sort((a, b) => b - a).forEach(i => objs().splice(i, 1));
+  selSet = [];
+  renderProps(); draw(); autosave();
+}
+let bgImgCache = {};   // floorIndex -> HTMLImageElement
+
+// 임시 상호작용 상태
+let tempWall = [];          // 벽 그리는 중 점 목록
+let mouseW = { x: 0, y: 0 }; // 월드 좌표 마우스 위치
+let drag = null;            // {mode:'pan'|'move'|'area', ...}
+let pendingTextPos = null;  // 텍스트 입력 위치(월드)
+let editingTextIdx = -1;    // 기존 텍스트 수정 중이면 인덱스
+
+// ===== DOM =====
+const cv = document.getElementById('cv');
+const ctx = cv.getContext('2d');
+const wrap = document.getElementById('wrap');
+const txtIn = document.getElementById('txtIn');
+const propsEl = document.getElementById('props');
+const hintEl = document.getElementById('hint');
+const zoomLbl = document.getElementById('zoomLbl');
+
+function floor() { return state.floors[state.cur]; }
+function objs() { return floor().objects; }
+function snapOn() { return document.getElementById('chkSnap').checked; }
+function snap(v) { return snapOn() ? Math.round(v / GRID) * GRID : v; }
+
+// ===== 저장 / 복원 =====
+let saveTimer = null;
+function autosave() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    try { localStorage.setItem(LS_KEY, JSON.stringify(state)); }
+    catch (e) { /* 용량 초과 시 배경 제외 저장 시도 */
+      try {
+        const slim = JSON.parse(JSON.stringify(state));
+        slim.floors.forEach(f => f.bg = null);
+        localStorage.setItem(LS_KEY, JSON.stringify(slim));
+      } catch (e2) {}
+    }
+  }, 400);
+}
+function pushUndo() {
+  undoStack.push(JSON.stringify(state));
+  if (undoStack.length > 60) undoStack.shift();
+  redoStack = [];
+}
+function undo() {
+  if (!undoStack.length) return;
+  redoStack.push(JSON.stringify(state));
+  state = JSON.parse(undoStack.pop());
+  afterStateSwap();
+}
+function redo() {
+  if (!redoStack.length) return;
+  undoStack.push(JSON.stringify(state));
+  state = JSON.parse(redoStack.pop());
+  afterStateSwap();
+}
+function afterStateSwap() {
+  if (state.cur >= state.floors.length) state.cur = state.floors.length - 1;
+  selSet = []; tempWall = []; bgImgCache = {};
+  renderFloors(); renderProps(); renderBgCtrl(); loadBgImage(); draw(); autosave();
+}
+
+// ===== 좌표 변환 =====
+function s2w(sx, sy) { return { x: (sx - view.x) / view.scale, y: (sy - view.y) / view.scale }; }
+function w2s(wx, wy) { return { x: wx * view.scale + view.x, y: wy * view.scale + view.y }; }
+function evPos(e) {
+  const r = cv.getBoundingClientRect();
+  return { x: e.clientX - r.left, y: e.clientY - r.top };
+}
+
+// ===== 캔버스 크기 =====
+function resize() {
+  const dpr = window.devicePixelRatio || 1;
+  const r = wrap.getBoundingClientRect();
+  cv.width = Math.max(1, Math.round(r.width * dpr));
+  cv.height = Math.max(1, Math.round(r.height * dpr));
+  draw();
+}
+window.addEventListener('resize', resize);
+
+// ===== 그리기 =====
+function draw() {
+  const dpr = window.devicePixelRatio || 1;
+  const W = cv.width / dpr, H = cv.height / dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.fillStyle = '#fafafa';
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.save();
+  ctx.translate(view.x, view.y);
+  ctx.scale(view.scale, view.scale);
+
+  drawBg(ctx);
+  drawGrid(ctx, W, H);
+  drawObjects(ctx, { selection: true });
+  drawTempWall(ctx);
+
+  ctx.restore();
+  zoomLbl.textContent = Math.round(view.scale * 100) + '%';
+}
+
+function drawBg(c) {
+  const f = floor();
+  const img = bgImgCache[state.cur];
+  if (f.bg && img && img.complete) {
+    c.save();
+    c.globalAlpha = f.bgOp;
+    c.drawImage(img, 0, 0, img.width * f.bgSc, img.height * f.bgSc);
+    c.restore();
+  }
+}
+
+function drawGrid(c, W, H) {
+  const tl = s2w(0, 0), br = s2w(W, H);
+  let step = GRID;
+  if (step * view.scale < 8) step = GRID * 5;
+  const x0 = Math.floor(tl.x / step) * step, x1 = br.x;
+  const y0 = Math.floor(tl.y / step) * step, y1 = br.y;
+  c.lineWidth = 1 / view.scale;
+  for (let x = x0; x <= x1; x += step) {
+    c.strokeStyle = (x % (GRID * 5) === 0) ? '#dde3e6' : '#eef1f3';
+    c.beginPath(); c.moveTo(x, tl.y); c.lineTo(x, br.y); c.stroke();
+  }
+  for (let y = y0; y <= y1; y += step) {
+    c.strokeStyle = (y % (GRID * 5) === 0) ? '#dde3e6' : '#eef1f3';
+    c.beginPath(); c.moveTo(tl.x, y); c.lineTo(br.x, y); c.stroke();
+  }
+}
+
+function drawObjects(c, opt) {
+  const list = objs();
+  // 영역 → 벽 → 시설 → 표지판 → 텍스트 순서로 그림
+  list.forEach((o, i) => { if (o.type === 'area') drawArea(c, o, opt && opt.selection && isSel(i)); });
+  list.forEach((o, i) => { if (o.type === 'wall') drawWall(c, o, opt && opt.selection && isSel(i)); });
+  list.forEach((o, i) => { if (o.type === 'arrow') drawArrow(c, o, opt && opt.selection && isSel(i)); });
+  list.forEach((o, i) => { if (o.type === 'facility') drawFac(c, o, opt && opt.selection && isSel(i)); });
+  list.forEach((o, i) => { if (o.type === 'sign') drawSign(c, o, opt && opt.selection && isSel(i)); });
+  list.forEach((o, i) => { if (o.type === 'text') drawText(c, o, opt && opt.selection && isSel(i)); });
+}
+
+function drawArea(c, o, sel) {
+  c.fillStyle = hexA(o.color || '#64b5f6', 0.18);
+  c.fillRect(o.x, o.y, o.w, o.h);
+  c.strokeStyle = o.color || '#64b5f6';
+  c.lineWidth = 2;
+  c.setLineDash([6, 4]);
+  c.strokeRect(o.x, o.y, o.w, o.h);
+  c.setLineDash([]);
+  if (o.label) {
+    c.fillStyle = shade(o.color || '#64b5f6');
+    c.font = 'bold 14px "Malgun Gothic", sans-serif';
+    c.textAlign = 'center'; c.textBaseline = 'middle';
+    c.fillText(o.label, o.x + o.w / 2, o.y + o.h / 2);
+  }
+  if (sel) selRect(c, o.x - 4, o.y - 4, o.w + 8, o.h + 8);
+}
+
+function drawWall(c, o, sel) {
+  c.strokeStyle = o.color || '#37474f';
+  c.lineWidth = o.width || 6;
+  c.lineJoin = 'round'; c.lineCap = 'round';
+  c.beginPath();
+  o.points.forEach((p, i) => i ? c.lineTo(p.x, p.y) : c.moveTo(p.x, p.y));
+  c.stroke();
+  if (sel) {
+    c.fillStyle = '#1e88e5';
+    o.points.forEach(p => { c.beginPath(); c.arc(p.x, p.y, 5, 0, 7); c.fill(); });
+  }
+}
+
+function drawArrow(c, o, sel) {
+  const a = o.points[0], b = o.points[1];
+  const w = o.width || 4;
+  const col = o.color || '#e53935';
+  const ang = Math.atan2(b.y - a.y, b.x - a.x);
+  const hl = Math.max(14, w * 3.5); // 화살촉 길이
+  const hx = b.x - hl * 0.7 * Math.cos(ang), hy = b.y - hl * 0.7 * Math.sin(ang);
+  c.strokeStyle = col;
+  c.lineWidth = w;
+  c.lineCap = 'round';
+  c.beginPath(); c.moveTo(a.x, a.y); c.lineTo(hx, hy); c.stroke();
+  c.fillStyle = col;
+  c.beginPath();
+  c.moveTo(b.x, b.y);
+  c.lineTo(b.x - hl * Math.cos(ang - 0.45), b.y - hl * Math.sin(ang - 0.45));
+  c.lineTo(b.x - hl * Math.cos(ang + 0.45), b.y - hl * Math.sin(ang + 0.45));
+  c.closePath(); c.fill();
+  if (sel) {
+    c.fillStyle = '#1e88e5';
+    o.points.forEach(p => { c.beginPath(); c.arc(p.x, p.y, 5, 0, 7); c.fill(); });
+  }
+}
+
+function drawFac(c, o, sel) {
+  const f = FAC_MAP[o.code] || ['??', '❓', '', '#777'];
+  const S = 42, h = S / 2;
+  c.fillStyle = f[3];
+  roundRect(c, o.x - h, o.y - h, S, S, 8);
+  c.fill();
+  c.font = '17px "Segoe UI Emoji", sans-serif';
+  c.textAlign = 'center'; c.textBaseline = 'middle';
+  c.fillText(f[1], o.x, o.y - 7);
+  c.fillStyle = '#fff';
+  c.font = 'bold 11px "Segoe UI", sans-serif';
+  c.fillText(f[0], o.x, o.y + 12);
+  if (sel) selRect(c, o.x - h - 4, o.y - h - 4, S + 8, S + 8);
+}
+
+function drawSign(c, o, sel) {
+  c.fillStyle = '#ffb300';
+  c.strokeStyle = '#e65100';
+  c.lineWidth = 2.5;
+  c.beginPath(); c.arc(o.x, o.y, 19, 0, 7); c.fill(); c.stroke();
+  c.fillStyle = '#4e2600';
+  c.font = 'bold 19px "Segoe UI", sans-serif';
+  c.textAlign = 'center'; c.textBaseline = 'middle';
+  c.fillText('S', o.x, o.y + 1);
+  // ID 라벨
+  c.font = 'bold 15px "Segoe UI", sans-serif';
+  const w = c.measureText(o.id).width + 14;
+  c.fillStyle = '#fff';
+  c.strokeStyle = '#e65100';
+  c.lineWidth = 1.5;
+  roundRect(c, o.x - w / 2, o.y + 24, w, 24, 5);
+  c.fill(); c.stroke();
+  c.fillStyle = '#bf360c';
+  c.fillText(o.id, o.x, o.y + 36);
+  if (sel) selRect(c, o.x - 25, o.y - 25, 50, 76);
+}
+
+function drawText(c, o, sel) {
+  c.fillStyle = o.color || '#212121';
+  c.font = 'bold ' + (o.size || 16) + 'px "Malgun Gothic", sans-serif';
+  c.textAlign = 'left'; c.textBaseline = 'top';
+  c.fillText(o.text, o.x, o.y);
+  if (sel) {
+    const w = c.measureText(o.text).width;
+    selRect(c, o.x - 3, o.y - 3, w + 6, (o.size || 16) * 1.25 + 6);
+  }
+}
+
+function drawTempWall(c) {
+  if (tool !== 'wall' || !tempWall.length) return;
+  c.strokeStyle = '#1e88e5';
+  c.lineWidth = 5;
+  c.lineJoin = 'round'; c.lineCap = 'round';
+  c.setLineDash([8, 5]);
+  c.beginPath();
+  tempWall.forEach((p, i) => i ? c.lineTo(p.x, p.y) : c.moveTo(p.x, p.y));
+  c.lineTo(snap(mouseW.x), snap(mouseW.y));
+  c.stroke();
+  c.setLineDash([]);
+  c.fillStyle = '#1e88e5';
+  tempWall.forEach(p => { c.beginPath(); c.arc(p.x, p.y, 4, 0, 7); c.fill(); });
+}
+
+function selRect(c, x, y, w, h) {
+  c.strokeStyle = '#1e88e5';
+  c.lineWidth = 1.5;
+  c.setLineDash([4, 3]);
+  c.strokeRect(x, y, w, h);
+  c.setLineDash([]);
+}
+function roundRect(c, x, y, w, h, r) {
+  c.beginPath();
+  c.moveTo(x + r, y);
+  c.arcTo(x + w, y, x + w, y + h, r);
+  c.arcTo(x + w, y + h, x, y + h, r);
+  c.arcTo(x, y + h, x, y, r);
+  c.arcTo(x, y, x + w, y, r);
+  c.closePath();
+}
+function hexA(hex, a) {
+  const n = parseInt(hex.slice(1), 16);
+  return 'rgba(' + (n >> 16) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + a + ')';
+}
+function shade(hex) {
+  const n = parseInt(hex.slice(1), 16);
+  return 'rgb(' + Math.round((n >> 16) * 0.55) + ',' + Math.round(((n >> 8) & 255) * 0.55) + ',' + Math.round((n & 255) * 0.55) + ')';
+}
+
+// ===== 히트 테스트 =====
+function objBounds(o) {
+  if (o.type === 'area') return { x: o.x, y: o.y, w: o.w, h: o.h };
+  if (o.type === 'facility') return { x: o.x - 21, y: o.y - 21, w: 42, h: 42 };
+  if (o.type === 'sign') return { x: o.x - 24, y: o.y - 24, w: 48, h: 74 };
+  if (o.type === 'text') {
+    ctx.font = 'bold ' + (o.size || 16) + 'px "Malgun Gothic", sans-serif';
+    const w = ctx.measureText(o.text).width;
+    return { x: o.x, y: o.y, w, h: (o.size || 16) * 1.3 };
+  }
+  if (o.type === 'wall' || o.type === 'arrow') {
+    let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+    o.points.forEach(p => { x0 = Math.min(x0, p.x); y0 = Math.min(y0, p.y); x1 = Math.max(x1, p.x); y1 = Math.max(y1, p.y); });
+    const m = (o.width || 6) / 2 + 2;
+    return { x: x0 - m, y: y0 - m, w: x1 - x0 + m * 2, h: y1 - y0 + m * 2 };
+  }
+  return { x: 0, y: 0, w: 0, h: 0 };
+}
+function inBounds(p, b) { return p.x >= b.x && p.x <= b.x + b.w && p.y >= b.y && p.y <= b.y + b.h; }
+function distSeg(p, a, b) {
+  const dx = b.x - a.x, dy = b.y - a.y;
+  const L2 = dx * dx + dy * dy;
+  let t = L2 ? ((p.x - a.x) * dx + (p.y - a.y) * dy) / L2 : 0;
+  t = Math.max(0, Math.min(1, t));
+  const px = a.x + t * dx, py = a.y + t * dy;
+  return Math.hypot(p.x - px, p.y - py);
+}
+function hitTest(p) {
+  const list = objs();
+  const order = ['text', 'sign', 'facility', 'arrow', 'wall', 'area'];
+  for (const ty of order) {
+    for (let i = list.length - 1; i >= 0; i--) {
+      const o = list[i];
+      if (o.type !== ty) continue;
+      if (ty === 'wall' || ty === 'arrow') {
+        const tol = (o.width || 6) / 2 + 6 / view.scale;
+        for (let k = 0; k < o.points.length - 1; k++)
+          if (distSeg(p, o.points[k], o.points[k + 1]) <= tol) return i;
+      } else if (inBounds(p, objBounds(o))) return i;
+    }
+  }
+  return -1;
+}
+
+// ===== 포인터 이벤트 =====
+cv.addEventListener('pointerdown', e => {
+  if (txtIn.style.display === 'block') commitText();
+  cv.setPointerCapture(e.pointerId);
+  const s = evPos(e);
+  const p = s2w(s.x, s.y);
+  mouseW = p;
+
+  // 가운데/우측 버튼: 항상 화면 이동
+  if (e.button === 1 || e.button === 2) {
+    if (e.button === 2 && tool === 'wall' && tempWall.length) return; // 우클릭=벽 완료
+    drag = { mode: 'pan', sx: s.x, sy: s.y, vx: view.x, vy: view.y };
+    e.preventDefault();
+    return;
+  }
+
+  if (tool === 'wall') {
+    tempWall.push({ x: snap(p.x), y: snap(p.y) });
+    draw();
+    return;
+  }
+  if (tool === 'area') {
+    drag = { mode: 'area', x0: snap(p.x), y0: snap(p.y), x1: snap(p.x), y1: snap(p.y) };
+    return;
+  }
+  if (tool === 'arrow') {
+    drag = { mode: 'arrowdraw', x0: snap(p.x), y0: snap(p.y), x1: snap(p.x), y1: snap(p.y) };
+    return;
+  }
+  if (tool === 'sign') {
+    pushUndo();
+    const f = floor();
+    f.signN++;
+    objs().push({ type: 'sign', x: snap(p.x), y: snap(p.y), id: 'S' + f.code + '_' + String(f.signN).padStart(2, '0') });
+    selSet = [objs().length - 1];
+    renderProps(); draw(); autosave();
+    return;
+  }
+  if (tool === 'fac' && facCode) {
+    pushUndo();
+    objs().push({ type: 'facility', code: facCode, x: snap(p.x), y: snap(p.y) });
+    draw(); autosave();
+    return;
+  }
+  if (tool === 'text') {
+    openTextInput(s, p, -1);
+    return;
+  }
+  if (tool === 'erase') {
+    const i = hitTest(p);
+    if (i >= 0) { pushUndo(); objs().splice(i, 1); selSet = []; renderProps(); draw(); autosave(); }
+    return;
+  }
+  // select
+  const i = hitTest(p);
+  if (i >= 0) {
+    if (e.shiftKey) {
+      // Shift+클릭: 선택 추가/해제
+      if (isSel(i)) selSet = selSet.filter(x => x !== i);
+      else selSet.push(i);
+      renderProps(); draw();
+      return;
+    }
+    if (!isSel(i)) selSet = [i];
+    drag = {
+      mode: 'move', px: p.x, py: p.y, moved: false,
+      copy: e.ctrlKey || e.altKey,   // Ctrl/Alt+드래그: 복사
+      origs: selSet.map(idx => ({ idx, json: JSON.stringify(objs()[idx]) })),
+    };
+    renderProps(); draw();
+  } else {
+    selSet = [];
+    drag = { mode: 'marquee', x0: p.x, y0: p.y, x1: p.x, y1: p.y };
+    renderProps(); draw();
+  }
+});
+
+cv.addEventListener('pointermove', e => {
+  const s = evPos(e);
+  const p = s2w(s.x, s.y);
+  mouseW = p;
+
+  if (!drag) {
+    if (tool === 'wall' && tempWall.length) draw();
+    return;
+  }
+  if (drag.mode === 'pan') {
+    view.x = drag.vx + (s.x - drag.sx);
+    view.y = drag.vy + (s.y - drag.sy);
+    draw();
+  } else if (drag.mode === 'area') {
+    drag.x1 = snap(p.x); drag.y1 = snap(p.y);
+    draw();
+    // 미리보기
+    ctx.save();
+    const dpr = window.devicePixelRatio || 1;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.translate(view.x, view.y); ctx.scale(view.scale, view.scale);
+    ctx.strokeStyle = '#1e88e5'; ctx.lineWidth = 2; ctx.setLineDash([6, 4]);
+    ctx.strokeRect(Math.min(drag.x0, drag.x1), Math.min(drag.y0, drag.y1),
+                   Math.abs(drag.x1 - drag.x0), Math.abs(drag.y1 - drag.y0));
+    ctx.restore();
+  } else if (drag.mode === 'arrowdraw') {
+    drag.x1 = snap(p.x); drag.y1 = snap(p.y);
+    draw();
+    // 화살표 미리보기
+    ctx.save();
+    const dpr2 = window.devicePixelRatio || 1;
+    ctx.setTransform(dpr2, 0, 0, dpr2, 0, 0);
+    ctx.translate(view.x, view.y); ctx.scale(view.scale, view.scale);
+    drawArrow(ctx, { points: [{ x: drag.x0, y: drag.y0 }, { x: drag.x1, y: drag.y1 }], width: 4 }, false);
+    ctx.restore();
+  } else if (drag.mode === 'marquee') {
+    drag.x1 = p.x; drag.y1 = p.y;
+    draw();
+    // 범위 선택 미리보기
+    ctx.save();
+    const dpr = window.devicePixelRatio || 1;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.translate(view.x, view.y); ctx.scale(view.scale, view.scale);
+    const rx = Math.min(drag.x0, drag.x1), ry = Math.min(drag.y0, drag.y1);
+    const rw = Math.abs(drag.x1 - drag.x0), rh = Math.abs(drag.y1 - drag.y0);
+    ctx.fillStyle = 'rgba(30,136,229,0.08)';
+    ctx.fillRect(rx, ry, rw, rh);
+    ctx.strokeStyle = '#1e88e5';
+    ctx.lineWidth = 1.5 / view.scale;
+    ctx.setLineDash([5, 4]);
+    ctx.strokeRect(rx, ry, rw, rh);
+    ctx.setLineDash([]);
+    ctx.restore();
+  } else if (drag.mode === 'move') {
+    const dx = p.x - drag.px, dy = p.y - drag.py;
+    if (!drag.moved && Math.hypot(dx, dy) * view.scale > 3) {
+      drag.moved = true;
+      pushUndo(); // 아직 이동 전 상태이므로 스냅샷 그대로 사용
+      if (drag.copy) {
+        // 원본은 제자리에 두고, 복사본을 만들어 그것을 끌고 간다
+        const f = floor();
+        const newSel = [];
+        drag.origs = drag.origs.map(({ json }) => {
+          const clone = JSON.parse(json);
+          if (clone.type === 'sign') {
+            f.signN++;
+            clone.id = 'S' + f.code + '_' + String(f.signN).padStart(2, '0');
+          }
+          objs().push(clone);
+          const ni = objs().length - 1;
+          newSel.push(ni);
+          return { idx: ni, json: JSON.stringify(clone) };
+        });
+        selSet = newSel;
+        renderProps();
+      }
+    }
+    if (drag.moved) {
+      drag.origs.forEach(({ idx, json }) => {
+        const o = objs()[idx];
+        const base = JSON.parse(json);
+        if (o.type === 'wall' || o.type === 'arrow') {
+          o.points = base.points.map(pt => ({ x: snap(pt.x + dx), y: snap(pt.y + dy) }));
+        } else {
+          o.x = snap(base.x + dx);
+          o.y = snap(base.y + dy);
+        }
+      });
+      draw();
+    }
+  }
+});
+
+cv.addEventListener('pointerup', e => {
+  if (!drag) return;
+  if (drag.mode === 'area') {
+    const x = Math.min(drag.x0, drag.x1), y = Math.min(drag.y0, drag.y1);
+    const w = Math.abs(drag.x1 - drag.x0), h = Math.abs(drag.y1 - drag.y0);
+    if (w > 8 && h > 8) {
+      pushUndo();
+      objs().push({ type: 'area', x, y, w, h, color: '#64b5f6', label: '' });
+      selSet = [objs().length - 1];
+      renderProps();
+    }
+    draw(); autosave();
+  } else if (drag.mode === 'arrowdraw') {
+    if (Math.hypot(drag.x1 - drag.x0, drag.y1 - drag.y0) > 8) {
+      pushUndo();
+      objs().push({ type: 'arrow', points: [{ x: drag.x0, y: drag.y0 }, { x: drag.x1, y: drag.y1 }], width: 4, color: '#e53935' });
+      selSet = [objs().length - 1];
+      renderProps();
+      autosave();
+    }
+    draw();
+  } else if (drag.mode === 'marquee') {
+    const rx = Math.min(drag.x0, drag.x1), ry = Math.min(drag.y0, drag.y1);
+    const rw = Math.abs(drag.x1 - drag.x0), rh = Math.abs(drag.y1 - drag.y0);
+    if (rw * view.scale > 4 || rh * view.scale > 4) {
+      selSet = [];
+      objs().forEach((o, i) => {
+        const b = objBounds(o);
+        if (b.x < rx + rw && b.x + b.w > rx && b.y < ry + rh && b.y + b.h > ry) selSet.push(i);
+      });
+    }
+    renderProps(); draw();
+  } else if (drag.mode === 'move' && drag.moved) {
+    autosave();
+  }
+  drag = null;
+});
+
+cv.addEventListener('dblclick', e => {
+  const s = evPos(e);
+  const p = s2w(s.x, s.y);
+  if (tool === 'wall') { finishWall(); return; }
+  if (tool === 'select') {
+    const i = hitTest(p);
+    if (i >= 0 && objs()[i].type === 'text') openTextInput(w2sPt(objs()[i]), p, i);
+  }
+});
+function w2sPt(o) { return w2s(o.x, o.y); }
+
+cv.addEventListener('contextmenu', e => {
+  e.preventDefault();
+  if (tool === 'wall' && tempWall.length) finishWall();
+});
+
+cv.addEventListener('wheel', e => {
+  e.preventDefault();
+  const s = evPos(e);
+  const factor = e.deltaY < 0 ? 1.12 : 1 / 1.12;
+  const ns = Math.max(0.08, Math.min(8, view.scale * factor));
+  const w = s2w(s.x, s.y);
+  view.scale = ns;
+  view.x = s.x - w.x * ns;
+  view.y = s.y - w.y * ns;
+  draw();
+}, { passive: false });
+
+function finishWall() {
+  if (tempWall.length >= 2) {
+    pushUndo();
+    objs().push({ type: 'wall', points: tempWall.slice(), width: 6, color: '#37474f' });
+    autosave();
+  }
+  tempWall = [];
+  draw();
+}
+
+// ===== 텍스트 입력 =====
+function openTextInput(screenPos, worldPos, editIdx) {
+  pendingTextPos = worldPos;
+  editingTextIdx = editIdx;
+  txtIn.style.left = screenPos.x + 'px';
+  txtIn.style.top = screenPos.y + 'px';
+  txtIn.value = editIdx >= 0 ? objs()[editIdx].text : '';
+  txtIn.style.display = 'block';
+  setTimeout(() => txtIn.focus(), 0);
+}
+function commitText() {
+  const v = txtIn.value.trim();
+  txtIn.style.display = 'none';
+  if (editingTextIdx >= 0) {
+    if (v && v !== objs()[editingTextIdx].text) {
+      pushUndo();
+      objs()[editingTextIdx].text = v;
+      autosave();
+    }
+  } else if (v && pendingTextPos) {
+    pushUndo();
+    objs().push({ type: 'text', x: snap(pendingTextPos.x), y: snap(pendingTextPos.y), text: v, size: 16, color: '#212121' });
+    selSet = [objs().length - 1];
+    renderProps();
+    autosave();
+  }
+  editingTextIdx = -1; pendingTextPos = null;
+  draw();
+}
+txtIn.addEventListener('keydown', e => {
+  e.stopPropagation();
+  if (e.key === 'Enter') commitText();
+  if (e.key === 'Escape') { txtIn.style.display = 'none'; editingTextIdx = -1; pendingTextPos = null; }
+});
+
+// ===== 도구 전환 =====
+function setTool(t, fc) {
+  tool = t;
+  facCode = fc || null;
+  tempWall = [];
+  document.querySelectorAll('.tbtn').forEach(b => b.classList.toggle('on', b.dataset.tool === t));
+  document.querySelectorAll('.fbtn').forEach(b => b.classList.toggle('on', t === 'fac' && b.dataset.code === facCode));
+  hintEl.textContent = t === 'fac'
+    ? (FAC_MAP[facCode] ? FAC_MAP[facCode][2] + ' — ' + HINTS.fac : HINTS.fac)
+    : (HINTS[t] || '');
+  cv.style.cursor = t === 'select' ? 'default' : 'crosshair';
+  draw();
+}
+document.querySelectorAll('.tbtn').forEach(b => b.addEventListener('click', () => setTool(b.dataset.tool)));
+
+// 시설 팔레트
+const facsEl = document.getElementById('facs');
+FACS.forEach(f => {
+  const b = document.createElement('button');
+  b.className = 'fbtn';
+  b.dataset.code = f[0];
+  b.title = f[2];
+  b.innerHTML = f[1] + '<small style="color:' + f[3] + '">' + f[0] + '</small>';
+  b.addEventListener('click', () => setTool('fac', f[0]));
+  facsEl.appendChild(b);
+});
+
+// ===== 속성 패널 =====
+// 선택 객체 크기 조절 (선택 영역 중심 기준)
+function scaleHtml() {
+  return '<label>크기 <input type="number" id="pScale" value="150" min="10" max="1000" style="width:60px">%</label>' +
+    '<button class="mv" id="pScaleGo">적용</button>';
+}
+function bindScale() {
+  const inp = document.getElementById('pScale');
+  if (!inp) return;
+  const go = () => scaleSelection((+inp.value || 100) / 100);
+  document.getElementById('pScaleGo').addEventListener('click', go);
+  inp.addEventListener('keydown', e => { e.stopPropagation(); if (e.key === 'Enter') go(); });
+}
+function scaleSelection(factor) {
+  if (!selSet.length || !(factor > 0) || factor === 1) return;
+  let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+  selSet.forEach(i => {
+    const b = objBounds(objs()[i]);
+    x0 = Math.min(x0, b.x); y0 = Math.min(y0, b.y);
+    x1 = Math.max(x1, b.x + b.w); y1 = Math.max(y1, b.y + b.h);
+  });
+  const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+  const S = v => Math.round(v * 100) / 100;
+  const tx = x => S(cx + (x - cx) * factor);
+  const ty = y => S(cy + (y - cy) * factor);
+  pushUndo();
+  selSet.forEach(i => {
+    const o = objs()[i];
+    if (o.type === 'wall' || o.type === 'arrow') {
+      o.points = o.points.map(p => ({ x: tx(p.x), y: ty(p.y) }));
+    } else if (o.type === 'area') {
+      const nx = tx(o.x), ny = ty(o.y);
+      o.w = S(o.w * factor); o.h = S(o.h * factor);
+      o.x = nx; o.y = ny;
+    } else {
+      // 시설·표지판·텍스트는 위치만 이동 (아이콘/글자 크기는 유지해 다른 구역과 통일)
+      o.x = tx(o.x); o.y = ty(o.y);
+    }
+  });
+  draw(); autosave();
+}
+
+// 선택 객체 회전 (선택 영역 중심 기준)
+function rotateHtml() {
+  return '<label>회전 <input type="number" id="pRot" value="90" min="1" max="359" style="width:52px">°</label>' +
+    '<button class="mv" id="pRotL" title="반시계 방향">↺</button>' +
+    '<button class="mv" id="pRotR" title="시계 방향">↻</button>';
+}
+function bindRotate() {
+  const inp = document.getElementById('pRot');
+  if (!inp) return;
+  inp.addEventListener('keydown', e => e.stopPropagation());
+  document.getElementById('pRotL').addEventListener('click', () => rotateSelection(-(+inp.value || 90)));
+  document.getElementById('pRotR').addEventListener('click', () => rotateSelection(+inp.value || 90));
+}
+function rotateSelection(deg) {
+  if (!selSet.length || !deg) return;
+  let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+  selSet.forEach(i => {
+    const b = objBounds(objs()[i]);
+    x0 = Math.min(x0, b.x); y0 = Math.min(y0, b.y);
+    x1 = Math.max(x1, b.x + b.w); y1 = Math.max(y1, b.y + b.h);
+  });
+  const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+  const rad = deg * Math.PI / 180;
+  const cos = Math.cos(rad), sin = Math.sin(rad);
+  const S = v => Math.round(v * 100) / 100;
+  const R = pt => ({ x: S(cx + (pt.x - cx) * cos - (pt.y - cy) * sin), y: S(cy + (pt.x - cx) * sin + (pt.y - cy) * cos) });
+  const quarter = ((deg % 180) + 180) % 180 === 90; // 90도 단위 회전이면 영역의 가로/세로를 맞바꿈
+  pushUndo();
+  selSet.forEach(i => {
+    const o = objs()[i];
+    if (o.type === 'wall' || o.type === 'arrow') {
+      o.points = o.points.map(R);
+    } else if (o.type === 'area') {
+      const c1 = R({ x: o.x + o.w / 2, y: o.y + o.h / 2 });
+      let w = o.w, h = o.h;
+      if (quarter) { w = o.h; h = o.w; }
+      o.x = S(c1.x - w / 2); o.y = S(c1.y - h / 2);
+      o.w = w; o.h = h;
+    } else {
+      // 시설·표지판·텍스트는 위치만 회전 (아이콘/글자는 항상 똑바로 표시)
+      const p = R({ x: o.x, y: o.y });
+      o.x = p.x; o.y = p.y;
+    }
+  });
+  draw(); autosave();
+}
+
+// 다른 층으로 이동/복사 UI (층이 2개 이상일 때만)
+function floorMoveHtml() {
+  if (state.floors.length < 2) return '';
+  let opts = '';
+  state.floors.forEach((f, i) => {
+    if (i !== state.cur) opts += '<option value="' + i + '">' + floorLabel(f.code) + '</option>';
+  });
+  return '<label>다른 층으로 <select id="pFloor">' + opts + '</select></label>' +
+    '<button class="mv" id="pMove">➡ 이동</button>' +
+    '<button class="mv" id="pCopy">⧉ 복사</button>';
+}
+function bindFloorMove() {
+  const selEl = document.getElementById('pFloor');
+  if (!selEl) return;
+  document.getElementById('pMove').addEventListener('click', () => transferSel(+selEl.value, true));
+  document.getElementById('pCopy').addEventListener('click', () => transferSel(+selEl.value, false));
+}
+function transferSel(ti, move) {
+  if (!selSet.length || ti === state.cur || !state.floors[ti]) return;
+  pushUndo();
+  const tf = state.floors[ti];
+  // 복사본 생성 (표지판은 대상 층 기준으로 새 ID 부여)
+  const items = selSet.slice().sort((a, b) => a - b).map(i => JSON.parse(JSON.stringify(objs()[i])));
+  items.forEach(o => {
+    if (o.type === 'sign') {
+      tf.signN++;
+      o.id = 'S' + tf.code + '_' + String(tf.signN).padStart(2, '0');
+    }
+    tf.objects.push(o);
+  });
+  if (move) {
+    // 원래 층에서 제거 후 대상 층으로 화면 전환, 옮긴 객체 선택 유지
+    selSet.slice().sort((a, b) => b - a).forEach(i => objs().splice(i, 1));
+    state.cur = ti;
+    const n = tf.objects.length;
+    selSet = items.map((_, k) => n - items.length + k);
+    tempWall = [];
+    renderFloors(); renderBgCtrl(); loadBgImage();
+  }
+  renderProps(); draw(); autosave();
+}
+
+function renderProps() {
+  if (selSet.length > 1) {
+    propsEl.className = 'show';
+    propsEl.innerHTML = '<span class="pt">✔ ' + selSet.length + '개 선택됨</span>' +
+      scaleHtml() +
+      rotateHtml() +
+      floorMoveHtml() +
+      '<button class="del" id="pDel">🗑 모두 삭제</button>';
+    bindScale();
+    bindRotate();
+    bindFloorMove();
+    document.getElementById('pDel').addEventListener('click', deleteSelected);
+    return;
+  }
+  const si = singleSel();
+  const o = si >= 0 ? objs()[si] : null;
+  if (!o) { propsEl.className = ''; propsEl.innerHTML = ''; return; }
+  propsEl.className = 'show';
+  let html = '';
+  if (o.type === 'sign') {
+    html = '<span class="pt">🪧 표지판</span>' +
+      '<label>위치 ID <input type="text" id="pId" value="' + esc(o.id) + '"></label>';
+  } else if (o.type === 'text') {
+    html = '<span class="pt">✏️ 텍스트</span>' +
+      '<label>내용 <input type="text" id="pTxt" value="' + esc(o.text) + '"></label>' +
+      '<label>크기 <input type="number" id="pSize" value="' + (o.size || 16) + '" min="8" max="80"></label>' +
+      '<label>색 <input type="color" id="pCol" value="' + (o.color || '#212121') + '"></label>';
+  } else if (o.type === 'area') {
+    html = '<span class="pt">▭ 영역</span>' +
+      '<label>이름 <input type="text" id="pLabel" value="' + esc(o.label || '') + '" placeholder="예: 대합실"></label>' +
+      '<label>색 <input type="color" id="pCol" value="' + (o.color || '#64b5f6') + '"></label>';
+  } else if (o.type === 'wall' || o.type === 'arrow') {
+    html = '<span class="pt">' + (o.type === 'wall' ? '🧱 벽' : '➡ 화살표') + '</span>' +
+      '<label>두께 <input type="number" id="pW" value="' + (o.width || (o.type === 'wall' ? 6 : 4)) + '" min="2" max="30"></label>' +
+      '<label>색 <input type="color" id="pCol" value="' + (o.color || (o.type === 'wall' ? '#37474f' : '#e53935')) + '"></label>';
+  } else if (o.type === 'facility') {
+    const f = FAC_MAP[o.code];
+    html = '<span class="pt">' + (f ? f[1] + ' ' + f[2] + ' (' + f[0] + ')' : o.code) + '</span>';
+  }
+  html += scaleHtml();
+  html += rotateHtml();
+  html += floorMoveHtml();
+  html += '<button class="del" id="pDel">🗑 삭제</button>';
+  propsEl.innerHTML = html;
+  bindScale();
+  bindRotate();
+  bindFloorMove();
+
+  const bind = (id, fn) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('focus', () => pushUndo());
+    el.addEventListener('input', () => { fn(el); draw(); autosave(); });
+  };
+  bind('pId',    el => { o.id = el.value; });
+  bind('pTxt',   el => { o.text = el.value; });
+  bind('pSize',  el => { o.size = Math.max(8, +el.value || 16); });
+  bind('pLabel', el => { o.label = el.value; });
+  bind('pW',     el => { o.width = Math.max(2, +el.value || 6); });
+  bind('pCol',   el => { o.color = el.value; });
+  document.getElementById('pDel').addEventListener('click', deleteSelected);
+}
+function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;'); }
+
+// ===== 층 관리 =====
+function floorLabel(code) { return /^B/i.test(code) ? code.toUpperCase() : code + 'F'; }
+function renderFloors() {
+  const el = document.getElementById('floors');
+  el.innerHTML = '';
+  state.floors.forEach((f, i) => {
+    const b = document.createElement('button');
+    b.className = 'ftab' + (i === state.cur ? ' on' : '');
+    b.textContent = floorLabel(f.code);
+    if (state.floors.length > 1 && i === state.cur) {
+      const x = document.createElement('span');
+      x.className = 'x';
+      x.textContent = '×';
+      x.title = '이 층 삭제';
+      x.addEventListener('click', ev => {
+        ev.stopPropagation();
+        if (!confirm(floorLabel(f.code) + ' 층을 삭제할까요? 이 층의 모든 내용이 사라집니다.')) return;
+        pushUndo();
+        state.floors.splice(i, 1);
+        state.cur = Math.max(0, i - 1);
+        selSet = []; bgImgCache = {};
+        renderFloors(); renderProps(); renderBgCtrl(); loadBgImage(); draw(); autosave();
+      });
+      b.appendChild(x);
+    }
+    b.addEventListener('click', () => {
+      if (state.cur === i) return;
+      state.cur = i;
+      selSet = []; tempWall = [];
+      renderFloors(); renderProps(); renderBgCtrl(); loadBgImage(); draw();
+    });
+    b.addEventListener('dblclick', () => {
+      const nc = prompt('층 이름을 입력하세요 (예: 1, 2, B1)', f.code);
+      if (!nc) return;
+      if (!/^B?\d+$/i.test(nc.trim())) { alert('형식: 숫자 또는 B+숫자 (예: 1, 2, B1)'); return; }
+      pushUndo();
+      f.code = nc.trim().toUpperCase().replace(/^b/, 'B');
+      renderFloors(); autosave();
+    });
+    el.appendChild(b);
+  });
+}
+document.getElementById('btnAddFloor').addEventListener('click', () => {
+  const nc = prompt('추가할 층 이름 (예: 2, 3, B1)', '');
+  if (!nc) return;
+  const code = nc.trim().toUpperCase();
+  if (!/^B?\d+$/.test(code)) { alert('형식: 숫자 또는 B+숫자 (예: 1, 2, B1)'); return; }
+  if (state.floors.some(f => f.code === code)) { alert('이미 있는 층입니다.'); return; }
+  pushUndo();
+  state.floors.push(newFloor(code));
+  state.cur = state.floors.length - 1;
+  selSet = [];
+  renderFloors(); renderProps(); renderBgCtrl(); draw(); autosave();
+});
+
+// ===== 배경 이미지 =====
+const fileBg = document.getElementById('fileBg');
+document.getElementById('btnBg').addEventListener('click', () => fileBg.click());
+fileBg.addEventListener('change', () => {
+  const file = fileBg.files[0];
+  if (!file) return;
+  const rd = new FileReader();
+  rd.onload = () => {
+    pushUndo();
+    floor().bg = rd.result;
+    delete bgImgCache[state.cur];
+    loadBgImage();
+    renderBgCtrl();
+    autosave();
+  };
+  rd.readAsDataURL(file);
+  fileBg.value = '';
+});
+function loadBgImage() {
+  const f = floor();
+  if (!f.bg) { draw(); return; }
+  if (bgImgCache[state.cur]) { draw(); return; }
+  const img = new Image();
+  img.onload = () => draw();
+  img.src = f.bg;
+  bgImgCache[state.cur] = img;
+}
+function renderBgCtrl() {
+  const f = floor();
+  document.getElementById('bgCtrl').style.display = f.bg ? 'block' : 'none';
+  document.getElementById('bgOp').value = Math.round((f.bgOp || 0.45) * 100);
+  document.getElementById('bgSc').value = Math.round((f.bgSc || 1) * 100);
+  document.getElementById('chkBgExport').checked = !!f.bgExport;
+}
+document.getElementById('bgOp').addEventListener('input', e => { floor().bgOp = +e.target.value / 100; draw(); autosave(); });
+document.getElementById('bgSc').addEventListener('input', e => { floor().bgSc = +e.target.value / 100; draw(); autosave(); });
+document.getElementById('chkBgExport').addEventListener('change', e => { floor().bgExport = e.target.checked; autosave(); });
+document.getElementById('btnBgDel').addEventListener('click', () => {
+  pushUndo();
+  floor().bg = null;
+  delete bgImgCache[state.cur];
+  renderBgCtrl(); draw(); autosave();
+});
+
+// ===== 내보내기 =====
+function contentBBox() {
+  const list = objs();
+  if (!list.length) return null;
+  let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+  list.forEach(o => {
+    const b = objBounds(o);
+    x0 = Math.min(x0, b.x); y0 = Math.min(y0, b.y);
+    x1 = Math.max(x1, b.x + b.w); y1 = Math.max(y1, b.y + b.h);
+  });
+  return { x: x0, y: y0, w: x1 - x0, h: y1 - y0 };
+}
+
+document.getElementById('btnPng').addEventListener('click', () => {
+  const bb = exportBBox(null);
+  if (!bb) { alert('내보낼 내용이 없습니다. 먼저 맵을 그려주세요.'); return; }
+  const f = floor();
+  const { oc, c } = exportCanvas(bb, 0, expScale(), '#ffffff');
+  if (f.bgExport && f.bg && bgImgCache[state.cur] && bgImgCache[state.cur].complete) {
+    c.save();
+    c.globalAlpha = f.bgOp;
+    const img = bgImgCache[state.cur];
+    c.drawImage(img, 0, 0, img.width * f.bgSc, img.height * f.bgSc);
+    c.restore();
+  }
+  drawObjects(c, { selection: false });
+  dl(oc.toDataURL('image/png'), 'daegu_map_' + f.code + '.png');
+});
+
+document.getElementById('btnJson').addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify(state, null, 1)], { type: 'application/json' });
+  dl(URL.createObjectURL(blob), 'daegu_map.json');
+});
+
+const fileJson = document.getElementById('fileJson');
+document.getElementById('btnLoad').addEventListener('click', () => fileJson.click());
+fileJson.addEventListener('change', () => {
+  const file = fileJson.files[0];
+  if (!file) return;
+  const rd = new FileReader();
+  rd.onload = () => {
+    try {
+      const st = JSON.parse(rd.result);
+      if (!st.floors || !Array.isArray(st.floors)) throw new Error('bad');
+      pushUndo();
+      state = st;
+      afterStateSwap();
+    } catch (e) { alert('JSON 파일을 읽을 수 없습니다.'); }
+  };
+  rd.readAsText(file);
+  fileJson.value = '';
+});
+
+document.getElementById('btnNew').addEventListener('click', () => {
+  if (!confirm('모든 층과 내용을 지우고 새로 시작할까요?')) return;
+  pushUndo();
+  state = { floors: [newFloor('1')], cur: 0 };
+  afterStateSwap();
+});
+
+function dl(url, name) {
+  const a = document.createElement('a');
+  a.href = url; a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+// ===== 기타 버튼 =====
+document.getElementById('btnUndo').addEventListener('click', undo);
+document.getElementById('btnRedo').addEventListener('click', redo);
+document.getElementById('btnFit').addEventListener('click', fitView);
+document.getElementById('chkSnap').addEventListener('change', draw);
+
+function fitView() {
+  const bb = contentBBox();
+  const dpr = window.devicePixelRatio || 1;
+  const W = cv.width / dpr, H = cv.height / dpr;
+  if (!bb) { view = { x: 80, y: 60, scale: 1 }; draw(); return; }
+  const sc = Math.min(3, Math.min((W - 80) / Math.max(1, bb.w), (H - 80) / Math.max(1, bb.h)));
+  view.scale = Math.max(0.08, sc);
+  view.x = (W - bb.w * view.scale) / 2 - bb.x * view.scale;
+  view.y = (H - bb.h * view.scale) / 2 - bb.y * view.scale;
+  draw();
+}
+
+// ===== 키보드 =====
+document.addEventListener('keydown', e => {
+  const tag = (document.activeElement || {}).tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+  if (e.ctrlKey && e.key.toLowerCase() === 'z') { e.preventDefault(); undo(); return; }
+  if (e.ctrlKey && e.key.toLowerCase() === 'y') { e.preventDefault(); redo(); return; }
+  if (e.key === 'Delete' || e.key === 'Backspace') {
+    deleteSelected();
+    return;
+  }
+  if (e.key === 'Escape') {
+    tempWall = []; selSet = [];
+    renderProps(); draw();
+    return;
+  }
+  if (e.key === 'Enter' && tool === 'wall') { finishWall(); return; }
+  const k = e.key.toLowerCase();
+  if (k === 'v') setTool('select');
+  if (k === 'w') setTool('wall');
+  if (k === 'a') setTool('area');
+  if (k === 's') setTool('sign');
+  if (k === 't') setTool('text');
+  if (k === 'e') setTool('erase');
+  if (k === 'r') setTool('arrow');
+});
+
+/* =======================================================================
+   Navigation Graph 편집
+   -----------------------------------------------------------------------
+   기존 지도 편집 코드는 그대로 두고 여기서만 확장한다.
+   - 그래프 데이터는 state.navigation 에 넣는다.
+     => undo/redo, autosave(localStorage), JSON 저장/불러오기가 자동으로 따라온다.
+   - 캔버스 이벤트는 #wrap 캡처 단계에서 가로채므로 기존 핸들러를 수정하지 않는다.
+   ======================================================================= */
+
+// 노드 색은 원본 지도 객체(표지판 주황 · EV 청록 · EX 녹색)와 겹치지 않게 고른다.
+// 색이 비슷하면 "이 표지판이 등록된 것인지" 구분이 안 된다.
+const NODE_TYPES = {
+  SIGNAGE:  { color: '#1565c0', label: 'SIGNAGE',  prefix: null, shape: 'circle' },
+  ELEVATOR: { color: '#6a1b9a', label: 'ELEVATOR', prefix: 'EV', shape: 'square' },
+  EXIT:     { color: '#ad1457', label: 'EXIT',     prefix: 'EX', shape: 'diamond' },
+  GATE:     { color: '#00838f', label: 'GATE',     prefix: 'GA', shape: 'hex' },
+  PLATFORM: { color: '#4527a0', label: 'PLATFORM', prefix: 'PF', shape: 'pill' },
+  POI:      { color: '#ef6c00', label: 'POI',      prefix: 'PO', shape: 'tri' },
+};
+
+/*
+   경유지로 쓰이는 편의시설.
+
+   종류마다 노드 타입을 따로 만들면 물품보관함·수유실이 늘 때마다 서버의
+   NodeType enum 까지 고쳐야 한다. 타입은 POI 하나로 두고 종류는
+   category 문자열로 구분한다. ID 앞자리는 지도 아이콘 코드를 그대로 쓴다.
+*/
+const POI_CATEGORIES = {
+  STORE:          { code: 'CO', label: '편의점',       icon: '🏪' },
+  ATM:            { code: 'AT', label: 'ATM',          icon: '🏧' },
+  TICKET_OFFICE:  { code: 'TI', label: '매표소',       icon: '🎟' },
+  TICKET_MACHINE: { code: 'BO', label: '승차권 발매기', icon: '🎫' },
+  TOILET:         { code: 'TO', label: '화장실',       icon: '🚻' },
+};
+/** 지도 아이콘 코드 -> 카테고리 (CO -> STORE) */
+const FAC_TO_CATEGORY = Object.fromEntries(
+  Object.entries(POI_CATEGORIES).map(([k, v]) => [v.code, k]));
+
+function poiInfo(n) {
+  return (n && n.category && POI_CATEGORIES[n.category]) || null;
+}
+/** POI 는 카테고리별로 ID 앞자리가 다르다 (CO1_01, AT1_01 …) */
+function idPrefixOf(node) {
+  if (node.type === 'POI') {
+    const p = poiInfo(node);
+    return p ? p.code : 'PO';
+  }
+  return (NODE_TYPES[node.type] && NODE_TYPES[node.type].prefix) || 'ND';
+}
+/** 지도 객체 -> 기본 노드 종류. 틀리면 속성창에서 바꿀 수 있다. */
+function guessNodeType(o) {
+  if (o.type === 'sign') return 'SIGNAGE';
+  if (o.type === 'facility') {
+    if (o.code === 'EV') return 'ELEVATOR';
+    if (o.code === 'EX') return 'EXIT';
+    if (o.code === 'GA') return 'GATE';
+    if (FAC_TO_CATEGORY[o.code]) return 'POI';   // 편의점·ATM·매표소·발매기·화장실
+    return null;
+  }
+  if (o.type === 'text' || o.type === 'area') return 'PLATFORM';
+  return null;
+}
+const EDGE_COLOR = '#00897b';
+const EDGE_STAIRS_COLOR = '#f4511e';
+const PATH_COLOR = '#e53935';
+
+let editMode = 'map';          // 'map' | 'graph'
+let navTool = 'select';        // 'select' | 'node' | 'edge'
+let navSel = null;             // {kind:'node', id} | {kind:'edge', id}
+let edgeFrom = null;           // 엣지 연결 중인 시작 노드 id
+let navDrag = null;            // geometry point 드래그 상태
+let selPointIdx = -1;          // 선택된 geometry 중간 point
+let dijkPath = null;           // {nodes:[id], edges:[id], dist}
+
+const NAV_HINTS = {
+  select: '노드/엣지를 클릭해 선택합니다. 엣지를 선택하면 점선 위의 ● 를 드래그해 통로 모양을 잡을 수 있습니다. 선 위를 클릭하면 꺾임점이 추가되고, 중간점을 선택 후 Delete 로 지웁니다.',
+  node:   '지도의 표지판(S) · 엘리베이터 · 출구 · 개찰구 · 편의점 · ATM · 매표소 · 발매기 · 화장실 을 클릭하면 노드로 등록됩니다. 이미 등록된 것을 클릭하면 해제됩니다.',
+  edge:   '노드를 하나 클릭하고, 이어서 연결할 노드를 클릭하면 엣지가 만들어집니다. Esc 로 취소합니다.',
+};
+
+// ---------- 데이터 접근 ----------
+function nav() {
+  if (!state.navigation) state.navigation = { nodes: [], edges: [] };
+  if (!Array.isArray(state.navigation.nodes)) state.navigation.nodes = [];
+  if (!Array.isArray(state.navigation.edges)) state.navigation.edges = [];
+  return state.navigation;
+}
+function navNodes() { return nav().nodes; }
+function navEdges() { return nav().edges; }
+function findNode(id) { return navNodes().find(n => n.id === id) || null; }
+function findEdge(id) { return navEdges().find(e => e.id === id) || null; }
+function edgesOf(id) { return navEdges().filter(e => e.from === id || e.to === id); }
+
+/* ---------- 진행 방향별로 보이는 표지판 면 (앞 F / 뒤 B) ----------
+
+   표지판은 한 자리에 앞/뒤 두 면이 있고 면마다 사진이 따로 있다.
+   "어느 쪽에서 걸어와서 이 표지판에 도착하는가"에 따라 보이는 면이 갈리므로,
+   각도를 계산하지 않고 엣지에 답을 그대로 적어 둔다.
+
+     edge.arriveSide = { "S1_09": "F", "S1_04": "B" }
+       -> 이 엣지를 타고 S1_09 에 도착하면 S1_09 의 앞면이 보인다
+       -> 반대로 타고 S1_04 에 도착하면 S1_04 의 뒷면이 보인다
+
+   키가 "도착 노드 id" 이므로 단방향 엣지에도 그대로 통한다.
+*/
+const PHOTO_BASE = '../../0721_data';
+
+/** S1_04 -> ../../0721_data/1층/1층/S1_04/S1_04_F/users/S1_04_F_users_01.jpg */
+function photoPath(signId, side, n = 1) {
+  const m = /^S(B?\d+)_/i.exec(signId);
+  if (!m) return null;
+  const fl = m[1] + '층';
+  const num = String(n).padStart(2, '0');
+  return `${PHOTO_BASE}/${fl}/${fl}/${signId}/${signId}_${side}/users/${signId}_${side}_users_${num}.jpg`;
+}
+
+/** 면을 지정해야 하는 노드인가 (표지판만 사진이 있다) */
+function needsSide(node) { return !!node && node.type === 'SIGNAGE'; }
+
+/** 이 엣지에서 면을 지정해야 하는 방향들. [{arriveId, fromId}] */
+function sideSlots(e) {
+  const out = [];
+  const a = findNode(e.from), b = findNode(e.to);
+  if (needsSide(b)) out.push({ arriveId: e.to, fromId: e.from });
+  if (needsSide(a) && e.bidirectional !== false) out.push({ arriveId: e.from, fromId: e.to });
+  return out;
+}
+
+function getArriveSide(e, arriveId) {
+  return (e.arriveSide && e.arriveSide[arriveId]) || null;
+}
+function setArriveSide(e, arriveId, side) {
+  if (!e.arriveSide) e.arriveSide = {};
+  if (side) e.arriveSide[arriveId] = side; else delete e.arriveSide[arriveId];
+}
+
+function sideMarkOn() {
+  const el = document.getElementById('chkSideMark');
+  return !el || el.checked;
+}
+
+/** 전체 진행 방향 중 몇 개나 지정됐는지 */
+function sideProgress() {
+  let done = 0, total = 0;
+  for (const e of navEdges()) {
+    for (const s of sideSlots(e)) { total++; if (getArriveSide(e, s.arriveId)) done++; }
+  }
+  return { done, total };
+}
+
+function nextEdgeId() {
+  let n = 1;
+  const used = new Set(navEdges().map(e => e.id));
+  while (used.has('E' + String(n).padStart(3, '0'))) n++;
+  return 'E' + String(n).padStart(3, '0');
+}
+/** EV3_01, EX2_01, GA0_01, PF0_01 형태의 고유 ID */
+function nextTypedNavId(type, floorCode, category) {
+  const prefix = idPrefixOf({ type, category }) + floorCode + '_';
+  let n = 1;
+  const used = new Set(navNodes().map(x => x.id));
+  while (used.has(prefix + String(n).padStart(2, '0'))) n++;
+  return prefix + String(n).padStart(2, '0');
+}
+
+// ---------- 지도 객체 <-> 노드 연결 ----------
+// sign 은 기존 id 로, facility(EV/EX) 는 등록 시 부여한 navId 로 찾는다.
+//
+// 주의: 이 지도는 0F 처럼 다른 층 객체를 복사해 모아둔 층이 있어서
+//       같은 sign ID 가 여러 층에 존재한다 (예: S3_07 이 3F 와 0F 양쪽에).
+//       그래서 반드시 "노드가 등록된 그 층" 안에서만 원본을 찾아야 한다.
+//       전체 층을 뒤지면 다른 층 사본의 좌표로 끌려가 엉뚱한 위치에 그려진다.
+/** 노드가 실제로 그려져 있는 캔버스 층.
+ *  0F 처럼 전 층을 모아둔 개요 층에서 작업하면 canvas 층("0")과
+ *  의미상 층(표지판 ID 에서 나온 "3")이 다르므로 둘을 나눠서 쓴다. */
+function nodeCanvasFloor(n) { return n.srcFloor !== undefined ? n.srcFloor : n.floor; }
+
+/** 표지판 ID(S3_07) 에서 층을 뽑아낸다. 못 뽑으면 null */
+function floorFromSignId(id) {
+  const m = /^S(B?\d+)_/i.exec(id);
+  return m ? m[1].toUpperCase() : null;
+}
+
+function mapObjectOfNode(node) {
+  const fi = state.floors.findIndex(f => f.code === nodeCanvasFloor(node));
+  if (fi < 0) return null;
+  for (const o of state.floors[fi].objects) {
+    if (node.type === 'SIGNAGE') {
+      if (o.type === 'sign' && o.id === node.id) return { o, floorIdx: fi };
+    } else if (o.navId === node.id) {     // facility / text / area 공통
+      return { o, floorIdx: fi };
+    }
+  }
+  return null;
+}
+/** 지금 보고 있는 층의 객체가 이 층의 노드로 등록돼 있는지 */
+function nodeIdOfMapObject(o) {
+  const code = floor().code;
+  if (o.type === 'sign') {
+    const n = findNode(o.id);
+    return (n && nodeCanvasFloor(n) === code) ? o.id : null;
+  }
+  if (o.navId) {
+    const n = findNode(o.navId);
+    return (n && nodeCanvasFloor(n) === code) ? o.navId : null;
+  }
+  return null;
+}
+function isRegisterable(o) { return guessNodeType(o) !== null; }
+/** 노드 앵커 좌표 — text/area 는 x,y 가 좌상단이라 중심을 쓴다. */
+function anchorOf(o) {
+  if (o.type === 'area') return { x: o.x + o.w / 2, y: o.y + o.h / 2 };
+  if (o.type === 'text') {
+    const b = objBounds(o);
+    return { x: b.x + b.w / 2, y: b.y + b.h / 2 };
+  }
+  return { x: o.x, y: o.y };
+}
+
+/** 지도에서 객체를 옮겼을 때 노드 좌표와 엣지 geometry 양 끝을 따라가게 한다. */
+function syncNodesFromMap() {
+  let changed = false;
+  navNodes().forEach(n => {
+    const hit = mapObjectOfNode(n);
+    if (!hit) { if (!n.orphan) { n.orphan = true; changed = true; } return; }
+    if (n.orphan) { delete n.orphan; changed = true; }
+    const a = anchorOf(hit.o);
+    if (n.x !== a.x || n.y !== a.y) {
+      n.x = a.x; n.y = a.y;
+      changed = true;
+    }
+  });
+  navEdges().forEach(e => {
+    const a = findNode(e.from), b = findNode(e.to);
+    if (!a || !b) return;
+    if (!Array.isArray(e.geometry) || e.geometry.length < 2) {
+      e.geometry = [{ x: a.x, y: a.y }, { x: b.x, y: b.y }];
+      changed = true;
+    }
+    const g = e.geometry;
+    if (g[0].x !== a.x || g[0].y !== a.y) { g[0] = { x: a.x, y: a.y }; changed = true; }
+    const last = g[g.length - 1];
+    if (last.x !== b.x || last.y !== b.y) { g[g.length - 1] = { x: b.x, y: b.y }; changed = true; }
+    const w = polylineLength(g);
+    if (e.weight !== w) { e.weight = w; changed = true; }
+  });
+  return changed;
+}
+
+function polylineLength(g) {
+  let d = 0;
+  for (let i = 1; i < g.length; i++) d += Math.hypot(g[i].x - g[i - 1].x, g[i].y - g[i - 1].y);
+  return Math.round(d * 100) / 100;
+}
+function recalcWeight(e) { e.weight = polylineLength(e.geometry); }
+
+/** 폴리라인의 길이 기준 중간점과 그 지점의 법선 (배지를 선 옆으로 밀어내는 데 쓴다) */
+function polyMidPoint(g) {
+  const half = polylineLength(g) / 2;
+  let acc = 0;
+  for (let i = 1; i < g.length; i++) {
+    const dx = g[i].x - g[i - 1].x, dy = g[i].y - g[i - 1].y;
+    const seg = Math.hypot(dx, dy);
+    if (acc + seg >= half || i === g.length - 1) {
+      const t = seg ? (half - acc) / seg : 0;
+      const len = seg || 1;
+      return { x: g[i - 1].x + dx * t, y: g[i - 1].y + dy * t, nx: -dy / len, ny: dx / len };
+    }
+    acc += seg;
+  }
+  return { x: g[0].x, y: g[0].y, nx: 0, ny: -1 };
+}
+
+/** 같은 층 안에서 그리는 엣지인지 (층간 엘리베이터 엣지는 선으로 그리지 않는다) */
+function isSameFloorEdge(e) {
+  const a = findNode(e.from), b = findNode(e.to);
+  return !!(a && b && a.floor === b.floor);
+}
+function isCrossFloorEdge(e) {
+  const a = findNode(e.from), b = findNode(e.to);
+  return !!(a && b && a.floor !== b.floor);
+}
+
+// ---------- 그리기 ----------
+function drawGraph(c, opt) {
+  opt = opt || {};
+  const editing = !!opt.editing;
+  const code = opt.floorCode !== undefined ? opt.floorCode : floor().code;
+  const nodes = navNodes().filter(n => nodeCanvasFloor(n) === code);
+  const idset = new Set(nodes.map(n => n.id));
+
+  // --- 엣지 (같은 층 + 양 끝이 이 층에 있는 것만) ---
+  // 두 끝이 모두 "이 화면(캔버스 층)"에 있는 엣지만 그린다.
+  // 층별로 따로 그린 도면이면 EV3_01↔EV2_01 같은 층간 연결은 자연히 걸러지고,
+  // 0F 처럼 전 층을 한 장에 합쳐 그린 도면이면 전부 같은 평면이므로 모두 그린다.
+  navEdges().forEach(e => {
+    if (!idset.has(e.from) || !idset.has(e.to)) return;
+    const g = e.geometry;
+    if (!g || g.length < 2) return;
+    const onPath = dijkPath && dijkPath.edges.indexOf(e.id) >= 0;
+    const sel = editing && navSel && navSel.kind === 'edge' && navSel.id === e.id;
+
+    c.save();
+    c.lineJoin = 'round'; c.lineCap = 'round';
+    if (onPath) { c.strokeStyle = PATH_COLOR; c.lineWidth = 7; c.setLineDash([14, 8]); }
+    else if (sel) { c.strokeStyle = '#1e88e5'; c.lineWidth = 5; c.setLineDash([10, 7]); }
+    else { c.strokeStyle = e.containsStairs ? EDGE_STAIRS_COLOR : EDGE_COLOR; c.lineWidth = 3.5; c.setLineDash([10, 7]); }
+    c.beginPath();
+    g.forEach((p, i) => i ? c.lineTo(p.x, p.y) : c.moveTo(p.x, p.y));
+    c.stroke();
+    c.restore();
+
+    // 계단 포함 표시
+    if (e.containsStairs) {
+      const m = g[Math.floor(g.length / 2)];
+      c.save();
+      c.fillStyle = EDGE_STAIRS_COLOR;
+      c.font = 'bold 15px "Segoe UI Emoji", sans-serif';
+      c.textAlign = 'center'; c.textBaseline = 'middle';
+      c.fillText('🪜', m.x, m.y);
+      c.restore();
+    }
+
+    // 보이는 표지판 면(앞/뒤) 지정 여부 — 어디까지 했는지 지도에서 바로 보이게
+    if (editing && sideMarkOn()) {
+      const slots = sideSlots(e);
+      if (slots.length) {
+        const left = slots.filter(s => !getArriveSide(e, s.arriveId)).length;
+        const m = polyMidPoint(g);
+        // 계단 아이콘이 중간을 쓰므로 선 옆으로 밀어낸다
+        const off = e.containsStairs ? 20 : 0;
+        const bx = m.x + m.nx * off, by = m.y + m.ny * off;
+        // 노드의 "등록됨 ✓" 배지와 헷갈리지 않게 알약 모양 + '면' 글자로 구분한다
+        const label = left ? '면 ' + left : '면 ✓';
+        c.save();
+        c.font = 'bold 12px "Malgun Gothic", sans-serif';
+        const w = c.measureText(label).width + 12, h = 17, rr = h / 2;
+        c.beginPath();
+        c.moveTo(bx - w / 2 + rr, by - h / 2);
+        c.arcTo(bx + w / 2, by - h / 2, bx + w / 2, by + h / 2, rr);
+        c.arcTo(bx + w / 2, by + h / 2, bx - w / 2, by + h / 2, rr);
+        c.arcTo(bx - w / 2, by + h / 2, bx - w / 2, by - h / 2, rr);
+        c.arcTo(bx - w / 2, by - h / 2, bx + w / 2, by - h / 2, rr);
+        c.closePath();
+        c.fillStyle = left ? '#fb8c00' : '#2e7d32';
+        c.fill();
+        c.strokeStyle = '#fff'; c.lineWidth = 2; c.stroke();
+        c.fillStyle = '#fff';
+        c.textAlign = 'center'; c.textBaseline = 'middle';
+        c.fillText(label, bx, by + 0.5);
+        c.restore();
+      }
+    }
+
+    // 편집 중인 엣지의 control point
+    if (sel) {
+      g.forEach((p, i) => {
+        const mid = i > 0 && i < g.length - 1;
+        c.beginPath();
+        c.arc(p.x, p.y, mid ? 7 : 5, 0, 7);
+        c.fillStyle = mid ? (i === selPointIdx ? '#e53935' : '#1e88e5') : '#90a4ae';
+        c.fill();
+        c.strokeStyle = '#fff'; c.lineWidth = 2; c.stroke();
+      });
+    }
+  });
+
+  // --- 노드 ---
+  nodes.forEach(n => {
+    const t = NODE_TYPES[n.type] || { color: '#777' };
+    const sel = editing && navSel && navSel.kind === 'node' && navSel.id === n.id;
+    const isFrom = editing && edgeFrom === n.id;
+    const onPath = dijkPath && dijkPath.nodes.indexOf(n.id) >= 0;
+    const R = 13;
+
+    c.save();
+    if (n.orphan) { c.strokeStyle = '#e53935'; c.setLineDash([3, 3]); }
+    c.fillStyle = n.orphan ? '#ffcdd2' : t.color;
+    c.beginPath();
+    const shape = t.shape || 'circle';
+    if (shape === 'square') {
+      c.rect(n.x - R, n.y - R, R * 2, R * 2);
+    } else if (shape === 'diamond') {
+      c.moveTo(n.x, n.y - R - 2); c.lineTo(n.x + R + 2, n.y);
+      c.lineTo(n.x, n.y + R + 2); c.lineTo(n.x - R - 2, n.y);
+      c.closePath();
+    } else if (shape === 'hex') {              // 개찰구: 육각형
+      for (let k = 0; k < 6; k++) {
+        const ang = Math.PI / 6 + k * Math.PI / 3;
+        const px = n.x + (R + 1) * Math.cos(ang), py = n.y + (R + 1) * Math.sin(ang);
+        k ? c.lineTo(px, py) : c.moveTo(px, py);
+      }
+      c.closePath();
+    } else if (shape === 'pill') {             // 승강장: 가로로 긴 캡슐
+      roundRect(c, n.x - R * 1.7, n.y - R * 0.75, R * 3.4, R * 1.5, R * 0.75);
+    } else if (shape === 'tri') {              // 편의시설: 삼각형
+      c.moveTo(n.x, n.y - R - 3);
+      c.lineTo(n.x + R + 2, n.y + R - 2);
+      c.lineTo(n.x - R - 2, n.y + R - 2);
+      c.closePath();
+    } else {
+      c.arc(n.x, n.y, R, 0, 7);
+    }
+    c.fill();
+    c.lineWidth = onPath ? 4 : (sel || isFrom ? 3.5 : 2.5);
+    c.strokeStyle = onPath ? PATH_COLOR : (isFrom ? '#e53935' : (sel ? '#1e88e5' : '#fff'));
+    c.stroke();
+    c.restore();
+
+    // 층간 연결 표시
+    const cross = edgesOf(n.id).filter(isCrossFloorEdge);
+    if (cross.length) {
+      c.save();
+      c.fillStyle = '#5e35b1';
+      c.beginPath(); c.arc(n.x + R - 1, n.y - R + 1, 6, 0, 7); c.fill();
+      c.fillStyle = '#fff';
+      c.font = 'bold 9px "Segoe UI", sans-serif';
+      c.textAlign = 'center'; c.textBaseline = 'middle';
+      c.fillText(String(cross.length), n.x + R - 1, n.y - R + 1);
+      c.restore();
+    }
+
+    // ID 라벨
+    c.save();
+    c.font = 'bold 12px "Segoe UI", sans-serif';
+    c.textAlign = 'center'; c.textBaseline = 'middle';
+    const w = c.measureText(n.id).width + 10;
+    c.fillStyle = 'rgba(255,255,255,0.92)';
+    c.strokeStyle = t.color; c.lineWidth = 1.2;
+    roundRect(c, n.x - w / 2, n.y - R - 22, w, 17, 4);
+    c.fill(); c.stroke();
+    c.fillStyle = shade(t.color);
+    c.fillText(n.id, n.x, n.y - R - 13);
+    c.restore();
+  });
+}
+
+/** 경로 편집 모드에서만: 지도 위의 표지판/EV/EX 가 등록됐는지 눈에 보이게 표시한다.
+ *  - 등록됨   : 초록 체크 배지
+ *  - 미등록   : (노드 등록 툴일 때) 파란 점선 원으로 "클릭 가능" 표시  */
+function drawRegisterMarks(c) {
+  const list = objs();
+  list.forEach(o => {
+    if (!isRegisterable(o)) return;
+    const registered = !!nodeIdOfMapObject(o);
+    const a = anchorOf(o);
+    const b = objBounds(o);
+    const R = o.type === 'sign' ? 21 : 24;
+    if (registered) {
+      const cx = a.x + (o.type === 'text' || o.type === 'area' ? b.w / 2 + 8 : R - 3);
+      const cy = a.y + (o.type === 'text' || o.type === 'area' ? 0 : R - 6);
+      c.save();
+      c.beginPath(); c.arc(cx, cy, 9, 0, 7);
+      c.fillStyle = '#2e7d32'; c.fill();
+      c.strokeStyle = '#fff'; c.lineWidth = 2; c.stroke();
+      c.lineWidth = 2.2; c.lineCap = 'round';
+      c.beginPath();
+      c.moveTo(cx - 4, cy); c.lineTo(cx - 1, cy + 3); c.lineTo(cx + 5, cy - 4);
+      c.stroke();
+      c.restore();
+    } else if (navTool === 'node') {
+      c.save();
+      c.strokeStyle = '#1e88e5'; c.lineWidth = 2.5;
+      c.setLineDash([5, 4]);
+      c.beginPath();
+      if (o.type === 'text' || o.type === 'area') {
+        c.rect(b.x - 5, b.y - 5, b.w + 10, b.h + 10);   // 글자/영역은 사각형으로
+      } else {
+        c.arc(a.x, a.y, R + 6, 0, 7);
+      }
+      c.stroke();
+      c.restore();
+    }
+  });
+}
+
+// ---------- 히트 테스트 ----------
+function navHitNode(p) {
+  const code = floor().code;
+  const R = 15 + 4 / view.scale;
+  const list = navNodes().filter(n => nodeCanvasFloor(n) === code);
+  for (let i = list.length - 1; i >= 0; i--)
+    if (Math.hypot(p.x - list[i].x, p.y - list[i].y) <= R) return list[i];
+  return null;
+}
+function navHitEdge(p) {
+  const code = floor().code;
+  const tol = 8 / view.scale + 4;
+  const ids = new Set(navNodes().filter(n => nodeCanvasFloor(n) === code).map(n => n.id));
+  for (let i = navEdges().length - 1; i >= 0; i--) {
+    const e = navEdges()[i];
+    if (!ids.has(e.from) || !ids.has(e.to)) continue;
+    const g = e.geometry || [];
+    for (let k = 0; k < g.length - 1; k++)
+      if (distSeg(p, g[k], g[k + 1]) <= tol) return { edge: e, seg: k };
+  }
+  return null;
+}
+function navHitPoint(p) {
+  if (!navSel || navSel.kind !== 'edge') return -1;
+  const e = findEdge(navSel.id);
+  if (!e) return -1;
+  const tol = 9 / view.scale + 3;
+  for (let i = 1; i < e.geometry.length - 1; i++)
+    if (Math.hypot(p.x - e.geometry[i].x, p.y - e.geometry[i].y) <= tol) return i;
+  return -1;
+}
+
+// ---------- 노드 등록 ----------
+function registerNodeAt(p) {
+  const i = hitTest(p);
+  if (i < 0) return false;
+  const o = objs()[i];
+  if (!isRegisterable(o)) {
+    setNavStatus('표지판 · 엘리베이터 · 출구 · 개찰구 · 편의점 · ATM · 매표소 · 발매기 · 화장실 만 노드로 등록할 수 있습니다.');
+    return false;
+  }
+  const existing = nodeIdOfMapObject(o);
+  if (existing) {                       // 이미 등록됨 -> 해제
+    if (!confirm(`${existing} 노드를 등록 해제할까요?\n연결된 엣지도 함께 삭제됩니다.`)) return false;
+    pushUndo();
+    removeNode(existing);
+    navSel = null;
+    afterNavChange();
+    return true;
+  }
+  pushUndo();
+  const f = floor();
+  let id, type, semanticFloor, category = null;
+  if (o.type === 'sign') {
+    id = o.id; type = 'SIGNAGE';
+    // 0F 개요 층에서 등록해도 S3_07 -> 3층 으로 잡아준다
+    semanticFloor = floorFromSignId(id) || f.code;
+  } else {
+    type = guessNodeType(o);
+    semanticFloor = f.code;             // 실제 층은 속성창에서 지정
+    if (type === 'POI') category = FAC_TO_CATEGORY[o.code] || null;
+    id = nextTypedNavId(type, semanticFloor, category);
+    o.navId = id;                       // 지도 객체에 연결용 id 를 심는다 (기존 필드는 그대로)
+  }
+  const clash = findNode(id);
+  if (clash) {
+    // 0F 처럼 다른 층 객체를 복사해 둔 층에서 같은 표지판을 또 등록하려는 경우
+    setNavStatus(`${id} 는 이미 ${floorLabel(clash.floor)} 에 등록되어 있습니다. `
+      + '같은 표지판을 두 층에 등록할 수 없습니다.');
+    alert(`${id} 노드는 이미 ${floorLabel(clash.floor)} 에 등록되어 있습니다.\n`
+      + '이 층의 객체는 다른 층 표지판의 사본으로 보입니다.\n'
+      + '원본이 있는 층에서 작업해 주세요.');
+    return false;
+  }
+  const a = anchorOf(o);
+  const node = { id, type, floor: semanticFloor, x: a.x, y: a.y };
+  if (category) node.category = category;
+  if (o.type === 'text' && o.text) node.name = o.text.trim();      // 승강장 이름 등 참고용
+  if (o.type === 'area' && o.label) node.name = o.label.trim();
+  if (semanticFloor !== f.code) node.srcFloor = f.code;   // 개요 층에서 등록한 경우만 기록
+  navNodes().push(node);
+  navSel = { kind: 'node', id };
+  afterNavChange();
+  setNavStatus(`노드 등록: ${id} (${type}, ${floorLabel(semanticFloor)})`
+    + (node.srcFloor ? ` — ${floorLabel(f.code)} 화면에서 편집` : ''));
+  return true;
+}
+/** EV/EX 노드의 층이 바뀌면 ID(EV0_01 -> EV3_01)와 이를 참조하는 곳을 함께 고친다. */
+function renameFacilityNode(n, newFloor) {
+  const prefix = idPrefixOf(n);
+  if (n.id.startsWith(prefix + newFloor + '_')) return;
+  let k = 1, nid;
+  const used = new Set(navNodes().map(x => x.id));
+  do { nid = prefix + newFloor + '_' + String(k++).padStart(2, '0'); } while (used.has(nid));
+  const old = n.id;
+  const hit = mapObjectOfNode(n);
+  n.id = nid;
+  if (hit) hit.o.navId = nid;
+  navEdges().forEach(e => {
+    if (e.from === old) e.from = nid;
+    if (e.to === old) e.to = nid;
+  });
+  if (navSel && navSel.kind === 'node' && navSel.id === old) navSel.id = nid;
+}
+
+function removeNode(id) {
+  const n = findNode(id);
+  if (n) {
+    const hit = mapObjectOfNode(n);
+    if (hit && hit.o.type === 'facility') delete hit.o.navId;
+  }
+  state.navigation.nodes = navNodes().filter(x => x.id !== id);
+  state.navigation.edges = navEdges().filter(e => e.from !== id && e.to !== id);
+  dijkPath = null;
+}
+
+// ---------- 엣지 ----------
+function createEdge(fromId, toId) {
+  if (fromId === toId) { setNavStatus('같은 노드끼리는 연결할 수 없습니다.'); return; }
+  const dup = navEdges().find(e =>
+    (e.from === fromId && e.to === toId) || (e.from === toId && e.to === fromId));
+  if (dup) { setNavStatus(`이미 연결되어 있습니다: ${dup.id}`); navSel = { kind: 'edge', id: dup.id }; afterNavChange(); return; }
+  const a = findNode(fromId), b = findNode(toId);
+  if (!a || !b) return;
+  pushUndo();
+  const e = {
+    id: nextEdgeId(),
+    from: fromId,
+    to: toId,
+    bidirectional: true,
+    containsStairs: false,
+    weight: 0,
+    geometry: [{ x: a.x, y: a.y }, { x: b.x, y: b.y }],
+  };
+  recalcWeight(e);
+  navEdges().push(e);
+  navSel = { kind: 'edge', id: e.id };
+  selPointIdx = -1;
+  afterNavChange();
+  setNavStatus(`엣지 생성: ${e.id}  ${fromId} ↔ ${toId}` + (a.floor !== b.floor ? '  (층간 연결)' : ''));
+}
+function deleteEdge(id) {
+  pushUndo();
+  state.navigation.edges = navEdges().filter(e => e.id !== id);
+  if (navSel && navSel.kind === 'edge' && navSel.id === id) navSel = null;
+  dijkPath = null;
+  afterNavChange();
+}
+
+// ---------- 상태 갱신 ----------
+function setNavStatus(msg) { hintEl.textContent = msg; }
+function afterNavChange() {
+  syncNodesFromMap();
+  renderNavProps();
+  renderDijkSelects();
+  updateNavCounts();
+  draw();
+  autosave();
+}
+function updateNavCounts() {
+  const cn = document.getElementById('cntNode'), ce = document.getElementById('cntEdge');
+  if (cn) cn.textContent = navNodes().length;
+  if (ce) ce.textContent = navEdges().length;
+  updateNormInfo();
+  const ss = document.getElementById('sideStat');
+  if (ss) {
+    const p = sideProgress();
+    ss.textContent = p.total ? `🪧 보이는 면 ${p.done} / ${p.total} 방향 지정됨` : '';
+    ss.style.color = (p.total && p.done === p.total) ? '#2e7d32' : '';
+  }
+  renderNavList();
+}
+
+// ---------- 노드 / 엣지 목록 ----------
+let listKind = 'node';
+function focusOnWorld(x, y) {
+  const dpr = window.devicePixelRatio || 1;
+  const W = cv.width / dpr, H = cv.height / dpr;
+  if (view.scale < 0.35) view.scale = 0.6;
+  view.x = W / 2 - x * view.scale;
+  view.y = H / 2 - y * view.scale;
+}
+function gotoFloorOf(node) {
+  const i = state.floors.findIndex(f => f.code === node.floor);
+  if (i >= 0 && i !== state.cur) {
+    state.cur = i;
+    renderFloors(); renderBgCtrl(); loadBgImage();
+  }
+}
+function renderNavList() {
+  const el = document.getElementById('navList');
+  if (!el) return;
+  const allFloors = (document.getElementById('chkListAll') || {}).checked;
+  const code = floor().code;
+
+  if (listKind === 'node') {
+    let list = navNodes().slice();
+    if (!allFloors) list = list.filter(n => nodeCanvasFloor(n) === code);
+    list.sort((a, b) => a.floor.localeCompare(b.floor) || a.id.localeCompare(b.id));
+    if (!list.length) {
+      el.innerHTML = `<div class="empty">${allFloors ? '등록된 노드가 없습니다' : floorLabel(code) + ' 에 노드가 없습니다'}</div>`;
+      return;
+    }
+    el.innerHTML = list.map(n => {
+      const t = NODE_TYPES[n.type] || { color: '#777' };
+      const shape = n.type === 'ELEVATOR' ? 'sq' : (n.type === 'EXIT' ? 'di' : '');
+      const on = navSel && navSel.kind === 'node' && navSel.id === n.id;
+      const deg = edgesOf(n.id).length;
+      const p = poiInfo(n);
+      return `<div class="row ${on ? 'on' : ''} ${n.orphan ? 'orphan' : ''}" data-nid="${esc(n.id)}">
+          <span class="dot ${shape}" style="background:${t.color}"></span>
+          <span class="nid">${p ? p.icon + ' ' : ''}${esc(n.id)}</span>
+          <span class="meta">${esc(n.floor)}F · 연결 ${deg}${n.orphan ? ' · ⚠' : ''}</span>
+        </div>`;
+    }).join('');
+    el.querySelectorAll('.row').forEach(row => row.addEventListener('click', () => {
+      const n = findNode(row.dataset.nid);
+      if (!n) return;
+      gotoFloorOf(n);
+      navSel = { kind: 'node', id: n.id }; selPointIdx = -1;
+      focusOnWorld(n.x, n.y);
+      renderNavProps(); renderNavList(); draw();
+      setNavStatus(`${n.id} 선택`);
+    }));
+    return;
+  }
+
+  // 엣지 목록
+  let list = navEdges().slice();
+  if (!allFloors) {
+    const ids = new Set(navNodes().filter(n => nodeCanvasFloor(n) === code).map(n => n.id));
+    list = list.filter(e => ids.has(e.from) || ids.has(e.to));
+  }
+  const todoOnly = document.getElementById('chkSideTodo');
+  if (todoOnly && todoOnly.checked) {
+    list = list.filter(e => sideSlots(e).some(s => !getArriveSide(e, s.arriveId)));
+  }
+  list.sort((a, b) => a.id.localeCompare(b.id));
+  if (!list.length) {
+    const why = todoOnly && todoOnly.checked ? '면을 지정할 엣지가 남지 않았습니다'
+              : (allFloors ? '엣지가 없습니다' : floorLabel(code) + ' 에 엣지가 없습니다');
+    el.innerHTML = `<div class="empty">${why}</div>`;
+    return;
+  }
+  el.innerHTML = list.map(e => {
+    const on = navSel && navSel.kind === 'edge' && navSel.id === e.id;
+    const cross = isCrossFloorEdge(e);
+    const slots = sideSlots(e);
+    const left = slots.filter(s => !getArriveSide(e, s.arriveId)).length;
+    const sideMark = !slots.length ? '' : (left ? `<span title="면 미지정 ${left}개">🪧${left}</span>` : '<span title="면 지정 완료">✓</span>');
+    return `<div class="row ${on ? 'on' : ''}" data-eid="${esc(e.id)}">
+        <span class="dot" style="background:${e.containsStairs ? EDGE_STAIRS_COLOR : EDGE_COLOR}"></span>
+        <span class="nid">${esc(e.from)}↔${esc(e.to)}</span>
+        <span class="meta">${e.containsStairs ? '🪜' : ''}${cross ? '🛗' : ''}${sideMark} · ${Math.round(e.weight)}</span>
+      </div>`;
+  }).join('');
+  el.querySelectorAll('.row').forEach(row => row.addEventListener('click', () => {
+    const e = findEdge(row.dataset.eid);
+    if (!e) return;
+    const a = findNode(e.from);
+    if (a) gotoFloorOf(a);
+    navSel = { kind: 'edge', id: e.id }; selPointIdx = -1;
+    const g = e.geometry || [];
+    if (g.length) focusOnWorld((g[0].x + g[g.length - 1].x) / 2, (g[0].y + g[g.length - 1].y) / 2);
+    renderNavProps(); renderNavList(); draw();
+    setNavStatus(`${e.id} 선택`);
+  }));
+}
+
+// ---------- 속성 패널 ----------
+function renderNavProps() {
+  const el = document.getElementById('navProps');
+  if (!el) return;
+  if (!navSel) { el.innerHTML = '<div class="empty">노드나 엣지를 선택하세요.</div>'; return; }
+
+  if (navSel.kind === 'node') {
+    const n = findNode(navSel.id);
+    if (!n) { navSel = null; el.innerHTML = '<div class="empty">노드나 엣지를 선택하세요.</div>'; return; }
+    const conn = edgesOf(n.id);
+    const typeOpts = Object.keys(NODE_TYPES).map(k =>
+      `<option value="${k}" ${k === n.type ? 'selected' : ''}>${NODE_TYPES[k].label}</option>`).join('');
+    el.innerHTML = `
+      <div class="idlbl">${esc(n.id)}</div>
+      ${n.name ? `<div class="row" style="color:#78909c;font-size:11px">${esc(n.name).slice(0, 40)}</div>` : ''}
+      <div class="row"><label>종류</label><select id="npType">${typeOpts}</select></div>
+      ${n.type === 'POI' ? `<div class="row"><label>시설</label>
+        <select id="npCat">${Object.entries(POI_CATEGORIES).map(([k, v]) =>
+          `<option value="${k}" ${k === n.category ? 'selected' : ''}>${v.icon} ${v.label}</option>`).join('')}
+        </select></div>` : ''}
+      <div class="row"><label>층</label>
+        <input type="text" id="npFloor" value="${esc(n.floor)}" style="width:52px;flex:none"
+               title="서버로 내보낼 실제 층. 1 / 2 / 3 / B1 등">
+        <span style="color:#b0bec5;font-size:10.5px">실제 층</span></div>
+      ${n.srcFloor ? `<div class="row" style="color:#8d6e63;font-size:10.5px">${floorLabel(n.srcFloor)} 도면에서 편집 중</div>` : ''}
+      <div class="row"><label>좌표</label>${Math.round(n.x)}, ${Math.round(n.y)}</div>
+      <div class="row"><label>연결</label>${conn.length}개</div>
+      ${n.orphan ? '<div class="row" style="color:#c62828">⚠ 지도에서 원본 객체를 찾을 수 없습니다</div>' : ''}
+      <button id="npEdgeStart">이 노드에서 엣지 연결</button>
+      <button class="danger" id="npDel">노드 등록 해제</button>`;
+    const catSel = document.getElementById('npCat');
+    if (catSel) catSel.onchange = ev => {
+      pushUndo();
+      const oldId = n.id;
+      n.category = ev.target.value;
+      renameFacilityNode(n, n.floor);          // 카테고리가 ID 앞자리라 같이 바뀐다
+      if (navSel && navSel.kind === 'node' && navSel.id === oldId) navSel.id = n.id;
+      afterNavChange();
+      setNavStatus(`${n.id} — ${POI_CATEGORIES[n.category].label}`);
+    };
+
+    document.getElementById('npType').onchange = ev => {
+      pushUndo();
+      const oldId = n.id;
+      n.type = ev.target.value;
+      // POI 로 바꿨는데 시설 종류가 없으면 기본값을 준다
+      if (n.type === 'POI' && !n.category) n.category = 'STORE';
+      if (n.type !== 'POI') delete n.category;
+      if (n.type !== 'SIGNAGE') renameFacilityNode(n, n.floor);   // 종류에 맞게 ID 재부여
+      if (navSel && navSel.kind === 'node' && navSel.id === oldId) navSel.id = n.id;
+      afterNavChange();
+      setNavStatus(`${n.id} 종류를 ${NODE_TYPES[n.type].label} 로 변경`);
+    };
+    const fin = document.getElementById('npFloor');
+
+    /*
+       change 이벤트만 믿으면 안 된다. 폼 밖의 입력칸은 Enter 를 눌러도
+       브라우저가 change 를 쏴 주지 않는 경우가 있어 입력이 그대로 묻힌다.
+       Enter / 포커스 이탈 양쪽에서 확정하고, 값이 그대로면 아무것도 하지 않는다.
+    */
+    const commitFloor = () => {
+      const v = fin.value.trim();
+      if (!v) { fin.value = n.floor; return; }
+      if (v === n.floor) return;                  // 두 번 불려도 안전하게
+      pushUndo();
+      const canvas = nodeCanvasFloor(n);
+      const oldId = n.id;
+      n.floor = v;
+      if (n.floor === canvas) delete n.srcFloor; else n.srcFloor = canvas;
+      // EV/EX 는 ID 에 층이 들어가므로 층을 바꾸면 ID 도 맞춰준다 (EV0_01 -> EV3_01)
+      if (n.type !== 'SIGNAGE') renameFacilityNode(n, v);
+      // ID 가 바뀌면 선택도 따라가야 속성 패널이 비어 버리지 않는다
+      if (navSel && navSel.kind === 'node' && navSel.id === oldId) navSel.id = n.id;
+      afterNavChange();
+      setNavStatus(oldId === n.id
+        ? `${n.id} 의 층을 ${floorLabel(n.floor)} 로 변경`
+        : `${oldId} → ${n.id} (${floorLabel(n.floor)})`);
+    };
+
+    fin.addEventListener('keydown', ev => {
+      ev.stopPropagation();                       // 에디터 단축키가 가로채지 않게
+      if (ev.key === 'Enter') { ev.preventDefault(); commitFloor(); }
+      else if (ev.key === 'Escape') { fin.value = n.floor; fin.blur(); }
+    });
+    fin.addEventListener('blur', commitFloor);
+    fin.addEventListener('change', commitFloor);
+    document.getElementById('npEdgeStart').onclick = () => {
+      setNavTool('edge'); edgeFrom = n.id;
+      setNavStatus(`${n.id} 에서 연결할 노드를 클릭하세요.`); draw();
+    };
+    document.getElementById('npDel').onclick = () => {
+      if (!confirm(`${n.id} 노드를 해제할까요?\n연결된 엣지 ${conn.length}개도 삭제됩니다.`)) return;
+      pushUndo(); removeNode(n.id); navSel = null; afterNavChange();
+    };
+    return;
+  }
+
+  const e = findEdge(navSel.id);
+  if (!e) { navSel = null; el.innerHTML = '<div class="empty">노드나 엣지를 선택하세요.</div>'; return; }
+  const a = findNode(e.from), b = findNode(e.to);
+  const cross = a && b && a.floor !== b.floor;
+  el.innerHTML = `
+    <div class="idlbl">${esc(e.id)}</div>
+    <div class="row"><label>연결</label>${esc(e.from)} ↔ ${esc(e.to)}</div>
+    ${cross ? '<div class="row" style="color:#5e35b1">🛗 층간 연결 (지도에 선을 그리지 않음)</div>' : ''}
+    <div class="row"><label>길이</label>${e.weight.toFixed(2)}</div>
+    <div class="row"><label>꺾임점</label>${Math.max(0, (e.geometry || []).length - 2)}개</div>
+    <label class="opt"><input type="checkbox" id="npStairs" ${e.containsStairs ? 'checked' : ''}> 🪜 계단 포함</label>
+    <label class="opt"><input type="checkbox" id="npBidir" ${e.bidirectional !== false ? 'checked' : ''}> 양방향</label>
+    ${sideBlock(e)}
+    <button id="npStraight">직선으로 되돌리기</button>
+    <button class="danger" id="npDelEdge">엣지 삭제</button>`;
+  bindSideBlock(e);
+  document.getElementById('npStairs').onchange = ev => {
+    pushUndo(); e.containsStairs = ev.target.checked; afterNavChange();
+  };
+  document.getElementById('npBidir').onchange = ev => {
+    pushUndo(); e.bidirectional = ev.target.checked; afterNavChange();
+  };
+  document.getElementById('npStraight').onclick = () => {
+    if (!a || !b) return;
+    pushUndo();
+    e.geometry = [{ x: a.x, y: a.y }, { x: b.x, y: b.y }];
+    recalcWeight(e); selPointIdx = -1; afterNavChange();
+  };
+  document.getElementById('npDelEdge').onclick = () => deleteEdge(e.id);
+}
+
+/* 이 엣지를 지날 때 보이는 표지판 면을 사진 보고 고르는 UI */
+function sideBlock(e) {
+  const slots = sideSlots(e);
+  if (!slots.length) {
+    return '<div class="sideBox"><h5>🪧 보이는 표지판 면</h5>'
+         + '<div style="font-size:10.5px;color:#8e24aa">이 엣지 끝에는 표지판이 없습니다.</div></div>';
+  }
+  const dirs = slots.map(s => {
+    const cur = getArriveSide(e, s.arriveId);
+    const opt = side => {
+      const src = photoPath(s.arriveId, side);
+      // 로딩 실패는 여기서 표시만 하고, 클릭 금지 여부는 bindSideBlock 에서 판단한다
+      // (사진이 전부 안 뜨는 상황이면 "사진 없음"이 아니라 경로 문제이므로 막으면 안 된다)
+      return `<div class="sideOpt ${cur === side ? 'on' : ''}"
+                   data-arrive="${esc(s.arriveId)}" data-side="${side}">
+                ${src ? `<img src="${esc(src)}" alt=""
+                     onerror="this.parentNode.dataset.failed='1';
+                              this.replaceWith(Object.assign(document.createElement('span'),
+                                {className:'noimg', textContent:'사진 없음'}))">`
+                      : '<span class="noimg">사진 없음</span>'}
+                ${side === 'F' ? '앞 (F)' : '뒤 (B)'}
+              </div>`;
+    };
+    return `<div class="sideDir">
+              <div class="cap">${esc(s.fromId)} 에서 와서 <b>${esc(s.arriveId)}</b> 에 도착하면</div>
+              <div class="sidePick">${opt('F')}${opt('B')}</div>
+            </div>`;
+  }).join('');
+  return `<div class="sideBox"><h5>🪧 보이는 표지판 면 — 사진을 보고 고르세요</h5>
+            <div id="sideWarn" style="display:none;font-size:10px;color:#c62828;margin-bottom:5px"></div>
+            ${dirs}</div>`;
+}
+
+function bindSideBlock(e) {
+  const opts = [...document.querySelectorAll('#navProps .sideOpt')];
+
+  /*
+     사진 로딩이 다 끝난 뒤에 두 가지를 판단한다.
+
+     1) 한쪽 면 사진만 있는 표지판은 고를 게 없으므로 자동으로 정한다.
+     2) 사진이 안 뜬 면은 클릭을 막는다. 단 "둘 다" 안 떴으면 막지 않는다 —
+        그건 그 표지판에 사진이 없는 게 아니라 사진 폴더 경로가 안 잡힌 것이라
+        (PHOTO_BASE 확인 필요) 막아 버리면 아무것도 지정할 수 없게 된다.
+
+     여기서 다시 그리면 무한루프가 되니 DOM 만 손보고 저장한다.
+  */
+  const byArrive = {};
+  opts.forEach(o => (byArrive[o.dataset.arrive] ||= []).push(o));
+  for (const [arriveId, pair] of Object.entries(byArrive)) {
+    let left = pair.length;
+    const settle = () => {
+      if (--left > 0) return;
+
+      const failed = pair.filter(o => o.dataset.failed === '1' || !o.querySelector('img'));
+      const loaded = pair.filter(o => !failed.includes(o));
+      if (!loaded.length) {                  // 전부 실패 -> 사진이 없는 게 아니라 경로 문제
+        const w = document.getElementById('sideWarn');
+        if (w) {
+          w.style.display = 'block';
+          w.textContent = `⚠ 사진을 못 불러왔습니다. 사진 폴더(${PHOTO_BASE}) 위치를 확인하세요.`
+                        + ' 사진 없이도 앞/뒤는 고를 수 있습니다.';
+        }
+        return;                              // 클릭까지 막아 버리면 아무것도 못 정한다
+      }
+      failed.forEach(o => o.classList.add('none'));
+
+      if (getArriveSide(e, arriveId)) return;
+      if (loaded.length !== 1) return;                     // 고를 게 남아 있으면 사람이 정한다
+      setArriveSide(e, arriveId, loaded[0].dataset.side);
+      loaded[0].classList.add('on');
+      updateNavCounts();
+      autosave();
+    };
+    pair.forEach(o => {
+      const img = o.querySelector('img');
+      if (!img) { setTimeout(settle, 0); return; }         // 경로조차 못 만든 경우
+      if (img.complete) { setTimeout(settle, 0); return; } // 캐시로 이미 끝남 (성공/실패 무관)
+      img.addEventListener('load', settle, { once: true });
+      img.addEventListener('error', () => setTimeout(settle, 0), { once: true });
+    });
+  }
+
+  const peek = document.getElementById('sidePeek');
+  opts.forEach(el => {
+    el.onmouseenter = () => {
+      const img = el.querySelector('img');
+      if (!img) return;                                    // 사진 없는 면
+      peek.querySelector('img').src = img.src;
+      peek.querySelector('.cap').textContent =
+        `${el.dataset.arrive} ${el.dataset.side === 'F' ? '앞면' : '뒷면'}`;
+      const r = el.getBoundingClientRect();
+      peek.style.display = 'block';
+      // 사이드바 바깥에 띄워야 옆 칸(다른 면)을 가리지 않는다
+      peek.style.left = (document.getElementById('side').getBoundingClientRect().right + 10) + 'px';
+      peek.style.top = Math.max(6, Math.min(r.top - 40,
+                        window.innerHeight - peek.offsetHeight - 6)) + 'px';
+    };
+    el.onmouseleave = () => { peek.style.display = 'none'; };
+    el.onclick = () => {
+      if (el.classList.contains('none')) return;      // 그 면 사진이 아예 없음
+      const arrive = el.dataset.arrive, side = el.dataset.side;
+      pushUndo();
+      // 같은 걸 다시 누르면 해제
+      setArriveSide(e, arrive, getArriveSide(e, arrive) === side ? null : side);
+      afterNavChange();          // 안에서 renderNavProps 가 다시 그린다
+      const now = getArriveSide(e, arrive);
+      setNavStatus(now ? `${arrive} 도착 시 ${now === 'F' ? '앞면' : '뒷면'} 사진` : `${arrive} 지정 해제`);
+    };
+  });
+}
+
+// ---------- 모드 / 툴 ----------
+function setEditMode(m) {
+  editMode = m;
+  document.getElementById('tabMap').classList.toggle('on', m === 'map');
+  document.getElementById('tabGraph').classList.toggle('on', m === 'graph');
+  document.getElementById('navSide').style.display = m === 'graph' ? 'block' : 'none';
+  document.querySelectorAll('#side > h4, #side > .tbtn, #side > #facs, #side > .opt, #side > #bgCtrl, #side > button.small')
+    .forEach(el => { el.style.display = m === 'graph' ? 'none' : ''; });
+  if (m === 'graph') {
+    selSet = []; tempWall = []; renderProps();
+    setNavTool(navTool);
+    afterNavChange();
+  } else {
+    navSel = null; edgeFrom = null; selPointIdx = -1;
+    setTool('select');
+  }
+  draw();
+}
+function setNavTool(t) {
+  navTool = t;
+  edgeFrom = null;
+  document.querySelectorAll('.nav-tbtn').forEach(b => b.classList.toggle('on', b.dataset.navtool === t));
+  const hint = document.getElementById('navHint');
+  hint.textContent = NAV_HINTS[t] || '';
+  hint.classList.remove('open');
+  hint.title = '클릭하면 전체 설명 보기';
+  draw();
+}
+
+// ---------- 캔버스 입력 (캡처 단계에서 가로챔) ----------
+wrap.addEventListener('pointerdown', e => {
+  if (editMode !== 'graph') return;
+  if (e.button !== 0) return;            // 우/휠 버튼은 기존 pan 을 그대로 쓴다
+  e.stopPropagation();
+  const r = cv.getBoundingClientRect();
+  const p = s2w(e.clientX - r.left, e.clientY - r.top);
+  cv.setPointerCapture(e.pointerId);
+
+  if (navTool === 'node') { registerNodeAt(p); return; }
+
+  if (navTool === 'edge') {
+    const n = navHitNode(p);
+    if (!n) { setNavStatus('노드를 클릭하세요.'); return; }
+    if (!edgeFrom) { edgeFrom = n.id; setNavStatus(`${n.id} 선택. 연결할 노드를 클릭하세요.`); draw(); }
+    else { const from = edgeFrom; edgeFrom = null; createEdge(from, n.id); }
+    return;
+  }
+
+  // select 툴
+  const pi = navHitPoint(p);             // 1) 편집 중 엣지의 꺾임점
+  if (pi >= 0) {
+    selPointIdx = pi;
+    navDrag = { kind: 'point', edgeId: navSel.id, idx: pi, moved: false };
+    draw();
+    return;
+  }
+  const n = navHitNode(p);               // 2) 노드
+  if (n) {
+    navSel = { kind: 'node', id: n.id }; selPointIdx = -1;
+    renderNavProps(); draw();
+    setNavStatus(`${n.id} 선택`);
+    return;
+  }
+  const hit = navHitEdge(p);             // 3) 엣지 (선 위 클릭이면 꺾임점 추가)
+  if (hit) {
+    if (navSel && navSel.kind === 'edge' && navSel.id === hit.edge.id) {
+      pushUndo();
+      hit.edge.geometry.splice(hit.seg + 1, 0, { x: snap(p.x), y: snap(p.y) });
+      recalcWeight(hit.edge);
+      selPointIdx = hit.seg + 1;
+      navDrag = { kind: 'point', edgeId: hit.edge.id, idx: selPointIdx, moved: false };
+      afterNavChange();
+      setNavStatus('꺾임점 추가');
+    } else {
+      navSel = { kind: 'edge', id: hit.edge.id }; selPointIdx = -1;
+      renderNavProps(); draw();
+      setNavStatus(`${hit.edge.id} 선택`);
+    }
+    return;
+  }
+  navSel = null; selPointIdx = -1;
+  renderNavProps(); draw();
+}, true);
+
+wrap.addEventListener('pointermove', e => {
+  if (editMode !== 'graph' || !navDrag) return;
+  e.stopPropagation();
+  const r = cv.getBoundingClientRect();
+  const p = s2w(e.clientX - r.left, e.clientY - r.top);
+  const edge = findEdge(navDrag.edgeId);
+  if (!edge) { navDrag = null; return; }
+  if (!navDrag.moved) { pushUndo(); navDrag.moved = true; }
+  edge.geometry[navDrag.idx] = { x: snap(p.x), y: snap(p.y) };
+  recalcWeight(edge);
+  draw();
+}, true);
+
+wrap.addEventListener('pointerup', e => {
+  if (editMode !== 'graph' || !navDrag) return;
+  e.stopPropagation();
+  if (navDrag.moved) { renderNavProps(); autosave(); }
+  navDrag = null;
+}, true);
+
+wrap.addEventListener('dblclick', e => {
+  if (editMode === 'graph') e.stopPropagation();
+}, true);
+wrap.addEventListener('contextmenu', e => {
+  if (editMode === 'graph') e.preventDefault();
+}, true);
+
+// ---------- 키보드 ----------
+document.addEventListener('keydown', e => {
+  if (editMode !== 'graph') return;
+  const tag = (document.activeElement || {}).tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+  if (e.key === 'Escape') { edgeFrom = null; navSel = null; selPointIdx = -1; renderNavProps(); draw(); return; }
+  if (e.key === 'Delete' || e.key === 'Backspace') {
+    e.stopImmediatePropagation();       // 지도 객체 삭제가 돌지 않도록 막는다
+    if (navSel && navSel.kind === 'edge' && selPointIdx > 0) {
+      const ed = findEdge(navSel.id);
+      if (ed && selPointIdx < ed.geometry.length - 1) {
+        pushUndo();
+        ed.geometry.splice(selPointIdx, 1);
+        recalcWeight(ed); selPointIdx = -1; afterNavChange();
+        setNavStatus('꺾임점 삭제');
+      }
+    } else if (navSel && navSel.kind === 'edge') {
+      deleteEdge(navSel.id);
+    } else if (navSel && navSel.kind === 'node') {
+      const id = navSel.id;
+      if (confirm(`${id} 노드를 해제할까요? 연결된 엣지도 삭제됩니다.`)) {
+        pushUndo(); removeNode(id); navSel = null; afterNavChange();
+      }
+    }
+    return;
+  }
+  const k = e.key.toLowerCase();
+  if (k === 'v') setNavTool('select');
+  if (k === 'n') setNavTool('node');
+  if (k === 'g') setNavTool('edge');
+}, true);
+
+// ---------- Dijkstra ----------
+function renderDijkSelects() {
+  const from = document.getElementById('dijkFrom'), to = document.getElementById('dijkTo');
+  if (!from || !to) return;
+  const keepF = from.value, keepT = to.value;
+  const opts = '<option value="">선택…</option>' + navNodes()
+    .slice().sort((a, b) => a.id.localeCompare(b.id))
+    .map(n => `<option value="${esc(n.id)}">${esc(n.id)} (${esc(n.floor)}F)</option>`).join('');
+  from.innerHTML = opts; to.innerHTML = opts;
+  if (findNode(keepF)) from.value = keepF;
+  if (findNode(keepT)) to.value = keepT;
+}
+function dijkstra(startId, goalId) {
+  const dist = {}, prev = {}, prevEdge = {}, visited = {};
+  navNodes().forEach(n => dist[n.id] = Infinity);
+  if (!(startId in dist) || !(goalId in dist)) return null;
+  dist[startId] = 0;
+  while (true) {
+    let u = null, best = Infinity;
+    for (const id in dist) if (!visited[id] && dist[id] < best) { best = dist[id]; u = id; }
+    if (u === null) break;
+    if (u === goalId) break;
+    visited[u] = true;
+    edgesOf(u).forEach(e => {
+      const v = e.from === u ? e.to : e.from;
+      if (e.bidirectional === false && e.from !== u) return;   // 단방향이면 from->to 만
+      const w = e.weight || polylineLength(e.geometry || []);
+      if (dist[u] + w < dist[v]) { dist[v] = dist[u] + w; prev[v] = u; prevEdge[v] = e.id; }
+    });
+  }
+  if (dist[goalId] === Infinity) return null;
+  const nodesPath = [goalId], edgesPath = [];
+  let cur = goalId;
+  while (cur !== startId) {
+    edgesPath.unshift(prevEdge[cur]);
+    cur = prev[cur];
+    nodesPath.unshift(cur);
+  }
+  return { nodes: nodesPath, edges: edgesPath, dist: dist[goalId] };
+}
+
+// ---------- 내보내기 범위 / 해상도 ----------
+/** 지금 화면에 보이는 영역을 월드 좌표 사각형으로 (zoom/pan 과 무관하게 좌표 기준) */
+function viewportBBox() {
+  const dpr = window.devicePixelRatio || 1;
+  const tl = s2w(0, 0);
+  const br = s2w(cv.width / dpr, cv.height / dpr);
+  return { x: tl.x, y: tl.y, w: br.x - tl.x, h: br.y - tl.y };
+}
+function expRange() {
+  const el = document.getElementById('expRange');
+  return el ? el.value : 'view';
+}
+function expScale() {
+  const el = document.getElementById('expScale');
+  return el ? +el.value : 4;
+}
+/** 내보낼 영역. 'view' 면 화면 그대로, 'content' 면 내용 전체(+여백) */
+function exportBBox(extra) {
+  if (expRange() === 'view') return viewportBBox();
+  let bb = extra || null;
+  const cb = contentBBox();
+  bb = unionBBox(cb, bb);
+  if (!bb) return null;
+  const pad = Math.max(40, Math.min(bb.w, bb.h) * 0.04);
+  return { x: bb.x - pad, y: bb.y - pad, w: bb.w + pad * 2, h: bb.h + pad * 2 };
+}
+
+// ---------- 내보내기 ----------
+function navBBoxAll(floorCode) {
+  const pts = [];
+  navNodes().filter(n => nodeCanvasFloor(n) === floorCode).forEach(n => pts.push(n));
+  const ids = new Set(navNodes().filter(n => nodeCanvasFloor(n) === floorCode).map(n => n.id));
+  navEdges().forEach(e => {
+    if (ids.has(e.from) && ids.has(e.to)) (e.geometry || []).forEach(p => pts.push(p));
+  });
+  if (!pts.length) return null;
+  let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+  pts.forEach(p => {
+    x0 = Math.min(x0, p.x); y0 = Math.min(y0, p.y);
+    x1 = Math.max(x1, p.x); y1 = Math.max(y1, p.y);
+  });
+  return { x: x0 - 40, y: y0 - 40, w: (x1 - x0) + 80, h: (y1 - y0) + 80 };
+}
+function unionBBox(a, b) {
+  if (!a) return b; if (!b) return a;
+  const x0 = Math.min(a.x, b.x), y0 = Math.min(a.y, b.y);
+  const x1 = Math.max(a.x + a.w, b.x + b.w), y1 = Math.max(a.y + a.h, b.y + b.h);
+  return { x: x0, y: y0, w: x1 - x0, h: y1 - y0 };
+}
+const EXPORT_MAX_PX = 16000;   // 한 변 최대 픽셀 (브라우저 캔버스 한계 고려)
+
+/** 저장된 월드 좌표 기준으로 오프스크린 캔버스를 만든다 (화면 zoom/pan 과 무관).
+ *  배율이 커서 한계를 넘으면 비율을 유지한 채 자동으로 낮춘다. */
+function exportCanvas(bb, pad, scale, bgColor) {
+  const wWorld = bb.w + pad * 2, hWorld = bb.h + pad * 2;
+  let s = scale;
+  const over = Math.max(wWorld * s, hWorld * s) / EXPORT_MAX_PX;
+  if (over > 1) s = s / over;
+  const oc = document.createElement('canvas');
+  oc.width = Math.max(1, Math.round(wWorld * s));
+  oc.height = Math.max(1, Math.round(hWorld * s));
+  const c = oc.getContext('2d');
+  c.fillStyle = bgColor;
+  c.fillRect(0, 0, oc.width, oc.height);
+  c.scale(s, s);
+  c.translate(pad - bb.x, pad - bb.y);
+  return { oc, c, scale: s };
+}
+function exportTitle(c, bb, pad, text, color) {
+  c.fillStyle = color;
+  c.font = 'bold 22px "Malgun Gothic", sans-serif';
+  c.textAlign = 'left'; c.textBaseline = 'top';
+  c.fillText(text, bb.x, bb.y - pad + 12);
+}
+
+/* ===== SVG 내보내기 =====
+   PNG 와 달리 벡터라 아무리 확대해도 글자·선이 깨지지 않는다.
+   프론트엔드에서 <img> 나 <object> 로 그대로 띄워 지도로 쓸 수 있다. */
+function sx(v) { return Math.round(v * 100) / 100; }
+function svgEsc(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function svgMapObjects() {
+  const out = [];
+  const list = objs();
+  const push = s => out.push('  ' + s);
+
+  list.filter(o => o.type === 'area').forEach(o => {
+    const col = o.color || '#64b5f6';
+    push(`<rect x="${sx(o.x)}" y="${sx(o.y)}" width="${sx(o.w)}" height="${sx(o.h)}" `
+      + `fill="${col}" fill-opacity="0.18" stroke="${col}" stroke-width="2" stroke-dasharray="6 4"/>`);
+    if (o.label) push(`<text x="${sx(o.x + o.w / 2)}" y="${sx(o.y + o.h / 2)}" fill="${shade(col)}" `
+      + `font-family="Malgun Gothic, sans-serif" font-size="14" font-weight="bold" `
+      + `text-anchor="middle" dominant-baseline="middle">${svgEsc(o.label)}</text>`);
+  });
+  list.filter(o => o.type === 'wall').forEach(o => {
+    const pts = o.points.map(p => `${sx(p.x)},${sx(p.y)}`).join(' ');
+    push(`<polyline points="${pts}" fill="none" stroke="${o.color || '#37474f'}" `
+      + `stroke-width="${o.width || 6}" stroke-linejoin="round" stroke-linecap="round"/>`);
+  });
+  list.filter(o => o.type === 'arrow').forEach(o => {
+    const a = o.points[0], b = o.points[1];
+    const w = o.width || 4, col = o.color || '#e53935';
+    const ang = Math.atan2(b.y - a.y, b.x - a.x), hl = Math.max(14, w * 3.5);
+    const hx = b.x - hl * 0.7 * Math.cos(ang), hy = b.y - hl * 0.7 * Math.sin(ang);
+    push(`<line x1="${sx(a.x)}" y1="${sx(a.y)}" x2="${sx(hx)}" y2="${sx(hy)}" `
+      + `stroke="${col}" stroke-width="${w}" stroke-linecap="round"/>`);
+    const p1 = `${sx(b.x)},${sx(b.y)}`;
+    const p2 = `${sx(b.x - hl * Math.cos(ang - 0.45))},${sx(b.y - hl * Math.sin(ang - 0.45))}`;
+    const p3 = `${sx(b.x - hl * Math.cos(ang + 0.45))},${sx(b.y - hl * Math.sin(ang + 0.45))}`;
+    push(`<polygon points="${p1} ${p2} ${p3}" fill="${col}"/>`);
+  });
+  list.filter(o => o.type === 'facility').forEach(o => {
+    const f = FAC_MAP[o.code] || ['??', '❓', '', '#777'];
+    const S = 42, h = S / 2;
+    push(`<rect x="${sx(o.x - h)}" y="${sx(o.y - h)}" width="${S}" height="${S}" rx="8" fill="${f[3]}"/>`);
+    push(`<text x="${sx(o.x)}" y="${sx(o.y - 7)}" font-size="17" text-anchor="middle" `
+      + `dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">${svgEsc(f[1])}</text>`);
+    push(`<text x="${sx(o.x)}" y="${sx(o.y + 12)}" font-size="11" font-weight="bold" fill="#fff" `
+      + `text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">${svgEsc(f[0])}</text>`);
+  });
+  list.filter(o => o.type === 'sign').forEach(o => {
+    push(`<circle cx="${sx(o.x)}" cy="${sx(o.y)}" r="19" fill="#ffb300" stroke="#e65100" stroke-width="2.5"/>`);
+    push(`<text x="${sx(o.x)}" y="${sx(o.y + 1)}" font-size="19" font-weight="bold" fill="#4e2600" `
+      + `text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">S</text>`);
+    const w = String(o.id).length * 9 + 14;
+    push(`<rect x="${sx(o.x - w / 2)}" y="${sx(o.y + 24)}" width="${sx(w)}" height="24" rx="5" `
+      + `fill="#fff" stroke="#e65100" stroke-width="1.5"/>`);
+    push(`<text x="${sx(o.x)}" y="${sx(o.y + 36)}" font-size="15" font-weight="bold" fill="#bf360c" `
+      + `text-anchor="middle" dominant-baseline="middle" font-family="Segoe UI, sans-serif">${svgEsc(o.id)}</text>`);
+  });
+  list.filter(o => o.type === 'text').forEach(o => {
+    push(`<text x="${sx(o.x)}" y="${sx(o.y)}" font-size="${o.size || 16}" font-weight="bold" `
+      + `fill="${o.color || '#212121'}" dominant-baseline="hanging" `
+      + `font-family="Malgun Gothic, sans-serif">${svgEsc(o.text)}</text>`);
+  });
+  return out.join('\n');
+}
+
+function svgGraph(floorCode) {
+  const out = [];
+  const push = s => out.push('  ' + s);
+  const nodes = navNodes().filter(n => nodeCanvasFloor(n) === floorCode);
+  const idset = new Set(nodes.map(n => n.id));
+
+  navEdges().forEach(e => {
+    if (!idset.has(e.from) || !idset.has(e.to)) return;
+    const g = e.geometry;
+    if (!g || g.length < 2) return;
+    const pts = g.map(p => `${sx(p.x)},${sx(p.y)}`).join(' ');
+    push(`<polyline points="${pts}" fill="none" stroke="${e.containsStairs ? EDGE_STAIRS_COLOR : EDGE_COLOR}" `
+      + `stroke-width="3.5" stroke-dasharray="10 7" stroke-linejoin="round" stroke-linecap="round"/>`);
+    if (e.containsStairs) {
+      const m = g[Math.floor(g.length / 2)];
+      push(`<text x="${sx(m.x)}" y="${sx(m.y)}" font-size="15" text-anchor="middle" `
+        + `dominant-baseline="middle" font-family="Segoe UI Emoji, sans-serif">🪜</text>`);
+    }
+  });
+
+  nodes.forEach(n => {
+    const t = NODE_TYPES[n.type] || { color: '#777', shape: 'circle' };
+    const R = 13, sh = t.shape || 'circle';
+    if (sh === 'square') {
+      push(`<rect x="${sx(n.x - R)}" y="${sx(n.y - R)}" width="${R * 2}" height="${R * 2}" `
+        + `fill="${t.color}" stroke="#fff" stroke-width="2.5"/>`);
+    } else if (sh === 'diamond') {
+      const p = [[n.x, n.y - R - 2], [n.x + R + 2, n.y], [n.x, n.y + R + 2], [n.x - R - 2, n.y]]
+        .map(q => `${sx(q[0])},${sx(q[1])}`).join(' ');
+      push(`<polygon points="${p}" fill="${t.color}" stroke="#fff" stroke-width="2.5"/>`);
+    } else if (sh === 'hex') {
+      const p = [];
+      for (let k = 0; k < 6; k++) {
+        const a = Math.PI / 6 + k * Math.PI / 3;
+        p.push(`${sx(n.x + (R + 1) * Math.cos(a))},${sx(n.y + (R + 1) * Math.sin(a))}`);
+      }
+      push(`<polygon points="${p.join(' ')}" fill="${t.color}" stroke="#fff" stroke-width="2.5"/>`);
+    } else if (sh === 'pill') {
+      push(`<rect x="${sx(n.x - R * 1.7)}" y="${sx(n.y - R * 0.75)}" width="${sx(R * 3.4)}" `
+        + `height="${sx(R * 1.5)}" rx="${sx(R * 0.75)}" fill="${t.color}" stroke="#fff" stroke-width="2.5"/>`);
+    } else {
+      push(`<circle cx="${sx(n.x)}" cy="${sx(n.y)}" r="${R}" fill="${t.color}" stroke="#fff" stroke-width="2.5"/>`);
+    }
+    const w = String(n.id).length * 7.5 + 10;
+    push(`<rect x="${sx(n.x - w / 2)}" y="${sx(n.y - R - 22)}" width="${sx(w)}" height="17" rx="4" `
+      + `fill="#ffffff" fill-opacity="0.92" stroke="${t.color}" stroke-width="1.2"/>`);
+    push(`<text x="${sx(n.x)}" y="${sx(n.y - R - 13)}" font-size="12" font-weight="bold" `
+      + `fill="${shade(t.color)}" text-anchor="middle" dominant-baseline="middle" `
+      + `font-family="Segoe UI, sans-serif">${svgEsc(n.id)}</text>`);
+  });
+  return out.join('\n');
+}
+
+/** opts: {map:bool, graph:bool, title:string} */
+/*
+   내보내기 좌표 변환.
+
+   에디터 내부 좌표는 원점이 어디에도 고정돼 있지 않아 음수와 소수점이 섞인다.
+   프론트가 그대로 쓰기 나쁘므로 내보낼 때 (0,0) 기준으로 옮기고, 원하면 크기도 맞춘다.
+
+   SVG 와 JSON 에 반드시 같은 변환을 적용해야 한다. 하나만 바꾸면 마커가 어긋난다.
+*/
+const UNITS_PER_METER = 26.077;      // S3_01↔S3_02 를 10m 로 잡아 구한 값
+
+/*
+   내보내기 범위는 항상 "내용 전체"로 고정한다.
+
+   상단의 범위 설정(현재 화면)을 따르면 스크롤·확대 상태에 따라 viewBox 가
+   매번 달라진다. PNG 스크린샷이라면 그래도 되지만, 프론트에 넘길 좌표계가
+   내보낼 때마다 바뀌면 마커가 통째로 어긋난다.
+*/
+function contentExportBBox(extra) {
+  const bb = unionBBox(contentBBox(), extra || null);
+  if (!bb) return null;
+  const pad = Math.max(40, Math.min(bb.w, bb.h) * 0.04);
+  return { x: bb.x - pad, y: bb.y - pad, w: bb.w + pad * 2, h: bb.h + pad * 2 };
+}
+
+function exportTransform() {
+  const f = floor();
+  const bb = contentExportBBox(navBBoxAll(f.code));
+  if (!bb) return null;
+  const el = document.getElementById('chkNorm');
+  const norm = !el || el.checked;
+  const wEl = document.getElementById('normW');
+  const want = wEl ? parseFloat(wEl.value) : NaN;
+  const s = (norm && want > 0) ? want / bb.w : 1;
+  return {
+    dx: norm ? -bb.x : 0,
+    dy: norm ? -bb.y : 0,
+    s, bb, norm,
+    vb: norm ? [0, 0, bb.w * s, bb.h * s] : [bb.x, bb.y, bb.w, bb.h],
+  };
+}
+
+/** 좌표 하나를 내보내기 좌표로 (소수점 2자리) */
+function tp(p, t) {
+  return {
+    x: Math.round((p.x + t.dx) * t.s * 100) / 100,
+    y: Math.round((p.y + t.dy) * t.s * 100) / 100,
+  };
+}
+
+function updateNormInfo() {
+  const el = document.getElementById('normInfo');
+  if (!el) return;
+  const t = exportTransform();
+  if (!t) { el.textContent = ''; return; }
+  const [a, b, w, h] = t.vb.map(v => Math.round(v * 100) / 100);
+  el.innerHTML = `viewBox <b>${a} ${b} ${w} ${h}</b>`
+    + (t.s !== 1 ? `<br>배율 ${t.s.toFixed(4)}× · 1m = ${(UNITS_PER_METER * t.s).toFixed(2)}` : '');
+}
+
+function buildSVG(opts) {
+  const f = floor();
+  /*
+     그래프를 그리지 않더라도 노드 범위는 viewBox 에 포함시킨다(fitGraph).
+
+     프론트는 이 SVG 위에 노드 좌표로 마커를 얹는다. 지도만 담은 SVG 의
+     viewBox 를 지도 객체 범위로만 잡으면, 경로 포함 SVG 와 기준이 달라지고
+     가장자리 노드는 화면 밖으로 나간다. 두 SVG 의 viewBox 를 같게 유지한다.
+  */
+  // SVG 는 JSON 과 같은 좌표계여야 하므로 exportTransform 하나만 따른다
+  const t = exportTransform();
+  if (!t) return null;
+  const body = [];
+  if (opts.map) body.push(svgMapObjects());
+  if (opts.graph) body.push(svgGraph(f.code));
+
+  /*
+     도형 좌표를 하나하나 고치지 않고 <g transform> 으로 한 번에 옮긴다.
+     transform="scale(s) translate(dx,dy)" 는 오른쪽부터 적용되므로 (p + d) * s 다.
+     JSON 쪽 tp() 와 계산 순서가 같아야 한다.
+  */
+  const [vx, vy, vw, vh] = t.vb;
+  const wrap = (t.dx || t.dy || t.s !== 1)
+    ? `<g transform="scale(${sx(t.s)}) translate(${sx(t.dx)} ${sx(t.dy)})">\n${body.join('\n')}\n</g>`
+    : body.join('\n');
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="${sx(vx)} ${sx(vy)} ${sx(vw)} ${sx(vh)}"
+     width="${Math.round(vw)}" height="${Math.round(vh)}">
+  <title>${svgEsc(opts.title || '대구역')}</title>
+  <rect x="${sx(vx)}" y="${sx(vy)}" width="${sx(vw)}" height="${sx(vh)}" fill="#ffffff"/>
+${wrap}
+</svg>`;
+}
+
+document.getElementById('btnSvg').addEventListener('click', () => {
+  syncNodesFromMap();
+  const f = floor();
+  const graphOn = editMode === 'graph' || navNodes().some(n => nodeCanvasFloor(n) === f.code);
+  const svg = buildSVG({ map: true, graph: graphOn, title: '대구역 ' + floorLabel(f.code) });
+  if (!svg) { alert('내보낼 내용이 없습니다.'); return; }
+  const blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
+  dl(URL.createObjectURL(blob), 'daegu_map_' + f.code + '.svg');
+});
+
+// 프론트가 배경으로 쓸 지도. 경로선·노드를 그리지 않지만 viewBox 는 위와 동일하다
+document.getElementById('btnSvgMap').addEventListener('click', () => {
+  syncNodesFromMap();
+  const f = floor();
+  const svg = buildSVG({ map: true, graph: false, fitGraph: true,
+                         title: '대구역 ' + floorLabel(f.code) + ' (지도만)' });
+  if (!svg) { alert('내보낼 내용이 없습니다.'); return; }
+  const blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
+  dl(URL.createObjectURL(blob), 'daegu_map_' + f.code + '_only.svg');
+});
+
+document.getElementById('btnNavJson').addEventListener('click', () => {
+  syncNodesFromMap();
+  /*
+     노드 좌표는 SVG 좌표계 그대로다. 다만 viewBox 원점이 0,0 이 아니라서
+     이 값을 모르면 프론트가 마커를 어디에 찍을지 알 수 없다.
+     SVG 를 따로 파싱하게 두면 지도를 다시 내보낼 때 조용히 어긋나므로
+     여기에 같이 실어 보낸다.
+  */
+  const f = floor();
+  const t = exportTransform();
+  const out = {
+    svg: t ? {
+      file: 'daegu_map_' + f.code + '_only.svg',
+      viewBox: t.vb.map(v => Math.round(v * 100) / 100),
+      // 좌표는 이 viewBox 기준이며 변환 없이 그대로 찍으면 된다
+      unitsPerMeter: Math.round(UNITS_PER_METER * t.s * 1000) / 1000,
+    } : null,
+    // srcFloor 는 편집용 내부 필드이므로 내보내지 않는다
+    nodes: navNodes().map(n => Object.assign(
+      { id: n.id, type: n.type },
+      n.category ? { category: n.category } : {},
+      { floor: n.floor }, tp(n, t))),
+    edges: navEdges().map(e => ({
+      id: e.id, from: e.from, to: e.to,
+      bidirectional: e.bidirectional !== false,
+      containsStairs: !!e.containsStairs,
+      // 길이도 좌표와 같은 배율로 맞춰야 geometry 로 다시 재도 값이 일치한다
+      weight: Math.round(e.weight * t.s * 100) / 100,
+      // 도착 노드 id -> 그때 보이는 표지판 면 (F/B). 지정된 것만 내보낸다.
+      arriveSide: sideSlots(e).reduce((m, s) => {
+        const v = getArriveSide(e, s.arriveId);
+        if (v) m[s.arriveId] = v;
+        return m;
+      }, {}),
+      geometry: (e.geometry || []).map(p => tp(p, t)),
+    })),
+  };
+  if (!out.nodes.length) { alert('등록된 노드가 없습니다.'); return; }
+
+  const p = sideProgress();
+  if (p.done < p.total) {
+    const missing = [];
+    for (const e of navEdges()) {
+      for (const s of sideSlots(e)) {
+        if (!getArriveSide(e, s.arriveId)) missing.push(`${s.fromId} → ${s.arriveId}`);
+      }
+    }
+    const head = missing.slice(0, 12).join('\n');
+    const more = missing.length > 12 ? `\n… 외 ${missing.length - 12}개` : '';
+    if (!confirm(`보이는 표지판 면이 안 정해진 방향이 ${missing.length}개 있습니다.\n`
+               + `이 방향들은 길안내에서 사진을 못 고릅니다.\n\n${head}${more}\n\n그래도 내보낼까요?`)) return;
+  }
+  const blob = new Blob([JSON.stringify(out, null, 1)], { type: 'application/json' });
+  dl(URL.createObjectURL(blob), 'daegu_navigation.json');
+});
+
+document.getElementById('btnGraphPng').addEventListener('click', () => {
+  syncNodesFromMap();
+  const f = floor();
+  const nbb = navBBoxAll(f.code);
+  if (!nbb) { alert(`${floorLabel(f.code)} 에 등록된 노드가 없습니다.`); return; }
+  const bb = expRange() === 'view' ? viewportBBox() : nbb;
+  const { oc, c } = exportCanvas(bb, 0, expScale(), '#ffffff');
+  drawGraph(c, { editing: false, floorCode: f.code });   // 선택/hover/control point 없음
+  dl(oc.toDataURL('image/png'), 'daegu_graph_' + f.code + '.png');
+});
+
+document.getElementById('btnMapGraphPng').addEventListener('click', () => {
+  syncNodesFromMap();
+  const f = floor();
+  const bb = exportBBox(navBBoxAll(f.code));
+  if (!bb) { alert('내보낼 내용이 없습니다.'); return; }
+  const { oc, c } = exportCanvas(bb, 0, expScale(), '#ffffff');
+  if (f.bgExport && f.bg && bgImgCache[state.cur] && bgImgCache[state.cur].complete) {
+    c.save(); c.globalAlpha = f.bgOp;
+    const img = bgImgCache[state.cur];
+    c.drawImage(img, 0, 0, img.width * f.bgSc, img.height * f.bgSc);
+    c.restore();
+  }
+  drawObjects(c, { selection: false });                  // 기존 지도 전부
+  drawGraph(c, { editing: false, floorCode: f.code });   // 그 위에 그래프
+  dl(oc.toDataURL('image/png'), 'daegu_map_graph_' + f.code + '.png');
+});
+
+// ---------- 기존 함수 후킹 ----------
+const __origDraw = draw;
+draw = function () {
+  if (editMode === 'graph') syncNodesFromMap();
+  __origDraw();
+  const show = document.getElementById('chkNavShow');
+  if (show && !show.checked) return;
+  ctx.save();
+  ctx.translate(view.x, view.y);
+  ctx.scale(view.scale, view.scale);
+  const dim = document.getElementById('chkNavOnly');
+  if (editMode === 'graph' && dim && dim.checked) {
+    // 지도를 흐리게 덮어 그래프를 눈에 띄게 한다
+    const dpr = window.devicePixelRatio || 1;
+    const tl = s2w(0, 0), br = s2w(cv.width / dpr, cv.height / dpr);
+    ctx.fillStyle = 'rgba(250,250,250,0.78)';
+    ctx.fillRect(tl.x, tl.y, br.x - tl.x, br.y - tl.y);
+  }
+  if (editMode === 'graph') drawRegisterMarks(ctx);
+  drawGraph(ctx, { editing: editMode === 'graph' });
+  ctx.restore();
+};
+
+const __origAfterStateSwap = afterStateSwap;
+afterStateSwap = function () {
+  nav();                       // navigation 필드가 없는 JSON 도 정상 로드
+  navSel = null; edgeFrom = null; selPointIdx = -1; navDrag = null; dijkPath = null;
+  __origAfterStateSwap();
+  syncNodesFromMap();
+  renderNavProps(); renderDijkSelects(); updateNavCounts();
+  draw();
+};
+
+// ---------- UI 바인딩 ----------
+document.getElementById('tabMap').addEventListener('click', () => setEditMode('map'));
+document.getElementById('tabGraph').addEventListener('click', () => setEditMode('graph'));
+document.querySelectorAll('.nav-tbtn').forEach(b =>
+  b.addEventListener('click', () => setNavTool(b.dataset.navtool)));
+document.getElementById('chkNavShow').addEventListener('change', draw);
+document.getElementById('chkNavOnly').addEventListener('change', draw);
+document.querySelectorAll('#listTabs button').forEach(b => b.addEventListener('click', () => {
+  listKind = b.dataset.list;
+  document.querySelectorAll('#listTabs button').forEach(x => x.classList.toggle('on', x === b));
+  renderNavList();
+}));
+document.getElementById('chkListAll').addEventListener('change', renderNavList);
+document.getElementById('chkSideMark').addEventListener('change', draw);
+document.getElementById('chkNorm').addEventListener('change', updateNormInfo);
+document.getElementById('normW').addEventListener('input', updateNormInfo);
+document.getElementById('normW').addEventListener('keydown', ev => ev.stopPropagation());
+document.getElementById('chkSideTodo').addEventListener('change', ev => {
+  // 면 지정 대상은 엣지뿐이라, 켜면 엣지 목록으로 넘어가 준다
+  if (ev.target.checked && listKind !== 'edge') {
+    document.querySelector('#listTabs button[data-list="edge"]').click();
+    return;
+  }
+  renderNavList();
+});
+document.getElementById('navHint').addEventListener('click', function () { this.classList.toggle('open'); });
+document.getElementById('btnDijk').addEventListener('click', () => {
+  const a = document.getElementById('dijkFrom').value;
+  const b = document.getElementById('dijkTo').value;
+  const res = document.getElementById('dijkRes');
+  if (!a || !b) { alert('출발/도착 노드를 선택하세요.'); return; }
+  const r = dijkstra(a, b);
+  res.style.display = 'block';
+  if (!r) { dijkPath = null; res.textContent = '경로를 찾을 수 없습니다. 엣지 연결을 확인하세요.'; draw(); return; }
+  dijkPath = r;
+  const stairs = r.edges.some(id => { const e = findEdge(id); return e && e.containsStairs; });
+  res.innerHTML = `<b>${r.nodes.join(' → ')}</b><br>거리 ${r.dist.toFixed(1)} · 엣지 ${r.edges.length}개`
+    + (stairs ? '<br>🪜 계단 포함 경로' : '');
+  draw();
+});
+document.getElementById('btnDijkClear').addEventListener('click', () => {
+  dijkPath = null;
+  document.getElementById('dijkRes').style.display = 'none';
+  draw();
+});
+
+// ===== 시작 =====
+(function init() {
+  try {
+    const saved = localStorage.getItem(LS_KEY);
+    if (saved) {
+      const st = JSON.parse(saved);
+      if (st.floors && Array.isArray(st.floors) && st.floors.length) state = st;
+    }
+  } catch (e) {}
+  if (state.cur >= state.floors.length) state.cur = 0;
+  nav();                       // navigation 없는 기존 JSON 도 안전하게
+  renderFloors();
+  renderBgCtrl();
+  setTool('select');
+  setEditMode('map');
+  syncNodesFromMap();
+  renderNavProps();
+  renderDijkSelects();
+  updateNavCounts();
+  resize();
+  loadBgImage();
+})();
+</script>
+</body>
+</html>

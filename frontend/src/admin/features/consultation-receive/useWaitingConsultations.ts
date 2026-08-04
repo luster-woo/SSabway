@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 
 import { BACKEND_READY } from '@/shared/api/backendCapabilities'
 import { adminApi } from '@/shared/api/client'
@@ -6,13 +6,9 @@ import { endpoints } from '@/shared/api/endpoints'
 import { queryKeys } from '@/shared/lib/queryKeys'
 import type { ApiResponse, ConsultationStatus } from '@/shared/types'
 import type { LangCode } from '@/admin/lib/language'
-import {
-  FIRST_PAGE,
-  toMockPageMeta,
-  type PagedContent,
-} from '@/admin/lib/paging'
+import { paginate, type PagedContent } from '@/admin/lib/paging'
 
-/** GET /admins/waiting 의 content 한 건 */
+/** GET /staffs/waiting 의 content 한 건 */
 export interface WaitingConsultation {
   consultationId: number
   email: string
@@ -111,38 +107,69 @@ function byWaitedLongestFirst(
   return new Date(a.requestedAt).getTime() - new Date(b.requestedAt).getTime()
 }
 
-async function fetchWaitingConsultations(): Promise<
-  PagedContent<WaitingConsultation>
-> {
+/** 상담 대기는 페이지당 6건으로 나눈다. BE 연동 시 서버 page.size 로 대체된다. */
+const WAITING_PAGE_SIZE = 6
+
+/**
+ * GET /staffs/waiting 의 content 한 건 (백엔드 WaitingResponse).
+ * 화면 모델과 필드명이 다르고(departure/destination/language), status 는 없다.
+ */
+interface WaitingResponseDto {
+  consultationId: number
+  email: string
+  departure: string
+  destination: string
+  language: LangCode
+  requestedAt: string
+}
+
+/** 백엔드 응답을 화면 모델로. status 는 대기 목록이라 항상 WAITING 으로 채운다. */
+function toWaitingConsultation(dto: WaitingResponseDto): WaitingConsultation {
+  return {
+    consultationId: dto.consultationId,
+    email: dto.email,
+    startPoint: dto.departure,
+    finalPoint: dto.destination,
+    langCode: dto.language,
+    status: 'WAITING',
+    requestedAt: dto.requestedAt,
+  }
+}
+
+async function fetchWaitingConsultations(
+  page: number,
+): Promise<PagedContent<WaitingConsultation>> {
   if (BACKEND_READY.ADMIN_QUEUE) {
     const res =
-      await adminApi.get<ApiResponse<PagedContent<WaitingConsultation>>>(
-        endpoints.admin.waiting(FIRST_PAGE),
+      await adminApi.get<ApiResponse<PagedContent<WaitingResponseDto>>>(
+        endpoints.admin.waiting(page),
       )
-    const { content, page } = res.data.data
-    return { content: [...content].sort(byWaitedLongestFirst), page }
+    const { content, page: pageInfo } = res.data.data
+    const mapped = content.map(toWaitingConsultation).sort(byWaitedLongestFirst)
+    return { content: mapped, page: pageInfo }
   }
 
   await delay(MOCK_LATENCY_MS)
 
-  const content = MOCK_WAITING.filter(
+  const all = MOCK_WAITING.filter(
     (item) => !mockAcceptedIds.has(item.consultationId),
   ).sort(byWaitedLongestFirst)
 
-  return { content, page: toMockPageMeta(content.length) }
+  return paginate(all, page, WAITING_PAGE_SIZE)
 }
 
 /**
  * 상담 대기 목록.
  *
  * 서버가 소유한 목록 데이터라 TanStack Query 로 캐시·갱신을 맡긴다.
+ * 폴링으로 갱신되므로 페이지 이동 시 이전 데이터를 유지해 깜빡임을 막는다.
  * TODO: /sub/admin/consultations STOMP 구독이 붙으면 폴링을 제거한다.
- * TODO: page.totalPages 를 쓰는 페이지네이션은 목록 UI 확정 후 추가한다.
  */
-export function useWaitingConsultations() {
+export function useWaitingConsultations(page: number) {
   return useQuery({
-    queryKey: queryKeys.consultation.waiting(FIRST_PAGE),
-    queryFn: fetchWaitingConsultations,
+    queryKey: queryKeys.consultation.waiting(page),
+    queryFn: () => fetchWaitingConsultations(page),
     refetchInterval: POLL_INTERVAL_MS,
+    placeholderData: keepPreviousData,
   })
 }

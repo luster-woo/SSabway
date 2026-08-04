@@ -2,13 +2,8 @@ import { useCallback, useState } from 'react'
 import axios from 'axios'
 import { useQueryClient } from '@tanstack/react-query'
 
-import { BACKEND_READY } from '@/shared/api/backendCapabilities'
 import { queryKeys } from '@/shared/lib/queryKeys'
 import { useConsultationSessionStore } from '@/shared/lib/store/useConsultationSessionStore'
-import {
-  isMockAccepted,
-  markMockAccepted,
-} from '@/admin/features/consultation-receive/useWaitingConsultations'
 import { openviduApi } from '@/admin/lib/openviduApi'
 
 /** 상담 수락 실패 사유. 화면이 분기해야 하는 경우만 구분한다. */
@@ -28,16 +23,20 @@ export interface UseAcceptConsultationResult {
 }
 
 /**
- * 상담 수락 — 화상 세션 생성 + 토큰 발급.
+ * 상담 수락 — accept 1-call (상태 잠금 + 세션 생성 + 토큰 발급).
  *
- * 순서와 롤백은 `@/shared/api/openvidu` 의 openSession 이 책임진다.
+ * 호출은 `@/shared/api/openvidu` 의 openSession 이 책임진다.
  * 여기서는 결과를 스토어에 넣어 상담 화면으로 넘기는 일만 한다.
+ * (8/4 — API 소유가 ssabway 로 이동. openSession 주석 참고)
  *
  * 녹음은 여기서 시작하지 않는다 — 사용자까지 접속한 뒤 상담방 훅
  * (useConsultationRoom)이 start 를 불러 시작한다. 팀 합의(7/31).
  *
- * 선착순은 서버가 판정한다. 늦게 누른 역무원은 커넥션 발급에서 409
- * (PARTICIPANT_ALREADY_CONNECTED)를 받는다.
+ * 선착순은 서버가 상담 상태 잠금으로 판정한다. 늦게 누른 역무원은
+ * 409 CONSULTATION_ALREADY_ACCEPTED 를 받는다.
+ *
+ * ⚠️ admin 로그인이 목 토큰인 동안(mockSwitch 'POST /staffs/login': true)에는
+ *    실서버에서 401 이다 — 실서버 수락 테스트는 실존 staff 계정으로 로그인할 것.
  *
  * 실패해도 대기 목록 쿼리를 무효화한다. 이미 없어진 항목이 화면에 남으면 안 된다.
  */
@@ -51,28 +50,25 @@ export function useAcceptConsultation(): UseAcceptConsultationResult {
       setPendingId(consultationId)
 
       try {
-        /*
-          ⚠️ 선착순 판정을 프론트가 흉내 내는 구간.
-
-          서버가 상담 상태를 잠그지 않아 두 역무원이 동시에 눌러도 둘 다 세션을
-          만들 수 있다. 대기 목록 자체가 아직 목이라 같은 목 저장소로 막아 둔다.
-          ADMIN_QUEUE 를 켤 때 이 블록과 markMockAccepted 호출을 함께 지운다.
-        */
-        if (!BACKEND_READY.ADMIN_QUEUE && isMockAccepted(consultationId)) {
-          return ACCEPT_FAILURE.ALREADY_ACCEPTED
-        }
-
-        // 역무원 식별·역할은 서버가 JWT 에서 판별한다 (BE 8/2 권한 업데이트).
-        // ⚠️ 따라서 admin 로그인이 목 토큰인 동안에는 실서버에서 401 이다 —
-        //    staffs/login 실연동이 선행되어야 한다.
         const session = await openviduApi.openSession(consultationId)
 
         startSession(session)
-        if (!BACKEND_READY.ADMIN_QUEUE) markMockAccepted(consultationId)
         return null
       } catch (error) {
-        // 서버가 상담 상태를 잠그면 409 로 선착순 실패가 온다
-        return axios.isAxiosError(error) && error.response?.status === 409
+        if (!axios.isAxiosError(error)) return ACCEPT_FAILURE.UNKNOWN
+
+        /*
+          ssabway 이관(8/4)으로 응답에 code 가 실린다. code 가 있으면 그걸로
+          판정하고, 없으면(구버전 서버·프록시 오류 등) 상태코드 409 로
+          폴백한다 — 서버가 상담 상태를 잠그므로 선착순 실패는 409 다.
+        */
+        const code = (error.response?.data as { code?: string } | undefined)
+          ?.code
+        const isAlreadyAccepted =
+          code === 'CONSULTATION_ALREADY_ACCEPTED' ||
+          (code === undefined && error.response?.status === 409)
+
+        return isAlreadyAccepted
           ? ACCEPT_FAILURE.ALREADY_ACCEPTED
           : ACCEPT_FAILURE.UNKNOWN
       } finally {

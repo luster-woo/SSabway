@@ -1,17 +1,24 @@
 import { http, HttpResponse, type HttpHandler, type RequestHandler } from 'msw'
 
 import {
-  closeMockSession,
+  cancelMockConsultation,
   createMockConnection,
   createMockConsultation,
   endMockConsultation,
-  issueMockConsultationToken,
+  leaveMockConsultation,
   listMockWaitingConsultations,
   openMockSession,
   pollMockConsultation,
   startMockConsultation,
 } from '@/mocks/consultationQueue'
+import {
+  listMockBlacklist,
+  registerMockBlacklist,
+  releaseMockBlacklist,
+  updateMockBlacklistReasons,
+} from '@/mocks/blacklistStore'
 import { MOCK_SWITCH, type MockSwitchKey } from '@/mocks/mockSwitch'
+import type { ConsultationCreateBody } from '@/shared/types'
 // 목 데이터가 화면 목과 어긋나면 안 되어 user 쪽 원본을 그대로 쓴다.
 // (mocks 는 개발 전용이라 user 레이어 참조가 번들 분리를 해치지 않는다)
 import { MOCK_ROUTE_GUIDE } from '@/user/features/route-guide/lib/mockRouteGuide'
@@ -22,6 +29,7 @@ import {
   NEARBY_STATION,
   RATE_LIMITED_EMAIL,
   REFRESH_COOKIE,
+  STAFF_ACCOUNT,
   TAKEN_EMAILS,
   USER_ACCOUNT,
   USER_LANGUAGE,
@@ -46,6 +54,12 @@ import {
  * 경로는 client.ts 의 baseURL 과 맞춰 절대 경로로 적는다.
  */
 export const BASE = '*/api/v1'
+
+/**
+ * 출발·도착지 이름 길이 한도.
+ * BE ConsultationCreateRequest 의 `@Size(max = 255)` 와 같은 값이다.
+ */
+const MAX_PLACE_NAME_LENGTH = 255
 
 /** 상태를 들고 있지 않으므로 새로고침하면 처음부터 다시 시작한다. */
 const mockHandlers: HttpHandler[] = [
@@ -314,6 +328,37 @@ const mockHandlers: HttpHandler[] = [
     )
   }),
 
+  // 관리자(역무원) 로그인 — ✅ BE 개발완료
+  //
+  // 실서버가 있지만, 배포 백엔드가 내려가 있거나(502) 로컬 백엔드 없이
+  // admin 화면을 확인할 때를 위해 목을 둔다. 기본값은 mockSwitch 참고.
+  // 응답 data 는 { accessToken, staffCode } (useAdminLogin 의 AdminLoginData).
+  // 리프레시 쿠키는 사용자 로그인과 같은 방식으로 내려준다 (auth/refresh 공통).
+  http.post(`${BASE}/staffs/login`, async ({ request }) => {
+    const { staffCode, password } = (await request.json()) as {
+      staffCode?: string
+      password?: string
+    }
+
+    if (
+      staffCode !== STAFF_ACCOUNT.staffCode ||
+      password !== STAFF_ACCOUNT.password
+    ) {
+      return HttpResponse.json(
+        errorBody('관리자 코드 또는 비밀번호가 일치하지 않습니다.'),
+        { status: 401 },
+      )
+    }
+
+    return HttpResponse.json(
+      okBody('로그인 되었습니다.', {
+        accessToken: issueAccessToken('admin'),
+        staffCode,
+      }),
+      { headers: { 'Set-Cookie': refreshCookie() } },
+    )
+  }),
+
   // 회원 구글 로그인 / 회원가입 (백엔드 개발중)
   //
   // 명세상 응답은 일반 로그인과 동일하다. 신규 가입 여부(isNewUser)는 없다.
@@ -405,25 +450,83 @@ const mockHandlers: HttpHandler[] = [
   // 좌표가 없어 "역 내 현재 위치" 지도를 그릴 수 없다. FE 가 형태를 먼저
   // 굳혀 BE 에 요청한 상태 (shared/types/routeGuide.ts 의 GuidePoint 참고).
   // 비로그인에도 길안내는 동작해야 하므로 인증을 요구하지 않는다.
+  //
+  // ⚠️ 지금은 도달하지 않는다 — BACKEND_READY.ROUTE_GUIDE 가 false 인 동안
+  //    fetchRouteGuide 가 HTTP 를 보내지 않고 목을 직접 돌려준다(배포 환경에
+  //    MSW 가 없어서 생긴 조치, 플래그 주석 참고). BE 가 붙어 플래그를 켜면
+  //    이 핸들러가 다시 살아나 로컬 검증에 쓰인다.
   http.post(`${BASE}/routes/navi`, () =>
     HttpResponse.json(okBody('경로 안내 조회 성공', MOCK_ROUTE_GUIDE)),
   ),
 
   /* ---------------------------------------------------------------- *
-   * 상담 대기열 — ⚠️ BE 미구현 (BACKEND_READY.CONSULTATION_STATUS)
+   * 상담 대기열 — mockSwitch 기본값 true (아직 실서버로 못 붙는다).
    *
-   * 이 목이 있는 동안에는 플래그를 true 로 켜면 MSW 만으로
-   * "요청 → 대기 순번 감소 → 매칭 → 토큰 발급" 흐름을 확인할 수 있다.
+   * `POST /consultations` 가 staffId nullable 전환을 전제로 하는 동안에는
+   * 이 목으로 "요청 → 대기 순번 감소 → 매칭" 흐름을 프론트 단독 검증한다.
    * 상태는 consultationQueue.ts 가 들고 있다.
-   * BE 가 배포되면 mockSwitch 에서 상담 3종을 끄고 실서버로 검증한다.
+   * 시드 데이터(stations/staffs)가 들어오면 mockSwitch.ts 의 상담 3종을
+   * false 로 내려 실연동한다.
    * ---------------------------------------------------------------- */
 
-  // 상담 요청 → 대기열 등록
-  http.post(`${BASE}/consultations`, ({ request }) => {
+  /*
+    상담 요청 → 대기열 등록.
+
+    ⚠️ 본문 검증을 실서버와 같은 규칙으로 흉내 낸다.
+
+    이 목이 body 를 안 읽던 동안은 프론트가 빈 요청을 보내도 통과해서,
+    "로컬 MSW 는 성공하는데 실서버는 400" 이라는 함정이 숨어 있었다.
+    ssabway ConsultationCreateRequest 의 제약(@NotNull / @NotBlank / @Size(255))과
+    GlobalExceptionHandler 의 응답 형태(위반 메시지를 ", " 로 이어 붙임)를
+    그대로 따라간다. 계약이 어긋나면 로컬에서 먼저 드러나야 한다.
+  */
+  http.post(`${BASE}/consultations`, async ({ request }) => {
     if (!request.headers.get('Authorization')) {
       return HttpResponse.json(errorBody('인증이 필요합니다.'), { status: 401 })
     }
 
+    // 본문이 아예 없거나 JSON 이 깨졌을 때 — BE 는 HttpMessageNotReadableException
+    let body: Partial<ConsultationCreateBody>
+    try {
+      body = (await request.json()) as Partial<ConsultationCreateBody>
+    } catch {
+      return HttpResponse.json(
+        errorBody('잘못된 형식의 요청 값입니다.', 'INVALID_INPUT_VALUE'),
+        { status: 400 },
+      )
+    }
+
+    const isBlank = (value: unknown) =>
+      typeof value !== 'string' || value.trim() === ''
+
+    // BE 의 필드 선언 순서대로 메시지를 모은다 (DTO 의 message 문구 그대로).
+    // 8/4 — departureStationId 삭제됨. 두 필드만 검증한다.
+    const violations: string[] = []
+    if (isBlank(body.departure)) {
+      violations.push('출발역 이름은 필수입니다.')
+    } else if ((body.departure ?? '').length > MAX_PLACE_NAME_LENGTH) {
+      violations.push('출발역 이름은 255자 이하여야 합니다.')
+    }
+    if (isBlank(body.destination)) {
+      violations.push('도착역 이름은 필수입니다.')
+    } else if ((body.destination ?? '').length > MAX_PLACE_NAME_LENGTH) {
+      violations.push('도착역 이름은 255자 이하여야 합니다.')
+    }
+
+    if (violations.length > 0) {
+      return HttpResponse.json(
+        errorBody(violations.join(', '), 'INVALID_INPUT_VALUE'),
+        { status: 400 },
+      )
+    }
+
+    /*
+      실서버는 여기서 `stations.name_ko = departure`(trim 후 정확 비교)인 역의
+      역무원을 찾고, 없으면 404 STAFF_NOT_FOUND 를 던진다. 목은 역 데이터를
+      갖고 있지 않으므로 그 분기는 흉내 내지 않는다 — 시드의 역 이름 표기가
+      확정되면 실서버로 검증할 것. 블랙리스트 차단(403 CONSULTATION_BLOCKED)도
+      같은 이유로 생략한다.
+    */
     const result = createMockConsultation()
 
     if (result === 'DUPLICATED') {
@@ -456,9 +559,9 @@ const mockHandlers: HttpHandler[] = [
     return HttpResponse.json(okBody('상담 상태 조회 성공', snapshot))
   }),
 
-  // 접속 토큰 발급 — MATCHED 확인 후 1회 호출된다
+  // 대기 취소 — HelpChatPage 의 [취소] 버튼
   http.post(
-    `${BASE}/consultations/:consultationId/token`,
+    `${BASE}/consultations/:consultationId/cancel`,
     ({ request, params }) => {
       if (!request.headers.get('Authorization')) {
         return HttpResponse.json(errorBody('인증이 필요합니다.'), {
@@ -466,7 +569,8 @@ const mockHandlers: HttpHandler[] = [
         })
       }
 
-      const result = issueMockConsultationToken(Number(params.consultationId))
+      const consultationId = Number(params.consultationId)
+      const result = cancelMockConsultation(consultationId)
 
       if (result === 'NOT_FOUND') {
         return HttpResponse.json(
@@ -475,17 +579,165 @@ const mockHandlers: HttpHandler[] = [
         )
       }
 
-      // 매칭 전 발급 요청. 정상 흐름에서는 오지 않는다 — BE 확정 시 코드 맞출 것.
-      if (result === 'NOT_MATCHED') {
+      if (result === 'NOT_ALLOWED') {
         return HttpResponse.json(
-          errorBody('아직 매칭되지 않은 상담입니다.', 'CONSULTATION_NOT_MATCHED'),
+          errorBody(
+            '대기 중인 상담만 취소할 수 있습니다.',
+            'CONSULTATION_CANCEL_NOT_ALLOWED',
+          ),
           { status: 409 },
         )
       }
 
-      return HttpResponse.json(okBody('토큰이 발급되었습니다.', result))
+      return HttpResponse.json(
+        okBody('상담이 취소되었습니다.', { consultationId, status: result }),
+      )
     },
   ),
+
+  /*
+    사용자 이탈 — 통화 화면에서 [통화 종료] 를 눌렀을 때.
+
+    ⚠️ BE 미구현이다. 목만 있는 이유는, 이게 없으면 상담이 MATCHED/
+    IN_PROGRESS 로 남아 재요청이 409 CONSULTATION_DUPLICATED 로 막히기
+    때문이다(실서버도 같은 조건으로 막는다). 멱등이라 재요청도 200 이다.
+  */
+  http.post(
+    `${BASE}/consultations/:consultationId/leave`,
+    ({ request, params }) => {
+      if (!request.headers.get('Authorization')) {
+        return HttpResponse.json(errorBody('인증이 필요합니다.'), {
+          status: 401,
+        })
+      }
+
+      const consultationId = Number(params.consultationId)
+      leaveMockConsultation(consultationId)
+
+      return HttpResponse.json(
+        okBody('상담에서 나갔습니다.', {
+          consultationId,
+          status: 'ENDED',
+        }),
+      )
+    },
+  ),
+
+  /* ---------------------------------------------------------------- *
+   * 관리자 — 블랙리스트 4종 (✅ BE 개발완료)
+   *
+   * ⚠️ 이 목이 없던 동안 블랙리스트 요청만 스위치 없이 실서버로 나가서,
+   *    USE_MSW 를 켠 로컬에서도 등록·해제가 항상 실패했다. 상태는
+   *    blacklistStore.ts 가 들고 있다(localStorage).
+   * 응답 모양은 BE BlacklistController·BlacklistResponse 기준.
+   * ---------------------------------------------------------------- */
+
+  // 블랙리스트 등록
+  http.post(`${BASE}/staffs/blacklist`, async ({ request }) => {
+    if (!request.headers.get('Authorization')) {
+      return HttpResponse.json(errorBody('인증이 필요합니다.'), { status: 401 })
+    }
+
+    const { userEmail, reasons } = (await request.json()) as {
+      userEmail?: string
+      reasons?: string[]
+    }
+
+    if (
+      typeof userEmail !== 'string' ||
+      userEmail.trim() === '' ||
+      !Array.isArray(reasons) ||
+      reasons.length === 0
+    ) {
+      return HttpResponse.json(
+        errorBody('잘못된 형식의 요청 값입니다.', 'INVALID_INPUT_VALUE'),
+        { status: 400 },
+      )
+    }
+
+    if (registerMockBlacklist(userEmail, reasons) === 'DUPLICATED') {
+      return HttpResponse.json(
+        errorBody('이미 블랙리스트에 등록된 사용자입니다.', 'BLACKLIST_DUPLICATED'),
+        { status: 409 },
+      )
+    }
+
+    return HttpResponse.json(
+      okBodyWithoutData('블랙리스트에 등록했습니다.'),
+      { status: 201 },
+    )
+  }),
+
+  // 블랙리스트 명단 조회 (page 는 1부터)
+  http.get(`${BASE}/staffs/blacklist`, ({ request }) => {
+    if (!request.headers.get('Authorization')) {
+      return HttpResponse.json(errorBody('인증이 필요합니다.'), { status: 401 })
+    }
+
+    const page = Number(new URL(request.url).searchParams.get('page') ?? '1')
+
+    return HttpResponse.json(
+      okBody('조회에 성공하였습니다.', listMockBlacklist(page)),
+    )
+  }),
+
+  // 블랙리스트 해제
+  http.post(`${BASE}/staffs/blacklist/release`, async ({ request }) => {
+    if (!request.headers.get('Authorization')) {
+      return HttpResponse.json(errorBody('인증이 필요합니다.'), { status: 401 })
+    }
+
+    const { userEmail } = (await request.json()) as { userEmail?: string }
+
+    if (typeof userEmail !== 'string' || userEmail.trim() === '') {
+      return HttpResponse.json(
+        errorBody('잘못된 형식의 요청 값입니다.', 'INVALID_INPUT_VALUE'),
+        { status: 400 },
+      )
+    }
+
+    if (releaseMockBlacklist(userEmail) === 'NOT_FOUND') {
+      return HttpResponse.json(
+        errorBody('블랙리스트에 없는 사용자입니다.', 'BLACKLIST_NOT_FOUND'),
+        { status: 404 },
+      )
+    }
+
+    return HttpResponse.json(okBodyWithoutData('블랙리스트를 해제했습니다.'))
+  }),
+
+  // 블랙리스트 사유 수정
+  http.patch(`${BASE}/staffs/blacklist`, async ({ request }) => {
+    if (!request.headers.get('Authorization')) {
+      return HttpResponse.json(errorBody('인증이 필요합니다.'), { status: 401 })
+    }
+
+    const { userEmail, reasons } = (await request.json()) as {
+      userEmail?: string
+      reasons?: string[]
+    }
+
+    if (
+      typeof userEmail !== 'string' ||
+      userEmail.trim() === '' ||
+      !Array.isArray(reasons) ||
+      reasons.length === 0
+    ) {
+      return HttpResponse.json(
+        errorBody('잘못된 형식의 요청 값입니다.', 'INVALID_INPUT_VALUE'),
+        { status: 400 },
+      )
+    }
+
+    if (updateMockBlacklistReasons(userEmail, reasons) === 'NOT_FOUND') {
+      return HttpResponse.json(
+        errorBody('블랙리스트에 없는 사용자입니다.', 'BLACKLIST_NOT_FOUND'),
+        { status: 404 },
+      )
+    }
+
+    return HttpResponse.json(okBodyWithoutData('사유를 수정했습니다.'))
+  }),
 
   /* ---------------------------------------------------------------- *
    * 관리자 — 상담 대기 목록 (BE 미구현, BACKEND_READY.ADMIN_QUEUE 참고)
@@ -494,22 +746,28 @@ const mockHandlers: HttpHandler[] = [
    * 목록은 consultationQueue 의 공유 상태(localStorage)에서 읽으므로,
    * user 탭이 요청한 상담이 admin 탭 목록에 그대로 나타난다.
    * ---------------------------------------------------------------- */
-  http.get(`${BASE}/admin/consultations`, ({ request }) => {
+  http.get(`${BASE}/staffs/waiting`, ({ request }) => {
     if (!request.headers.get('Authorization')) {
       return HttpResponse.json(errorBody('인증이 필요합니다.'), { status: 401 })
     }
 
-    // status=WAITING 만 지원한다. 다른 값은 목이 다루지 않는 영역이라 빈 목록.
-    const status = new URL(request.url).searchParams.get('status')
-    const content = status === 'WAITING' ? listMockWaitingConsultations() : []
+    // 백엔드 WaitingResponse 형태(departure/destination/language)로 내려준다.
+    const content = listMockWaitingConsultations().map((item) => ({
+      consultationId: item.consultationId,
+      email: item.email,
+      departure: item.startPoint,
+      destination: item.finalPoint,
+      language: item.langCode,
+      requestedAt: item.requestedAt,
+    }))
 
     return HttpResponse.json(
-      okBody('상담 대기 목록 조회 성공', {
+      okBody('대기 목록 조회 성공', {
         content,
-        // admin/lib/paging.ts 의 PageMeta 와 같은 모양 (목은 한 페이지뿐)
+        // 백엔드 PageResponse 와 같은 모양 (목은 한 페이지, size 6)
         page: {
-          number: 0,
-          size: 20,
+          number: 1,
+          size: 6,
           totalElements: content.length,
           totalPages: 1,
           first: true,
@@ -523,31 +781,40 @@ const mockHandlers: HttpHandler[] = [
    * 화상연결(signaling) — ✅ BE 개발완료
    *
    * 실서버가 있으므로 mockSwitch 기본값이 false 다(등록 안 됨 → 실서버로).
-   * 한 컴퓨터에서 user + admin 매칭 실험을 할 때만 다섯 개를 함께 켠다.
-   * 켜면: admin 수락(세션 생성)이 공유 상태를 MATCHED 로 바꾸고,
+   * 한 컴퓨터에서 user + admin 매칭 실험을 할 때만 네 개를 함께 켠다.
+   * 켜면: admin 수락(accept)이 공유 상태를 MATCHED 로 바꾸고,
    * user 의 커넥션 폴링(joinSession)이 404 → 토큰 발급으로 풀린다.
-   * 응답 모양은 BE 실코드(OpenViduController, 8/1) 기준.
+   * 응답 모양: accept 는 ssabway ConsultationController(8/4 이관) 기준,
+   * 나머지는 webrtc OpenViduController 기준. (okBody 가 두 봉투의 성공
+   * 형태를 모두 만족한다 — ssabway 는 성공 시 code 를 생략하기 때문)
    * ---------------------------------------------------------------- */
 
-  // 세션 생성 (= 역무원 수락)
-  http.post(`${BASE}/openvidu/sessions`, async ({ request }) => {
-    const { consultationId } = (await request.json()) as {
-      consultationId?: number
-    }
+  // 역무원 수락 — accept 1-call (상태 잠금 + 세션 생성 + 토큰 발급)
+  http.post(
+    `${BASE}/staffs/consultations/:consultationId/accept`,
+    ({ params }) => {
+      const consultationId = Number(params.consultationId)
 
-    if (typeof consultationId !== 'number') {
+      if (!Number.isInteger(consultationId) || consultationId <= 0) {
+        return HttpResponse.json(
+          errorBody('잘못된 형식의 요청 값입니다.', 'INVALID_INPUT_VALUE'),
+          { status: 400 },
+        )
+      }
+
+      const sessionId = openMockSession(consultationId)
+      const connection = createMockConnection(sessionId)
+
       return HttpResponse.json(
-        errorBody('잘못된 형식의 요청 값입니다.', 'INVALID_INPUT_VALUE'),
-        { status: 400 },
+        okBody('상담이 수락되었습니다.', {
+          consultationId,
+          sessionId,
+          token: connection?.token ?? `mock-openvidu-token-${sessionId}`,
+          status: 'MATCHED',
+        }),
       )
-    }
-
-    return HttpResponse.json(
-      okBody('세션이 생성되었습니다.', {
-        sessionId: openMockSession(consultationId),
-      }),
-    )
-  }),
+    },
+  ),
 
   // 커넥션(접속 토큰) 발급 — 세션이 없으면 404 (사용자 폴링이 이 404 에 기댄다)
   // 참여자 식별·역할은 JWT 몫이라 요청 본문이 없다 (BE 8/2 권한 업데이트).
@@ -605,12 +872,6 @@ const mockHandlers: HttpHandler[] = [
     )
   }),
 
-  // 세션 정리(수락 실패 롤백) — ⚠️ BE 는 미구현(재추가 합의 상태)이지만
-  // FE 롤백 경로를 목에서라도 통과시키기 위해 둔다.
-  http.delete(`${BASE}/openvidu/sessions/:sessionId`, ({ params }) => {
-    closeMockSession(String(params.sessionId))
-    return HttpResponse.json(okBodyWithoutData('세션이 정리되었습니다.'))
-  }),
 ]
 
 /** 핸들러의 method + path 를 mockSwitch.ts 의 키 형식으로 바꾼다. */

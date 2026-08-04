@@ -4,6 +4,8 @@ import { endpoints } from '@/shared/api/endpoints'
 import {
   CONSULTATION_STATUS,
   type ApiResponse,
+  type ConsultationCreateBody,
+  type ConsultationCreated,
   type ConsultationSession,
   type ConsultationSnapshot,
   type ConsultationStatus,
@@ -12,9 +14,10 @@ import {
 } from '@/shared/types'
 
 /**
- * 화상 상담 서버(ssabway_webrtc) 호출부. — 7/31 백엔드 최신화 반영
+ * 화상 상담 서버(ssabway_webrtc) 호출부. — 8/3 백엔드 최신화 반영
  *
- * 서버 흐름: sessions(생성) → connections(토큰) → start(녹음+IN_PROGRESS) → end.
+ * 서버 흐름: 역무원 accept(세션 생성+토큰 통합) / 사용자 connections(토큰)
+ *            → start(녹음+IN_PROGRESS) → end.
  * 순서·실패 처리·세션 ID 규칙을 화면 코드가 알면 고칠 자리가 흩어지므로
  * 전부 이 파일에 가둔다.
  *
@@ -27,8 +30,9 @@ import {
  * 세션 ID 생성 규칙.
  *
  * ⚠️ 백엔드와 공유하는 규칙이다. (양쪽 서비스의 SESSION_PREFIX 상수)
- * accept 통합안을 철회하고 sessionId 기준 API 로 확정했으므로(7/31)
- * 이 규칙은 계속 유지된다. 서버에서 접두사를 바꾸면 반드시 상호 공지할 것.
+ * 역무원은 accept 응답의 sessionId 를 받지만, 사용자 joinSession 과
+ * 종료(endConsultation)는 sessionId 기준 API 라 이 규칙이 계속 필요하다.
+ * 서버에서 접두사를 바꾸면 반드시 상호 공지할 것.
  */
 const SESSION_ID_PREFIX = 'consultation-'
 
@@ -36,8 +40,12 @@ export function toSessionId(consultationId: number): string {
   return `${SESSION_ID_PREFIX}${String(consultationId)}`
 }
 
-interface SessionCreated {
+/** BE 실제 DTO (ConsultationAcceptResponse — 8/3 코드 확인) */
+interface ConsultationAccepted {
+  consultationId: number
   sessionId: string
+  token: string
+  status: ConsultationStatus
 }
 
 interface ConnectionCreated {
@@ -111,14 +119,6 @@ function isSessionNotReady(error: unknown): boolean {
 }
 
 export function createOpenViduApi(api: AxiosInstance) {
-  async function createSession(consultationId: number): Promise<string> {
-    const res = await api.post<WebrtcApiResponse<SessionCreated>>(
-      endpoints.openvidu.createSession,
-      { consultationId },
-    )
-    return res.data.data.sessionId
-  }
-
   /**
    * 접속 토큰 발급 — 요청 본문이 없다.
    *
@@ -136,45 +136,46 @@ export function createOpenViduApi(api: AxiosInstance) {
     return res.data.data
   }
 
-  async function closeSession(sessionId: string): Promise<void> {
-    await api.delete(endpoints.openvidu.closeSession(sessionId))
-  }
-
   /**
-   * 역무원이 상담을 수락할 때. 세션 생성 → 토큰 발급.
+   * 역무원이 상담을 수락할 때 — accept 1-call.
+   *
+   * `POST /staffs/consultations/{id}/accept` 하나가 상태 잠금(WAITING→MATCHED)
+   * + 세션 생성 + 역무원 토큰 발급을 서버 트랜잭션으로 처리한다.
+   *
+   * ⚠️ 8/4 — 이 API 의 소유가 webrtc 에서 **ssabway(메인 백엔드)** 로 이동했다.
+   *    URL 은 그대로지만, ssabway 가 webrtc 의 내부 API(/internal/v1/openvidu)
+   *    를 호출해 세션·토큰을 받아오는 구조가 됐다. 응답 봉투도 ssabway 의
+   *    `ApiResponse`(code 필드 있음)로 바뀌었다 — 그래서 이 함수만 다른 화상
+   *    API 들과 달리 `WebrtcApiResponse` 가 아니라 `ApiResponse` 로 읽는다.
+   *    nginx 도 이 경로를 api 로 보내야 한다 (deploy/nginx.conf 참고).
    *
    * 녹음은 여기서 시작하지 않는다 — start 가 사용자 접속 이후로 합의됐다.
    *
-   * 선착순 판정은 서버가 한다. 두 역무원이 동시에 수락하면 늦은 쪽이
-   * 세션 생성(409, OpenVidu customSessionId 충돌) 또는 커넥션 발급
-   * (409 PARTICIPANT_ALREADY_CONNECTED / PARTICIPANT_LIMIT_EXCEEDED)에서 거절된다.
-   *
-   * 토큰 발급이 실패하면 방금 만든 세션을 되돌린다. 남겨두면 사용자 쪽
-   * joinSession 이 "세션이 열렸다"고 오판해 들어가 혼자 기다리게 된다.
-   * (closeSession 은 백엔드 재추가 예정 — 그 전까지 롤백 실패는 무시된다)
+   * 실패 분기 (이제 code 로 구분 가능):
+   *   409 CONSULTATION_ALREADY_ACCEPTED — 다른 역무원이 먼저 수락(선착순)
+   *   403 CONSULTATION_ACCESS_DENIED — 이 상담에 배정된 역무원이 아님
+   *   502 WEBRTC_SERVER_ERROR — 내부 세션 생성 실패 (MATCHED 는 롤백됨)
    */
   async function openSession(
     consultationId: number,
   ): Promise<ConsultationSession> {
-    const sessionId = await createSession(consultationId)
-
-    try {
-      const connection = await createConnection(sessionId)
-      return { consultationId, sessionId, token: connection.token }
-    } catch (error) {
-      await closeSession(sessionId).catch(() => {
-        // 롤백 실패는 원래 오류를 덮지 않는다.
-      })
-      throw error
-    }
+    const res = await api.post<ApiResponse<ConsultationAccepted>>(
+      endpoints.admin.accept(consultationId),
+    )
+    const { sessionId, token } = res.data.data
+    return { consultationId, sessionId, token }
   }
 
   /**
-   * 이미 열려 있는 세션에 접속할 때. 사용자(여행객)와, 새로고침한 역무원이 쓴다.
+   * 이미 열려 있는(또는 곧 열릴) 세션에 접속할 때.
    *
-   * 세션은 역무원이 수락해야 생기므로, 열릴 때까지(404) 3초 간격으로 재시도한다.
-   * 상담 상태 조회 API(BACKEND_READY.CONSULTATION_STATUS)가 생기면 사용자 쪽은
-   * 상태 폴링 → 1회 접속으로 바뀌고, 이 함수는 역무원 새로고침 복구용으로 남는다.
+   * 사용자(여행객)는 `GET /consultations/{id}` 폴링으로 MATCHED 를 확인한
+   * 뒤 이 함수로 커넥션(토큰)을 받는다(`useConsultationMatch`). 역무원은
+   * 새로고침 복구 시 세션 ID 규칙으로 재접속하는 데 쓴다.
+   *
+   * 세션은 역무원 수락 시 accept 1-call 로 생성되므로 보통 즉시 성공하지만,
+   * 상태 폴링과 세션 생성 사이의 아주 짧은 레이스(404)를 대비해 열릴
+   * 때까지 3초 간격으로 재시도한다.
    *
    * 재접속은 서버가 처리한다 — 같은 계정(JWT)으로 다시 커넥션을 받으면
    * 서버가 이전 커넥션을 끊고 새로 발급한다. 같은 역할의 다른 계정이면 409,
@@ -240,12 +241,20 @@ export function createOpenViduApi(api: AxiosInstance) {
     }
   }
 
-  // ─── 상담 도메인 API — ⚠️ BE 미구현 (BACKEND_READY.CONSULTATION_STATUS) ───
+  // ─── 상담 도메인 API ───
 
-  /** 상담 요청 → 대기열 등록 */
-  async function requestConsultation(): Promise<ConsultationSnapshot> {
-    const res = await api.post<ApiResponse<ConsultationSnapshot>>(
+  /**
+   * 상담 요청 → 대기열 등록.
+   *
+   * 역무원은 서버가 `departureStationId` 로 배정하므로 보내지 않는다.
+   * 세 필드 모두 필수다 — 자세한 계약은 `ConsultationCreateBody` 참고.
+   */
+  async function requestConsultation(
+    body: ConsultationCreateBody,
+  ): Promise<ConsultationCreated> {
+    const res = await api.post<ApiResponse<ConsultationCreated>>(
       endpoints.consultations.create,
+      body,
     )
     return res.data.data
   }
@@ -261,17 +270,25 @@ export function createOpenViduApi(api: AxiosInstance) {
   }
 
   /**
-   * 매칭된 사용자가 접속 토큰을 받는다.
-   * 이 API 가 생기면 사용자 쪽 joinSession 폴링이 상태 폴링 + 1회 발급으로 바뀐다.
+   * 대기 취소. WAITING 에서만 가능하고(그 외 409), 이미 취소된 상담에
+   * 재요청해도 성공(멱등)이다 — 호출부가 상태를 가리지 않고 불러도 된다.
    */
-  async function issueToken(
-    consultationId: number,
-  ): Promise<ConsultationSession> {
-    const res = await api.post<
-      ApiResponse<{ sessionId: string; token: string }>
-    >(endpoints.consultations.token(consultationId))
-    const { sessionId, token } = res.data.data
-    return { consultationId, sessionId, token }
+  async function cancelConsultation(consultationId: number): Promise<void> {
+    await api.post(endpoints.consultations.cancel(consultationId))
+  }
+
+  /**
+   * 사용자가 통화에서 나갔음을 알린다. ⚠️ BE 미구현 (목만 있다).
+   *
+   * 이 호출이 없으면 상담이 MATCHED/IN_PROGRESS 로 남아, 같은 사용자가 다시
+   * 도움을 요청할 때 409 CONSULTATION_DUPLICATED 로 막힌다. 역무원이
+   * [상담 종료] 를 눌러 주기 전까지 사용자는 재요청을 못 하게 된다.
+   *
+   * 녹음 정지·세션 종료는 여기서 하지 않는다 — 역무원 쪽 end 와 OpenVidu
+   * 세션 종료 웹훅이 담당한다.
+   */
+  async function leaveConsultation(consultationId: number): Promise<void> {
+    await api.post(endpoints.consultations.leave(consultationId))
   }
 
   return {
@@ -279,10 +296,10 @@ export function createOpenViduApi(api: AxiosInstance) {
     joinSession,
     startConsultation,
     endConsultation,
-    closeSession,
     requestConsultation,
     fetchSnapshot,
-    issueToken,
+    cancelConsultation,
+    leaveConsultation,
   }
 }
 

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
@@ -59,10 +59,10 @@ export default function ConsultationPage() {
   /*
     상담 ID.
 
-    원래는 `POST /api/v1/consultations`(상담 요청) 응답으로 받아야 하지만
-    백엔드에 해당 컨트롤러가 없다. 연결 검증 동안에는 역무원 대기 목록에 보이는
-    ID 를 쿼리 파라미터로 직접 넘긴다. (/consultation?consultationId=1)
-    TODO: 상담 요청 API 가 생기면 응답의 consultationId 를 쓰고 이 파싱은 지운다.
+    HelpChatPage 의 대기 화면이 상담 요청(POST /consultations) 응답으로 받은
+    실제 ID 를 쿼리 파라미터에 실어 이 화면으로 넘긴다. 새로고침해도 URL 에
+    남아 있어 재접속(joinSession)에 그대로 쓸 수 있다 — 그래서 라우팅 state가
+    아니라 쿼리 파라미터를 택했다.
   */
   const consultationId = Number(searchParams.get('consultationId') ?? '0')
 
@@ -135,14 +135,39 @@ export default function ConsultationPage() {
     )
   }
 
+  /**
+   * 역무원이 먼저 종료했을 때 이 화면도 함께 닫는다.
+   *
+   * 역무원이 [상담 종료] 를 누르면 서버가 OpenVidu 세션을 닫고, 그러면 이쪽
+   * 클라이언트에 `sessionDisconnected` 가 와서 상태가 DISCONNECTED 가 된다.
+   * 그 신호를 화면이 받지 않으면 통화가 끝났는데도 카메라가 계속 돌고 화면이
+   * 그대로 남는다.
+   *
+   * 한 번 연결된 뒤의 DISCONNECTED 만 본다 — 접속 전 IDLE 상태와 구분해야
+   * 하고, 사용자가 직접 끊은 경우는 endCall 이 이미 정리하고 이동했으므로
+   * 여기까지 오지 않는다.
+   */
+  const hasConnectedRef = useRef(false)
+  if (call.status === OV_STATUS.CONNECTED) hasConnectedRef.current = true
+
+  useEffect(() => {
+    if (!hasConnectedRef.current) return
+    if (call.status !== OV_STATUS.DISCONNECTED) return
+
+    stop()
+    showToast(t('consultation.video.endedByStaff'))
+    void navigate('/guide', { replace: true })
+  }, [call.status, navigate, showToast, stop, t])
+
   const endCall = () => {
     /*
       연결을 먼저 끊고 장치를 반납한다. 순서가 반대면 이미 끝난 트랙을 발행하다
       OpenVidu 가 예외를 던진다.
 
-      녹음 정지는 여기서 하지 않는다. 역무원이 [상담 종료] 를 누르면 서버가
-      정지시키고, 사용자가 먼저 나가도 세션 종료 웹훅으로 녹음이 마감된다.
-      (명세의 POST /consultations/{id}/leave 는 백엔드 미구현)
+      call.leave() 가 연결 해제와 함께 상담 종료 처리까지 맡는다 — 녹음 정지·
+      세션 종료·ENDED 전이를 서버가 한 번에 한다(역무원의 [상담 종료] 와 같은
+      API). 이게 없으면 상담이 활성 상태로 남아 다음 도움 요청이 409 로 막힌다.
+      자세한 분기는 useConsultationCall 의 leaveCall 주석 참고.
     */
     call.leave()
     stop()
