@@ -57,6 +57,14 @@ public class SecurityConfig {
                 )
                 .hasAuthority("USER")
 
+                // 상담 종료는 해당 상담을 담당하는 역무원만 요청할 수 있습니다.
+                // 담당 역무원 일치 여부는 OpenViduController에서 추가로 검증합니다.
+                .requestMatchers(
+                    HttpMethod.POST,
+                    "/api/v1/openvidu/sessions/*/end"
+                )
+                .hasAuthority("STAFF")
+
                 // 역무원 API는 STAFF만 접근 가능
                 .requestMatchers("/api/v1/**")
                 .authenticated()
