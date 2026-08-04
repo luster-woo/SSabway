@@ -143,7 +143,6 @@ export default function StartPage() {
       showToast(t('start.needConsentFirst'))
       return
     }
-    // TODO: 표지판 촬영 화면(sign-capture) 연결
     void navigate('/scan')
   }
 
@@ -161,7 +160,6 @@ export default function StartPage() {
   }
 
   const moveToLogin = () => {
-    // TODO: 로그인 화면 연결
     void navigate('/login')
   }
 
