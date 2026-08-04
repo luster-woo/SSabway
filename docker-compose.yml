@@ -31,6 +31,8 @@ services:
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       SPRING_DATA_REDIS_HOST: redis
+      WEBRTC_BASE_URL: http://signaling:8080
+      WEBRTC_INTERNAL_SECRET: ${INTERNAL_API_SECRET}
       TZ: Asia/Seoul
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
@@ -53,6 +55,7 @@ services:
       OPENVIDU_URL: ${OPENVIDU_URL}
       OPENVIDU_SECRET: ${OPENVIDU_SECRET}
       OPENVIDU_WEBHOOK_SECRET: ${OPENVIDU_WEBHOOK_SECRET}
+      INTERNAL_API_SECRET: ${INTERNAL_API_SECRET}
       # api 와 반드시 같은 값이어야 한다 — 사용자·역무원이 api 에서 발급받은
       # JWT 를 이 서비스가 검증한다. 없으면 application.yaml 의
       # `jwt.secret: ${JWT_SECRET}` placeholder 를 못 채워 기동 자체가 실패하고
