@@ -21,7 +21,6 @@ import { MOCK_SWITCH, type MockSwitchKey } from '@/mocks/mockSwitch'
 import type { ConsultationCreateBody } from '@/shared/types'
 // 목 데이터가 화면 목과 어긋나면 안 되어 user 쪽 원본을 그대로 쓴다.
 // (mocks 는 개발 전용이라 user 레이어 참조가 번들 분리를 해치지 않는다)
-import { MOCK_ROUTE_GUIDE } from '@/user/features/route-guide/lib/mockRouteGuide'
 
 import {
   CODE_TIME_LIMIT_SEC,
@@ -444,21 +443,6 @@ const mockHandlers: HttpHandler[] = [
     )
   }),
 
-  // 역 내 경로 제공 (명세 「경로」 카테고리, BE 개발전)
-  //
-  // 응답의 steps[].point(도면 좌표)는 명세 제안 필드다 — 현재 노션 명세에는
-  // 좌표가 없어 "역 내 현재 위치" 지도를 그릴 수 없다. FE 가 형태를 먼저
-  // 굳혀 BE 에 요청한 상태 (shared/types/routeGuide.ts 의 GuidePoint 참고).
-  // 비로그인에도 길안내는 동작해야 하므로 인증을 요구하지 않는다.
-  //
-  // ⚠️ 지금은 도달하지 않는다 — BACKEND_READY.ROUTE_GUIDE 가 false 인 동안
-  //    fetchRouteGuide 가 HTTP 를 보내지 않고 목을 직접 돌려준다(배포 환경에
-  //    MSW 가 없어서 생긴 조치, 플래그 주석 참고). BE 가 붙어 플래그를 켜면
-  //    이 핸들러가 다시 살아나 로컬 검증에 쓰인다.
-  http.post(`${BASE}/routes/navi`, () =>
-    HttpResponse.json(okBody('경로 안내 조회 성공', MOCK_ROUTE_GUIDE)),
-  ),
-
   /* ---------------------------------------------------------------- *
    * 상담 대기열 — mockSwitch 기본값 true (아직 실서버로 못 붙는다).
    *
@@ -657,15 +641,17 @@ const mockHandlers: HttpHandler[] = [
 
     if (registerMockBlacklist(userEmail, reasons) === 'DUPLICATED') {
       return HttpResponse.json(
-        errorBody('이미 블랙리스트에 등록된 사용자입니다.', 'BLACKLIST_DUPLICATED'),
+        errorBody(
+          '이미 블랙리스트에 등록된 사용자입니다.',
+          'BLACKLIST_DUPLICATED',
+        ),
         { status: 409 },
       )
     }
 
-    return HttpResponse.json(
-      okBodyWithoutData('블랙리스트에 등록했습니다.'),
-      { status: 201 },
-    )
+    return HttpResponse.json(okBodyWithoutData('블랙리스트에 등록했습니다.'), {
+      status: 201,
+    })
   }),
 
   // 블랙리스트 명단 조회 (page 는 1부터)
@@ -871,7 +857,6 @@ const mockHandlers: HttpHandler[] = [
       }),
     )
   }),
-
 
   /* ----------------------------------------------------------------
    * 관리자 — 진행 중 상담 정보 단건 (GET /staffs/consultations/{id})

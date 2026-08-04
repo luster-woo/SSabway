@@ -7,6 +7,7 @@ import { useDestinationStore } from '@/shared/lib/store/useDestinationStore'
 import { useOriginStationStore } from '@/shared/lib/store/useOriginStationStore'
 import { useLanguage } from '@/shared/lib/useLanguage'
 import type { RoutePathParams } from '@/shared/types/route'
+import { IS_DEV } from '@/shared/lib/env'
 import type { ApiErrorBody } from '@/shared/types/api'
 import { Button, MobileScreen, useToast } from '@/shared/ui'
 import { TripEndpointBar } from '@/shared/ui/TripEndpointBar'
@@ -79,16 +80,37 @@ export default function RoutePage() {
 
     ssabway 는 실패 응답에 항상 code 를 싣는다(ApiResponse.error).
   */
-  const failedKey = useMemo(() => {
-    if (!isAxiosError(error)) return 'route.select.failed'
+  const failure = useMemo<{ key: string; params?: { status: number } }>(() => {
+    if (!isAxiosError(error)) return { key: 'route.select.failed' }
 
     // 응답 자체가 없으면 서버에 닿지 못한 것이다(미기동·프록시 대상 오류).
-    if (!error.response) return 'route.select.failedNetwork'
+    if (!error.response) return { key: 'route.select.failedNetwork' }
 
+    const status = error.response.status
     const code = (error.response.data as ApiErrorBody | undefined)?.code
-    if (code === 'SUBWAY_ROUTE_NOT_FOUND') return 'route.select.failedNoRoute'
-    if (code === 'EXTERNAL_API_ERROR') return 'route.select.failedOdsay'
-    return 'route.select.failed'
+
+    if (code === 'SUBWAY_ROUTE_NOT_FOUND')
+      return { key: 'route.select.failedNoRoute' }
+    if (code === 'EXTERNAL_API_ERROR')
+      return { key: 'route.select.failedOdsay' }
+
+    /*
+      이 API 가 내는 실패는 위 둘뿐이다. 그 밖의 응답은 요청이 RouteController
+      까지 닿지 못했다는 뜻이라 상태 코드를 드러낸다.
+
+      특히 401 — SecurityConfig 가 /api/v1/routes/** 를 permitAll 로 열어 두었는데도
+      401 이면 그 설정이 없던 옛 빌드가 떠 있는 것이다. 로그인해도 해결되지 않으므로
+      "로그인이 필요합니다"를 그대로 보여주면 안 된다.
+    */
+    if (IS_DEV) {
+      console.error('[route] 예상과 다른 실패 응답', {
+        status,
+        code,
+        url: error.config?.url,
+        data: error.response.data,
+      })
+    }
+    return { key: 'route.select.failedUnexpected', params: { status } }
   }, [error])
   const paths = data ?? []
   // 의존성은 data로 둔다. paths는 매 렌더 새 배열이라 메모이제이션이 무효화된다.
@@ -114,7 +136,7 @@ export default function RoutePage() {
             type="button"
             aria-label={t('route.select.back')}
             onClick={() => void navigate(-1)}
-            className="text-ink -ml-1.5 mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full"
+            className="text-ink mt-0.5 -ml-1.5 flex size-8 shrink-0 items-center justify-center rounded-full"
           >
             <ChevronLeftIcon className="size-5" strokeWidth={2} />
           </button>
@@ -177,7 +199,7 @@ export default function RoutePage() {
       {hasEndpoints && isError ? (
         <div className="flex flex-1 flex-col items-center justify-center gap-4 text-center">
           <p className="text-ink-muted text-[13.5px] whitespace-pre-line">
-            {t(failedKey)}
+            {t(failure.key, failure.params)}
           </p>
           <Button variant="secondary" onClick={() => void refetch()}>
             {t('common.retry')}
