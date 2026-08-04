@@ -1,7 +1,7 @@
 package com.ssafy.ssabway.domain.navigation.repository;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import com.ssafy.ssabway.global.common.Language;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
