@@ -11,6 +11,8 @@ import {
   useWaitingConsultations,
   type WaitingConsultation,
 } from '@/admin/features/consultation-receive/useWaitingConsultations'
+import { toConsultationDetail } from '@/admin/features/consultation-room/useConsultationDetail'
+import { useConsultationDetailStore } from '@/admin/features/consultation-room/useConsultationDetailStore'
 import { AdminButton } from '@/admin/ui/AdminButton'
 import { Chip } from '@/admin/ui/Chip'
 import { Panel } from '@/admin/ui/Panel'
@@ -36,6 +38,7 @@ export function WaitingPanel() {
   const { accept, pendingId } = useAcceptConsultation()
   const { showToast } = useToast()
   const navigate = useNavigate()
+  const setDetail = useConsultationDetailStore((s) => s.setDetail)
 
   const acceptConsultation = async (consultation: WaitingConsultation) => {
     const failure = await accept(consultation.consultationId)
@@ -51,21 +54,15 @@ export function WaitingPanel() {
 
     showToast(`${consultation.email} 상담을 시작합니다`)
     /*
-      세션 정보(sessionId·token)는 useAcceptConsultation 이 스토어에
-      넣어 뒀다. 라우팅 state 로 넘기면 새로고침·뒤로가기에서 사라진다.
-    */
-    void navigate(
-      `/admin/consultation/${String(consultation.consultationId)}`,
-      {
-        /*
-        상담 정보(이메일·출발지·목적지·언어)를 함께 넘긴다. 상담방의 서버
-        조회(GET /staffs/consultations/{id})가 BE 신설 대기라, 수락 흐름에서는
+      상담 화면에 넘길 값은 전부 스토어로 간다. 라우팅 state 는 새로고침·
+      뒤로가기에서 조용히 사라지므로 쓰지 않는다.
+      - 세션 정보(sessionId·token): useAcceptConsultation 이 넣어 뒀다.
+      - 상담 정보(이메일·출발지·목적지·언어): 여기서 넣는다. 상담방의 서버
+        조회(GET /staffs/consultations/{id})가 BE 신설 대기라 수락 흐름에서는
         이 값이 유일한 실데이터다. 특히 블랙리스트 등록이 이 email 로 나간다.
-        새로고침하면 사라지고 서버 조회 폴백을 탄다 — useConsultationDetail 참고.
-      */
-        state: { waiting: consultation },
-      },
-    )
+    */
+    setDetail(toConsultationDetail(consultation))
+    void navigate(`/admin/consultation/${String(consultation.consultationId)}`)
   }
 
   return (

@@ -6,6 +6,7 @@ import axios, {
 import { endpoints } from '@/shared/api/endpoints'
 import { readTokenRole } from '@/shared/api/tokenRole'
 import { env } from '@/shared/lib/env'
+import { clearSessionHint } from '@/shared/lib/sessionHint'
 import { useAuthStore, type AuthRole } from '@/shared/lib/store/useAuthStore'
 
 const LOGIN_PATH: Record<AuthRole, string> = {
@@ -251,13 +252,31 @@ export async function requestLogout(role: AuthRole): Promise<void> {
  * 보호 API 가 401 을 받을 때만 돌기 때문에 아무 일도 일어나지 않는다.
  *
  * 직접 부르지 말고 `useRestoreSession(role)` 을 쓴다. 그쪽이 status 가
- * 'idle' 인지 확인해 중복 호출을 막는다.
+ * 'idle' 인지 확인해 중복 호출을 막고, 로그인한 적 없는 브라우저에서는
+ * 아예 부르지 않는다(shared/lib/sessionHint.ts).
  */
 export async function restoreSession(role: AuthRole): Promise<boolean> {
   try {
     await refreshAccessToken(role)
     return true
-  } catch {
+  } catch (error) {
+    /*
+      서버가 쿠키를 거부했을 때만 로그인 흔적을 지운다.
+
+      네트워크 오류·타임아웃에서도 지우면, 지하에서 앱을 한 번 열었다는 이유로
+      다음 접속부터 복구를 아예 시도하지 않게 된다. 이 앱은 역 구내에서
+      네트워크 없이 열리는 것을 전제하므로 실제로 밟는 경로다. 연결 문제라면
+      표식을 남겨 두고 다음 부팅에서 다시 시도한다.
+
+      토큰의 역할이 어긋나 던진 경우(refreshAccessToken)도 여기서는 지우지
+      않는다. 세션이 끝난 것이 아니라 BE 의 쿠키 이름 충돌이므로, 다음 부팅에
+      한 번 더 시도할 여지를 남긴다.
+    */
+    const status = axios.isAxiosError(error)
+      ? error.response?.status
+      : undefined
+    if (status === 401 || status === 403) clearSessionHint(role)
+
     useAuthStore.getState().setStatus(role, 'unauthenticated')
     return false
   }

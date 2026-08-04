@@ -12,6 +12,7 @@ import io.openvidu.java.client.OpenViduHttpException;
 import io.openvidu.java.client.OpenViduJavaClientException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -23,12 +24,13 @@ public class ConsultationLeaveService {
     private final ConsultationCancelService consultationCancelService;
     private final ConsultationEndService consultationEndService;
 
+    @Transactional
     public ConsultationLeaveResponse leaveConsultation(
         Long consultationId, Long requesterUserId
     ) throws OpenViduJavaClientException, OpenViduHttpException{
 
         Consultation consultation = consultationRepository
-            .findById(consultationId)
+            .findByIdForUpdate(consultationId)
             .orElseThrow(() -> new BusinessException(ErrorCode.CONSULTATION_NOT_FOUND));
 
         // 로그인 사용자가 해당 상담을 요청한 사용자인지 확인
@@ -39,19 +41,31 @@ public class ConsultationLeaveService {
         ConsultationStatus status = consultation.getStatus();
 
 
-        /*
-         * 대기 중이거나 수락 직후인 상담은 취소 처리하고,
-         * MATCHED 상태라면 CancelService가 OpenVidu 세션도 종료
-         */
-
-        if(status == ConsultationStatus.WAITING || status == ConsultationStatus.MATCHED){
-
-            ConsultationCancelResponse response = consultationCancelService
-                .cancelConsultation(
+        // 역무원이 수락하기 전의 요청은 상담 이력이 아니므로 취소합니다.
+        if (status == ConsultationStatus.WAITING) {
+            ConsultationCancelResponse response =
+                consultationCancelService.cancelConsultation(
                     consultationId,
                     requesterUserId
                 );
 
+            return new ConsultationLeaveResponse(
+                response.getConsultationId(),
+                response.getStatus()
+            );
+        }
+
+        /*
+         * MATCHED는 세션은 생성됐지만 녹음 시작이 완료되지 않은 상태입니다.
+         * DB 잠금을 적용했으므로 정상적인 통화 중이라면 시작 처리가 먼저 끝나
+         * 이 시점에는 IN_PROGRESS로 조회되어야 합니다.
+         */
+        if (status == ConsultationStatus.MATCHED) {
+            ConsultationCancelResponse response =
+                consultationCancelService.cancelConsultation(
+                    consultationId,
+                    requesterUserId
+                );
 
             return new ConsultationLeaveResponse(
                 response.getConsultationId(),
