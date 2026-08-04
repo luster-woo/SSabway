@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 
-import type { ArrivalSummary } from '@/user/features/arrival/lib/mockArrivalSummary'
+import { toDurationLabel } from '@/shared/lib/routeDuration'
+import type { ArrivalSummary } from '@/user/features/arrival/lib/toArrivalSummary'
 
 interface SummaryRowProps {
   label: string
@@ -21,17 +22,21 @@ export interface ArrivalSummaryCardProps {
   summary: ArrivalSummary
 }
 
-/** 이번 이동 요약 — 소요 시간 · 출발지 · 도착지 */
+/** 이번 이동 요약 — 소요 시간 · 출발역 · 도착역 */
 export function ArrivalSummaryCard({ summary }: ArrivalSummaryCardProps) {
   const { t } = useTranslation()
 
   return (
     <dl className="divide-line bg-surface-soft flex flex-col divide-y rounded-[20px] px-5 py-1.5">
-      <SummaryRow label={t('arrival.duration')} value={summary.duration} />
-      <SummaryRow label={t('arrival.origin')} value={summary.originName} />
+      {/* 경로 선택 카드와 같은 표기 규칙을 쓴다("24분" / "1시간 24분"). */}
+      <SummaryRow
+        label={t('arrival.duration')}
+        value={toDurationLabel(t, summary.totalMinutes)}
+      />
+      <SummaryRow label={t('arrival.origin')} value={summary.originStation} />
       <SummaryRow
         label={t('arrival.destination')}
-        value={summary.destinationName}
+        value={summary.destinationStation}
       />
     </dl>
   )

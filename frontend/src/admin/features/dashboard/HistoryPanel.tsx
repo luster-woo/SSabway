@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { useToast } from '@/shared/ui'
 import { BlacklistReasonModal } from '@/admin/features/blacklist/BlacklistReasonModal'
@@ -43,6 +43,18 @@ interface RecordTarget {
 export function HistoryPanel() {
   const [page, setPage] = useState(1)
   const { data, isPending, isError, isFetching } = useConsultationHistory(page)
+
+  /*
+    마지막 페이지의 항목이 줄어(예: 블랙리스트 처리 후 재조회) 현재 페이지가
+    총 페이지 수를 넘으면 마지막 페이지로 되돌린다. 보정하지 않으면 빈 목록에
+    페이지 이동 버튼까지 사라져 빠져나갈 수 없다. (건수 0 이면 최소 1 페이지)
+  */
+  useEffect(() => {
+    if (data && page > data.page.totalPages) {
+      setPage(Math.max(1, data.page.totalPages))
+    }
+  }, [data, page])
+
   const {
     registerBlacklist,
     updateBlacklistReason,

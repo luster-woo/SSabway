@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom'
 
 import { useDestinationStore } from '@/shared/lib/store/useDestinationStore'
 import { useOriginStationStore } from '@/shared/lib/store/useOriginStationStore'
-import { useStationNodeStore } from '@/shared/lib/store/useStationNodeStore'
+import { useSelectedRouteStore } from '@/shared/lib/store/useSelectedRouteStore'
 import { useLanguage } from '@/shared/lib/useLanguage'
 import type { RoutePathParams } from '@/shared/types/route'
 import { IS_DEV } from '@/shared/lib/env'
@@ -41,7 +41,9 @@ export default function RoutePage() {
    *    (엉뚱한 좌표로 400/404 를 받는 일도 함께 사라진다)
    */
   const originStation = useOriginStationStore((state) => state.originStation)
-  const setFinalPoint = useStationNodeStore((state) => state.setFinalPoint)
+  const setSelectedRoute = useSelectedRouteStore(
+    (state) => state.setSelectedRoute,
+  )
 
   const originName = originStation?.name ?? null
   const destinationName = destination?.name ?? null
@@ -124,23 +126,13 @@ export default function RoutePage() {
     const path = paths[index]
     if (!path) return
     setSelectedIndex(index)
-
     /*
-      첫 지하철 구간의 개찰구 노드를 역 내 안내의 도착점(finalPoint)으로 담는다.
-      이 값이 이어지는 길안내(/routes/navi) 요청의 finalPoint 가 된다 — 담지
-      않으면 resolveStationNodes 가 파일럿 기본값(GA0_01)으로 폴백해, 어떤
-      노선·방면을 골라도 항상 같은 개찰구로 안내한다.
-
-      pointCode 가 null 이면 BE 가 승강장을 특정하지 못한 것이라(지원하지 않는
-      조합 등) 안내를 시작하지 않는다 — 잘못된 승강장으로 보내는 것이 최악이다.
+      고른 경로를 스토어에 담는다. 다음 화면들(안내 정보 확인·도착 완료)과
+      상담 요청이 이 값의 **역 이름**을 쓴다 — 형제 화면이라 props 로 넘길 수
+      없고, 상담은 서버가 역 이름으로 역무원을 배정하므로 사용자가 고른
+      장소명("경북대 북문")이 아니라 도착역("수성알파시티")이어야 한다.
     */
-    const pointCode = path.segments[0]?.pointCode ?? null
-    if (pointCode === null) {
-      showToast(t('route.select.noIndoorGuide'))
-      return
-    }
-    setFinalPoint(pointCode)
-
+    setSelectedRoute(path)
     showToast(t('route.select.started', { station: path.lastEndStation }))
     void navigate('/user-info')
   }

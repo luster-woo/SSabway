@@ -1,73 +1,63 @@
 import { useMemo } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 
-import { queryKeys } from '@/shared/lib/queryKeys'
 import { useDestinationStore } from '@/shared/lib/store/useDestinationStore'
 import {
   ORIGIN_SOURCE,
   useOriginStationStore,
 } from '@/shared/lib/store/useOriginStationStore'
-import { ORIGIN_SOURCE as GUIDE_ORIGIN_SOURCE } from '@/shared/types/guide'
+import { useSelectedRouteStore } from '@/shared/lib/store/useSelectedRouteStore'
 import type { GuideInfo } from '@/shared/types/guide'
-import { fetchGuideInfo } from '@/user/features/user-info/lib/fetchGuideInfo'
+
+export interface UseGuideInfoResult {
+  /** 표시할 안내 정보. 경로를 아직 고르지 않았으면 null */
+  info: GuideInfo | null
+  /** 경로 선택을 거치지 않아 보여줄 것이 없다 */
+  isRouteMissing: boolean
+}
 
 /**
- * 안내 정보(출발·도착)를 조회한다.
+ * 안내 정보(출발·도착)를 만든다.
  *
- * 출발지·도착지 모두 목적지 설정 화면에서 사용자가 지도로 고른 값이 우선이다.
- * 조회 결과(목/서버)는 detail 같은 부가 라벨만 제공하고, 실제 지점은 스토어가
- * 들고 있다 — 사용자의 선택보다 서버 추정이 앞서면 안 되기 때문이다.
+ * 서버 조회가 아니라 **스토어 파생**이다. 출발역·도착역은 사용자가 경로 선택
+ * 화면에서 고른 경로가 정한다(`useSelectedRouteStore`) — 이 화면이 확인시켜야
+ * 하는 것이 바로 "그 경로로 가겠는가"이므로, 다른 출처의 값을 보여주면 사용자가
+ * 방금 고른 것과 어긋난다.
  *
- * 표지판을 다시 찍고 돌아오면 출발지가 바뀌어야 하므로 캐시를 오래 들고 있지 않는다.
+ * 보조 설명(detail)은 두 지점에서 뜻이 다르다.
+ *   출발 — 좌표를 무엇으로 잡았는지(GPS 추정 / 지도에서 직접 선택)
+ *   도착 — 사용자가 고른 최종 목적지. 도착역과 이름이 같으면(역 자체를 목적지로
+ *          골랐을 때) 중복이라 "지도에서 선택"으로 대체한다.
  */
-export function useGuideInfo() {
-  const destination = useDestinationStore((state) => state.destination)
-  const originStation = useOriginStationStore((state) => state.originStation)
+export function useGuideInfo(): UseGuideInfoResult {
+  const { t } = useTranslation()
+
+  const selectedRoute = useSelectedRouteStore((state) => state.selectedRoute)
   const originSource = useOriginStationStore((state) => state.originSource)
+  const destination = useDestinationStore((state) => state.destination)
 
-  const query = useQuery({
-    queryKey: queryKeys.guide.info(),
-    queryFn: fetchGuideInfo,
-    staleTime: 0,
-    retry: false,
-  })
+  const info = useMemo<GuideInfo | null>(() => {
+    if (!selectedRoute) return null
 
-  const data = useMemo<GuideInfo | undefined>(() => {
-    if (!query.data) return query.data
+    const originDetail =
+      originSource === ORIGIN_SOURCE.MANUAL
+        ? t('userInfo.detail.manual')
+        : t('userInfo.detail.gps')
 
-    const next: GuideInfo = { ...query.data }
+    const finalName = destination?.name ?? null
+    const destinationDetail =
+      finalName && finalName !== selectedRoute.arrivalStation
+        ? t('userInfo.detail.finalDestination', { name: finalName })
+        : t('userInfo.detail.manual')
 
-    if (originStation) {
-      next.origin = {
-        ...query.data.origin,
-        name: originStation.name,
-        stationName: originStation.name,
-        latitude: originStation.latitude,
-        longitude: originStation.longitude,
-      }
-      /*
-        출발지를 어떻게 잡았는지도 함께 맞춘다. 카드가 이 값으로 "표지판 인식
-        결과" / "직접 선택" 문구를 고르는데, 사용자가 지도에서 골랐는데도
-        인식 결과라고 표시되면 무엇을 고쳐야 할지 알 수 없다.
-      */
-      next.originSource =
-        originSource === ORIGIN_SOURCE.MANUAL
-          ? GUIDE_ORIGIN_SOURCE.MANUAL
-          : GUIDE_ORIGIN_SOURCE.GPS
+    return {
+      origin: { name: selectedRoute.departureStation, detail: originDetail },
+      destination: {
+        name: selectedRoute.arrivalStation,
+        detail: destinationDetail,
+      },
     }
+  }, [selectedRoute, originSource, destination, t])
 
-    if (destination) {
-      next.destination = {
-        ...query.data.destination,
-        name: destination.name,
-        stationName: destination.name,
-        latitude: destination.latitude,
-        longitude: destination.longitude,
-      }
-    }
-
-    return next
-  }, [query.data, originStation, originSource, destination])
-
-  return { ...query, data }
+  return { info, isRouteMissing: info === null }
 }

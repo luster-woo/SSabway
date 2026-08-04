@@ -21,7 +21,6 @@ export interface ApiResponse<T> {
 /**
  * 화상(signaling) 서버의 응답 봉투.
  *
- * ssabway 본 서버(`ApiResponse`)와 달리 `success` 가 하나 더 붙는다.
  * 두 서버가 각자 봉투를 정의해서 생긴 차이라 타입을 합치면 안 된다.
  * (com.ssafy.ssabway_webrtc.common.response.ApiResponse)
  */
