@@ -3,13 +3,16 @@ package com.ssafy.ssabway_webrtc.domain.repository;
 
 import com.ssafy.ssabway_webrtc.domain.entity.Consultation;
 import com.ssafy.ssabway_webrtc.domain.entity.ConsultationStatus;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 public interface ConsultationRepository extends JpaRepository<Consultation, Long> {
 
@@ -112,6 +115,20 @@ public interface ConsultationRepository extends JpaRepository<Consultation, Long
         @Param("staffId") Long staffId,
         @Param("status") ConsultationStatus status,
         @Param("requestedAt") LocalDateTime requestedAt,
+        @Param("consultationId") Long consultationId
+    );
+
+    /**
+     * 상담 시작과 사용자 종료 요청이 동시에 처리되지 않도록
+     * 해당 상담 행에 쓰기 잠금을 설정하여 조회합니다.
+     */
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("""
+        SELECT c
+        FROM Consultation c
+        WHERE c.id = :consultationId
+    """)
+    Optional<Consultation> findByIdForUpdate(
         @Param("consultationId") Long consultationId
     );
 }

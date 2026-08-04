@@ -2,6 +2,7 @@ package com.ssafy.ssabway.domain.consultation.controller;
 
 import com.ssafy.ssabway.domain.consultation.dto.response.ConsultationAcceptResponse;
 import com.ssafy.ssabway.domain.consultation.dto.response.ConsultationDetailResponse;
+import com.ssafy.ssabway.domain.consultation.dto.response.ConsultationInfoResponse;
 import com.ssafy.ssabway.domain.consultation.dto.response.HistoryResponse;
 import com.ssafy.ssabway.domain.consultation.dto.response.WaitingResponse;
 import com.ssafy.ssabway.domain.consultation.service.ConsultationService;
@@ -27,6 +28,23 @@ public class ConsultationController {
 
         return ResponseEntity.ok(
                 ApiResponse.ok("대기 목록 조회 성공", consultationService.getWaitingList(staffId, page)));
+    }
+
+    /*
+        진행 중인 상담의 사용자 정보(이메일·출발지·목적지·언어).
+
+        ⚠️ 아래 GET /consultations?id= 과 다른 API 다. 그쪽은 종료된 상담의
+           요약·녹취를 주고, 이쪽은 상담방 화면이 쓴다. 경로가 헷갈리기 쉬우니
+           수정할 때 어느 쪽인지 확인할 것.
+     */
+    @GetMapping("/consultations/{consultationId}")
+    public ResponseEntity<ApiResponse<ConsultationInfoResponse>> getInfo(
+            @AuthenticationPrincipal Long staffId,
+            @PathVariable Long consultationId) {
+
+        return ResponseEntity.ok(
+                ApiResponse.ok("조회에 성공하였습니다.",
+                        consultationService.getInfo(staffId, consultationId)));
     }
 
     @GetMapping("/consultations")
