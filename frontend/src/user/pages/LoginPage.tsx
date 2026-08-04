@@ -1,11 +1,11 @@
 import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import { AppLogo, Button, MobileScreen, useToast } from '@/shared/ui'
 import { AuthTextField } from '@/user/features/auth/AuthTextField'
 import { GoogleLoginButton } from '@/user/features/auth/GoogleLoginButton'
-import { useGoBack } from '@/user/features/auth/useGoBack'
+import { readLoginFrom } from '@/user/features/auth/loginFrom'
 import { useGoogleLogin } from '@/user/features/auth/useGoogleLogin'
 import { useUserLogin } from '@/user/features/auth/useUserLogin'
 
@@ -30,13 +30,21 @@ function BackIcon() {
 /**
  * 7-1. 로그인 — /login
  *
- * 로그인에 성공하거나 뒤로가기를 누르면 진입한 화면으로 되돌아간다. (useGoBack)
+ * 로그인에 성공하거나 뒤로가기를 누르면 진입한 화면으로 되돌아간다.
+ *
+ * 돌아갈 곳은 히스토리가 아니라 라우터 state 의 `from` 이다. 이유는
+ * `@/user/features/auth/loginFrom` 주석 참고 — 히스토리에 /login 이 연속으로
+ * 쌓이는 경로가 있어서 `navigate(-1)` 은 제자리에 머무를 수 있다.
  */
 export default function LoginPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const goBack = useGoBack()
+  const location = useLocation()
   const { showToast } = useToast()
+
+  /** 로그인 성공·뒤로가기의 공통 목적지. 보낸 쪽이 state 로 알려준다. */
+  const from = readLoginFrom(location.state)
+  const goBack = () => void navigate(from, { replace: true })
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -49,10 +57,15 @@ export default function LoginPage() {
 
   const isSubmittable = email.trim() !== '' && password !== '' && !isPending
 
-  /** 로그인 성공 후 처리. 일반·구글 로그인이 같다. */
+  /**
+   * 로그인 성공 후 처리. 일반·구글 로그인이 같다.
+   *
+   * replace 로 이동해 /login 을 히스토리에서 지운다. push 로 두면 로그인한
+   * 사용자가 뒤로가기로 로그인 화면에 다시 들어온다.
+   */
   const finishLogin = () => {
     showToast(t('auth.login.success'))
-    goBack()
+    void navigate(from, { replace: true })
   }
 
   const submitLogin = async (event: FormEvent<HTMLFormElement>) => {

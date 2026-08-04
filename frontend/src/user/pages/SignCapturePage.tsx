@@ -2,7 +2,13 @@ import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router-dom'
 
-import { Button, Dialog, LoadingOverlay, MobileViewport, useToast } from '@/shared/ui'
+import {
+  Button,
+  Dialog,
+  LoadingOverlay,
+  MobileViewport,
+  useToast,
+} from '@/shared/ui'
 import { CameraErrorNotice } from '@/user/features/sign-capture/CameraErrorNotice'
 import { CameraPreview } from '@/user/features/sign-capture/CameraPreview'
 import { CaptureControls } from '@/user/features/sign-capture/CaptureControls'
@@ -12,7 +18,11 @@ import {
 } from '@/user/features/sign-capture/hooks/useCameraStream'
 import { usePinchZoom } from '@/user/features/sign-capture/hooks/usePinchZoom'
 import { captureFrame } from '@/user/features/sign-capture/lib/captureFrame'
-import { predictSign } from '@/user/features/sign-capture/lib/predictSign'
+import {
+  predictSign,
+  type SignPrediction,
+} from '@/user/features/sign-capture/lib/predictSign'
+import { useStationNodeStore } from '@/shared/lib/store/useStationNodeStore'
 
 /** 인식 후 기본 이동 경로. 시작 화면에서 바로 들어온 경우다. */
 const DEFAULT_NEXT_PATH = '/destination'
@@ -35,6 +45,7 @@ export default function SignCapturePage() {
   const returnTo = (state as SignCaptureState | null)?.returnTo ?? null
   const { showToast } = useToast()
   const { status, errorType, stream, restart } = useCameraStream()
+  const setStartPoint = useStationNodeStore((s) => s.setStartPoint)
 
   const videoRef = useRef<HTMLVideoElement>(null)
   const previewRef = useRef<HTMLDivElement>(null)
@@ -43,6 +54,8 @@ export default function SignCapturePage() {
   const [isFlashing, setIsFlashing] = useState(false)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [isAnalyzeFailed, setIsAnalyzeFailed] = useState(false)
+  // 인식은 됐지만 확신도가 낮아(confident=false) 그대로 진행하기 위험한 경우
+  const [isLowConfidence, setIsLowConfidence] = useState(false)
 
   // 촬영본을 보여주는 동안에는 확대해도 반영되지 않으므로 제스처를 끈다
   const { zoom, resetZoom } = usePinchZoom(previewRef, capturedUrl === null)
@@ -101,15 +114,19 @@ export default function SignCapturePage() {
     setIsAnalyzing(true)
 
     /*
-      응답의 위치 정보(signageId/floor)는 지금 흐름에서 쓰지 않는다 —
-      경로 상세가 전체 지도·경로 데이터를 제공하므로 요청 성공만 확인한다.
-      (predictSign 의 주석 참고. 위치 기반 분기가 생기면 여기서 스토어에 담는다)
+      인식 결과의 signageId 를 출발 노드로 스토어에 담는다. 이 값이 이어지는
+      길안내(/routes/navi) 요청의 startPoint 가 된다 — 담지 않으면
+      resolveStationNodes 가 파일럿 기본값(EX0_01)으로 폴백해, 어디를 찍든
+      항상 같은 지점에서 출발하는 안내가 나간다.
 
-      실패하면 화면에 남긴다 — 촬영본이 그대로 있으니 재시도나 재촬영을
-      바로 할 수 있다. 성공했을 때만 다음 화면으로 넘어간다.
+      요청 실패 / 확신도 낮음 / 성공 세 갈래로 나눈다. 실패·저확신은 촬영본을
+      그대로 둔 채 모달로 알리고, confident 인 경우에만 다음 화면으로 넘어간다.
+      틀린 위치로 안내를 시작하는 것이 최악이라, confident=false 는 진행하지 않는다.
+      (candidates 로 후보를 고르게 하는 UX 는 노드 표시명이 준비되면 붙인다.)
     */
+    let prediction: SignPrediction
     try {
-      await predictSign(capturedBlobRef.current)
+      prediction = await predictSign(capturedBlobRef.current)
     } catch {
       // 토스트는 금방 사라져 원인을 놓치기 쉽다 — 재촬영을 유도하는
       // 모달로 띄운다 (버튼이 촬영본을 지우고 카메라로 되돌린다).
@@ -117,6 +134,15 @@ export default function SignCapturePage() {
       setIsAnalyzeFailed(true)
       return
     }
+
+    // confident=false(확신도 낮음) 이거나 signageId 가 비면 그대로 진행하지 않는다.
+    if (prediction.confident === false || !prediction.signageId) {
+      setIsAnalyzing(false)
+      setIsLowConfidence(true)
+      return
+    }
+
+    setStartPoint(prediction.signageId)
 
     // 되돌아갈 때는 replace로 남겨 뒤로가기가 카메라 화면에 다시 걸리지 않게 한다.
     void navigate(returnTo ?? DEFAULT_NEXT_PATH, {
@@ -185,6 +211,24 @@ export default function SignCapturePage() {
             fullWidth
             onClick={() => {
               setIsAnalyzeFailed(false)
+              clearCapture()
+            }}
+          >
+            {t('signCapture.analyzeFailedRetake')}
+          </Button>
+        </Dialog>
+      ) : null}
+
+      {isLowConfidence ? (
+        <Dialog
+          title={t('signCapture.lowConfidenceTitle')}
+          description={t('signCapture.lowConfidenceDescription')}
+        >
+          <Button
+            size="lg"
+            fullWidth
+            onClick={() => {
+              setIsLowConfidence(false)
               clearCapture()
             }}
           >
