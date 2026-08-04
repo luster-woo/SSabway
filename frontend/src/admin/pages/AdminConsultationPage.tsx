@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Navigate, useLocation, useNavigate, useParams } from 'react-router-dom'
+import { Navigate, useNavigate, useParams } from 'react-router-dom'
 
 import { useToast } from '@/shared/ui'
 import { OV_STATUS } from '@/shared/webrtc/useOpenViduSession'
@@ -7,11 +7,7 @@ import { BlacklistReasonModal } from '@/admin/features/blacklist/BlacklistReason
 import { useBlacklist } from '@/admin/features/blacklist/useBlacklist'
 import { ConsultationInfoPanel } from '@/admin/features/consultation-room/ConsultationInfoPanel'
 import { EndConsultationDialog } from '@/admin/features/consultation-room/EndConsultationDialog'
-import type { WaitingConsultation } from '@/admin/features/consultation-receive/useWaitingConsultations'
-import {
-  toConsultationDetail,
-  useConsultationDetail,
-} from '@/admin/features/consultation-room/useConsultationDetail'
+import { useConsultationDetail } from '@/admin/features/consultation-room/useConsultationDetail'
 import { useConsultationRoom } from '@/admin/features/consultation-room/useConsultationRoom'
 import { useEndConsultation } from '@/admin/features/consultation-room/useEndConsultation'
 import { UserLocationModal } from '@/admin/features/consultation-room/UserLocationModal'
@@ -21,7 +17,8 @@ import { AdminShell } from '@/admin/ui/AdminShell'
 /**
  * 관리자 3. 화상 상담 — /admin/consultation/:consultationId
  *
- * 상담 정보를 URL 의 consultationId 로 조회하므로 새로고침해도 화면이 유지된다.
+ * 상담 정보는 스토어(sessionStorage persist)에 있어 새로고침해도 화면이
+ * 유지된다. URL 의 consultationId 와 스토어 값이 일치할 때만 쓴다.
  * 블랙리스트 등록은 통화를 끊지 않고 등록만 한다. 종료는 역무원이 따로 누른다.
  */
 export default function AdminConsultationPage() {
@@ -33,23 +30,15 @@ export default function AdminConsultationPage() {
   const isValidId = Number.isInteger(consultationId) && consultationId > 0
 
   /*
-    수락 화면(WaitingPanel)이 넘긴 대기 항목. 새로고침하면 사라지므로
-    그때만 useConsultationDetail 의 서버 조회가 돈다. 다른 상담의 잔여
-    state 가 섞이지 않게 ID 가 일치할 때만 쓴다.
+    상담 정보는 수락 화면(WaitingPanel)이 스토어에 넣어 둔 값을
+    useConsultationDetail 이 읽는다. sessionStorage 에 남으므로 새로고침해도
+    유지되고, 스토어가 빌 때(직접 URL 진입 등)만 서버 조회 폴백이 돈다.
   */
-  const { state } = useLocation()
-  const fromWaiting =
-    (state as { waiting?: WaitingConsultation } | null)?.waiting ?? null
-  const initialDetail =
-    fromWaiting && fromWaiting.consultationId === consultationId
-      ? toConsultationDetail(fromWaiting)
-      : null
-
   const {
     data: detail,
     isPending,
     isError,
-  } = useConsultationDetail(isValidId ? consultationId : 0, initialDetail)
+  } = useConsultationDetail(isValidId ? consultationId : 0)
   const { registerBlacklist, pendingEmail } = useBlacklist()
   const { endConsultation, isPending: isEndPending } = useEndConsultation()
   const room = useConsultationRoom(isValidId ? consultationId : 0)

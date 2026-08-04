@@ -4,6 +4,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { queryKeys } from '@/shared/lib/queryKeys'
 import { useConsultationSessionStore } from '@/shared/lib/store/useConsultationSessionStore'
 import type { EndResult } from '@/shared/types'
+import { useConsultationDetailStore } from '@/admin/features/consultation-room/useConsultationDetailStore'
 import { openviduApi } from '@/admin/lib/openviduApi'
 
 export interface UseEndConsultationResult {
@@ -29,6 +30,7 @@ export function useEndConsultation(): UseEndConsultationResult {
   const queryClient = useQueryClient()
   const [isPending, setIsPending] = useState(false)
   const clearSession = useConsultationSessionStore((s) => s.clearSession)
+  const clearDetail = useConsultationDetailStore((s) => s.clearDetail)
 
   const endConsultation = useCallback(
     async (consultationId: number): Promise<EndResult | null> => {
@@ -40,13 +42,15 @@ export function useEndConsultation(): UseEndConsultationResult {
         return null
       } finally {
         setIsPending(false)
+        // 세션·상담 정보 모두 이번 상담에만 유효하다. 남기면 다음 상담과 섞인다.
         clearSession()
+        clearDetail()
         void queryClient.invalidateQueries({
           queryKey: queryKeys.consultation.all,
         })
       }
     },
-    [clearSession, queryClient],
+    [clearDetail, clearSession, queryClient],
   )
 
   return { endConsultation, isPending }
