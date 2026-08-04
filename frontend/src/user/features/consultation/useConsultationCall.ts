@@ -13,9 +13,9 @@ import { openviduApi } from '@/user/features/consultation/openviduApi'
 export interface UseConsultationCallResult {
   /** OpenVidu 연결 상태 */
   status: OpenViduStatus
-  /** 서버가 아는 상담 상태. 상태 API 전에는 WAITING/MATCHED 만 흉내 낸다 */
+  /** 서버가 아는 상담 상태 */
   consultationStatus: ConsultationStatus | null
-  /** 대기 순번(1부터). 상태 API 가 붙어야 값이 들어온다 */
+  /** 대기 순번(1부터) */
   queuePosition: number | null
   /** 역무원 스트림(음성만). 재생하려면 엘리먼트에 붙여야 한다 */
   staffStream: StreamManager | null
@@ -34,7 +34,7 @@ export interface UseConsultationCallResult {
  * 카메라·마이크를 발행하는 일만 한다.
  *
  * 사용자가 [통화 종료] 를 누르면 연결을 끊고 상담도 종료 처리한다
- * (leaveCall 주석 참고 — end 우선, 실패 시 leave).
+ * (leaveCall 주석 참고).
  */
 export function useConsultationCall(
   consultationId: number,

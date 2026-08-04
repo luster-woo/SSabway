@@ -4,9 +4,7 @@ import { createJSONStorage, persist } from 'zustand/middleware'
 /**
  * 파일럿(대구역) 기본 지점.
  *
- * ⚠️ 임시값이다. 원래 startPoint 는 표지판 인식(POST /routes/sign)이 내놓아야
- *    하는데 그 API 가 백엔드에 아직 없다(RouteController 에 sign 핸들러 없음).
- *    그렇다고 빈 값으로 보내면 @NotBlank 에 걸려 400 이고, 아무 문자열이나
+ * ⚠️ 임시값이다. 그렇다고 빈 값으로 보내면 @NotBlank 에 걸려 400 이고, 아무 문자열이나
  *    넣으면 그래프에 없는 id 라 NAV_NODE_NOT_FOUND 다.
  *
  *    그래서 실제 그래프(daegu_navigation.json)에 있는 노드로 폴백을 둔다.

@@ -1,4 +1,10 @@
-import { delay, http, HttpResponse, type HttpHandler, type RequestHandler } from 'msw'
+import {
+  delay,
+  http,
+  HttpResponse,
+  type HttpHandler,
+  type RequestHandler,
+} from 'msw'
 
 import {
   cancelMockConsultation,
@@ -358,7 +364,7 @@ const mockHandlers: HttpHandler[] = [
     )
   }),
 
-  // 회원 구글 로그인 / 회원가입 (백엔드 개발중)
+  // 회원 구글 로그인 / 회원가입
   //
   // 명세상 응답은 일반 로그인과 동일하다. 신규 가입 여부(isNewUser)는 없다.
   // language 는 "신규 가입 시에만 사용" 이므로 프론트가 항상 보내고 여기서는
@@ -581,10 +587,6 @@ const mockHandlers: HttpHandler[] = [
 
   /*
     사용자 이탈 — 통화 화면에서 [통화 종료] 를 눌렀을 때.
-
-    ⚠️ BE 미구현이다. 목만 있는 이유는, 이게 없으면 상담이 MATCHED/
-    IN_PROGRESS 로 남아 재요청이 409 CONSULTATION_DUPLICATED 로 막히기
-    때문이다(실서버도 같은 조건으로 막는다). 멱등이라 재요청도 200 이다.
   */
   http.post(
     `${BASE}/consultations/:consultationId/leave`,
@@ -726,7 +728,7 @@ const mockHandlers: HttpHandler[] = [
   }),
 
   /* ---------------------------------------------------------------- *
-   * 관리자 — 상담 대기 목록 (BE 미구현, BACKEND_READY.ADMIN_QUEUE 참고)
+   * 관리자 — 상담 대기 목록 (BACKEND_READY.ADMIN_QUEUE 참고)
    *
    * ADMIN_QUEUE 플래그를 켜면 useWaitingConsultations 가 이 목으로 온다.
    * 목록은 consultationQueue 의 공유 상태(localStorage)에서 읽으므로,

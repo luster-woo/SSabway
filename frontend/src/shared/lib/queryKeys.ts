@@ -33,8 +33,6 @@ export const queryKeys = {
   },
   guide: {
     all: ['guide'] as const,
-    /** 안내 정보 확인 화면의 출발·도착 정보 */
-    info: () => [...queryKeys.guide.all, 'info'] as const,
     /**
      * 경로 상세 안내의 단계 목록(역 내 안내).
      *

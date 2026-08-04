@@ -177,8 +177,6 @@
     "analyzeFailedTitle": "AI 분석 실패",
     "analyzeFailedDescription": "AI 분석에 실패했습니다.\n다시 촬영해 주세요.",
     "analyzeFailedRetake": "다시 촬영",
-    "lowConfidenceTitle": "위치를 정확히 인식하지 못했어요",
-    "lowConfidenceDescription": "표지판에 더 가까이서 다시 촬영해 주세요.",
     "capturedAlt": "촬영된 표지판 사진",
     "error": {
       "insecure": "보안 연결(HTTPS)에서만 카메라를 사용할 수 있어요",
@@ -227,7 +225,6 @@
     "prev": "이전",
     "arrived": "목적지에 도착했어요",
     "select": {
-      "noIndoorGuide": "이 경로는 실내 안내를 제공하지 않아요\n다른 경로를 선택해 주세요",
       "title": "추천 경로",
       "back": "뒤로가기",
       "badge": {
@@ -262,9 +259,14 @@
     "origin": "출발",
     "destination": "도착",
     "change": "변경",
+    "detail": {
+      "gps": "현재 위치 기준",
+      "manual": "지도에서 선택",
+      "finalDestination": "최종 목적지 {{name}}"
+    },
+    "needRoute": "먼저 경로를 선택해 주세요\n출발역과 도착역이 정해지면 안내를 시작할 수 있어요",
+    "pickRoute": "경로 선택하기",
     "start": "경로 안내 시작",
-    "loading": "안내 정보를 불러오는 중이에요…",
-    "failed": "안내 정보를 불러오지 못했어요\n잠시 후 다시 시도해 주세요",
     "needAnswers": "질문에 모두 답해 주세요",
     "started": "선택하신 조건으로 안내를 시작해요",
     "preference": {
@@ -395,16 +397,12 @@
   "arrival": {
     "back": "뒤로가기",
     "title": "목적지에 도착했어요!",
+    "finalDestination": "최종 목적지 {{name}}",
     "duration": "소요 시간",
     "origin": "출발지",
     "destination": "도착지",
-    "newDestination": "새 목적지 안내 받기",
-    "feedback": {
-      "question": "안내가 도움이 되었나요?",
-      "helpful": "도움됐어요",
-      "notHelpful": "아쉬워요",
-      "thanks": "소중한 의견 감사해요"
-    }
+    "noSummary": "이번 이동 정보를 찾지 못했어요\n목적지를 다시 선택해 주세요",
+    "newDestination": "새 목적지 안내 받기"
   },
   "helpChat": {
     "back": "뒤로가기",

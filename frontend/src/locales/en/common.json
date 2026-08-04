@@ -177,8 +177,6 @@
     "analyzeFailedTitle": "Analysis Failed",
     "analyzeFailedDescription": "AI analysis failed.\nPlease take the photo again.",
     "analyzeFailedRetake": "Retake",
-    "lowConfidenceTitle": "Couldn't pinpoint your location",
-    "lowConfidenceDescription": "Move closer to the sign and take the photo again.",
     "capturedAlt": "Captured sign photo",
     "error": {
       "insecure": "Camera is only available over a secure (HTTPS) connection",
@@ -227,7 +225,6 @@
     "prev": "Previous",
     "arrived": "You have arrived",
     "select": {
-      "noIndoorGuide": "Indoor guidance isn't available for this route\nChoose another route",
       "title": "Recommended routes",
       "back": "Back",
       "badge": {
@@ -262,9 +259,14 @@
     "origin": "From",
     "destination": "To",
     "change": "Change",
+    "detail": {
+      "gps": "Based on your location",
+      "manual": "Picked on the map",
+      "finalDestination": "Final destination: {{name}}"
+    },
+    "needRoute": "Please choose a route first\nGuidance starts once your stations are set",
+    "pickRoute": "Choose a route",
     "start": "Start route guide",
-    "loading": "Loading guide details…",
-    "failed": "Could not load guide details\nPlease try again in a moment",
     "needAnswers": "Please answer all the questions",
     "started": "Starting the guide with your selection",
     "preference": {
@@ -395,16 +397,12 @@
   "arrival": {
     "back": "Back",
     "title": "You have arrived!",
+    "finalDestination": "Final destination: {{name}}",
     "duration": "Travel time",
     "origin": "From",
     "destination": "To",
-    "newDestination": "Guide me to a new destination",
-    "feedback": {
-      "question": "Was the guide helpful?",
-      "helpful": "It helped",
-      "notHelpful": "Not really",
-      "thanks": "Thank you for your feedback"
-    }
+    "noSummary": "We couldn't find this trip\nPlease pick a destination again",
+    "newDestination": "Guide me to a new destination"
   },
   "helpChat": {
     "back": "Back",
