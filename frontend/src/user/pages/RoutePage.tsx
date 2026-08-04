@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom'
 import { useDestinationStore } from '@/shared/lib/store/useDestinationStore'
 import { useOriginStationStore } from '@/shared/lib/store/useOriginStationStore'
 import { useSelectedRouteStore } from '@/shared/lib/store/useSelectedRouteStore'
+import { useStationNodeStore } from '@/shared/lib/store/useStationNodeStore'
 import { useLanguage } from '@/shared/lib/useLanguage'
 import type { RoutePathParams } from '@/shared/types/route'
 import { IS_DEV } from '@/shared/lib/env'
@@ -44,6 +45,7 @@ export default function RoutePage() {
   const setSelectedRoute = useSelectedRouteStore(
     (state) => state.setSelectedRoute,
   )
+  const setFinalPoint = useStationNodeStore((state) => state.setFinalPoint)
 
   const originName = originStation?.name ?? null
   const destinationName = destination?.name ?? null
@@ -126,6 +128,19 @@ export default function RoutePage() {
     const path = paths[index]
     if (!path) return
     setSelectedIndex(index)
+
+    /*
+      첫 지하철 구간의 개찰구 노드를 역 내 안내의 도착점(finalPoint)으로 담는다.
+      담지 않으면 resolveStationNodes 가 파일럿 기본값(GA0_01)으로 폴백해, 어떤
+      노선·방면을 골라도 항상 같은 개찰구로 안내한다. pointCode 가 null 이면 BE 가
+      승강장을 특정하지 못한 것이라 안내를 시작하지 않는다.
+    */
+    const pointCode = path.segments[0]?.pointCode ?? null
+    if (pointCode === null) {
+      showToast(t('route.select.noIndoorGuide'))
+      return
+    }
+    setFinalPoint(pointCode)
     /*
       고른 경로를 스토어에 담는다. 다음 화면들(안내 정보 확인·도착 완료)과
       상담 요청이 이 값의 **역 이름**을 쓴다 — 형제 화면이라 props 로 넘길 수

@@ -18,6 +18,30 @@ export const PCM_SAMPLE_RATE = 16_000
 /** 조각 하나의 길이. 320ms @16kHz = 5,120 샘플 = 10,240 bytes */
 const CHUNK_MS = 320
 
+/**
+ * 무음 판정 기준 (RMS, -1..1 스케일).
+ *
+ * Azure 는 "처리한 오디오 시간"으로 과금하므로 아무도 말하지 않는 구간을
+ * 그대로 보내면 통화 시간 전체가 청구된다. 상담에서 한 사람이 실제로 말하는
+ * 시간은 절반이 안 되므로, 조용한 조각을 버리면 비용이 그만큼 줄고 잡음
+ * 구간이 빠져 인식 품질도 좋아진다.
+ *
+ * 값을 올리면 작은 목소리를 놓친다. 마이크·환경 편차를 고려해 낮게 잡았다.
+ */
+const SILENCE_RMS = 0.008
+
+/**
+ * 발화가 끝난 뒤에도 계속 보내는 시간.
+ *
+ * ⚠️ 이게 없으면 문장이 영영 확정되지 않는다. Azure 는 일정 시간의 침묵을
+ *    보고 문장 끝을 판단하는데(translate.py 의 SEGMENTATION_SILENCE_MS=500),
+ *    말이 멈추는 순간 전송도 끊으면 그 침묵이 서버에 도착하지 않는다.
+ *    그러면 INTERIM 만 뜨고 FINAL 이 나오지 않는다.
+ *
+ *    반드시 서버의 판정 시간보다 넉넉히 길어야 한다.
+ */
+const TAIL_MS = 900
+
 export interface PcmStreamerHandle {
   stop(): void
 }
@@ -87,6 +111,9 @@ export async function startPcmStreamer(
   let pending: Float32Array[] = []
   let pendingLength = 0
 
+  /** 이 시각까지는 조용해도 계속 보낸다 (TAIL_MS 주석 참고) */
+  let sendUntil = 0
+
   tap.port.onmessage = (event: MessageEvent<Float32Array>) => {
     pending.push(event.data)
     pendingLength += event.data.length
@@ -100,6 +127,16 @@ export async function startPcmStreamer(
     }
     pending = []
     pendingLength = 0
+
+    let sum = 0
+    for (const sample of merged) sum += sample * sample
+    const rms = Math.sqrt(sum / merged.length)
+
+    const now = Date.now()
+    if (rms >= SILENCE_RMS) sendUntil = now + TAIL_MS
+    // 말이 없고 꼬리도 지났으면 보내지 않는다 — 그만큼 과금되지 않는다
+    if (now >= sendUntil) return
+
     onChunk(toPcm16(merged, ctx.sampleRate))
   }
 

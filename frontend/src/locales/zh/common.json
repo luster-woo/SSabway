@@ -177,6 +177,8 @@
     "analyzeFailedTitle": "分析失败",
     "analyzeFailedDescription": "AI 分析失败。\n请重新拍摄。",
     "analyzeFailedRetake": "重新拍摄",
+    "lowConfidenceTitle": "未能准确识别位置",
+    "lowConfidenceDescription": "请靠近指示牌重新拍摄。",
     "capturedAlt": "已拍摄的指示牌照片",
     "error": {
       "insecure": "摄像头仅在安全连接(HTTPS)下可用",
@@ -225,6 +227,7 @@
     "prev": "上一步",
     "arrived": "已到达",
     "select": {
+      "noIndoorGuide": "该路线暂不支持站内引导\n请选择其他路线",
       "title": "推荐路线",
       "back": "返回",
       "badge": {
@@ -340,16 +343,11 @@
       "close": "关闭",
       "zoomIn": "放大",
       "zoomOut": "缩小",
+      "recenter": "回到当前位置",
       "legend": {
         "current": "当前位置",
-        "prev": "已经过的指示牌",
-        "next": "接下来的指示牌"
-      },
-      "views": {
-        "1": "1层",
-        "3": "3层",
-        "2A": "2层 A",
-        "2B": "2层 B"
+        "upcoming": "下一地点·剩余路线",
+        "passed": "已走过的路线"
       }
     },
     "help": "请求帮助",

@@ -16,6 +16,10 @@ services:
       TORCH_THREADS: "2"
       MAX_SIDE: "1280"
       TZ: Asia/Seoul
+      # 실시간 번역 자막. 없으면 /ws/v1/ai/translation 만 닫히고
+      # 표지판 인식·얼굴 검출은 그대로 동작한다.
+      AZURE_SPEECH_KEY: ${AZURE_SPEECH_KEY}
+      AZURE_SPEECH_REGION: ${AZURE_SPEECH_REGION:-koreacentral}
     volumes:
       - /opt/models:/models:ro
     ports:
