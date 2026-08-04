@@ -177,6 +177,8 @@
     "analyzeFailedTitle": "AI 분석 실패",
     "analyzeFailedDescription": "AI 분석에 실패했습니다.\n다시 촬영해 주세요.",
     "analyzeFailedRetake": "다시 촬영",
+    "lowConfidenceTitle": "위치를 정확히 인식하지 못했어요",
+    "lowConfidenceDescription": "표지판에 더 가까이서 다시 촬영해 주세요.",
     "capturedAlt": "촬영된 표지판 사진",
     "error": {
       "insecure": "보안 연결(HTTPS)에서만 카메라를 사용할 수 있어요",
@@ -225,6 +227,7 @@
     "prev": "이전",
     "arrived": "목적지에 도착했어요",
     "select": {
+      "noIndoorGuide": "이 경로는 실내 안내를 제공하지 않아요\n다른 경로를 선택해 주세요",
       "title": "추천 경로",
       "back": "뒤로가기",
       "badge": {
@@ -340,16 +343,11 @@
       "close": "닫기",
       "zoomIn": "확대",
       "zoomOut": "축소",
+      "recenter": "현재 위치로 이동",
       "legend": {
         "current": "현재 위치",
-        "prev": "지나온 표지판",
-        "next": "다음 표지판"
-      },
-      "views": {
-        "1": "1층",
-        "3": "3층",
-        "2A": "2층 A",
-        "2B": "2층 B"
+        "upcoming": "다음 위치 · 남은 경로",
+        "passed": "지나온 경로"
       }
     },
     "help": "도움 요청",

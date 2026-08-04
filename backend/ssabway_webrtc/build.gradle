@@ -36,7 +36,7 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testAnnotationProcessor 'org.projectlombok:lombok'
     // OpenVidu 2 Java Client
-    implementation 'io.openvidu:openvidu-java-client:2.32.1'
+    implementation 'io.openvidu:openvidu-java-client:2.32.2'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     // AWS SDK 모듈들의 버전을 동일하게 관리

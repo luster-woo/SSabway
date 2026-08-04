@@ -94,8 +94,19 @@ public class OpenViduController {
 
 
     @PostMapping("/sessions/{sessionId}/end")
-    public ApiResponse<ConsultationEndResponse> endConsultation(@PathVariable String sessionId)
+    public ApiResponse<ConsultationEndResponse> endConsultation(
+        @PathVariable String sessionId,
+        Authentication authentication
+    )
         throws OpenViduJavaClientException, OpenViduHttpException {
+
+        Long staffId = (Long) authentication.getPrincipal();
+
+        consultationAuthorizationService.validateParticipant(
+            sessionId,
+            staffId,
+            TokenType.STAFF
+        );
 
         return  ApiResponse.ok(consultationEndService.endConsultation(sessionId));
     }

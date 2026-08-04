@@ -177,6 +177,8 @@
     "analyzeFailedTitle": "Analysis Failed",
     "analyzeFailedDescription": "AI analysis failed.\nPlease take the photo again.",
     "analyzeFailedRetake": "Retake",
+    "lowConfidenceTitle": "Couldn't pinpoint your location",
+    "lowConfidenceDescription": "Move closer to the sign and take the photo again.",
     "capturedAlt": "Captured sign photo",
     "error": {
       "insecure": "Camera is only available over a secure (HTTPS) connection",
@@ -225,6 +227,7 @@
     "prev": "Previous",
     "arrived": "You have arrived",
     "select": {
+      "noIndoorGuide": "Indoor guidance isn't available for this route\nChoose another route",
       "title": "Recommended routes",
       "back": "Back",
       "badge": {
@@ -340,16 +343,11 @@
       "close": "Close",
       "zoomIn": "Zoom in",
       "zoomOut": "Zoom out",
+      "recenter": "Back to my location",
       "legend": {
-        "current": "Current location",
-        "prev": "Passed signs",
-        "next": "Upcoming signs"
-      },
-      "views": {
-        "1": "1F",
-        "3": "3F",
-        "2A": "2F A",
-        "2B": "2F B"
+        "current": "You are here",
+        "upcoming": "Next stop · route ahead",
+        "passed": "Covered so far"
       }
     },
     "help": "Get help",

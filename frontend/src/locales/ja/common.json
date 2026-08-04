@@ -177,6 +177,8 @@
     "analyzeFailedTitle": "分析に失敗しました",
     "analyzeFailedDescription": "AI分析に失敗しました。\nもう一度撮影してください。",
     "analyzeFailedRetake": "再撮影",
+    "lowConfidenceTitle": "位置を正確に認識できませんでした",
+    "lowConfidenceDescription": "標識に近づいてもう一度撮影してください。",
     "capturedAlt": "撮影した標識の写真",
     "error": {
       "insecure": "カメラは安全な接続(HTTPS)でのみ使用できます",
@@ -225,6 +227,7 @@
     "prev": "戻る",
     "arrived": "到着しました",
     "select": {
+      "noIndoorGuide": "この経路は屋内案内に対応していません\n別の経路を選んでください",
       "title": "おすすめルート",
       "back": "戻る",
       "badge": {
@@ -340,16 +343,11 @@
       "close": "閉じる",
       "zoomIn": "拡大",
       "zoomOut": "縮小",
+      "recenter": "現在地へ移動",
       "legend": {
-        "current": "現在位置",
-        "prev": "通過した標識",
-        "next": "次の標識"
-      },
-      "views": {
-        "1": "1階",
-        "3": "3階",
-        "2A": "2階 A",
-        "2B": "2階 B"
+        "current": "現在地",
+        "upcoming": "次の地点・残りの経路",
+        "passed": "通ってきた経路"
       }
     },
     "help": "ヘルプ",
