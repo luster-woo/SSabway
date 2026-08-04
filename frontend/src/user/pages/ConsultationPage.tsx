@@ -1,12 +1,14 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
-import { Button, useToast } from '@/shared/ui'
+import { CaptionOverlay } from '@/shared/caption/CaptionOverlay'
+import { useLiveCaption } from '@/shared/caption/useLiveCaption'
+import { useLanguage } from '@/shared/lib/useLanguage'
+import { Button, Dialog, useToast } from '@/shared/ui'
 import { OpenViduVideo } from '@/shared/webrtc/OpenViduVideo'
 import { OV_STATUS } from '@/shared/webrtc/useOpenViduSession'
 import { CallControls } from '@/user/features/consultation/CallControls'
-import { CallDialog } from '@/user/features/consultation/CallDialog'
 import { CameraStage } from '@/user/features/consultation/CameraStage'
 import { ConnectedBadge } from '@/user/features/consultation/ConnectedBadge'
 import { toCallMediaErrorKey } from '@/user/features/consultation/callMediaErrorKey'
@@ -15,6 +17,7 @@ import {
   useCallMedia,
 } from '@/user/features/consultation/useCallMedia'
 import { useConsultationCall } from '@/user/features/consultation/useConsultationCall'
+import { useFaceMosaic } from '@/user/features/mosaic/useFaceMosaic'
 
 /** 마이크 권한 안내 모달의 아이콘 */
 function MicBadgeIcon() {
@@ -47,8 +50,8 @@ function MicBadgeIcon() {
  * 권한을 얻으면 그 스트림으로 OpenVidu 세션에 접속한다. 세션은 역무원이
  * 수락해야 생기므로 그때까지 대기 문구를 보여준다.
  *
- * TODO: 얼굴 모자이크(선택지 A)는 이 화면에서 canvas 로 처리한 뒤 publish 한다.
- *       지금은 원본 스트림을 그대로 발행한다.
+ * 얼굴 모자이크(선택지 A)는 useFaceMosaic 이 canvas 로 처리한다 — 원본이
+ * 아니라 가공된 스트림을 발행하므로, 원본은 이 기기 밖으로 나가지 않는다.
  */
 export default function ConsultationPage() {
   const { t } = useTranslation()
@@ -78,7 +81,29 @@ export default function ConsultationPage() {
     stop,
   } = useCallMedia()
 
-  const call = useConsultationCall(consultationId, stream)
+  /*
+    얼굴 모자이크. 원본(stream)은 검출·가공에만 쓰고, 발행과 미리보기는
+    가공된 스트림(mosaic.stream)을 쓴다. 검출이 죽으면 전체 블러로 방어한다.
+  */
+  const mosaic = useFaceMosaic(stream)
+
+  const call = useConsultationCall(consultationId, mosaic.stream)
+
+  /*
+    역무원 발화 자막. 역무원 음성(staffStream)을 사용자가 고른 언어로 번역해
+    보여준다. 역무원은 한국어로 말한다는 전제라 sourceLang 은 'ko' 고정이다.
+    (명세 /ws/v1/ai/translation 이 auto-detect 가 아니라 화자 언어를 요구한다)
+  */
+  const { language } = useLanguage()
+  const staffAudioStream = useMemo(
+    () => (call.staffStream ? call.staffStream.stream.getMediaStream() : null),
+    [call.staffStream],
+  )
+  const caption = useLiveCaption(staffAudioStream, {
+    speaker: 'ADMIN',
+    sourceLang: 'ko',
+    targetLang: language,
+  })
 
   const [isEndDialogOpen, setIsEndDialogOpen] = useState(false)
 
@@ -184,7 +209,8 @@ export default function ConsultationPage() {
 
   return (
     <div className="relative flex min-h-[100dvh] flex-col overflow-hidden">
-      <CameraStage stream={stream} isCameraOn={isCameraOn} />
+      {/* 미리보기도 가공본 — 사용자가 "실제로 나가는 화면" 을 본다 */}
+      <CameraStage stream={mosaic.stream ?? stream} isCameraOn={isCameraOn} />
 
       <div className="px-safe relative flex flex-1 flex-col">
         <header className="flex shrink-0 flex-col items-center gap-2 pt-[calc(env(safe-area-inset-top,0px)+1rem)]">
@@ -215,6 +241,16 @@ export default function ConsultationPage() {
           />
         ) : null}
 
+        {/*
+          역무원 발화 자막. 하단 컨트롤 버튼을 가리지 않도록 그 위에 띄운다.
+          (footer 의 pb + 버튼 높이만큼 올림 — 버튼 크기가 바뀌면 같이 조정)
+        */}
+        <CaptionOverlay
+          lines={caption.lines}
+          partial={caption.partial}
+          className="bottom-[calc(env(safe-area-inset-bottom,0px)+7.5rem)]"
+        />
+
         <footer className="mt-auto flex shrink-0 justify-center pb-[calc(env(safe-area-inset-bottom,0px)+1.5rem)]">
           {isStreaming ? (
             <CallControls
@@ -229,7 +265,7 @@ export default function ConsultationPage() {
       </div>
 
       {status === CALL_MEDIA_STATUS.IDLE || isRequesting ? (
-        <CallDialog
+        <Dialog
           header={<MicBadgeIcon />}
           title={t('consultation.video.permission.title')}
           description={t('consultation.video.permission.description')}
@@ -253,11 +289,11 @@ export default function ConsultationPage() {
           >
             {t('consultation.video.permission.deny')}
           </Button>
-        </CallDialog>
+        </Dialog>
       ) : null}
 
       {status === CALL_MEDIA_STATUS.ERROR && errorType ? (
-        <CallDialog
+        <Dialog
           title={t('consultation.video.permission.title')}
           description={t(toCallMediaErrorKey(errorType))}
         >
@@ -272,11 +308,11 @@ export default function ConsultationPage() {
           >
             {t('common.goHome')}
           </Button>
-        </CallDialog>
+        </Dialog>
       ) : null}
 
       {isEndDialogOpen ? (
-        <CallDialog
+        <Dialog
           isDismissable
           title={t('consultation.video.endConfirm.title')}
           description={t('consultation.video.endConfirm.description')}
@@ -293,7 +329,7 @@ export default function ConsultationPage() {
           >
             {t('consultation.video.endConfirm.keep')}
           </Button>
-        </CallDialog>
+        </Dialog>
       ) : null}
     </div>
   )

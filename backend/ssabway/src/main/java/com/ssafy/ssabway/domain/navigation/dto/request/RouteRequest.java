@@ -27,7 +27,7 @@ public record RouteRequest(
 
         Purpose needs,        // CHARGE / BUY_CARD / SINGLE_TICKET
         Boolean hasCash,
-        Boolean avoidStairs,  // 계단·에스컬레이터 회피
+        Boolean useElevator,  // 엘리베이터 이용 여부
 
         @NotNull(message = "언어 코드는 필수입니다.")
         Language langCode
@@ -41,8 +41,15 @@ public record RouteRequest(
         return Boolean.TRUE.equals(hasCash);
     }
 
-    public boolean avoidStairsOrDefault() {
-        return Boolean.TRUE.equals(avoidStairs);
+    /*
+        엘리베이터를 쓸 것인가.
+
+        true  면 계단을 못 쓰는 것으로 보고 계단 구간을 뺀다.
+        false 면 엘리베이터를 안 쓰겠다는 뜻이라 층간 엘리베이터 구간을 뺀다.
+        생략하면 false 다. 대다수 사용자는 계단을 쓸 수 있다.
+     */
+    public boolean useElevatorOrDefault() {
+        return Boolean.TRUE.equals(useElevator);
     }
 
     /*

@@ -83,9 +83,16 @@ odsay:
 navigation:
   graph-location: classpath:navigation/daegu_navigation.json
   guide-location: classpath:navigation/daegu_user_guide.json
-  sign-image-base-url: ${SIGN_IMAGE_BASE_URL:https://ssabway.s3.ap-northeast-2.amazonaws.com/signs}
+  # 표지판 사진 주소의 앞부분. S3 버킷의 img 폴더까지를 가리킨다.
+  # 데이터에는 파일명(S3_15_B.jpg)만 두고 주소는 여기에만 둔다.
+  # 버킷이나 CDN 이 바뀌어도 노드·엣지 데이터를 고칠 필요가 없다.
+  sign-image-base-url: ${SIGN_IMAGE_BASE_URL:https://${aws.s3.bucket}.s3.${aws.region}.amazonaws.com/img}
 
 
 webrtc :
-  base-url : ${BASE_WEBRTC_BASE_URL:http://localhost:8081}
+  # ⚠️ 변수명은 docker-compose.yml 의 api.environment.WEBRTC_BASE_URL 과
+  #    반드시 같아야 한다. 다르면 조용히 fallback 으로 떨어져 api 가 자기
+  #    컨테이너의 localhost 를 호출하고 상담 수락이 전부 실패한다.
+  #    fallback 은 로컬에서 직접 띄운 signaling 포트(override.yml 의 8082).
+  base-url : ${WEBRTC_BASE_URL:http://localhost:8082}
   api-key : ${WEBRTC_INTERNAL_SECRET}

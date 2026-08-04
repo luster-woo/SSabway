@@ -106,6 +106,7 @@ export default function AdminConsultationPage() {
         <div className="flex min-h-0 min-w-0 flex-1 flex-col">
           <VideoStage
             userStream={room.userStream}
+            userLang={detail?.langCode ?? null}
             status={room.status}
             isRestoring={room.isRestoring}
             isRestoreFailed={room.isRestoreFailed}

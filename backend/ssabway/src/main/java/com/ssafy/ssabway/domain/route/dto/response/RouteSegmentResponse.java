@@ -13,6 +13,7 @@ public record RouteSegmentResponse(
         String laneName,
         Integer wayCode,
         String direction,       // 방면 종점명
+        String pointCode,       // gate 매핑
         String startStation,
         String endStation,
         int stationCount,

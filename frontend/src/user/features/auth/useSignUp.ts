@@ -3,7 +3,10 @@ import { useCallback, useState } from 'react'
 import { userApi } from '@/shared/api/client'
 import { endpoints } from '@/shared/api/endpoints'
 import type { Language } from '@/shared/types/user'
-import { toErrorKey } from '@/user/features/auth/lib/mockHttpError'
+import {
+  toErrorKey,
+  type ErrorKeyTable,
+} from '@/user/features/auth/lib/mockHttpError'
 
 export interface SignUpBody {
   email: string
@@ -18,10 +21,31 @@ export interface SignUpBody {
   language: Uppercase<Language>
 }
 
-/** 명세에 적힌 상태코드를 그대로 옮겼다. */
-const SIGNUP_ERROR_KEY: Record<number, string> = {
-  400: 'auth.signUp.error.invalidForm',
-  409: 'auth.signUp.error.duplicateEmail',
+/**
+ * 실패 문구의 i18n 키.
+ *
+ * ⚠️ 400 을 뭉개면 안 된다. BE 는 400 을 두 의미로 쓴다.
+ *   INVALID_INPUT_VALUE  비밀번호 형식 위반 (8~64자, 공백 불가)
+ *   EMAIL_NOT_VERIFIED   이메일 인증 상태가 만료됨 (서버 TTL 30분)
+ *
+ * 둘 다 "입력 형식이 올바르지 않아요" 로 보여주던 게 이 화면에서 가장 아픈
+ * 버그였다. 인증을 마치고 폼을 채우다 30분이 지나면 EMAIL_NOT_VERIFIED 가
+ * 오는데, 사용자는 비밀번호 형식이 문제라고 생각해 아무리 고쳐도 통과하지
+ * 못하고 재인증이 필요하다는 사실을 알 길이 없었다.
+ *
+ * verifiedExpired 는 이미 있는 키다 — 프론트 타이머(30분)가 먼저 끝났을 때
+ * 쓰던 문구를 서버 판정에도 그대로 재사용한다. 두 경로의 안내가 같아야 한다.
+ */
+const SIGNUP_ERROR_KEY: ErrorKeyTable = {
+  byCode: {
+    EMAIL_NOT_VERIFIED: 'auth.signUp.error.verifiedExpired',
+    INVALID_INPUT_VALUE: 'auth.signUp.error.invalidPassword',
+    EMAIL_DUPLICATED: 'auth.signUp.error.duplicateEmail',
+  },
+  byStatus: {
+    400: 'auth.signUp.error.invalidForm',
+    409: 'auth.signUp.error.duplicateEmail',
+  },
 }
 
 const FALLBACK_ERROR_KEY = 'auth.signUp.error.signUpFailed'

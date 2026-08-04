@@ -45,7 +45,9 @@
         "invalidCredential": "邮箱或密码不正确",
         "unknown": "登录失败 · 请稍后重试",
         "googleRejected": "Google 验证失败 · 请重试",
-        "googleFailed": "Google 登录失败 · 请稍后再试"
+        "googleFailed": "Google 登录失败 · 请稍后再试",
+        "socialAccount": "该邮箱通过 Google 账号注册 · 请使用下方的 Google 登录",
+        "localAccount": "该邮箱已注册为普通会员 · 请使用邮箱和密码登录"
       },
       "googleUnavailable": "无法使用 Google 登录 · 请检查网络"
     },
@@ -65,7 +67,7 @@
       "codeVerified": "邮箱验证已完成",
       "remainingTime": "剩余时间 {{time}}",
       "newPassword": "新密码",
-      "newPasswordPlaceholder": "请输入8位以上",
+      "newPasswordPlaceholder": "请输入 8 位以上，不含空格",
       "confirmPassword": "确认新密码",
       "confirmPasswordPlaceholder": "请再输入一次",
       "submit": "修改密码",
@@ -86,7 +88,12 @@
         "unauthorized": "验证已过期 · 请重新开始",
         "resetFailed": "密码修改失败 · 请稍后再试",
         "verifiedExpired": "验证有效时间已过 · 请重新验证邮箱",
-        "passwordMismatch": "两次输入的密码不一致"
+        "passwordMismatch": "两次输入的密码不一致",
+        "attemptExceeded": "验证尝试次数已超限 · 请重新获取验证邮件",
+        "socialAccount": "该邮箱通过 Google 账号注册，没有密码 · 请使用 Google 登录",
+        "passwordTooShort": "密码至少需要 8 个字符",
+        "passwordTooLong": "密码不能超过 64 个字符",
+        "passwordHasSpace": "密码不能包含空格"
       }
     },
     "signUp": {
@@ -107,9 +114,9 @@
       "codeVerified": "邮箱验证已完成",
       "remainingTime": "剩余时间 {{time}}",
       "password": "密码",
-      "passwordPlaceholder": "请输入8位以上",
+      "passwordPlaceholder": "请输入 8 位以上，不含空格",
       "confirmPassword": "确认密码",
-      "confirmPasswordPlaceholder": "请输入8位以上",
+      "confirmPasswordPlaceholder": "请再输入一次",
       "submit": "注册",
       "submitting": "注册中",
       "success": "注册已完成，请登录",
@@ -127,7 +134,12 @@
         "invalidForm": "输入格式不正确",
         "signUpFailed": "注册失败 · 请稍后再试",
         "passwordMismatch": "两次输入的密码不一致",
-        "verifiedExpired": "验证有效时间已过 · 请重新验证邮箱"
+        "verifiedExpired": "验证有效时间已过 · 请重新验证邮箱",
+        "invalidPassword": "密码需为 8-64 个字符，且不能包含空格",
+        "attemptExceeded": "验证尝试次数已超限 · 请重新获取验证邮件",
+        "passwordTooShort": "密码至少需要 8 个字符",
+        "passwordTooLong": "密码不能超过 64 个字符",
+        "passwordHasSpace": "密码不能包含空格"
       }
     }
   },
@@ -162,6 +174,9 @@
     "needCaptureFirst": "请先拍摄指示牌",
     "retaken": "请重新拍摄",
     "captureFailed": "拍摄失败 · 请重试",
+    "analyzeFailedTitle": "分析失败",
+    "analyzeFailedDescription": "AI 分析失败。\n请重新拍摄。",
+    "analyzeFailedRetake": "重新拍摄",
     "capturedAlt": "已拍摄的指示牌照片",
     "error": {
       "insecure": "摄像头仅在安全连接(HTTPS)下可用",
@@ -190,7 +205,15 @@
       "missingKey": "尚未设置地图密钥\n请检查 config.js 中的 NAVER_MAP_CLIENT_ID",
       "authFailed": "地图认证失败\n请检查 Client ID 以及控制台中登记的 Web 服务 URL",
       "mapFailed": "无法加载地图\n请检查网络连接"
-    }
+    },
+    "setOrigin": "设为出发地",
+    "setDestination": "设为目的地",
+    "originSet": "已设为出发地",
+    "destinationSet": "已设为目的地",
+    "originApplied": "已将{{name}}设为出发地",
+    "destinationApplied": "已将{{name}}设为目的地",
+    "needBoth": "请同时选择出发地和目的地",
+    "recenter": "移动到当前位置"
   },
   "location": {
     "captureSign": "拍摄指示牌",
@@ -217,7 +240,16 @@
       "failed": "无法加载路线\n请稍后再试",
       "empty": "未找到可用路线\n请重新选择目的地",
       "changeDestination": "重新选择目的地",
-      "started": "开始为您导航至{{station}}"
+      "started": "开始为您导航至{{station}}",
+      "durationMin": "{{m}}分钟",
+      "durationHour": "{{h}}小时{{m}}分钟",
+      "fare": "{{amount}}韩元",
+      "needOrigin": "尚未设置出发地\n请在地图上选择",
+      "needDestination": "尚未设置目的地\n请在地图上选择",
+      "pickOnMap": "在地图上选择",
+      "failedNetwork": "无法连接到路线服务器\n请检查网络和服务器状态",
+      "failedNoRoute": "未找到该区间的地铁路线\n请重新选择出发地或目的地",
+      "failedOdsay": "无法获取路线信息\n请稍后重试"
     }
   },
   "userInfo": {
@@ -309,9 +341,9 @@
       },
       "views": {
         "1": "1层",
+        "3": "3层",
         "2A": "2层 A",
-        "2B": "2层 B",
-        "3": "3层"
+        "2B": "2层 B"
       }
     },
     "help": "请求帮助",
@@ -400,5 +432,9 @@
       "title": "找不到页面",
       "description": "网址有误或页面已被删除。"
     }
+  },
+  "trip": {
+    "originEmpty": "选择出发地",
+    "destinationEmpty": "选择目的地"
   }
 }

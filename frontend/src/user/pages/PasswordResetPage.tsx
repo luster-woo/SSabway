@@ -9,6 +9,7 @@ import { AuthTextField } from '@/user/features/auth/AuthTextField'
 import { FieldError } from '@/user/features/auth/FieldError'
 import { InlineActionField } from '@/user/features/auth/InlineActionField'
 import { formatDuration } from '@/user/features/auth/lib/formatDuration'
+import { findPasswordIssue } from '@/user/features/auth/lib/password'
 import { NoticeBanner } from '@/user/features/auth/NoticeBanner'
 import {
   CODE_LENGTH,
@@ -88,10 +89,20 @@ export default function PasswordResetPage() {
    */
   const isMismatched = confirmPassword !== '' && newPassword !== confirmPassword
 
+  /**
+   * BE 와 같은 비밀번호 규칙을 화면에서 먼저 본다. (lib/password 참고)
+   *
+   * 회원가입과 같은 제약(@Size(8,64) + @Pattern("^\\S+$"))이 걸려 있는데
+   * 위반하면 400 INVALID_INPUT_VALUE 하나만 온다. 특히 공백 금지는 화면에
+   * 안내가 없어, 서버에 맡기면 사용자가 원인을 알 방법이 없다.
+   */
+  const passwordIssue = findPasswordIssue(newPassword)
+
   const canSubmit =
     isVerified &&
     newPassword !== '' &&
     confirmPassword !== '' &&
+    passwordIssue === null &&
     !isMismatched &&
     !isResetting
 
@@ -106,10 +117,15 @@ export default function PasswordResetPage() {
   const emailErrorKey = isCodeSent ? null : verification.errorKey
   const codeErrorKey = isCodeSent ? verification.errorKey : null
 
-  /** 어느 칸이라고 짚을 수 없는 실패. 불일치는 서버에 보내기 전에 잡는다. */
-  const formErrorKey = isMismatched
-    ? 'auth.passwordReset.error.passwordMismatch'
-    : resetErrorKey
+  /**
+   * 어느 칸이라고 짚을 수 없는 실패. 형식·불일치는 서버에 보내기 전에 잡는다.
+   * 형식을 불일치보다 먼저 보여주는 이유는 SignUpPage 와 같다.
+   */
+  const formErrorKey = passwordIssue
+    ? `auth.passwordReset.error.${passwordIssue}`
+    : isMismatched
+      ? 'auth.passwordReset.error.passwordMismatch'
+      : resetErrorKey
 
   const sendCode = () => {
     void verification.sendCode({

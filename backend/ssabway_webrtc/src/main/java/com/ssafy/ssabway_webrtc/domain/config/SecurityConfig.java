@@ -53,7 +53,6 @@ public class SecurityConfig {
                 .permitAll()
                 // 사용자만 상담 요청 가능
                 .requestMatchers(
-                    HttpMethod.GET,
                     "/api/v1/consultations/**"
                 )
                 .hasAuthority("USER")

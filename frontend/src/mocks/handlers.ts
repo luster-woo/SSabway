@@ -1,4 +1,4 @@
-import { http, HttpResponse, type HttpHandler, type RequestHandler } from 'msw'
+import { delay, http, HttpResponse, type HttpHandler, type RequestHandler } from 'msw'
 
 import {
   cancelMockConsultation,
@@ -872,6 +872,32 @@ const mockHandlers: HttpHandler[] = [
     )
   }),
 
+
+  /* ----------------------------------------------------------------
+   * AI — 표지판 인식 ✅ BE 개발완료 (배포 서버에서 테스트됨)
+   *
+   * 화면은 성공 여부만 보고 data 는 쓰지 않는다 (predictSign 주석 참고).
+   * 그래도 이미지가 실렸는지는 검증한다 — multipart 구성이 깨진 채 목만
+   * 통과하면 실서버 전환 때 처음 실패를 보게 되기 때문이다.
+   * ---------------------------------------------------------------- */
+  http.post(`${BASE}/ai/signs/predict`, async ({ request }) => {
+    const form = await request.formData().catch(() => null)
+    const image = form?.get('image')
+
+    if (!(image instanceof File) || image.size === 0) {
+      return HttpResponse.json(
+        errorBody('이미지 파일이 필요합니다.', 'INVALID_INPUT_VALUE'),
+        { status: 400 },
+      )
+    }
+
+    // CPU 추론(YOLO+ResNet) 체감 시간 — 분석 중 오버레이가 보이도록
+    await delay(900)
+
+    return HttpResponse.json(
+      okBody('위치 인식 성공', { signageId: 'S2_03', floor: 'B2' }),
+    )
+  }),
 ]
 
 /** 핸들러의 method + path 를 mockSwitch.ts 의 키 형식으로 바꾼다. */

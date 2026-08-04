@@ -1,4 +1,5 @@
 import axios, {
+  type AxiosError,
   type AxiosInstance,
   type InternalAxiosRequestConfig,
 } from 'axios'
@@ -93,6 +94,30 @@ const NO_RETRY_PATHS: string[] = [
   endpoints.admin.login,
 ]
 
+/**
+ * 스프링 시큐리티의 권한 불일치(403)만 골라낸다.
+ *
+ * 403 을 뭉뚱그려 로그아웃시키면 안 된다. 업무 규칙으로도 403 이 나오기 때문이다.
+ *   - CONSULTATION_ACCESS_DENIED — 자기에게 배정되지 않은 상담을 수락
+ *   - CONSULTATION_BLOCKED / BLACKLISTED_USER — 블랙리스트 사용자의 상담 요청
+ * 이건 화면이 문구로 처리해야 할 실패이지 세션 문제가 아니다. 로그인으로 보내면
+ * 역무원이 남의 대기를 눌렀다는 이유로 로그아웃되는 황당한 동작이 된다.
+ *
+ * ssabway 는 시큐리티 단계의 거부에만 code 를 'FORBIDDEN' 으로 실어 보낸다
+ * (global/jwt/JwtAccessDeniedHandler → ErrorCode.FORBIDDEN). 업무 403 은 각각
+ * 고유한 code 를 갖는다. 그래서 code 가 정확히 'FORBIDDEN' 일 때만 참이다.
+ *
+ * ⚠️ webrtc(signaling) 는 응답 봉투에 code 자체가 없어(common/response/ApiResponse
+ *    가 success·data·message 3필드) 구분할 방법이 없다. 그 경우는 보수적으로
+ *    false — 잘못 로그아웃시키느니 호출한 훅이 에러를 그대로 받게 둔다.
+ *    BE 가 webrtc 봉투에 code 를 추가하면 이 함수는 자동으로 그쪽도 커버한다.
+ */
+function isAuthorityMismatch(error: AxiosError): boolean {
+  if (error.response?.status !== 403) return false
+  const code = (error.response.data as { code?: string } | undefined)?.code
+  return code === 'FORBIDDEN'
+}
+
 function redirectToLogin(role: AuthRole) {
   useAuthStore.getState().clearAccessToken(role)
   if (window.location.pathname !== LOGIN_PATH[role]) {
@@ -116,7 +141,31 @@ function createClient(role: AuthRole): AxiosInstance {
   instance.interceptors.response.use(
     (res) => res,
     async (error: unknown) => {
-      if (!axios.isAxiosError(error) || error.response?.status !== 401) {
+      if (!axios.isAxiosError(error)) {
+        return Promise.reject(error)
+      }
+
+      /**
+       * 권한이 어긋난 토큰으로는 재발급을 해도 결과가 같다. 슬롯을 비우고
+       * 로그인 화면으로 보낸다.
+       *
+       * 이 분기가 없으면 화면은 "로그인됨"인데 모든 API 가 403 을 받는 상태에
+       * 영구히 갇힌다. 실제로 일어나는 경로가 있다 — BE 가 user/staff 리프레시
+       * 토큰을 같은 이름·같은 path 의 쿠키 하나로 관리해서
+       * (RefreshTokenCookieProvider.COOKIE_NAME), 같은 브라우저에서 두 앱을
+       * 오가면 재발급이 반대 역할의 토큰을 내려준다. 그 토큰을 자기 슬롯에
+       * 저장한 순간부터 401 이 아니라 403 만 계속 받으므로 아래 재발급 분기가
+       * 아예 돌지 않는다.
+       *
+       * 근본 수정은 BE 의 쿠키 분리다. 그게 끝나면 이 분기는 거의 도달하지
+       * 않지만, 권한 체계가 바뀔 때의 안전망으로 남겨 둔다.
+       */
+      if (isAuthorityMismatch(error)) {
+        redirectToLogin(role)
+        return Promise.reject(error)
+      }
+
+      if (error.response?.status !== 401) {
         return Promise.reject(error)
       }
 
