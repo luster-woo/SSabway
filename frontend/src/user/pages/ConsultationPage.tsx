@@ -209,8 +209,13 @@ export default function ConsultationPage() {
 
   return (
     <div className="relative flex min-h-[100dvh] flex-col overflow-hidden">
-      {/* 미리보기도 가공본 — 사용자가 "실제로 나가는 화면" 을 본다 */}
-      <CameraStage stream={mosaic.stream ?? stream} isCameraOn={isCameraOn} />
+      {/*
+        미리보기는 원본이다 — 모자이크는 관리자에게 전송되는 화면에만
+        적용한다(팀 결정 8/4). 발행은 여전히 mosaic.stream 이므로 원본
+        영상은 기기 밖으로 나가지 않는다. 상단의 "얼굴 모자이크 적용 중"
+        배지가 그 사실을 사용자에게 알린다.
+      */}
+      <CameraStage stream={stream} isCameraOn={isCameraOn} />
 
       <div className="px-safe relative flex flex-1 flex-col">
         <header className="flex shrink-0 flex-col items-center gap-2 pt-[calc(env(safe-area-inset-top,0px)+1rem)]">

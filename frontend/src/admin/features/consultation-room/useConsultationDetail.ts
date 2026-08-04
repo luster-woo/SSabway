@@ -1,6 +1,10 @@
 import { useQuery } from '@tanstack/react-query'
 
+import { adminApi } from '@/shared/api/client'
+import { endpoints } from '@/shared/api/endpoints'
 import { queryKeys } from '@/shared/lib/queryKeys'
+import type { ApiResponse } from '@/shared/types/api'
+import type { WaitingConsultation } from '@/admin/features/consultation-receive/useWaitingConsultations'
 import type { LangCode } from '@/admin/lib/language'
 
 /**
@@ -10,13 +14,12 @@ import type { LangCode } from '@/admin/lib/language'
  * 같은 값을 상담 화면에서도 받기로 합의했으므로 이름이 갈리면 안 된다.
  *
  * 블랙리스트 여부는 여기에 두지 않는다. 블랙리스트 사용자는 화상 연결 자체가
- * 거부되므로 상담방에 들어온 사용자는 정의상 블랙리스트가 아니고, 명세의 합의된
- * 응답 필드에도 없다. 통화 중 등록한 직후의 "차단됨" 표시만 필요하므로
- * 상담 페이지가 로컬 상태로 관리한다.
+ * 거부되므로 상담방에 들어온 사용자는 정의상 블랙리스트가 아니고, 통화 중
+ * 등록한 직후의 "차단됨" 표시만 필요하므로 상담 페이지가 로컬 상태로 관리한다.
  */
 export interface ConsultationDetail {
   consultationId: number
-  /** 상담 요청자 이메일 */
+  /** 상담 요청자 이메일 — 블랙리스트 등록이 이 값으로 나간다 */
   email: string
   /** 시작위치 */
   startPoint: string
@@ -25,63 +28,76 @@ export interface ConsultationDetail {
   langCode: LangCode
 }
 
-const MOCK_LATENCY_MS = 400
-
-function delay(ms: number): Promise<void> {
-  return new Promise((resolve) => {
-    window.setTimeout(resolve, ms)
-  })
+/**
+ * 수락 시점에 대기 목록에서 넘어온 항목 → 상담 정보.
+ * 두 화면 모델의 필드가 같아 골라 담기만 한다.
+ */
+export function toConsultationDetail(
+  waiting: WaitingConsultation,
+): ConsultationDetail {
+  return {
+    consultationId: waiting.consultationId,
+    email: waiting.email,
+    startPoint: waiting.startPoint,
+    finalPoint: waiting.finalPoint,
+    langCode: waiting.langCode,
+  }
 }
 
 /**
- * BE 개발 전이라 목 응답을 사용한다.
- * 연동 시 fetchConsultationDetail 본문만 교체하고 아래 상수는 삭제한다.
+ * GET /staffs/consultations/{id} 응답 — ⚠️ BE 신설 요청 상태 (8/4).
+ * WaitingResponse 와 같은 필드를 consultationId 단건으로 돌려달라고 제안했다.
+ *
+ * ⚠️ endpoints.admin.consultationDetail(= GET /staffs/consultations?id=) 과
+ *    다른 API 다. 그쪽은 민원 기록의 녹취 조회용이고 응답이
+ *    { email, summary, recordUrl, expiresIn } 뿐이라 이 화면에는 못 쓴다.
  */
-const MOCK_DETAIL: Omit<ConsultationDetail, 'consultationId'> = {
-  email: 'user1@mail.com',
-  startPoint: '대구역 3번 출구',
-  finalPoint: '경북대 북문',
-  langCode: 'EN',
+interface ConsultationInfoDto {
+  consultationId: number
+  email: string
+  departure: string
+  destination: string
+  language: LangCode
 }
 
 async function fetchConsultationDetail(
   consultationId: number,
 ): Promise<ConsultationDetail> {
-  /*
-    TODO: BE 연동 시 아래 목 처리를 실제 호출로 교체.
-
-    ⚠️ endpoints.admin.consultationDetail(= GET /staffs/consultations?id=) 를
-       쓰면 안 된다. 이름은 비슷하지만 그 API 는 민원 기록의 녹취 조회용이고
-       응답이 { email, summary, recordUrl, expiresIn } 뿐이다. 이 화면이 필요한
-       startPoint/finalPoint/langCode 가 없어 undefined 로 렌더된다.
-       (DB consultations 에는 departure/destination 이 있으니 응답에 추가하거나
-        전용 엔드포인트를 내달라고 BE 와 합의할 것)
-
-    지금은 대기 목록(GET /staffs/waiting)이 같은 값을 이미 주고 있어, 수락
-    시점에 받은 항목을 넘기는 방식으로도 해결된다.
-  */
-  await delay(MOCK_LATENCY_MS)
-
-  if (!Number.isFinite(consultationId) || consultationId <= 0) {
-    throw new Error('잘못된 상담 ID입니다.')
+  const res = await adminApi.get<ApiResponse<ConsultationInfoDto>>(
+    endpoints.admin.consultationInfo(consultationId),
+  )
+  const dto = res.data.data
+  return {
+    consultationId: dto.consultationId,
+    email: dto.email,
+    startPoint: dto.departure,
+    finalPoint: dto.destination,
+    langCode: dto.language,
   }
-
-  return { consultationId, ...MOCK_DETAIL }
 }
 
 /**
  * 상담 정보 조회.
  *
- * URL 의 consultationId 로 조회하므로 새로고침해도 정보가 유지된다.
- * 통화 중 바뀌지 않는 값이라 폴링하지 않는다.
- *
- * 잘못된 URL 로 들어오면 호출부가 0 을 넘긴다. 그때 요청을 보내면
- * 실패하고 리트라이까지 도니 enabled 로 아예 막는다.
+ * 수락 직후에는 대기 목록 항목이 라우팅 state 로 넘어오므로(initial) 서버
+ * 조회가 필요 없다. 통화 중 바뀌는 값이 아니라 staleTime 을 무한으로 둔다.
+ * 새로고침(state 유실) 때만 서버 조회가 돈다 — ⚠️ BE 신설 전까지 실서버에서
+ * 이 경로는 404 라 "불러오지 못했습니다"가 뜬다. 목(MSW)은 동작한다.
  */
-export function useConsultationDetail(consultationId: number) {
+export function useConsultationDetail(
+  consultationId: number,
+  initial: ConsultationDetail | null = null,
+) {
   return useQuery({
-    queryKey: queryKeys.consultation.detail(consultationId),
+    /*
+      ⚠️ 'info' 세그먼트가 꼭 필요하다. 사용자 쪽 useConsultationMatch 가
+      같은 [...all, id] 키에 전혀 다른 모양(ConsultationSnapshot)을 캐싱한다 —
+      세그먼트 없이 쓰면 한 탭에서 user ↔ admin 을 오갈 때 캐시가 섞인다.
+    */
+    queryKey: [...queryKeys.consultation.detail(consultationId), 'info'],
     queryFn: () => fetchConsultationDetail(consultationId),
+    initialData: initial ?? undefined,
+    staleTime: Infinity,
     enabled: consultationId > 0,
   })
 }

@@ -69,6 +69,8 @@ public class SecurityConfig {
                         // 관리자 로그인은 인증 전에 호출되므로 /staffs/** 규칙보다 먼저 열어야 함
                         .requestMatchers("/api/v1/staffs/login").permitAll()
 
+                        .requestMatchers("/api/v1/ai/signs/predict").permitAll()
+
                         // users와 staff 권한 구분
                         .requestMatchers("/api/v1/users/**").hasAuthority("USER")
                         .requestMatchers(HttpMethod.POST, "/api/v1/consultations").hasAuthority("USER")
