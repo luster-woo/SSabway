@@ -149,7 +149,15 @@ export default function AdminConsultationPage() {
           </section>
         ) : null}
 
-        {isError ? (
+        {/*
+          데이터가 있으면 에러를 띄우지 않는다.
+
+          이 쿼리는 스토어 값을 initialData 로 받으므로(useConsultationDetail),
+          뒤이은 재조회가 실패해도 data 는 남고 isError 만 켜진다. 두 조건을
+          독립으로 두면 정상 정보 패널 옆에 "불러오지 못했습니다" 카드가 같이
+          뜬다. 보여줄 값이 아예 없을 때만 실패로 취급한다.
+        */}
+        {isError && !detail ? (
           <section className="border-line bg-surface flex w-[340px] shrink-0 items-center justify-center rounded-3xl border px-7">
             <p role="alert" className="text-danger text-center text-[13px]">
               상담 정보를 불러오지 못했습니다.
