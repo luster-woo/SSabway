@@ -6,6 +6,7 @@ import com.ssafy.ssabway.domain.route.dto.request.RouteSearchRequest;
 import com.ssafy.ssabway.domain.route.dto.response.RouteResponse;
 import com.ssafy.ssabway.domain.route.dto.response.RouteSearchResponse;
 import com.ssafy.ssabway.domain.route.dto.response.RouteSegmentResponse;
+import com.ssafy.ssabway.domain.route.entity.StartPoint;
 import com.ssafy.ssabway.domain.route.entity.SubwayLane;
 import com.ssafy.ssabway.global.common.Language;
 import com.ssafy.ssabway.global.exception.BusinessException;
@@ -88,11 +89,14 @@ public class RouteService {
         OdsayRouteResponse.Lane lane = subPath.lane().getFirst();
         SubwayLane subwayLane = SubwayLane.from(lane.subwayCode());
 
+        String startKor = startNameKorOf(subPath);
+
         return new RouteSegmentResponse(
                 subwayLane,
                 lane.name(),
                 subPath.wayCode(),
                 subwayLane.directionOf(subPath.wayCode(), language),
+                StartPoint.codeOf(startKor, subwayLane, subPath.wayCode()),
                 subPath.startName(),
                 subPath.endName(),
                 subPath.stationCount(),
