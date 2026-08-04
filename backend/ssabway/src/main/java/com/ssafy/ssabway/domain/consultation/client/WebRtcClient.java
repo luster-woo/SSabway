@@ -22,9 +22,9 @@ public class WebRtcClient {
     private final String internalSecret;
 
     public WebRtcClient(
-            @Value("${WEBRTC_BASE_URL:http://localhost:8081}")
+            @Value("${webrtc.base-url}")
             String baseUrl,
-            @Value("${WEBRTC_INTERNAL_SECRET}")
+            @Value("${webrtc.api-key}")
             String internalSecret
     ) {
         this.restClient = RestClient.builder()
