@@ -137,8 +137,12 @@ export function createMosaicPipeline(source: MediaStream): MosaicPipeline {
       detect.height = height
       detectCtx.drawImage(video, 0, 0, width, height)
       // 명세 예시가 프리픽스 없는 base64 라 data URL 머리를 뗀다.
-      // PNG 는 사진에서 너무 커서 JPEG 을 쓴다 — AI 쪽 확인 항목.
-      const image = detect.toDataURL('image/jpeg', 0.6).split(',')[1]
+      // PNG 는 사진에서 너무 커서 JPEG 을 쓴다.
+      //
+      // 품질 0.35 — 역 사진 120장 측정에서 q0.6 과 q0.3 의 검출 결과가
+      // 같았다. 얼굴 검출은 색 충실도가 아니라 구조를 보기 때문이다.
+      // 해상도를 1280 으로 올린 만큼 여기서 되돌려 받는다 (113KB → 79KB).
+      const image = detect.toDataURL('image/jpeg', 0.35).split(',')[1]
       return { image, width, height }
     },
     setBoxes(next) {

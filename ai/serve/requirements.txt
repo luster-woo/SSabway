@@ -10,6 +10,10 @@ ultralytics>=8.4
 pillow>=11.0
 numpy>=2.0
 
+# 얼굴 검출(YuNet)에 cv2.FaceDetectorYN 이 필요하다 — 4.5.4 부터 들어왔다.
+# ultralytics 가 이미 opencv 를 끌어오지만, 버전을 여기서 못 박아 둔다.
+opencv-python>=4.10
+
 fastapi>=0.120
 uvicorn[standard]>=0.38
 python-multipart>=0.0.20

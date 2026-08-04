@@ -19,7 +19,12 @@ RUN pip install --no-cache-dir \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY inference.py main.py ./
+COPY inference.py face.py main.py ./
+
+# 얼굴 검출 모델(227KB)은 표지판 가중치와 달리 이미지에 넣는다.
+# OpenCV Zoo 에서 받은 그대로라 재학습할 일이 없고, 크기가 작아 레이어
+# 캐시에도 부담이 없다. /opt/models 마운트를 인프라와 맞출 필요가 없어진다.
+COPY face_detection_yunet_2023mar.onnx ./
 
 # 가중치는 이미지에 넣지 않는다. 재학습할 때마다 이미지를 다시 빌드하게 되고,
 # 이미지 크기도 50MB 늘어난다. 호스트 디렉터리를 마운트해서 쓴다:
