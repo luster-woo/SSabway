@@ -76,6 +76,16 @@ export interface RouteSegment {
   wayCode: number | null
   /** "…방면"에 쓸 종점명. wayCode 나 노선을 모르면 null 이다. */
   direction: string | null
+  /**
+   * 개찰구(승강장) 노드 id. BE 가 (역·노선·wayCode)로 계산해 준다
+   * (RouteSegmentResponse.pointCode ← StartPoint.codeOf). 이 값을 역 내 안내
+   * (/routes/navi)의 finalPoint 로 그대로 넘긴다 — wayCode 로 다시 계산하지 말 것.
+   *
+   * 매핑이 없으면 null 이다(지원하지 않는 역·노선 조합, 환승 이후 구간,
+   * wayCode 누락 등). null 이면 실내 안내를 시작하지 않는다 — 엉뚱한 승강장으로
+   * 안내하는 것보다 낫다.
+   */
+  pointCode: string | null
   startStation: string
   endStation: string
   /** 이 구간에서 지나는 역 수 */
