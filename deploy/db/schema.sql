@@ -67,8 +67,9 @@ CREATE TABLE IF NOT EXISTS `staffs` (
 CREATE TABLE IF NOT EXISTS `points` (
     `point_id`   BIGINT      NOT NULL AUTO_INCREMENT COMMENT '포인트 번호',
     `station_id` BIGINT      NOT NULL                COMMENT '역 번호',
-    `type`       VARCHAR(20) NULL                    COMMENT '포인트 타입',
-    `floor`      INT         NULL                    COMMENT '포인트 층',
+    `point_code` VARCHAR(20) NOT NULL                COMMENT '포인트 코드',
+    `type`       VARCHAR(20) NOT NULL                COMMENT '포인트 타입',
+    `floor`      INT         NOT NULL                COMMENT '포인트 층',
     PRIMARY KEY (`point_id`),
     KEY `idx_points_station` (`station_id`),
     CONSTRAINT `fk_points_station`
@@ -81,12 +82,13 @@ CREATE TABLE IF NOT EXISTS `points` (
 -- 엣지
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `edges` (
-   `edge_id`       BIGINT       NOT NULL AUTO_INCREMENT COMMENT '엣지 번호',
-   `from_point_id` BIGINT       NOT NULL                COMMENT '시작포인트 번호',
-   `to_point_id`   BIGINT       NOT NULL                COMMENT '도착포인트 번호',
-   `weight`        BIGINT       NOT NULL                COMMENT '가중치',
-   `photo_s3`      VARCHAR(500) NULL                    COMMENT 'S3 이미지 경로',
-    `use_stair`     TINYINT(1)   NOT NULL DEFAULT 0      COMMENT '계단 여부',
+   `edge_id`       BIGINT         NOT NULL AUTO_INCREMENT COMMENT '엣지 번호',
+   `from_point_id` BIGINT         NOT NULL                COMMENT '시작포인트 번호',
+   `to_point_id`   BIGINT         NOT NULL                COMMENT '도착포인트 번호',
+   `edge_code`     VARCHAR(20)    NOT NULL                COMMENT '엣지 코드',
+    `weight`        DECIMAL(10, 2) NOT NULL                COMMENT '가중치',
+    `photo_s3`      VARCHAR(500)   NULL                    COMMENT 'S3 이미지 경로',
+    `use_stair`     BOOLEAN        NOT NULL DEFAULT FALSE  COMMENT '계단 여부',
     PRIMARY KEY (`edge_id`),
     KEY `idx_edges_from` (`from_point_id`),
     KEY `idx_edges_to`   (`to_point_id`),
