@@ -147,7 +147,6 @@ public class OpenViduService {
 
     // 화면 녹화 후 음성데이터 받아오는 메서드
     public Recording startAudioRecording(String sessionId) throws OpenViduJavaClientException, OpenViduHttpException{
-        openVidu.fetch();
 
         Session session = openVidu.getActiveSession(sessionId);
         if(session == null){
