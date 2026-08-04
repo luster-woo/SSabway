@@ -39,7 +39,7 @@ public record OdsayRouteResponse(Result result,  Object error)  {
            그대로 쓰면 1씩 밀린다. 환승 횟수는 지하철 구간 수 - 1로 계산한다.
      */
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record Info(int totalTime, int payment,
+    public record Info(int totalTime, Integer payment,
                        String firstStartStation, String firstStartStationKor,
                        String lastEndStation, String lastEndStationKor) {}
 
