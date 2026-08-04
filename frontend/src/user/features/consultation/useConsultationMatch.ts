@@ -8,6 +8,23 @@ import { openviduApi } from '@/user/features/consultation/openviduApi'
 /** 상태 폴링 간격. 명세의 STOMP 폴백 규칙과 같은 값이다. */
 const POLL_INTERVAL_MS = 3_000
 
+/**
+ * 매칭을 더 기다릴 이유가 없어진 상태 — useConsultationWaiting 과 같은 목록이다.
+ *
+ * 두 훅이 같은 API 를 폴링하는데 한쪽에만 이 분기가 있으면, 대기 화면은 취소를
+ * 알아채고 화상 화면은 못 알아채는 비대칭이 생긴다. 실제로 그랬다.
+ *
+ * FAILED 는 오늘 어느 서버도 보내지 않는다 — ssabway·webrtc 양쪽 엔티티
+ * enum 이 WAITING/MATCHED/IN_PROGRESS/ENDED/CANCELED 5종뿐이다. 형제 훅과
+ * 목록을 어긋나게 둘 이유가 없어 남겨 두지만, FAILED 에 기대는 흐름을 새로
+ * 만들면 안 된다. (같은 이유로 아래 isMatchedStatus 의 RECONNECTING 도 죽은 분기다)
+ */
+const TERMINAL_STATUSES: ConsultationStatus[] = [
+  CONSULTATION_STATUS.ENDED,
+  CONSULTATION_STATUS.CANCELED,
+  CONSULTATION_STATUS.FAILED,
+]
+
 export interface ConsultationMatch {
   /** 서버가 아는 상담 상태. 아직 모르면 null */
   status: ConsultationStatus | null
@@ -15,7 +32,13 @@ export interface ConsultationMatch {
   queuePosition: number | null
   /** 발급된 접속 토큰. 이 값이 생기면 화상 접속을 시작한다 */
   token: string | null
-  /** 매칭을 기다리다 실패했다 */
+  /**
+   * 이 상담으로 통화를 시작할 수 없다 — 접속 실패도, 서버가 이미 끝낸 상담도
+   * 포함한다(형제 훅 useConsultationWaiting 과 같은 정의).
+   *
+   * "실패"와 "정상 종료"의 문구가 갈려야 하므로, 화면은 이 값으로 대기 UI 를
+   * 걷고 무엇을 보여줄지는 `status` 로 가른다.
+   */
   isFailed: boolean
 }
 
@@ -26,6 +49,11 @@ function isMatchedStatus(status: ConsultationStatus | null): boolean {
     status === CONSULTATION_STATUS.IN_PROGRESS ||
     status === CONSULTATION_STATUS.RECONNECTING
   )
+}
+
+/** 끝난 상담인지. 폴링을 멈추고 화면을 닫아야 한다 */
+function isTerminalStatus(status: ConsultationStatus | null): boolean {
+  return status !== null && TERMINAL_STATUSES.includes(status)
 }
 
 /**
@@ -44,29 +72,42 @@ function isMatchedStatus(status: ConsultationStatus | null): boolean {
  */
 export function useConsultationMatch(
   consultationId: number,
-  /** 미디어 권한을 얻은 뒤에 시작한다. 순서가 반대면 발행할 트랙이 없다. */
-  enabled: boolean,
+  /**
+   * 미디어 권한을 얻었는지.
+   *
+   * **토큰 발급(joinSession)에만** 걸린다 — 순서가 반대면 발행할 트랙이 없다.
+   * 상태 조회는 여기에 걸지 않는다. 걸어 두면 이미 끝난 상담으로 재진입했을 때
+   * 카메라를 먼저 켠 뒤에야 종료를 알게 되어, 끌 필요도 없던 카메라가 한 번
+   * 켜진다. 상태 조회는 GET 하나라 커넥션을 쓰지 않으므로 먼저 돌아도 된다.
+   */
+  isMediaReady: boolean,
 ): ConsultationMatch {
   const [token, setToken] = useState<string | null>(null)
   const [isFailed, setIsFailed] = useState(false)
 
-  const isActive = enabled && consultationId > 0
+  const hasConsultation = consultationId > 0
 
   const snapshot = useQuery({
     queryKey: queryKeys.consultation.detail(consultationId),
     queryFn: () => openviduApi.fetchSnapshot(consultationId),
-    enabled: isActive,
-    // 매칭되면 더 볼 이유가 없다. 이후 상태는 OpenVidu 이벤트가 알려준다.
-    refetchInterval: (query) =>
-      isMatchedStatus(query.state.data?.status ?? null)
+    enabled: hasConsultation,
+    /*
+      매칭되면 더 볼 이유가 없다 — 이후 상태는 OpenVidu 이벤트가 알려준다.
+      끝난 상담도 마찬가지다. 이 분기가 없으면 ENDED·CANCELED 를 받고도
+      "매칭이 아니니 계속 기다린다"로 읽어 3초마다 영구히 폴링한다.
+    */
+    refetchInterval: (query) => {
+      const polled = query.state.data?.status ?? null
+      return isMatchedStatus(polled) || isTerminalStatus(polled)
         ? false
-        : POLL_INTERVAL_MS,
+        : POLL_INTERVAL_MS
+    },
   })
 
   const status = snapshot.data?.status ?? null
 
   useEffect(() => {
-    if (!isActive || token !== null) return
+    if (!hasConsultation || !isMediaReady || token !== null) return
     if (!isMatchedStatus(status)) return
 
     const controller = new AbortController()
@@ -85,12 +126,12 @@ export function useConsultationMatch(
       isCurrent = false
       controller.abort()
     }
-  }, [consultationId, isActive, status, token])
+  }, [consultationId, hasConsultation, isMediaReady, status, token])
 
   return {
     status,
     queuePosition: snapshot.data?.queuePosition ?? null,
     token,
-    isFailed: isFailed || snapshot.isError,
+    isFailed: isFailed || snapshot.isError || isTerminalStatus(status),
   }
 }

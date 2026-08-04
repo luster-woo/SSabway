@@ -435,6 +435,8 @@
       "cameraOff": "Camera turned off",
       "ended": "The call has ended",
       "endedByStaff": "The staff member ended the call",
+      "alreadyEnded": "This consultation has already ended",
+      "canceled": "The consultation request was canceled",
       "waitingStaff": "Waiting for a staff member…",
       "queuePosition": "You are number {{position}} in the queue",
       "noConsultationId": "We couldn't find your request. Please start from Help again.",
