@@ -3,8 +3,11 @@
 FROM python:3.12-slim
 
 # opencv(ultralytics 의존)가 libGL 과 libglib 을 찾는다. 없으면 import 에서 죽는다.
+# Azure Speech SDK 는 libasound2 와 libssl 을 링크한다 — 마이크를 쓰지 않고
+# 스트림만 밀어 넣어도 필요하다. 없으면 import 단계에서 실패한다.
 RUN apt-get update && apt-get install -y --no-install-recommends \
         libgl1 libglib2.0-0 curl \
+        libasound2 libssl3 ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -19,7 +22,7 @@ RUN pip install --no-cache-dir \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY inference.py face.py main.py ./
+COPY inference.py face.py translate.py main.py ./
 
 # 얼굴 검출 모델(227KB)은 표지판 가중치와 달리 이미지에 넣는다.
 # OpenCV Zoo 에서 받은 그대로라 재학습할 일이 없고, 크기가 작아 레이어
