@@ -61,30 +61,30 @@ public class RoutePlanner {
                                String goal,
                                Purpose needs,
                                boolean hasCash,
-                               boolean avoidStairs) {
+                               boolean useElevator) {
 
         if (needs == null) {
-            return routeFinder.find(graph, start, goal, avoidStairs)
+            return routeFinder.find(graph, start, goal, useElevator)
                     .map(p -> new Plan(List.of(new Leg(p, Purpose.TO_GATE, goal)), p.totalWeight()));
         }
 
         boolean needsCash = !hasCash;
         return needsCash
-                ? planWithCash(graph, start, goal, needs, avoidStairs)
-                : planDirect(graph, start, goal, needs, avoidStairs);
+                ? planWithCash(graph, start, goal, needs, useElevator)
+                : planDirect(graph, start, goal, needs, useElevator);
     }
 
     /* 현금이 있는 경우: 출발 → (시설) → 개찰구 */
     private Optional<Plan> planDirect(NavigationGraph graph, String start, String goal,
-                                      Purpose needs, boolean avoidStairs) {
+                                      Purpose needs, boolean useElevator) {
 
         List<NavNode> candidates = graph.nodesFor(needs);
         if (candidates.isEmpty()) {
             return Optional.empty();
         }
 
-        Distances fromStart = routeFinder.distancesFrom(graph, start, avoidStairs);
-        Distances fromGoal = routeFinder.distancesFrom(graph, goal, avoidStairs);
+        Distances fromStart = routeFinder.distancesFrom(graph, start, useElevator);
+        Distances fromGoal = routeFinder.distancesFrom(graph, goal, useElevator);
 
         NavNode best = null;
         double bestCost = Double.MAX_VALUE;
@@ -102,7 +102,7 @@ public class RoutePlanner {
             return Optional.empty();
         }
 
-        return buildPlan(graph, avoidStairs, goal,
+        return buildPlan(graph, useElevator, goal,
                 List.of(new Stop(best.id(), needs, fromStart)));
     }
 
@@ -117,7 +117,7 @@ public class RoutePlanner {
         (출발 1 + ATM 2 + 개찰구 1). 나머지는 덧셈으로 비교한다.
      */
     private Optional<Plan> planWithCash(NavigationGraph graph, String start, String goal,
-                                        Purpose needs, boolean avoidStairs) {
+                                        Purpose needs, boolean useElevator) {
 
         List<NavNode> atms = graph.nodesFor(Purpose.WITHDRAW_CASH);
         List<NavNode> facilities = graph.nodesFor(needs);
@@ -125,8 +125,8 @@ public class RoutePlanner {
             return Optional.empty();
         }
 
-        Distances fromStart = routeFinder.distancesFrom(graph, start, avoidStairs);
-        Distances fromGoal = routeFinder.distancesFrom(graph, goal, avoidStairs);
+        Distances fromStart = routeFinder.distancesFrom(graph, start, useElevator);
+        Distances fromGoal = routeFinder.distancesFrom(graph, goal, useElevator);
 
         NavNode bestAtm = null;
         NavNode bestFacility = null;
@@ -137,7 +137,7 @@ public class RoutePlanner {
             if (!fromStart.canReach(atm.id())) {
                 continue;
             }
-            Distances fromAtm = routeFinder.distancesFrom(graph, atm.id(), avoidStairs);
+            Distances fromAtm = routeFinder.distancesFrom(graph, atm.id(), useElevator);
 
             for (NavNode f : facilities) {
                 if (!fromAtm.canReach(f.id()) || !fromGoal.canReach(f.id())) {
@@ -158,7 +158,7 @@ public class RoutePlanner {
             return Optional.empty();
         }
 
-        return buildPlan(graph, avoidStairs, goal, List.of(
+        return buildPlan(graph, useElevator, goal, List.of(
                 new Stop(bestAtm.id(), Purpose.WITHDRAW_CASH, fromStart),
                 new Stop(bestFacility.id(), needs, bestFromAtm)));
     }
@@ -176,7 +176,7 @@ public class RoutePlanner {
         경유지까지의 경로는 이미 계산해 둔 거리표에서 되짚고,
         마지막 경유지에서 개찰구까지만 새로 탐색한다.
      */
-    private Optional<Plan> buildPlan(NavigationGraph graph, boolean avoidStairs,
+    private Optional<Plan> buildPlan(NavigationGraph graph, boolean useElevator,
                                      String goal, List<Stop> stops) {
 
         List<Leg> legs = new ArrayList<>();
@@ -192,7 +192,7 @@ public class RoutePlanner {
         }
 
         String lastStop = stops.get(stops.size() - 1).nodeId();
-        Optional<Path> toGate = routeFinder.find(graph, lastStop, goal, avoidStairs);
+        Optional<Path> toGate = routeFinder.find(graph, lastStop, goal, useElevator);
         if (toGate.isEmpty()) {
             return Optional.empty();
         }
