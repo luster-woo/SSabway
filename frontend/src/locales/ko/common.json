@@ -229,7 +229,10 @@
       "failed": "경로를 불러오지 못했어요\n잠시 후 다시 시도해 주세요",
       "empty": "이용할 수 있는 경로를 찾지 못했어요\n목적지를 다시 선택해 주세요",
       "changeDestination": "목적지 다시 선택",
-      "started": "{{station}}까지 안내를 시작해요"
+      "started": "{{station}}까지 안내를 시작해요",
+      "durationMin": "{{m}}분",
+      "durationHour": "{{h}}시간 {{m}}분",
+      "fare": "{{amount}}원"
     }
   },
   "userInfo": {
@@ -321,9 +324,9 @@
       },
       "views": {
         "1": "1층",
+        "3": "3층",
         "2A": "2층 A",
-        "2B": "2층 B",
-        "3": "3층"
+        "2B": "2층 B"
       }
     },
     "help": "도움 요청",

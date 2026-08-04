@@ -229,7 +229,10 @@
       "failed": "Could not load routes\nPlease try again in a moment",
       "empty": "No available route was found\nPlease choose another destination",
       "changeDestination": "Change destination",
-      "started": "Starting the guide to {{station}}"
+      "started": "Starting the guide to {{station}}",
+      "durationMin": "{{m}} min",
+      "durationHour": "{{h}} hr {{m}} min",
+      "fare": "₩{{amount}}"
     }
   },
   "userInfo": {
@@ -321,9 +324,9 @@
       },
       "views": {
         "1": "1F",
+        "3": "3F",
         "2A": "2F A",
-        "2B": "2F B",
-        "3": "3F"
+        "2B": "2F B"
       }
     },
     "help": "Get help",

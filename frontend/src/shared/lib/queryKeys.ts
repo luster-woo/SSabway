@@ -15,11 +15,15 @@ export const queryKeys = {
   },
   route: {
     all: ['route'] as const,
-    /** 출발·도착 좌표로 조회한 추천 경로 목록 */
+    /**
+     * 출발·도착 좌표로 조회한 추천 경로 목록.
+     * 역명이 요청 언어로 번역되어 오므로 언어도 키에 넣는다.
+     */
     path: (params: RoutePathParams) =>
       [
         ...queryKeys.route.all,
         'path',
+        params.language,
         params.startX,
         params.startY,
         params.endX,
