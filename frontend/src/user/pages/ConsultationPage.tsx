@@ -5,11 +5,10 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { CaptionOverlay } from '@/shared/caption/CaptionOverlay'
 import { useLiveCaption } from '@/shared/caption/useLiveCaption'
 import { useLanguage } from '@/shared/lib/useLanguage'
-import { Button, useToast } from '@/shared/ui'
+import { Button, Dialog, useToast } from '@/shared/ui'
 import { OpenViduVideo } from '@/shared/webrtc/OpenViduVideo'
 import { OV_STATUS } from '@/shared/webrtc/useOpenViduSession'
 import { CallControls } from '@/user/features/consultation/CallControls'
-import { CallDialog } from '@/user/features/consultation/CallDialog'
 import { CameraStage } from '@/user/features/consultation/CameraStage'
 import { ConnectedBadge } from '@/user/features/consultation/ConnectedBadge'
 import { toCallMediaErrorKey } from '@/user/features/consultation/callMediaErrorKey'
@@ -266,7 +265,7 @@ export default function ConsultationPage() {
       </div>
 
       {status === CALL_MEDIA_STATUS.IDLE || isRequesting ? (
-        <CallDialog
+        <Dialog
           header={<MicBadgeIcon />}
           title={t('consultation.video.permission.title')}
           description={t('consultation.video.permission.description')}
@@ -290,11 +289,11 @@ export default function ConsultationPage() {
           >
             {t('consultation.video.permission.deny')}
           </Button>
-        </CallDialog>
+        </Dialog>
       ) : null}
 
       {status === CALL_MEDIA_STATUS.ERROR && errorType ? (
-        <CallDialog
+        <Dialog
           title={t('consultation.video.permission.title')}
           description={t(toCallMediaErrorKey(errorType))}
         >
@@ -309,11 +308,11 @@ export default function ConsultationPage() {
           >
             {t('common.goHome')}
           </Button>
-        </CallDialog>
+        </Dialog>
       ) : null}
 
       {isEndDialogOpen ? (
-        <CallDialog
+        <Dialog
           isDismissable
           title={t('consultation.video.endConfirm.title')}
           description={t('consultation.video.endConfirm.description')}
@@ -330,7 +329,7 @@ export default function ConsultationPage() {
           >
             {t('consultation.video.endConfirm.keep')}
           </Button>
-        </CallDialog>
+        </Dialog>
       ) : null}
     </div>
   )
