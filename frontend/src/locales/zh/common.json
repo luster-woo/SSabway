@@ -249,7 +249,8 @@
       "pickOnMap": "在地图上选择",
       "failedNetwork": "无法连接到路线服务器\n请检查网络和服务器状态",
       "failedNoRoute": "未找到该区间的地铁路线\n请重新选择出发地或目的地",
-      "failedOdsay": "无法获取路线信息\n请稍后重试"
+      "failedOdsay": "无法获取路线信息\n请稍后重试",
+      "failedUnexpected": "路线服务器无法处理该请求 (HTTP {{status}})\n请稍后重试"
     }
   },
   "userInfo": {
@@ -349,7 +350,44 @@
     "help": "请求帮助",
     "loading": "正在加载路线导航…",
     "failed": "无法加载路线导航\n请稍后再试",
-    "empty": "未找到可导航的步骤\n请重新拍摄指示牌"
+    "empty": "未找到可导航的步骤\n请重新拍摄指示牌",
+    "nextPoint": "下一个地点",
+    "arriveAt": "到达地点",
+    "totalDistance": "共{{meters}}米",
+    "viaCount": "经停{{count}}处",
+    "stepFallback": "请按照指示牌前行",
+    "needAnswers": "尚未获取路线所需信息\n回答几个问题后即可为您指路",
+    "goAnswer": "回答问题",
+    "withoutElevator": "不使用电梯重新查找",
+    "retryingWithStairs": "正在包含楼梯重新查找",
+    "failedNetwork": "无法连接到导航服务器\n请检查网络状态",
+    "failedNoRoute": "未找到可通行的路线\n请重新拍摄指示牌",
+    "failedNoStepFree": "没有无台阶的路线\n可以包含楼梯重新查找",
+    "failedUnknownPoint": "无法确认出发地点\n请重新拍摄指示牌",
+    "failedNeedAnswers": "路线所需信息不足\n请重新回答问题",
+    "failedNotReady": "正在准备导航数据\n请稍后重试",
+    "point": {
+      "signage": "指示牌",
+      "elevator": "电梯",
+      "exit": "出口",
+      "gate": "检票口",
+      "poi": "设施",
+      "store": "便利店",
+      "ticketOffice": "售票处",
+      "ticketMachine": "售票机",
+      "atm": "ATM",
+      "toilet": "洗手间"
+    },
+    "todo": {
+      "charge": "请在此充值",
+      "buyCard": "请在此购买交通卡",
+      "singleTicket": "请在此购买单程票",
+      "withdrawCash": "请在此取现金",
+      "toGate": "请前往检票口"
+    },
+    "failedUnexpected": "导航服务器无法处理该请求 (HTTP {{status}})\n请稍后重试",
+    "failedFacility": "当前条件下无法前往需要经停的地点\n请选择其他方式重新回答",
+    "changeAnswers": "重新回答"
   },
   "arrival": {
     "back": "返回",

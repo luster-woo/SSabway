@@ -1,10 +1,21 @@
 /**
- * 경로 상세 안내(역 내 단계별 안내) 타입.
- * 명세: GET /api/v1/routes/navi
+ * 경로 상세 안내(역 내 단계별 안내)의 화면용 타입.
+ * 원본: POST /api/v1/routes/navi — `shared/types/navigation.ts` 참고.
  *
- * 한 단계 = 지시문 한 줄 + 다음에 찾아야 할 표지판 한 장.
- * 사용자는 표지판을 하나씩 확인하며 단계를 넘긴다.
+ * 서버 응답(NavRouteStep)을 그대로 쓰지 않고 한 겹 두는 이유는, 화면이 필요로
+ * 하는 값 중 서버가 안 주는 것이 있어서다(단계 번호, 도면 좌표). 매핑은
+ * `user/features/route-guide/lib/mapNaviResponse.ts` 한 곳에서만 한다.
+ *
+ * 한 단계 = 지시문 한 줄 + 그 끝에서 확인할 지점 하나.
+ * 사용자는 지점을 하나씩 확인하며 단계를 넘긴다.
  */
+
+import type {
+  NavNodeType,
+  NavPoiCategory,
+  NavPurpose,
+  NavWaypoint,
+} from '@/shared/types/navigation'
 
 /** 표지판이 가리키는 진행 방향. 화살표 회전에 쓴다. */
 export const SIGN_DIRECTION = {
@@ -24,27 +35,30 @@ export type SignDirection = (typeof SIGN_DIRECTION)[keyof typeof SIGN_DIRECTION]
 export interface SignLineBadge {
   /** 노선 번호·기호 ("4") */
   label: string
-  /** 노선 공식 색. 노선마다 달라 BE가 값으로 내려준다. ("#00a5de") */
+  /** 노선 공식 색. ("#00a5de") */
   color: string
 }
 
-/** 단계마다 한 장씩 보여주는 표지판 */
+/**
+ * 단계마다 한 장씩 보여주는 표지판.
+ *
+ * ⚠️ BE 는 표지판에 대해 사진 주소(imageUrl) 하나만 준다. exitNumber·subtitle·
+ *    lineBadge·direction 은 서버에 없는 값이라 지금은 비어 있고, SignBoardCard 의
+ *    "사진 없을 때 그려서 대체" 분기가 title 로 채워 그린다.
+ *
+ *    표지판이 아닌 지점(개찰구·편의점·엘리베이터)에는 이 객체를 만들지 않는다.
+ *    그런 곳에 표지판 카드를 띄우면 사용자가 있지도 않은 표지판을 찾게 된다.
+ */
 export interface GuideSign {
-  /**
-   * 왼쪽 노란 블록에 크게 들어가는 출구 번호 ("3").
-   * 출구 표지판이 아니면 null이고, 이때 노란 블록을 그리지 않는다.
-   */
+  /** 출구 번호 ("3"). 출구 표지판이 아니면 null */
   exitNumber: string | null
-  /** 표지판 본문 ("3 · 4번 출구 방면") */
+  /** 표지판 본문 */
   title: string
-  /** 본문 아래 영문 표기 ("To Exits 3 · 4") */
+  /** 본문 아래 영문 표기 */
   subtitle: string
   lineBadge: SignLineBadge | null
   direction: SignDirection
-  /**
-   * 실제 표지판 사진(S3 URL).
-   * 값이 있으면 사진을 보여주고, 없으면 위 필드로 표지판을 그려 대체한다.
-   */
+  /** 실제 표지판 사진(S3 URL). 없으면 위 필드로 그려서 대체한다. */
   photoUrl: string | null
 }
 
@@ -57,12 +71,12 @@ export interface GuidePointLink {
 }
 
 /**
- * 단계 표지판의 역 도면 위 위치. 좌표계는 stationMapData 와 같은 2000×2000.
+ * 단계 지점의 역 도면 위 위치. 좌표계는 stationMapData 와 같다.
  *
- * ⚠️ 명세 제안 필드다 — 현재 노션의 「역 내 경로 제공」 응답에는 좌표가 없어
- *    지도에 현재 위치를 찍을 수 없다. FE 가 이 형태를 먼저 굳혀 두고
- *    BE 에 응답 포함을 요청한 상태다. BE 가 좌표를 아직 못 주면 null 이고,
- *    그 경우 지도에는 경로가 목(PROTOTYPE_STATION_ROUTE)으로 표시된다.
+ * ⚠️ BE 응답(RouteStepResponse)에는 좌표가 없다. 프론트가 노드 id(`to`)로
+ *    도면 데이터에서 직접 찾아 쓰라는 설계다 — 서버 주석이 "프론트가 지도 JSON 을
+ *    갖고 있어서 edgeId 로 직접 찾으면 되고, 그쪽이 응답도 가볍다"고 밝힌다.
+ *    그 조회가 붙기 전까지 이 값은 null 이고, 지도는 목 경로로 표시된다.
  */
 export interface GuidePoint {
   floor: string
@@ -76,16 +90,37 @@ export interface GuidePoint {
 
 /** 경로 상세 안내의 한 단계 */
 export interface GuideStep {
-  /** 1부터 시작하는 단계 번호 */
+  /** 1부터 시작하는 단계 번호. 서버에 없어 매핑에서 붙인다. */
   order: number
-  /** 이번 단계에서 해야 할 행동 ("3번 출구 방향으로 직진하세요") */
+  /** 이번 단계에서 해야 할 행동 (BE `text`. 없으면 폴백 문구) */
   instruction: string
-  sign: GuideSign
-  /** 표지판의 도면 좌표. BE 미지원이면 null (GuidePoint 주석 참고) */
+  /** 표지판에 도착하는 구간에만. 그 외 지점은 null 이고 시설 카드로 안내한다. */
+  sign: GuideSign | null
+  /** 표지판의 도면 좌표. 미지원이면 null (GuidePoint 주석 참고) */
   point: GuidePoint | null
+
+  /*
+    아래는 BE 응답 원본 그대로다. 화면이 "무엇에 도착하는 구간인가"로 분기해야
+    해서 남긴다 — 개찰구에 도착하는 마지막 구간과 편의점에 들르는 구간은
+    같은 지시문이라도 사용자가 할 일이 다르다.
+  */
+  edgeId: string
+  /** 출발 노드 id */
+  from: string
+  /** 도착 노드 id. 도면 좌표를 찾는 키다. */
+  to: string
+  arriveType: NavNodeType
+  /** POI 일 때만 */
+  arriveCategory: NavPoiCategory | null
+  /** 이 구간 끝에서 할 일. 스쳐 지나가는 구간이면 null */
+  arrivedFor: NavPurpose | null
 }
 
-/** 경로 상세 안내 전체 (GET /routes/navi 응답 본문) */
+/** 경로 상세 안내 전체 (POST /routes/navi 응답을 화면용으로 옮긴 것) */
 export interface RouteGuide {
+  /** 총 이동거리(m) */
+  totalDistanceM: number
+  /** 개찰구 전에 들르는 곳. 바로 탑승이면 빈 배열 */
+  waypoints: NavWaypoint[]
   steps: GuideStep[]
 }

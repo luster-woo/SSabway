@@ -249,7 +249,8 @@
       "pickOnMap": "地図で選ぶ",
       "failedNetwork": "経路サーバーに接続できませんでした\nネットワークとサーバーの状態を確認してください",
       "failedNoRoute": "この区間の地下鉄経路が見つかりません\n出発地・目的地を選び直してください",
-      "failedOdsay": "経路情報を取得できませんでした\nしばらくしてからもう一度お試しください"
+      "failedOdsay": "経路情報を取得できませんでした\nしばらくしてからもう一度お試しください",
+      "failedUnexpected": "経路サーバーがリクエストを処理できませんでした (HTTP {{status}})\nしばらくしてからお試しください"
     }
   },
   "userInfo": {
@@ -349,7 +350,44 @@
     "help": "ヘルプ",
     "loading": "ルート案内を読み込んでいます…",
     "failed": "ルート案内を読み込めませんでした\nしばらくしてからもう一度お試しください",
-    "empty": "案内するステップが見つかりませんでした\n案内標識をもう一度撮影してください"
+    "empty": "案内するステップが見つかりませんでした\n案内標識をもう一度撮影してください",
+    "nextPoint": "次の地点",
+    "arriveAt": "到着地点",
+    "totalDistance": "合計{{meters}}m",
+    "viaCount": "{{count}}か所経由",
+    "stepFallback": "案内表示に従って進んでください",
+    "needAnswers": "経路に必要な情報がまだありません\n質問に答えると経路をご案内します",
+    "goAnswer": "質問に答える",
+    "withoutElevator": "エレベーターなしで再検索",
+    "retryingWithStairs": "階段を含めて再検索しています",
+    "failedNetwork": "案内サーバーに接続できませんでした\nネットワークをご確認ください",
+    "failedNoRoute": "移動できる経路が見つかりません\n案内表示をもう一度撮影してください",
+    "failedNoStepFree": "階段を使わない経路がありません\n階段を含めて再検索できます",
+    "failedUnknownPoint": "出発地点を確認できませんでした\n案内表示をもう一度撮影してください",
+    "failedNeedAnswers": "経路に必要な情報が足りません\nもう一度質問にお答えください",
+    "failedNotReady": "案内データを準備しています\nしばらくしてからお試しください",
+    "point": {
+      "signage": "案内表示",
+      "elevator": "エレベーター",
+      "exit": "出口",
+      "gate": "改札口",
+      "poi": "施設",
+      "store": "コンビニ",
+      "ticketOffice": "きっぷうりば",
+      "ticketMachine": "券売機",
+      "atm": "ATM",
+      "toilet": "トイレ"
+    },
+    "todo": {
+      "charge": "ここでチャージしてください",
+      "buyCard": "ここで交通カードを購入してください",
+      "singleTicket": "ここで1回券を購入してください",
+      "withdrawCash": "ここで現金を引き出してください",
+      "toGate": "改札口へ向かってください"
+    },
+    "failedUnexpected": "案内サーバーがリクエストを処理できませんでした (HTTP {{status}})\nしばらくしてからお試しください",
+    "failedFacility": "今の条件では立ち寄る場所に行けません\n別の方法でもう一度お答えください",
+    "changeAnswers": "回答をやり直す"
   },
   "arrival": {
     "back": "戻る",

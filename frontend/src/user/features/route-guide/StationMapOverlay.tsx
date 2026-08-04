@@ -164,7 +164,8 @@ export function StationMapOverlay({
           x: point.x,
           y: point.y,
           name: step.instruction,
-          sign: step.sign.title,
+          // 표지판이 없는 지점(개찰구·편의점)은 지시문을 대신 쓴다.
+          sign: step.sign?.title ?? step.instruction,
           up: point.up,
         }
         return [{ guideIndex, routeStep }]
@@ -178,7 +179,11 @@ export function StationMapOverlay({
     : PROTOTYPE_STATION_ROUTE
 
   // 현재 위치 = 좌표가 있는 단계 중, 보고 있던 단계를 넘지 않는 마지막 단계
-  const clampedGuideIndex = clamp(currentIndex, 0, Math.max(steps.length - 1, 0))
+  const clampedGuideIndex = clamp(
+    currentIndex,
+    0,
+    Math.max(steps.length - 1, 0),
+  )
   let clampedIndex = 0
   if (hasPoints) {
     for (let index = 0; index < positions.length; index += 1) {
@@ -294,7 +299,8 @@ export function StationMapOverlay({
 
       const [first, second] = [...pointersRef.current.values()]
       const targetHalf =
-        pinch.half * (pinch.distance / Math.max(distanceBetween(first, second), 1))
+        pinch.half *
+        (pinch.distance / Math.max(distanceBetween(first, second), 1))
 
       const { fx, fy } = toAnchorFraction(
         container,
@@ -303,13 +309,7 @@ export function StationMapOverlay({
       )
 
       setViewport((prev) =>
-        zoomViewportAt(
-          prev,
-          targetHalf / prev.half,
-          fx,
-          fy,
-          activeView.half,
-        ),
+        zoomViewportAt(prev, targetHalf / prev.half, fx, fy, activeView.half),
       )
       return
     }
@@ -351,13 +351,7 @@ export function StationMapOverlay({
     )
 
     setViewport((prev) =>
-      zoomViewportAt(
-        prev,
-        1 / DOUBLE_TAP_ZOOM_FACTOR,
-        fx,
-        fy,
-        activeView.half,
-      ),
+      zoomViewportAt(prev, 1 / DOUBLE_TAP_ZOOM_FACTOR, fx, fy, activeView.half),
     )
   }
 

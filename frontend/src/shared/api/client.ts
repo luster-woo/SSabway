@@ -4,6 +4,7 @@ import axios, {
   type InternalAxiosRequestConfig,
 } from 'axios'
 import { endpoints } from '@/shared/api/endpoints'
+import { readTokenRole } from '@/shared/api/tokenRole'
 import { env } from '@/shared/lib/env'
 import { useAuthStore, type AuthRole } from '@/shared/lib/store/useAuthStore'
 
@@ -61,6 +62,26 @@ export function refreshAccessToken(role: AuthRole): Promise<string> {
     .post<{ data: { accessToken: string } }>(endpoints.auth.refresh)
     .then((res) => {
       const token = res.data.data.accessToken
+
+      /*
+        받은 토큰이 정말 이 역할의 것인지 확인한다.
+
+        /auth/refresh 는 accessToken 만 돌려주고 역할을 알려주지 않는데
+        (AuthService.reissue), 리프레시 쿠키는 user·admin 이 같은 이름을 쓴다.
+        그래서 사용자로 로그인한 브라우저에서 /admin 에 들어가면 재발급이 200 을
+        돌려주고, 확인하지 않으면 프론트가 그것을 관리자 세션으로 착각한다.
+        관리자 화면이 열리고 그 안의 모든 API 가 403 을 내는 상태가 된다.
+
+        토큰의 type 클레임을 못 읽으면(null) 막지 않는다. 서버가 형식을 바꿨을 때
+        로그인 자체가 불가능해지는 편이 더 나쁘고, 실제 권한은 서버가 판정한다.
+      */
+      const tokenRole = readTokenRole(token)
+      if (tokenRole !== null && tokenRole !== role) {
+        throw new Error(
+          `재발급된 토큰의 역할이 다르다: 기대 ${role}, 실제 ${tokenRole}`,
+        )
+      }
+
       useAuthStore.getState().setAccessToken(role, token)
       return token
     })
