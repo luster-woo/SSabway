@@ -48,6 +48,10 @@ public enum ErrorCode {
     CONSULTATION_BLOCKED(HttpStatus.FORBIDDEN, "해당 역의 화상 상담 이용이 제한된 사용자입니다."), // 403
     CONSULTATION_ALREADY_ACCEPTED(HttpStatus.CONFLICT, "이미 수락되었거나 처리된 상담입니다."),
     CONSULTATION_ACCESS_DENIED(HttpStatus.FORBIDDEN, "해당 상담을 수락할 권한이 없습니다."),
+    TRANSCRIPT_TOO_LARGE(HttpStatus.CONTENT_TOO_LARGE, "상담 자막의 전체 길이가 제한을 초과했습니다."),
+    CONSULTATION_NOT_ENDED(HttpStatus.CONFLICT, "종료된 상담만 요약할 수 있습니다."),
+    GMS_REQUEST_FAILED(HttpStatus.BAD_GATEWAY, "상담 요약 모델 호출에 실패했습니다."),
+    GMS_INVALID_RESPONSE(HttpStatus.BAD_GATEWAY, "상담 요약 모델의 응답을 확인할 수 없습니다."),
 
     WEBRTC_SERVER_ERROR(HttpStatus.BAD_GATEWAY, "화상 연결 서버 처리에 실패했습니다."),
 
