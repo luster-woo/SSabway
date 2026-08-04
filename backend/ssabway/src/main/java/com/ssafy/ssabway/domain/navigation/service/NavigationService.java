@@ -41,10 +41,11 @@ public class NavigationService {
     private final RoutePlanner routePlanner;
 
     /*
-        표지판 사진 주소의 앞부분.
+        표지판 사진 주소의 앞부분. S3 버킷의 img 폴더까지를 가리킨다.
 
-        지금은 "{base}/{표지판id}_{면}.jpg" 로 만든다. S3 에 어떤 구조로 올릴지
-        정해지면 buildImageUrl 한 곳만 고치면 된다.
+        파일명은 "{표지판id}_{면}.jpg" 규칙이라 여기에 이어 붙이면 된다.
+        데이터에는 파일명만 두고 주소는 설정에만 두어서, 버킷이나 CDN 이 바뀌어도
+        노드·엣지 데이터를 고칠 필요가 없다.
      */
     @Value("${navigation.sign-image-base-url}")
     private String signImageBaseUrl;
