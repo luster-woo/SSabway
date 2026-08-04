@@ -28,7 +28,24 @@ public class AiConfig {
             @Value("${ai.connect-timeout}") long connectTimeout,
             @Value("${ai.read-timeout}") long readTimeout) {
 
+        /*
+            HTTP/1.1 로 고정한다. 빼면 표지판 인식이 전부 422 로 실패한다.
+
+            JDK HttpClient 는 기본이 HTTP/2 라, 평문(h2c) 연결에 업그레이드
+            헤더를 얹어 보낸다.
+                Connection: Upgrade, HTTP2-Settings
+                Upgrade: h2c
+            AI 서버의 uvicorn 은 h2c 를 지원하지 않아 이 요청을 거부하고
+            (로그: "Unsupported upgrade request") 본문을 읽지 못해
+            "field required: file" 로 422 를 낸다. 파일은 정상적으로 실려
+            있는데도 그렇다.
+
+            같은 JDK HttpClient 를 쓰는 ODsay 는 HTTPS 라 ALPN 으로 협상해
+            이 문제가 없고, signaling 은 Tomcat 이라 업그레이드 요청을 무시하고
+            정상 처리한다. 평문 + uvicorn 조합에서만 터진다.
+         */
         HttpClient httpClient = HttpClient.newBuilder()
+                .version(HttpClient.Version.HTTP_1_1)
                 .connectTimeout(Duration.ofMillis(connectTimeout))
                 .build();
 
