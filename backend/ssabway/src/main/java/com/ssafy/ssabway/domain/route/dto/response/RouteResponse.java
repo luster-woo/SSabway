@@ -12,9 +12,11 @@ import java.util.List;
  */
 public record RouteResponse(
         String firstStartStation,
+        String firstStartStationKor,
         String lastEndStation,
-        int totalTime,       // 분
-        int payment,         // 원
+        String lastEndStationKor,
+        int totalTime,
+        int payment,
         int transferCount,
         List<RouteSegmentResponse> segments
 ) {}

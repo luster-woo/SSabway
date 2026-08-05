@@ -16,11 +16,11 @@ import java.util.Map;
  */
 public final class StartPoint {
 
-    private static final Map<Key, String> CODES = Map.of(
-            new Key("대구역", SubwayLane.DAEGU_LINE_1, 1), "GA0_04",    // 설화명곡 방면
-            new Key("대구역", SubwayLane.DAEGU_LINE_1, 2), "GA0_03",    // 하양 방면
-            new Key("대구역", SubwayLane.DAEGYEONG_LINE, 1), "GA0_02",  // 구미 방면
-            new Key("대구역", SubwayLane.DAEGYEONG_LINE, 2), "GA0_01"   // 경산 방면
+    private static final Map<Key, Value> CODES = Map.of(
+            new Key("대구역", SubwayLane.DAEGU_LINE_1, 1),   new Value(1L, "GA_04"), // 설화명곡 방면
+            new Key("대구역", SubwayLane.DAEGU_LINE_1, 2),   new Value(1L, "GA_03"), // 하양 방면
+            new Key("대구역", SubwayLane.DAEGYEONG_LINE, 1), new Value(1L, "GA_02"), // 구미 방면
+            new Key("대구역", SubwayLane.DAEGYEONG_LINE, 2), new Value(1L, "GA_01")  // 경산 방면
     );
 
     private StartPoint() {}
@@ -32,11 +32,14 @@ public final class StartPoint {
           - UNKNOWN 노선, wayCode 누락도 여기로 온다
         프론트는 null이면 실내 안내를 시작하지 않는다.
      */
-    public static String codeOf(String stationNameKor, SubwayLane lane, Integer wayCode) {
+    public static Value of(String stationNameKor, SubwayLane lane, Integer wayCode) {
         if (stationNameKor == null || wayCode == null) return null;
 
         return CODES.get(new Key(stationNameKor, lane, wayCode));
     }
+
+    // stationId는 상담 요청용(역무원 배정), pointCode는 실내 안내 출발 지점
+    public record Value(Long stationId, String pointCode) {}
 
     private record Key(String station, SubwayLane lane, int wayCode) {}
 }
