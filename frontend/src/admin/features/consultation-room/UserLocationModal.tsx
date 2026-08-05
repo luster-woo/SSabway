@@ -1,25 +1,8 @@
 import {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-  type PointerEvent,
-} from 'react'
-
-import { cn } from '@/shared/lib/cn'
-import { StationMap } from '@/shared/station-map/StationMap'
-import { StationMapLegend } from '@/admin/features/consultation-room/StationMapLegend'
-import {
-  STATION_MAP_SIZE,
-  STATION_MAP_VIEWS,
-  type StationMapView,
-} from '@/shared/station-map/stationMapData'
-import {
-  toPointOnFloor,
-  useUserRoute,
-} from '@/admin/features/consultation-room/useUserRoute'
-import { AdminButton } from '@/admin/ui/AdminButton'
-import { Modal } from '@/admin/ui/Modal'
+  StationMapOverlay,
+  type StationMapStatus,
+} from '@/shared/station-map/StationMapOverlay'
+import { useUserRoute } from '@/admin/features/consultation-room/useUserRoute'
 
 export interface UserLocationModalProps {
   consultationId: number
@@ -27,353 +10,50 @@ export interface UserLocationModalProps {
 }
 
 /**
- * 지도 상태.
- *
- * zoom 은 층 기본 배율(1배)을 기준으로 한 배수다.
- * 0.2 단위로 움직여서 버튼을 누른 만큼 눈에 보이게 한다.
- */
-interface MapState {
-  /** 층 기본값 대비 배율 */
-  zoom: number
-  cx: number
-  cy: number
-}
-
-const ZOOM_STEP = 0.2
-const MIN_ZOOM = 1
-const MAX_ZOOM = 4
-
-/** 소수점 누적 오차를 막기 위해 0.2 단위로 맞춘다. */
-function toStepped(zoom: number): number {
-  return Math.round(zoom / ZOOM_STEP) * ZOOM_STEP
-}
-
-function clampZoom(zoom: number): number {
-  return Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, toStepped(zoom)))
-}
-
-/** 도면 밖으로 나가지 않도록 중심을 가둔다. */
-function clampCenter(value: number, half: number): number {
-  if (half * 2 >= STATION_MAP_SIZE) return STATION_MAP_SIZE / 2
-  return Math.min(STATION_MAP_SIZE - half, Math.max(half, value))
-}
-
-/**
  * 사용자 위치 보기.
  *
- * 사용자가 안내받는 경로를 역 내 도면에 단계 번호로 표시한다.
- * 표지판 점은 숨기고 번호와 점선만 남긴다.
+ * 사용자 앱의 "역 내에서 현재 위치 보기"와 **완전히 같은 화면**을 띄운다
+ * (shared/station-map/StationMapOverlay). 역무원이 통화하면서 "지금 파란 점이
+ * 있는 곳에서 왼쪽으로" 같이 말로 짚어야 하므로, 두 사람이 서로 다른 지도를
+ * 보고 있으면 대화가 어긋난다.
  *
- * 층 탭은 경로가 지나가지 않는 층도 모두 띄운다.
- * 역무원이 사용자 위치를 찾다가 다른 층을 확인해야 할 수 있다.
+ * 그래서 관리자 전용이던 것들은 없앴다 (8/5):
+ *   - 층 탭 — 사용자 지도는 도면 한 장에 모든 층이 그려져 있어 층 개념이 없다
+ *   - 시설 아이콘 범례 — 사용자에게 보이지 않는 정보라 기준이 갈린다
+ *   - 자체 줌·드래그 구현 — 오버레이가 핀치·휠·더블탭·± 를 모두 갖고 있다
+ *
+ * 이 컴포넌트에 남는 일은 경로를 조회해 오버레이에 넘기는 것뿐이다.
  */
 export function UserLocationModal({
   consultationId,
   onClose,
 }: UserLocationModalProps) {
-  const { data: route, isPending, isError } = useUserRoute(consultationId, true)
-  const [activeViewKey, setActiveViewKey] = useState<string | null>(null)
-  const [map, setMap] = useState<MapState | null>(null)
-  const [isDragging, setIsDragging] = useState(false)
+  const { data, isPending, isError } = useUserRoute(consultationId, true)
 
-  /** 휠 리스너를 직접 붙일 도면 영역 */
-  const stageRef = useRef<HTMLDivElement | null>(null)
+  /*
+    조회 중·실패도 오버레이 안에서 보여준다.
 
-  /** 드래그 시작 지점. 화면 픽셀과 도면 좌표를 함께 기억한다. */
-  const dragOrigin = useRef<{
-    clientX: number
-    clientY: number
-    cx: number
-    cy: number
-    /** 화면 1px 이 도면 좌표 몇 칸인지 */
-    unitPerPixel: number
-  } | null>(null)
-
-  /**
-   * 경로의 시작 지점. 경로가 빈 배열일 수 있으므로 undefined 를 허용한다.
-   * route?.[0].view 로 쓰면 route 가 [] 일 때 undefined.view 접근으로 던진다.
-   */
-  const startStep = route?.[0]
-
-  const activeView =
-    STATION_MAP_VIEWS.find((view) => view.key === activeViewKey) ??
-    STATION_MAP_VIEWS.find((view) => view.key === startStep?.view) ??
-    STATION_MAP_VIEWS[0]
-
-  // 경로를 받아오면 시작 지점이 있는 층으로 맞춘다.
-  useEffect(() => {
-    if (!startStep || activeViewKey !== null) return
-
-    const startView = STATION_MAP_VIEWS.find(
-      (view) => view.key === startStep.view,
-    )
-    if (startView) {
-      setActiveViewKey(startView.key)
-      setMap({ zoom: MIN_ZOOM, cx: startView.cx, cy: startView.cy })
-    }
-  }, [startStep, activeViewKey])
-
-  const current = map ?? {
-    zoom: MIN_ZOOM,
-    cx: activeView.cx,
-    cy: activeView.cy,
-  }
-  const half = activeView.half / current.zoom
-
-  const selectView = (view: StationMapView) => {
-    setActiveViewKey(view.key)
-    setMap({ zoom: MIN_ZOOM, cx: view.cx, cy: view.cy })
-  }
-
-  /**
-   * 중심을 도면 안으로 가둔 뒤 상태에 넣는다.
-   *
-   * 렌더 시점에만 가두면 상태에는 범위 밖 값이 그대로 쌓인다. 경계 밖으로 계속
-   * 끌었다가 반대로 끌면 그 초과분만큼 화면이 안 움직이는 데드존이 생긴다.
-   */
-  const clampState = useCallback(
-    (state: MapState): MapState => {
-      const nextHalf = activeView.half / state.zoom
-      return {
-        zoom: state.zoom,
-        cx: clampCenter(state.cx, nextHalf),
-        cy: clampCenter(state.cy, nextHalf),
-      }
-    },
-    [activeView.half],
-  )
-
-  /**
-   * 배율을 한 단계 움직인다.
-   *
-   * 렌더 스코프의 값을 읽지 않고 업데이터 함수를 쓴다. 한 프레임에 휠 이벤트가
-   * 여러 번 들어오면 모두 같은 값에서 계산되어 한 단계만 적용되기 때문이다.
-   */
-  const changeZoom = useCallback(
-    (delta: number) => {
-      setMap((prev) => {
-        const base = prev ?? {
-          zoom: MIN_ZOOM,
-          cx: activeView.cx,
-          cy: activeView.cy,
-        }
-        return clampState({ ...base, zoom: clampZoom(base.zoom + delta) })
-      })
-    },
-    [activeView.cx, activeView.cy, clampState],
-  )
-
-  /**
-   * 휠 확대. 리스너를 직접 등록한다.
-   *
-   * React 는 wheel 을 루트에 passive 리스너로 붙이기 때문에 onWheel 핸들러의
-   * preventDefault() 가 무시된다. 그러면 확대와 동시에 모달 본문
-   * (max-h + overflow-y-auto)이 함께 스크롤된다.
-   */
-  useEffect(() => {
-    const stage = stageRef.current
-    if (!stage) return
-
-    const zoomByWheel = (event: WheelEvent) => {
-      event.preventDefault()
-      changeZoom(event.deltaY < 0 ? ZOOM_STEP : -ZOOM_STEP)
-    }
-
-    stage.addEventListener('wheel', zoomByWheel, { passive: false })
-    return () => {
-      stage.removeEventListener('wheel', zoomByWheel)
-    }
-    // route 가 도착해 도면이 마운트된 뒤에 리스너를 붙여야 한다.
-  }, [changeZoom, route])
-
-  /** 현재 층에 있는 첫 경로 지점으로 화면을 옮긴다. */
-  const moveToRoute = () => {
-    if (!route) return
-
-    for (const step of route) {
-      const point = toPointOnFloor(step, activeView.floor)
-      if (point) {
-        setMap((prev) =>
-          clampState({
-            zoom: Math.max(prev?.zoom ?? MIN_ZOOM, 2),
-            cx: point.x,
-            cy: point.y,
-          }),
-        )
-        return
-      }
-    }
-  }
-
-  const startDrag = (event: PointerEvent<HTMLDivElement>) => {
-    // 1배에서는 도면 전체가 보이므로 움직일 곳이 없다.
-    if (current.zoom <= MIN_ZOOM) return
-
-    const { width } = event.currentTarget.getBoundingClientRect()
-    dragOrigin.current = {
-      clientX: event.clientX,
-      clientY: event.clientY,
-      cx: current.cx,
-      cy: current.cy,
-      unitPerPixel: (half * 2) / width,
-    }
-    setIsDragging(true)
-    event.currentTarget.setPointerCapture(event.pointerId)
-  }
-
-  const moveDrag = (event: PointerEvent<HTMLDivElement>) => {
-    const origin = dragOrigin.current
-    if (!origin) return
-
-    // 끄는 방향과 반대로 중심이 움직여야 지도가 손끝을 따라온다.
-    setMap((prev) =>
-      clampState({
-        zoom: prev?.zoom ?? MIN_ZOOM,
-        cx: origin.cx - (event.clientX - origin.clientX) * origin.unitPerPixel,
-        cy: origin.cy - (event.clientY - origin.clientY) * origin.unitPerPixel,
-      }),
-    )
-  }
-
-  const endDrag = (event: PointerEvent<HTMLDivElement>) => {
-    if (!dragOrigin.current) return
-    dragOrigin.current = null
-    setIsDragging(false)
-    event.currentTarget.releasePointerCapture(event.pointerId)
-  }
-
-  const isDraggable = current.zoom > MIN_ZOOM
+    사용자 화면은 경로가 준비된 뒤에 지도를 열지만, 역무원은 버튼을 누른
+    뒤에 조회가 시작되므로 이 화면에는 대기 상태가 존재한다. 껍데기(헤더·
+    닫기)는 그대로 두고 지도 자리만 바꿔야 닫을 방법이 사라지지 않는다.
+  */
+  const status: StationMapStatus | undefined = isPending
+    ? { kind: 'loading', message: '사용자 경로를 불러오는 중…' }
+    : isError
+      ? { kind: 'error', message: '사용자 경로를 불러오지 못했습니다.' }
+      : !data || data.steps.length === 0
+        ? {
+            kind: 'error',
+            message: '아직 사용자의 역 내 경로가 없습니다.',
+          }
+        : undefined
 
   return (
-    <Modal title="사용자 위치" width="lg" onClose={onClose}>
-      {isPending ? (
-        <p className="text-ink-muted py-10 text-center text-[13px]">
-          경로를 불러오는 중…
-        </p>
-      ) : null}
-
-      {isError ? (
-        <p role="alert" className="text-danger py-10 text-center text-[13px]">
-          경로를 불러오지 못했습니다.
-        </p>
-      ) : null}
-
-      {route ? (
-        <>
-          <div className="flex flex-wrap gap-2">
-            {STATION_MAP_VIEWS.map((view) => (
-              <button
-                key={view.key}
-                type="button"
-                aria-pressed={view.key === activeView.key}
-                onClick={() => selectView(view)}
-                className={cn(
-                  'rounded-full border px-3.5 py-1.5 text-[12.5px] font-bold transition',
-                  'focus-visible:ring-brand focus-visible:ring-2 focus-visible:outline-none',
-                  view.key === activeView.key
-                    ? 'border-brand bg-brand text-white'
-                    : 'border-line text-ink-muted bg-surface',
-                )}
-              >
-                {view.label}
-              </button>
-            ))}
-          </div>
-
-          {/*
-            드래그 이동을 위해 wrapper 에서 포인터 이벤트를 받는다.
-            휠은 passive 문제로 위 useEffect 에서 직접 등록한다.
-          */}
-          <div
-            ref={stageRef}
-            onPointerDown={startDrag}
-            onPointerMove={moveDrag}
-            onPointerUp={endDrag}
-            onPointerCancel={endDrag}
-            className={cn(
-              'border-line relative mt-4 aspect-square overflow-hidden rounded-2xl border',
-              'touch-none select-none',
-              isDraggable && (isDragging ? 'cursor-grabbing' : 'cursor-grab'),
-            )}
-          >
-            <StationMap
-              floor={activeView.floor}
-              cx={clampCenter(current.cx, half)}
-              cy={clampCenter(current.cy, half)}
-              half={half}
-              route={route}
-            />
-
-            <div className="absolute top-3 right-3 flex flex-col gap-1.5">
-              <MapControl
-                label="확대"
-                disabled={current.zoom >= MAX_ZOOM}
-                onClick={() => changeZoom(ZOOM_STEP)}
-              >
-                +
-              </MapControl>
-              <MapControl
-                label="축소"
-                disabled={current.zoom <= MIN_ZOOM}
-                onClick={() => changeZoom(-ZOOM_STEP)}
-              >
-                −
-              </MapControl>
-              <MapControl label="경로 위치로 이동" onClick={moveToRoute}>
-                ◎
-              </MapControl>
-            </div>
-
-            <p className="text-ink bg-surface/90 border-line absolute bottom-3 left-3 rounded-lg border px-2.5 py-1 text-[11.5px] font-bold backdrop-blur-sm">
-              {current.zoom.toFixed(1)}배
-            </p>
-          </div>
-
-          <div className="mt-3">
-            <StationMapLegend />
-          </div>
-        </>
-      ) : null}
-
-      <div className="mt-6">
-        <AdminButton size="lg" fullWidth onClick={onClose}>
-          닫기
-        </AdminButton>
-      </div>
-    </Modal>
-  )
-}
-
-interface MapControlProps {
-  label: string
-  children: string
-  disabled?: boolean
-  onClick: () => void
-}
-
-/** 지도 위에 겹쳐 놓는 작은 조작 버튼 */
-function MapControl({
-  label,
-  children,
-  disabled = false,
-  onClick,
-}: MapControlProps) {
-  return (
-    <button
-      type="button"
-      aria-label={label}
-      disabled={disabled}
-      // 버튼을 눌렀을 때 지도 드래그가 함께 시작되지 않게 막는다.
-      onPointerDown={(event) => event.stopPropagation()}
-      onClick={onClick}
-      className={cn(
-        'border-line bg-surface/90 text-ink flex size-8 items-center justify-center',
-        'rounded-lg border text-[15px] font-bold shadow-sm backdrop-blur-sm',
-        'hover:bg-surface focus-visible:ring-brand focus-visible:ring-2 focus-visible:outline-none',
-        'disabled:cursor-not-allowed disabled:opacity-40',
-      )}
-    >
-      {children}
-    </button>
+    <StationMapOverlay
+      steps={data?.steps ?? []}
+      currentIndex={data?.currentIndex ?? 0}
+      status={status}
+      onClose={onClose}
+    />
   )
 }

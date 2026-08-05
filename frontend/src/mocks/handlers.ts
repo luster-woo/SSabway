@@ -31,6 +31,8 @@ import type { ConsultationCreateBody } from '@/shared/types'
 import {
   CODE_TIME_LIMIT_SEC,
   MIN_PASSWORD_LENGTH,
+  MOCK_USER_ROUTE_CURRENT_INDEX,
+  MOCK_USER_ROUTE_STEPS,
   NEARBY_STATION,
   RATE_LIMITED_EMAIL,
   REFRESH_COOKIE,
@@ -490,8 +492,14 @@ const mockHandlers: HttpHandler[] = [
       typeof value !== 'string' || value.trim() === ''
 
     // BE 의 필드 선언 순서대로 메시지를 모은다 (DTO 의 message 문구 그대로).
-    // 8/4 — departureStationId 삭제됨. 두 필드만 검증한다.
+    // 8/4 departureStationId 삭제 → 8/5 stationId 추가. 세 필드를 검증한다.
     const violations: string[] = []
+    if (
+      typeof body.stationId !== 'number' ||
+      !Number.isInteger(body.stationId)
+    ) {
+      violations.push('역 ID는 필수입니다.')
+    }
     if (isBlank(body.departure)) {
       violations.push('출발역 이름은 필수입니다.')
     } else if ((body.departure ?? '').length > MAX_PLACE_NAME_LENGTH) {
@@ -885,6 +893,36 @@ const mockHandlers: HttpHandler[] = [
       }),
     )
   }),
+
+  /* ----------------------------------------------------------------
+   * 관리자 — 사용자 위치 보기용 경로 (GET /staffs/consultations/{id}/route)
+   * ⚠️ BE 신설 요청 상태 (8/5). endpoints.ts 의 admin.consultationRoute 주석 참고.
+   * 역무원 화면이 사용자와 같은 지도를 그리므로 steps 필드는
+   * POST /routes/navi 의 steps 와 이름이 같아야 한다.
+   * ---------------------------------------------------------------- */
+  http.get(
+    `${BASE}/staffs/consultations/:consultationId/route`,
+    async ({ params }) => {
+      const consultationId = Number(params.consultationId)
+
+      if (!Number.isInteger(consultationId) || consultationId <= 0) {
+        return HttpResponse.json(
+          errorBody('존재하지 않는 상담입니다.', 'CONSULTATION_NOT_FOUND'),
+          { status: 404 },
+        )
+      }
+
+      // 조회 중 상태가 화면에 보이도록 실제 응답 정도의 지연을 준다.
+      await delay(400)
+
+      return HttpResponse.json(
+        okBody('조회에 성공하였습니다.', {
+          currentIndex: MOCK_USER_ROUTE_CURRENT_INDEX,
+          steps: MOCK_USER_ROUTE_STEPS,
+        }),
+      )
+    },
+  ),
 
   /* ----------------------------------------------------------------
    * AI — 표지판 인식 ✅ BE 개발완료 (배포 서버에서 테스트됨)

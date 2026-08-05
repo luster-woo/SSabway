@@ -1,6 +1,8 @@
 package com.ssafy.ssabway.domain.consultation.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 
 /**
@@ -10,6 +12,10 @@ import jakarta.validation.constraints.Size;
  * 역무원은 출발역 ID를 기준으로 서버에서 결정합니다.
  */
 public record ConsultationCreateRequest(
+
+        @NotNull(message = "출발역 ID는 필수입니다.")
+        @Positive(message = "출발역 ID는 양수여야 합니다.")
+        Long departureStationId,
 
         @NotBlank(message = "출발역 이름은 필수입니다.")
         @Size(max = 255, message = "출발역 이름은 255자 이하여야 합니다.")

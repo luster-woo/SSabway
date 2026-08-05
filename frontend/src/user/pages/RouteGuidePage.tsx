@@ -8,6 +8,7 @@ import {
   useStationNodeStore,
 } from '@/shared/lib/store/useStationNodeStore'
 import { useLanguage } from '@/shared/lib/useLanguage'
+import { StationMapOverlay } from '@/shared/station-map/StationMapOverlay'
 import type { NavRouteRequest } from '@/shared/types/navigation'
 import type { GuideStep } from '@/shared/types/routeGuide'
 import { Button, MobileScreen, SectionLabel, useToast } from '@/shared/ui'
@@ -18,7 +19,6 @@ import { HelpRequestButton } from '@/user/features/route-guide/HelpRequestButton
 import { RescanButton } from '@/user/features/route-guide/RescanButton'
 import { SignBoardCard } from '@/user/features/route-guide/SignBoardCard'
 import { StationLocationButton } from '@/user/features/route-guide/StationLocationButton'
-import { StationMapOverlay } from '@/user/features/route-guide/StationMapOverlay'
 import { StepNavigator } from '@/user/features/route-guide/StepNavigator'
 import { StepProgressBar } from '@/user/features/route-guide/StepProgressBar'
 import { WaypointSummary } from '@/user/features/route-guide/WaypointSummary'

@@ -15,11 +15,21 @@ interface SelectedRouteState {
  *
  * `segments` 는 담지 않는다. 노선·환승 상세는 경로 선택 화면의 카드에서만
  * 쓰이고, 다음 화면들이 필요한 것은 "어느 역에서 어느 역까지 · 몇 분"뿐이다.
+ * 다만 `segments[0].stationId` 는 상담 요청에 필요하므로 꺼내서 함께 담는다.
  */
 export function toSelectedRoute(path: RoutePath): SelectedRoute {
   return {
     departureStation: path.firstStartStation,
+    departureStationKor: path.firstStartStationKor,
     arrivalStation: path.lastEndStation,
+    arrivalStationKor: path.lastEndStationKor,
+    /*
+      출발역 id 는 첫 구간에만 실린다 (환승 이후 구간은 null).
+      경로가 비어 오는 경우까지 방어해 ?? null 로 받는다 — 여기서 던지면
+      경로 선택 화면 전체가 죽는데, 정작 이 값이 필요한 곳은 한참 뒤의
+      상담 요청 하나뿐이다. 없으면 그 화면이 "경로 정보 없음"으로 안내한다.
+    */
+    stationId: path.segments[0]?.stationId ?? null,
     totalTime: path.totalTime,
     transferCount: path.transferCount,
   }
@@ -54,6 +64,16 @@ export const useSelectedRouteStore = create<SelectedRouteState>()(
       name: 'ssabway:selected-route',
       storage: createJSONStorage(() => sessionStorage),
       partialize: (state) => ({ selectedRoute: state.selectedRoute }),
+      /*
+        8/5 명세 변경으로 필드가 늘었다(한국어 표기·stationId).
+
+        version 을 올리고 옛 값은 버린다. 그냥 두면 배포 시점에 탭을 열어 둔
+        사용자의 sessionStorage 에 옛 모양이 남아, 새 코드가 undefined 를
+        그대로 상담 요청에 실어 보낸다(400). 경로 선택 화면으로 돌아가
+        다시 고르는 쪽이 안전하다.
+      */
+      version: 1,
+      migrate: () => ({ selectedRoute: null }),
     },
   ),
 )
