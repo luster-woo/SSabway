@@ -345,7 +345,8 @@
       "zoomOut": "缩小",
       "recenter": "回到当前位置",
       "legend": {
-        "current": "当前位置",
+        "myLocation": "我的位置",
+        "current": "当前路段·前进方向",
         "upcoming": "下一地点·剩余路线",
         "passed": "已走过的路线"
       }

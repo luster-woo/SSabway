@@ -1,7 +1,5 @@
 import { useCallback, useState } from 'react'
 
-import { useDestinationStore } from '@/shared/lib/store/useDestinationStore'
-import { useOriginStationStore } from '@/shared/lib/store/useOriginStationStore'
 import { useSelectedRouteStore } from '@/shared/lib/store/useSelectedRouteStore'
 import { openviduApi } from '@/user/features/consultation/openviduApi'
 
@@ -20,7 +18,7 @@ export interface UseConsultationRequestResult {
   /** 403 BLACKLISTED 등으로 요청이 거절됐다 */
   isRejected: boolean
   /**
-   * 출발지·목적지를 몰라서 요청을 보낼 수조차 없다.
+   * 출발역 정보를 몰라서 요청을 보낼 수조차 없다.
    *
    * 정상 흐름(경로 선택 → 경로 안내 → 도움 요청)에서는 선택 경로가 차 있다.
    * 이 화면에 URL 로 직접 들어왔거나, 세션이 만료돼 스토어가 비었을 때
@@ -32,19 +30,24 @@ export interface UseConsultationRequestResult {
 /**
  * 상담 요청 — 대기열 등록 + 취소.
  *
- * 요청 본문의 출발지·목적지는 **사용자가 고른 경로의 역 이름**을 쓴다
- * (`useSelectedRouteStore`). 서버가 departure 로 담당 역무원을 배정하는데
- * (8/4 — departureStationId 삭제) `stations.name_ko` 와 정확 비교이므로,
- * Google Places 가 준 장소명("경북대 북문")이 아니라 ODsay 가 준 역 이름이어야
- * 한다. destination 도 같은 이유로 도착역을 보낸다 — 역무원 화면에 표시되는
- * 구간이 사용자가 실제로 타는 구간과 같아야 한다.
+ * 요청 본문 세 값은 모두 **사용자가 고른 경로**에서 나온다
+ * (`useSelectedRouteStore`).
+ *   stationId   ← segments[0].stationId — 서버가 이 id 로 역무원을 배정한다 (8/5 추가)
+ *   departure   ← firstStartStationKor
+ *   destination ← lastEndStationKor
  *
- * 경로를 고르기 전(URL 직접 진입, 세션 만료)에는 출발지·목적지 스토어의
- * 이름으로 폴백한다. 그마저 없으면 요청 자체를 보내지 않는다(isRouteMissing).
+ * ⚠️ 역 이름은 **한국어 표기**여야 한다. 서버가 `stations.name_ko` 와 정확
+ *    비교하므로(StaffRepository.findByDepartureStationName), 화면에 뿌리는
+ *    번역 표기("Daegu Station")를 보내면 외국어 사용자만 404 로 실패한다.
+ *
+ * 8/5 부터 출발지·목적지 스토어의 장소명 폴백은 없앴다. stationId 를 대체할
+ * 출처가 없어서, 이름만 채워 보내면 어차피 400 이기 때문이다. 경로를 고르기
+ * 전이면 요청을 보내지 않고 화면이 안내한다(isRouteMissing).
  *
  * ⚠️ TODO(BE 답변 대기): ODsay 역 표기와 DB 시드 표기가 다르면 여전히
- *    404 STAFF_NOT_FOUND 다("대구역" vs "대구"). BE 가 시드의 역 이름 표기를
- *    확정하면 여기서 매핑(또는 정규화)을 넣는다.
+ *    404 STAFF_NOT_FOUND 다("대구역" vs "대구"). stationId 가 추가돼 배정
+ *    자체는 id 로 될 가능성이 있으나, 이름 비교가 남아 있다면 여기서 매핑을
+ *    넣어야 한다 — BE 가 확정하면 정리할 것.
  *
  * TODO: 블랙리스트 403 은 이제 응답의 code(CONSULTATION_BLOCKED)로 구분
  *       가능하다(ssabway ApiResponse 에 code 추가됨). 화면 문구 분기는 별도
@@ -55,17 +58,29 @@ export function useConsultationRequest(): UseConsultationRequestResult {
   const [isRejected, setIsRejected] = useState(false)
 
   const selectedRoute = useSelectedRouteStore((state) => state.selectedRoute)
-  const originStation = useOriginStationStore((state) => state.originStation)
-  const destination = useDestinationStore((state) => state.destination)
 
-  const departure =
-    selectedRoute?.departureStation ?? originStation?.name ?? null
-  const arrival = selectedRoute?.arrivalStation ?? destination?.name ?? null
-  const isRouteMissing = departure === null || arrival === null
+  /*
+    세 값 모두 선택한 경로에서만 나온다.
+
+    stationId 는 경로 제공 응답에만 있고 대체할 출처가 없어서, 예전처럼
+    출발지·목적지 스토어의 장소명으로 폴백할 수 없다 — 이름만 채워 보내면
+    stationId 가 빠져 400 이다. 경로를 고르지 않았으면 요청을 아예 막고
+    화면이 안내하게 한다(isRouteMissing).
+
+    역 이름은 **한국어 표기**를 쓴다. 화면에 뿌리는 departureStation 은 사용자
+    언어로 번역된 값이라 서버의 `stations.name_ko` 비교에서 어긋난다.
+  */
+  const stationId = selectedRoute?.stationId ?? null
+  const departure = selectedRoute?.departureStationKor ?? null
+  const arrival = selectedRoute?.arrivalStationKor ?? null
+  const isRouteMissing =
+    stationId === null || departure === null || arrival === null
 
   const requestConsultation = useCallback(async (): Promise<number | null> => {
     // 필수 필드가 비면 서버가 400 을 줄 뿐이라 요청 자체를 보내지 않는다.
-    if (departure === null || arrival === null) return null
+    if (stationId === null || departure === null || arrival === null) {
+      return null
+    }
 
     setIsPending(true)
     setIsRejected(false)
@@ -73,6 +88,7 @@ export function useConsultationRequest(): UseConsultationRequestResult {
     try {
       // 서버가 trim 후 정확 비교하므로 이쪽에서도 미리 다듬어 보낸다.
       const created = await openviduApi.requestConsultation({
+        stationId,
         departure: departure.trim(),
         destination: arrival.trim(),
       })
@@ -83,7 +99,7 @@ export function useConsultationRequest(): UseConsultationRequestResult {
     } finally {
       setIsPending(false)
     }
-  }, [arrival, departure])
+  }, [arrival, departure, stationId])
 
   const cancelConsultation = useCallback(
     async (consultationId: number): Promise<void> => {

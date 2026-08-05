@@ -119,6 +119,53 @@ export function issueAccessToken(subject: string): string {
 }
 
 /* ------------------------------------------------------------------ *
+ * 관리자 — 사용자 위치 보기 (GET /staffs/consultations/{id}/route)
+ * ------------------------------------------------------------------ */
+
+/**
+ * 역무원 화면이 그릴 사용자의 역 내 경로.
+ *
+ * 대구역 파일럿 구간(1번 출구 EX0_01 → 개찰구 GA0_01)의 실제 엣지 id 다.
+ * `docs/map/daegu_navigation.json` 의 그래프에서 최단 경로로 뽑았고,
+ * 지도(daeguNavigation.ts)의 DAEGU_EDGES 에 모두 존재하는 값이라 선이
+ * 도면 통로를 따라 그려진다. 사용자 쪽 하드코딩(useStationNodeStore 의
+ * PILOT_STATION_NODE)과 같은 출발·도착이라 두 화면이 같은 길을 보여준다.
+ *
+ * ⚠️ 도면 그래프가 갱신되면 여기 edgeId 도 함께 확인할 것. 없는 edgeId 는
+ *    노드끼리 직선으로 대체 그려지므로(routePath.toStepPath) 조용히
+ *    벽을 뚫는 선이 된다.
+ */
+export const MOCK_USER_ROUTE_STEPS = [
+  { edgeId: 'E066', from: 'EX0_01', to: 'S2_08' },
+  { edgeId: 'E056', from: 'S2_08', to: 'S1_12' },
+  { edgeId: 'E053', from: 'S1_12', to: 'S1_11' },
+  { edgeId: 'E048', from: 'S1_11', to: 'S1_10' },
+  { edgeId: 'E045', from: 'S1_10', to: 'S1_09' },
+  { edgeId: 'E044', from: 'S1_09', to: 'S1_08' },
+  { edgeId: 'E040', from: 'S1_08', to: 'S2_10' },
+  { edgeId: 'E037', from: 'S2_10', to: 'S2_05' },
+  { edgeId: 'E036', from: 'S2_05', to: 'S2_04' },
+  { edgeId: 'E035', from: 'S2_04', to: 'S2_03' },
+  { edgeId: 'E033', from: 'S2_03', to: 'S2_02' },
+  { edgeId: 'E032', from: 'S2_02', to: 'S2_01' },
+  { edgeId: 'E030', from: 'S2_01', to: 'S3_05' },
+  { edgeId: 'E006', from: 'S3_05', to: 'S3_15' },
+  { edgeId: 'E007', from: 'S3_15', to: 'EV3_02' },
+  { edgeId: 'E088', from: 'EV3_02', to: 'EV2_02' },
+  { edgeId: 'E022', from: 'EV2_02', to: 'S3_17' },
+  { edgeId: 'E023', from: 'S3_17', to: 'S3_18' },
+  { edgeId: 'E024', from: 'S3_18', to: 'GA0_01' },
+]
+
+/**
+ * 사용자가 보고 있는 단계 (0부터).
+ *
+ * 목이라 고정값이다 — 실서버가 붙으면 사용자가 [다음] 을 누른 만큼 올라간다.
+ * 앞뒤로 지나온 구간·남은 구간이 모두 보이도록 중간이 아닌 앞쪽을 골랐다.
+ */
+export const MOCK_USER_ROUTE_CURRENT_INDEX = 3
+
+/* ------------------------------------------------------------------ *
  * 공통 응답 형태
  * ------------------------------------------------------------------ */
 

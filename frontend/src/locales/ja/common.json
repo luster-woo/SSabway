@@ -345,7 +345,8 @@
       "zoomOut": "縮小",
       "recenter": "現在地へ移動",
       "legend": {
-        "current": "現在地",
+        "myLocation": "現在地",
+        "current": "現在の区間・進行方向",
         "upcoming": "次の地点・残りの経路",
         "passed": "通ってきた経路"
       }

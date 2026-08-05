@@ -125,6 +125,19 @@ const admin = {
    */
   consultationInfo: (id: number) => `/staffs/consultations/${id}`,
   /**
+   * 진행 중 상담에서 사용자가 안내받고 있는 역 내 경로 + 지금 보고 있는 단계.
+   *
+   * ⚠️ BE 신설 요청 상태 (8/5). 지금은 목(mocks/handlers.ts)이 응답한다.
+   *
+   * 응답은 사용자 경로 상세 안내(POST /routes/navi)의 steps 에서 지도에 필요한
+   * 세 필드(edgeId·from·to)만 남긴 것 + currentIndex 다. 역무원 화면이
+   * 사용자와 같은 지도를 그리므로 필드가 갈리면 두 화면이 어긋난다.
+   *
+   * POST /routes/navi 를 역무원이 대신 부를 수는 없다 — 요청 파라미터
+   * (startPoint·교통카드·현금 보유 등)가 전부 사용자 입력값이기 때문이다.
+   */
+  consultationRoute: (id: number) => `/staffs/consultations/${id}/route`,
+  /**
    * 상담 수락 — ✅ BE 구현됨. ⚠️ 8/4 소유가 webrtc → **ssabway** 로 이동.
    * 상태 잠금 + 세션 생성 + 역무원 토큰 발급을 1-call 로 처리한다
    * (ssabway 가 webrtc 내부 API 를 호출해 세션을 만든다).

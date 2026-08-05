@@ -345,7 +345,8 @@
       "zoomOut": "축소",
       "recenter": "현재 위치로 이동",
       "legend": {
-        "current": "현재 위치",
+        "myLocation": "내 위치",
+        "current": "현재 구간 · 진행 방향",
         "upcoming": "다음 위치 · 남은 경로",
         "passed": "지나온 경로"
       }

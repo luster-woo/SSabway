@@ -12,8 +12,9 @@ public record RouteSegmentResponse(
         SubwayLane lane,
         String laneName,
         Integer wayCode,
-        String direction,       // 방면 종점명
-        String pointCode,       // gate 매핑
+        String direction,
+        Long stationId,
+        String pointCode,
         String startStation,
         String endStation,
         int stationCount,
