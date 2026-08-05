@@ -1,6 +1,11 @@
 import { useCallback, useState } from 'react'
 
+import { useCurrentNodeStore } from '@/shared/lib/store/useCurrentNodeStore'
 import { useSelectedRouteStore } from '@/shared/lib/store/useSelectedRouteStore'
+import {
+  resolveStationNodes,
+  useStationNodeStore,
+} from '@/shared/lib/store/useStationNodeStore'
 import { openviduApi } from '@/user/features/consultation/openviduApi'
 
 export interface UseConsultationRequestResult {
@@ -30,11 +35,17 @@ export interface UseConsultationRequestResult {
 /**
  * 상담 요청 — 대기열 등록 + 취소.
  *
- * 요청 본문 세 값은 모두 **사용자가 고른 경로**에서 나온다
+ * 요청 본문 앞의 세 값은 모두 **사용자가 고른 경로**에서 나온다
  * (`useSelectedRouteStore`).
- *   stationId   ← segments[0].stationId — 서버가 이 id 로 역무원을 배정한다 (8/5 추가)
- *   departure   ← firstStartStationKor
- *   destination ← lastEndStationKor
+ *   stationId     ← segments[0].stationId — 서버가 이 id 로 역무원을 배정한다 (8/5 추가)
+ *   departure     ← firstStartStationKor
+ *   destination   ← lastEndStationKor
+ *   currentNodeId ← 경로 상세 안내에서 마지막으로 보고 있던 단계의 from
+ *                   (`useCurrentNodeStore`, 8/5 추가). 역무원이 이 노드로
+ *                   사용자 위치를 지도에 띄운다. 상세 안내를 열어 본 적이
+ *                   없으면 역 내 출발 노드로 폴백한다 — "아직 출발 지점에
+ *                   있다"가 위치를 아예 안 보내는 것보다 진실에 가깝고,
+ *                   필수 필드라 비워 보내면 400 이다.
  *
  * ⚠️ 역 이름은 **한국어 표기**여야 한다. 서버가 `stations.name_ko` 와 정확
  *    비교하므로(StaffRepository.findByDepartureStationName), 화면에 뿌리는
@@ -58,6 +69,17 @@ export function useConsultationRequest(): UseConsultationRequestResult {
   const [isRejected, setIsRejected] = useState(false)
 
   const selectedRoute = useSelectedRouteStore((state) => state.selectedRoute)
+
+  /*
+    현재 위치 노드 — 상세 안내에서 보고 있던 단계의 from. 열어 본 적 없으면
+    null 이라, 역 내 경로의 출발 노드(인식 결과 또는 파일럿 기본값)로 폴백한다.
+    폴백 규칙은 resolveStationNodes 한 곳에 있다 (navi 요청과 같은 규칙).
+  */
+  const storedNodeId = useCurrentNodeStore((state) => state.currentNodeId)
+  const startPoint = useStationNodeStore((state) => state.startPoint)
+  const finalPoint = useStationNodeStore((state) => state.finalPoint)
+  const currentNodeId =
+    storedNodeId ?? resolveStationNodes({ startPoint, finalPoint }).startPoint
 
   /*
     세 값 모두 선택한 경로에서만 나온다.
@@ -91,6 +113,7 @@ export function useConsultationRequest(): UseConsultationRequestResult {
         stationId,
         departure: departure.trim(),
         destination: arrival.trim(),
+        currentNodeId,
       })
       return created.consultationId
     } catch {
@@ -99,7 +122,7 @@ export function useConsultationRequest(): UseConsultationRequestResult {
     } finally {
       setIsPending(false)
     }
-  }, [arrival, departure, stationId])
+  }, [arrival, currentNodeId, departure, stationId])
 
   const cancelConsultation = useCallback(
     async (consultationId: number): Promise<void> => {

@@ -476,5 +476,18 @@
   "trip": {
     "originEmpty": "出発地を選択",
     "destinationEmpty": "目的地を選択"
+  },
+  "install": {
+    "title": "SSabway をインストール",
+    "description": "全画面で開き、地下でも経路がそのまま残ります。",
+    "manualDescription": "2ステップでホーム画面に追加できます。",
+    "step1": "ブラウザのツールバーにある共有ボタンをタップ",
+    "step2": "「ホーム画面に追加」を選択",
+    "action": "インストール",
+    "gotIt": "OK",
+    "later": "あとで",
+    "close": "閉じる",
+    "installed": "インストールしました！ホーム画面から SSabway を開いてください。",
+    "unavailable": "インストールを開始できませんでした · ブラウザメニューの「アプリをインストール」をお試しください"
   }
 }

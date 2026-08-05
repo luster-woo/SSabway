@@ -19,6 +19,7 @@ import com.ssafy.ssabway.global.s3.S3Manager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,6 +46,12 @@ public class ConsultationService {
     private final StaffRepository staffRepository;
     private final BlacklistRepository blacklistRepository;
     private final WebRtcClient webRtcClient;
+
+    // 승객 위치(currentNodeId)를 userId 기준으로 저장. 조회는 consultationId → requesterUserId로 매핑
+    private static final String LOCATION_KEY_PREFIX = "consultation:location:user:";
+    private static final Duration LOCATION_TTL = Duration.ofMinutes(30); // 상담 최대 지속시간에 맞춰 조정
+
+    private final StringRedisTemplate redisTemplate;
 
     public PageResponse<WaitingResponse> getWaitingList(Long staffId, int page) {
 
@@ -133,6 +140,13 @@ public class ConsultationService {
 
         Consultation saved = consultationRepository.save(consultation);
 
+        // 상담 요청 시점의 승객 위치를 userId 키로 저장 (1회 스냅샷, TTL)
+        redisTemplate.opsForValue().set(
+                LOCATION_KEY_PREFIX + requesterUserId,
+                request.currentNodeId(),
+                LOCATION_TTL
+        );
+
         long queuePosition = consultationRepository.countByStaffIdAndStatus(
                 staffId,
                 ConsultationStatus.WAITING
@@ -197,5 +211,29 @@ public class ConsultationService {
                 connection.token(),
                 ConsultationStatus.MATCHED
         );
+    }
+
+    /*
+    역무원이 담당 상담 요청자의 현재 위치(currentNodeId)를 조회한다.
+    위치는 userId 키로 Redis에 저장돼 있으므로 consultationId로 요청자를 먼저 찾는다.
+*/
+    public ConsultationLocationResponse getLocation(Long staffId, Long consultationId) {
+
+        Consultation consultation = consultationRepository.findById(consultationId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.CONSULTATION_NOT_FOUND));
+
+        // 로그인한 역무원에게 배정된 상담인지 확인
+        if (!consultation.getStaffId().equals(staffId)) {
+            throw new BusinessException(ErrorCode.CONSULTATION_ACCESS_DENIED);
+        }
+
+        String currentNodeId = redisTemplate.opsForValue()
+                .get(LOCATION_KEY_PREFIX + consultation.getRequesterUserId());
+
+        if (currentNodeId == null) {
+            throw new BusinessException(ErrorCode.CONSULTATION_LOCATION_NOT_FOUND);
+        }
+
+        return new ConsultationLocationResponse(currentNodeId);
     }
 }

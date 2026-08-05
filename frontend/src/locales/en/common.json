@@ -476,5 +476,18 @@
   "trip": {
     "originEmpty": "Set start",
     "destinationEmpty": "Set destination"
+  },
+  "install": {
+    "title": "Install SSabway",
+    "description": "Opens full screen and keeps your route ready underground.",
+    "manualDescription": "Add SSabway to your Home Screen in two steps.",
+    "step1": "Tap the Share button in the browser toolbar",
+    "step2": "Choose “Add to Home Screen”",
+    "action": "Install",
+    "gotIt": "Got it",
+    "later": "Not now",
+    "close": "Close",
+    "installed": "Installed! Open SSabway from your home screen.",
+    "unavailable": "Couldn’t start the install · Try “Install app” in the browser menu"
   }
 }

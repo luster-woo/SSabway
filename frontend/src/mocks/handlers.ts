@@ -31,8 +31,7 @@ import type { ConsultationCreateBody } from '@/shared/types'
 import {
   CODE_TIME_LIMIT_SEC,
   MIN_PASSWORD_LENGTH,
-  MOCK_USER_ROUTE_CURRENT_INDEX,
-  MOCK_USER_ROUTE_STEPS,
+  MOCK_USER_LOCATION_NODE,
   NEARBY_STATION,
   RATE_LIMITED_EMAIL,
   REFRESH_COOKIE,
@@ -492,7 +491,7 @@ const mockHandlers: HttpHandler[] = [
       typeof value !== 'string' || value.trim() === ''
 
     // BE 의 필드 선언 순서대로 메시지를 모은다 (DTO 의 message 문구 그대로).
-    // 8/4 departureStationId 삭제 → 8/5 stationId 추가. 세 필드를 검증한다.
+    // 8/4 departureStationId 삭제 → 8/5 stationId·currentNodeId 추가.
     const violations: string[] = []
     if (
       typeof body.stationId !== 'number' ||
@@ -509,6 +508,12 @@ const mockHandlers: HttpHandler[] = [
       violations.push('도착역 이름은 필수입니다.')
     } else if ((body.destination ?? '').length > MAX_PLACE_NAME_LENGTH) {
       violations.push('도착역 이름은 255자 이하여야 합니다.')
+    }
+    // 8/5 추가 — 역무원용 위치 조회가 이 값을 돌려준다. 프론트가 폴백까지
+    // 두고 항상 채워 보내는 계약이라, 빠지면 로컬에서 먼저 드러나야 한다.
+    // (⚠️ BE 의 실제 위반 메시지 문구는 미확인 — 형식만 맞춘 목 문구다)
+    if (isBlank(body.currentNodeId)) {
+      violations.push('현재 위치 노드는 필수입니다.')
     }
 
     if (violations.length > 0) {
@@ -895,13 +900,12 @@ const mockHandlers: HttpHandler[] = [
   }),
 
   /* ----------------------------------------------------------------
-   * 관리자 — 사용자 위치 보기용 경로 (GET /staffs/consultations/{id}/route)
-   * ⚠️ BE 신설 요청 상태 (8/5). endpoints.ts 의 admin.consultationRoute 주석 참고.
-   * 역무원 화면이 사용자와 같은 지도를 그리므로 steps 필드는
-   * POST /routes/navi 의 steps 와 이름이 같아야 한다.
+   * 관리자 — 역무원용 위치 조회 (GET /staffs/consultations/{id}/location)
+   * ✅ BE 개발완료 (8/5) — 스위치 기본값 false(실서버). 목은 실서버 오류 때
+   * 되돌릴 용도다. 응답 노드는 상담 요청의 currentNodeId 를 서버가 보관한 값.
    * ---------------------------------------------------------------- */
   http.get(
-    `${BASE}/staffs/consultations/:consultationId/route`,
+    `${BASE}/staffs/consultations/:consultationId/location`,
     async ({ params }) => {
       const consultationId = Number(params.consultationId)
 
@@ -916,9 +920,8 @@ const mockHandlers: HttpHandler[] = [
       await delay(400)
 
       return HttpResponse.json(
-        okBody('조회에 성공하였습니다.', {
-          currentIndex: MOCK_USER_ROUTE_CURRENT_INDEX,
-          steps: MOCK_USER_ROUTE_STEPS,
+        okBody('위치 조회에 성공하였습니다.', {
+          currentNodeId: MOCK_USER_LOCATION_NODE,
         }),
       )
     },
