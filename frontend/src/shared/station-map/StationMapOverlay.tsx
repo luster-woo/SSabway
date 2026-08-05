@@ -453,8 +453,12 @@ export function StationMapOverlay({
       className="fixed inset-0 z-50 bg-black/45"
     >
       <div className="bg-surface mx-auto flex h-full w-full max-w-[520px] flex-col">
-        {/* 헤더 */}
-        <div className="pt-safe px-4">
+        {/*
+          헤더. 구분선은 기본 선 색(--color-line, slate-200)보다 한 단계 진한
+          slate-300 — 지도(밝은 회색 도면)와 맞닿아 있어 연한 선은 묻힌다.
+          아래 범례의 구분선과 같은 색이어야 위아래 경계가 짝을 이룬다.
+        */}
+        <div className="pt-safe border-b border-[#cbd5e1] px-4">
           <div className="flex items-center justify-between py-3">
             <h2 className="text-ink text-[16px] font-bold">
               {t('routeGuide.stationMap.title')}
@@ -560,9 +564,9 @@ export function StationMapOverlay({
           </div>
         )}
 
-        {/* 범례 — 지도가 없으면 설명할 것도 없다 */}
+        {/* 범례 — 지도가 없으면 설명할 것도 없다. 구분선 색은 헤더 주석 참고 */}
         {status ? null : (
-          <div className="pb-safe border-line border-t px-4">
+          <div className="pb-safe border-t border-[#cbd5e1] px-4">
             <ul className="flex flex-wrap items-center gap-x-3.5 gap-y-1.5 py-3">
               {legendItems.map((item) => (
                 <li
