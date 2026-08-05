@@ -95,7 +95,7 @@ public class ConsultationService {
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
         Staff staff = staffRepository
-                .findByDepartureStationName(request.departure().trim())
+                .findByStationId(request.departureStationId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.STAFF_NOT_FOUND)
                 );
 
