@@ -15,7 +15,7 @@ public record ConsultationCreateRequest(
 
         @NotNull(message = "출발역 ID는 필수입니다.")
         @Positive(message = "출발역 ID는 양수여야 합니다.")
-        Long departureStationId,
+        Long stationId,
 
         @NotBlank(message = "출발역 이름은 필수입니다.")
         @Size(max = 255, message = "출발역 이름은 255자 이하여야 합니다.")
