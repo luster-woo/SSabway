@@ -17,13 +17,24 @@ export function GuideInstructionCard({
         {t('routeGuide.label')}
       </p>
 
-      {/* 지시문은 화면에서 가장 먼저 읽혀야 하는 정보다. */}
-      <p
-        aria-live="polite"
-        className="text-ink px-4 py-4 text-[clamp(15px,4.6vw,17px)] leading-snug font-bold"
-      >
-        {instruction}
-      </p>
+      {/*
+        지시문은 화면에서 가장 먼저 읽혀야 하는 정보다.
+        높이는 항상 3줄로 고정한다 — 짧으면 min-h 로 3줄 공간을 확보하고,
+        세 줄을 넘으면 line-clamp-3 로 … 처리해 단계마다 카드 높이가 흔들리지
+        않게 한다. 4.125em = 3줄(leading-snug 1.375 × 3), em 이라 유동 폰트에
+        비례해 어떤 화면에서도 정확히 세 줄이다.
+
+        ⚠️ 패딩은 이 래퍼(div)에 둔다 — line-clamp 요소에 하단 패딩을 주면
+        그 패딩 영역으로 다음 줄이 비쳐 카드 밖으로 새어 나온다.
+      */}
+      <div className="px-4 py-4">
+        <p
+          aria-live="polite"
+          className="text-ink line-clamp-3 min-h-[4.125em] text-[clamp(14px,4.3vw,16px)] leading-snug font-bold"
+        >
+          {instruction}
+        </p>
+      </div>
     </div>
   )
 }

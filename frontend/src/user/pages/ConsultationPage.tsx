@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import { CaptionOverlay } from '@/shared/caption/CaptionOverlay'
+import { useCaptionTranscript } from '@/shared/caption/useCaptionTranscript'
 import { useLiveCaption } from '@/shared/caption/useLiveCaption'
 import { useLanguage } from '@/shared/lib/useLanguage'
 import { CONSULTATION_STATUS } from '@/shared/types'
@@ -14,6 +15,7 @@ import { CallControls } from '@/user/features/consultation/CallControls'
 import { CameraStage } from '@/user/features/consultation/CameraStage'
 import { ConnectedBadge } from '@/user/features/consultation/ConnectedBadge'
 import { toCallMediaErrorKey } from '@/user/features/consultation/callMediaErrorKey'
+import { openviduApi } from '@/user/features/consultation/openviduApi'
 import {
   CALL_MEDIA_STATUS,
   useCallMedia,
@@ -98,20 +100,51 @@ export default function ConsultationPage() {
   */
   const { language } = useLanguage()
   const staffAudioStream = useRemoteMediaStream(call.staffStream)
-  const caption = useLiveCaption(staffAudioStream, {
-    speaker: 'ADMIN',
-    sourceLang: 'ko',
-    targetLang: language,
-  })
+
+  /**
+   * 역무원 음성이 실제로 들어오고 있는지. 배지와 대기 문구가 이걸로 갈리고,
+   * 사용자 발화 인식도 이때부터 시작한다 — 마이크는 권한을 얻는 순간부터
+   * 있지만 역무원이 수락하기 전까지는 인식할 이유가 없다(Azure 는 처리한
+   * 오디오 시간으로 과금한다).
+   */
+  const isStaffConnected =
+    call.status === OV_STATUS.CONNECTED && call.staffStream !== null
+
+  /*
+    상담 요약용 전문. 확정된 문장을 대화 순서대로 모아 두었다가 종료할 때
+    한 번 보낸다. 화면에는 쓰지 않는다.
+  */
+  const transcript = useCaptionTranscript()
+
+  const caption = useLiveCaption(
+    staffAudioStream,
+    { speaker: 'ADMIN', sourceLang: 'ko', targetLang: language },
+    true,
+    transcript.addStaffLine,
+  )
+
+  /*
+    사용자 발화도 인식한다 — 화면에 띄우지 않고 전문에만 넣는다.
+
+    자기가 한 말은 자기 화면에 자막으로 뜨지 않으므로(상대 음성만 듣는 구조)
+    이게 없으면 전문이 역무원 발화만 남은 반쪽이 된다. 역무원 브라우저가
+    가진 나머지 반쪽을 시그널로 넘겨받는 방법도 있지만, 그러면 상대 브라우저가
+    살아 있어야 하고 배선도 늘어난다. 인식기 하나를 더 쓰는 편이 단순하다.
+
+    한국어로 번역해 받는다 — 요약은 역무원이 대시보드에서 읽는다.
+    (사용자 언어가 한국어면 번역 없이 그대로 온다)
+  */
+  useLiveCaption(
+    stream,
+    { speaker: 'USER', sourceLang: language, targetLang: 'ko' },
+    isStaffConnected,
+    transcript.addUserLine,
+  )
 
   const [isEndDialogOpen, setIsEndDialogOpen] = useState(false)
 
   const isStreaming = status === CALL_MEDIA_STATUS.STREAMING
   const isRequesting = status === CALL_MEDIA_STATUS.REQUESTING
-
-  /** 역무원 음성이 실제로 들어오고 있는지. 배지와 대기 문구가 이걸로 갈린다. */
-  const isStaffConnected =
-    call.status === OV_STATUS.CONNECTED && call.staffStream !== null
 
   const hasConsultationId = consultationId > 0
 
@@ -180,10 +213,66 @@ export default function ConsultationPage() {
    * WAITING 인지 MATCHED 인지 몰라도 그냥 부르면 된다.
    */
   const leaveWithoutCall = () => {
-    call.leave()
+    void call.leave()
     stop()
     void navigate('/', { replace: true })
   }
+
+  /** 요약을 이미 보냈는지. 종료 경로가 둘이라 중복을 막는다 */
+  const summarySentRef = useRef(false)
+
+  /**
+   * 사용자가 직접 끊었는지.
+   *
+   * 그 경우 endCall 이 leave 완료를 기다렸다가 요약을 보내므로, 아래 종료
+   * 감지 이펙트는 손대지 않아야 한다. 이펙트가 먼저 깨어나(leave 가 소켓을
+   * 끊는 순간) 아직 ENDED 전에 보내면 서버가 거절한다.
+   */
+  const userEndedRef = useRef(false)
+
+  /**
+   * 모아 둔 자막을 보내 상담 요약을 만든다. 최선형이다.
+   *
+   * ⚠️ 상담이 ENDED 인 뒤에 불러야 한다. 서버가 종료된 상담만 요약해 준다.
+   *    그래서 호출부가 종료를 먼저 끝내고(또는 이미 끝난 것을 확인하고) 부른다.
+   *
+   * 응답을 기다리지 않는다 — 화면은 이미 닫히는 중이고, 요약은 역무원이
+   * 나중에 대시보드에서 보는 값이라 몇 초 늦어도 된다. 실패하면 그 상담만
+   * "요약 없음"으로 남는다.
+   *
+   * 화면이 사라진 뒤에도 요청은 계속된다(라우터 이동일 뿐 페이지 언로드가
+   * 아니다). 다만 브라우저를 강제 종료하면 요약은 만들어지지 않는다.
+   */
+  const submitSummary = () => {
+    if (consultationId <= 0) return
+
+    /*
+      한 번만 보낸다.
+
+      사용자가 [종료] 를 누르면 call.leave() 가 소켓을 끊어 상태가
+      DISCONNECTED 가 되고, 그러면 아래 "역무원이 종료함" 이펙트도 함께
+      깨어난다. 막지 않으면 종료 한 번에 요약 요청이 두 번 나가고, 그중
+      먼저 나간 쪽은 아직 ENDED 전이라 서버가 거절한다.
+    */
+    if (summarySentRef.current) return
+    summarySentRef.current = true
+
+    const transcripts = transcript.snapshot()
+    if (transcripts.length === 0) return
+
+    void openviduApi
+      .summarizeConsultation(consultationId, transcripts)
+      .catch(() => {
+        // 요약 실패가 통화 종료를 막지 않는다. 사용자가 할 수 있는 일도 없다.
+      })
+  }
+
+  /*
+    아래 종료 감지 이펙트가 부른다. 함수를 의존성에 넣으면 렌더마다 새로
+    만들어져 이펙트가 계속 다시 돌고, 그때마다 요약을 또 보내게 된다.
+  */
+  const submitSummaryRef = useRef(submitSummary)
+  submitSummaryRef.current = submitSummary
 
   const denyPermission = () => {
     showToast(t('consultation.video.permission.denied'))
@@ -225,6 +314,13 @@ export default function ConsultationPage() {
     if (!hasConnectedRef.current) return
     if (call.status !== OV_STATUS.DISCONNECTED) return
 
+    /*
+      역무원이 종료한 경로다. 서버가 이미 ENDED 로 바꾼 뒤 세션을 닫으므로
+      여기서는 기다릴 것 없이 바로 요약을 보낸다.
+      사용자가 끊은 경우는 endCall 이 순서를 맞춰 보내므로 건드리지 않는다.
+    */
+    if (!userEndedRef.current) submitSummaryRef.current()
+
     stop()
     showToast(t('consultation.video.endedByStaff'))
     void navigate('/guide', { replace: true })
@@ -263,7 +359,9 @@ export default function ConsultationPage() {
       이게 없으면 상담이 활성 상태로 남아 다음 도움 요청이 409 로 막힌다.
       자세한 분기는 useConsultationCall 의 leaveCall 주석 참고.
     */
-    call.leave()
+    userEndedRef.current = true
+    // 종료(ENDED)가 끝난 다음에 요약을 보낸다. 순서가 반대면 서버가 거절한다.
+    void call.leave().then(submitSummary)
     stop()
     setIsEndDialogOpen(false)
     showToast(t('consultation.video.ended'))
