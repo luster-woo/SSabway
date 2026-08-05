@@ -42,7 +42,8 @@ export default function AdminConsultationPage() {
     isPending,
     isError,
   } = useConsultationDetail(isValidId ? consultationId : 0)
-  const { registerBlacklist, pendingEmail } = useBlacklist()
+  const { registerBlacklist, lastFailureMessage, pendingEmail } =
+    useBlacklist()
   const { endConsultation, isPending: isEndPending } = useEndConsultation()
   const room = useConsultationRoom(isValidId ? consultationId : 0)
 
@@ -112,7 +113,7 @@ export default function AdminConsultationPage() {
     showToast(
       isRegistered
         ? '사유와 함께 블랙리스트에 등록했습니다.'
-        : '블랙리스트 등록에 실패했습니다.',
+        : (lastFailureMessage() ?? '블랙리스트 등록에 실패했습니다.'),
     )
   }
 

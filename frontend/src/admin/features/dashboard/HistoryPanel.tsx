@@ -59,6 +59,7 @@ export function HistoryPanel() {
     registerBlacklist,
     updateBlacklistReason,
     releaseBlacklist,
+    lastFailureMessage,
     pendingEmail,
   } = useBlacklist()
   const { showToast } = useToast()
@@ -130,7 +131,8 @@ export function HistoryPanel() {
 
     if (!isDone) {
       showToast(
-        isEditMode ? '사유 수정에 실패했습니다.' : '등록에 실패했습니다.',
+        lastFailureMessage() ??
+          (isEditMode ? '사유 수정에 실패했습니다.' : '등록에 실패했습니다.'),
       )
       return
     }
@@ -144,7 +146,9 @@ export function HistoryPanel() {
   const submitRelease = async (userEmail: string) => {
     const isReleased = await releaseBlacklist(userEmail)
     showToast(
-      isReleased ? '블랙리스트에서 해제했습니다.' : '해제에 실패했습니다.',
+      isReleased
+        ? '블랙리스트에서 해제했습니다.'
+        : (lastFailureMessage() ?? '해제에 실패했습니다.'),
     )
   }
 

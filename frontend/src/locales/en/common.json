@@ -200,6 +200,12 @@
       "inUse": "Another app is using the camera\nClose it and try again",
       "unknown": "Could not start the camera",
       "upload": "Upload a photo instead"
+    },
+    "predictFail": {
+      "notDetected": "We couldn't find a sign in the photo.\nRetake it so the sign is clearly visible.",
+      "tooLarge": "The photo is too large.\nRetake a smaller one (under 15 MB).",
+      "invalidImage": "We couldn't read the photo.\nPlease take it again.",
+      "serverError": "The sign recognition server is temporarily unavailable.\nPlease try again in a moment."
     }
   },
   "destination": {
@@ -428,7 +434,13 @@
     "ready": "Everything is ready.\nStart the call with the button below.",
     "connect": "Start video call",
     "recordNotice": "The call audio may be recorded",
-    "backToGuide": "Back to route guide"
+    "backToGuide": "Back to route guide",
+    "rejected": {
+      "blocked": "Video calls are restricted for this account at this station.\nPlease ask a staff member for details.",
+      "duplicated": "You already have a consultation request in progress.\nPlease try again in a moment.",
+      "noStaff": "No staff member is available at this station right now.\nPlease try again in a moment.",
+      "failed": "We couldn't request a consultation.\nPlease try again in a moment."
+    }
   },
   "consultation": {
     "request": "Ask for help",
