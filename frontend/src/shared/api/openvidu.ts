@@ -1,5 +1,6 @@
 import axios, { type AxiosInstance } from 'axios'
 
+import type { TranscriptItem } from '@/shared/caption/useCaptionTranscript'
 import { endpoints } from '@/shared/api/endpoints'
 import {
   CONSULTATION_STATUS,
@@ -287,6 +288,24 @@ export function createOpenViduApi(api: AxiosInstance) {
     await api.post(endpoints.consultations.leave(consultationId))
   }
 
+  /**
+   * 상담 자막을 보내 요약을 만든다.
+   *
+   * ⚠️ 상담이 ENDED 인 뒤에 불러야 한다. leave 보다 먼저 도착하면 서버가
+   *    CONSULTATION_NOT_ENDED 로 거절한다 — 호출부가 순서를 맞춰야 한다.
+   *
+   * 실패해도 통화 흐름을 막지 않는다. 요약이 없으면 역무원 대시보드에
+   * "요약 없음"으로 보일 뿐이다.
+   */
+  async function summarizeConsultation(
+    consultationId: number,
+    transcripts: TranscriptItem[],
+  ): Promise<void> {
+    await api.post(endpoints.consultations.summary(consultationId), {
+      transcripts,
+    })
+  }
+
   return {
     openSession,
     joinSession,
@@ -296,6 +315,7 @@ export function createOpenViduApi(api: AxiosInstance) {
     fetchSnapshot,
     cancelConsultation,
     leaveConsultation,
+    summarizeConsultation,
   }
 }
 

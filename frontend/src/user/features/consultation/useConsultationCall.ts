@@ -24,7 +24,8 @@ export interface UseConsultationCallResult {
   /** 제한 시간 안에 매칭되지 않았다 */
   isJoinFailed: boolean
   /** 사용자가 통화를 끊는다 */
-  leave: () => void
+  /** 연결을 끊고 상담을 종료 처리한다. 종료(ENDED)가 끝나면 resolve 된다 */
+  leave: () => Promise<void>
 }
 
 /**
@@ -72,12 +73,17 @@ export function useConsultationCall(
    * 기다리지 않는다(최선형) — 화면은 즉시 닫혀야 하고, 실패해도 사용자가
    * 할 수 있는 일이 없다.
    */
-  const leaveCall = useCallback(() => {
+  const leaveCall = useCallback((): Promise<void> => {
     leave()
 
-    if (consultationId <= 0) return
+    if (consultationId <= 0) return Promise.resolve()
 
-    void openviduApi.leaveConsultation(consultationId).catch(() => {
+    /*
+      Promise 를 돌려준다 — 화면이 기다리게 하려는 것이 아니라, 종료 뒤에
+      이어져야 하는 일(상담 요약 전송)이 순서를 맞출 수 있게 하기 위해서다.
+      요약 API 는 상담이 ENDED 여야 받아주는데, 그 전이가 바로 이 호출이다.
+    */
+    return openviduApi.leaveConsultation(consultationId).catch(() => {
       // 통화 종료 자체를 막지는 않는다. 서버 정리가 실패해도 사용자가
       // 할 수 있는 일이 없고, 화면은 이미 닫히는 중이다.
     })
