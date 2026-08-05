@@ -6,6 +6,7 @@ import {
   type PcmStreamerHandle,
 } from '@/shared/caption/pcmStreamer'
 import type {
+  CaptionEvent,
   CaptionSpeaker,
   CaptionTransport,
 } from '@/shared/caption/types'
@@ -70,6 +71,12 @@ export function useLiveCaption(
   stream: MediaStream | null,
   options: LiveCaptionOptions,
   enabled = true,
+  /**
+   * 문장이 확정될 때마다 부른다. 화면은 최근 몇 줄만 남기고 지우므로
+   * (MAX_LINES · LINES_TTL_MS) 대화 전체가 필요한 쪽은 여기서 받아 모은다.
+   * 상담 요약이 이걸 쓴다.
+   */
+  onFinal?: (event: CaptionEvent) => void,
 ): LiveCaptionState {
   const { speaker, sourceLang, targetLang } = options
 
@@ -80,6 +87,14 @@ export function useLiveCaption(
   // 타이머를 ref 로 들고 있어야 이벤트마다 이전 예약을 취소할 수 있다
   const partialTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const linesTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  /*
+    콜백을 의존성에 넣으면 안 된다. 호출부가 인라인 함수를 넘기면 렌더마다
+    참조가 바뀌어 소켓이 계속 끊겼다 붙는다. 연결을 다시 맺을지는 stream 과
+    설정만 정한다. (useOpenViduSession 의 publishRef 와 같은 이유)
+  */
+  const onFinalRef = useRef(onFinal)
+  onFinalRef.current = onFinal
 
   useEffect(() => {
     if (!stream || !enabled) {
@@ -108,6 +123,7 @@ export function useLiveCaption(
     transport.start(
       (event) => {
         if (event.final) {
+          onFinalRef.current?.(event)
           setLines((prev) => [...prev, event.text].slice(-MAX_LINES))
           setPartial(null)
           if (partialTimer.current) clearTimeout(partialTimer.current)
