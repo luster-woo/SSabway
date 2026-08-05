@@ -37,12 +37,15 @@ export function CaptionOverlay({
       {/*
         크기는 통화 중 흘깃 보고 읽히는 것이 기준이다. 본문 텍스트(14px)보다
         크게 잡았다 — 사용자는 카메라를 들고 움직이는 중이고, 역무원은 화면에서
-        떨어져 앉는다. 큰 화면에서는 한 단 더 키운다.
+        떨어져 앉는다.
+
+        화면 크기별로 나누지 않고 23px 로 통일했다. 역무원 화면이 훨씬 넓어
+        상대적으로 작아 보이므로, 큰 화면에서 줄이면 오히려 읽기 나빠진다.
 
         배경을 진하게(black/75) 두는 이유는 영상 위에 얹히기 때문이다.
         밝은 표지판이나 조명이 뒤에 오면 옅은 배경으로는 글자가 묻힌다.
       */}
-      <div className="max-w-full rounded-xl bg-black/75 px-4 py-2.5 text-center text-lg leading-relaxed font-medium text-white sm:text-xl">
+      <div className="max-w-full rounded-xl bg-black/75 px-4 py-2.5 text-center text-[23px] leading-relaxed font-medium text-white">
         {lines.map((line, index) => (
           <p key={`${String(index)}-${line}`}>{line}</p>
         ))}
