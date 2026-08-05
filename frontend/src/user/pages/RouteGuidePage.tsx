@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
+import { useCurrentNodeStore } from '@/shared/lib/store/useCurrentNodeStore'
 import { useRoutePreferenceStore } from '@/shared/lib/store/useRoutePreferenceStore'
 import {
   resolveStationNodes,
@@ -97,6 +98,22 @@ export default function RouteGuidePage() {
   // noUncheckedIndexedAccess가 꺼져 있어 타입이 non-null로 좁혀지므로 직접 명시한다.
   const step: GuideStep | undefined = steps[activeIndex]
   const isLastStep = steps.length > 0 && activeIndex === steps.length - 1
+
+  /*
+    보고 있는 단계의 from = 사용자의 현재 위치 노드. (8/5 명세 추가)
+
+    이 화면은 들어오면 무조건 첫 번째 단계를 띄우므로 처음에는 첫 단계의
+    from 이 담기고, [이전]·[다음] 으로 보는 이미지가 바뀌면 그 단계의 from 으로
+    갱신된다. 도움 요청 화면으로 넘어간 뒤 상담을 요청하면 이 값이
+    `POST /consultations` 의 currentNodeId 로 실린다 — 역무원이 지도에서
+    사용자 위치를 볼 때 쓴다(useConsultationRequest 참고).
+  */
+  const setCurrentNodeId = useCurrentNodeStore(
+    (state) => state.setCurrentNodeId,
+  )
+  useEffect(() => {
+    if (step?.from) setCurrentNodeId(step.from)
+  }, [step?.from, setCurrentNodeId])
 
   const goPrevStep = () => {
     setActiveIndex((index) => Math.max(index - 1, 0))

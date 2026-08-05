@@ -86,6 +86,9 @@ export interface ConnectionData {
  * 변경 이력
  *   8/4 — `departureStationId` 삭제, 역 이름 두 개만 남음
  *   8/5 — **`stationId` 추가**. 경로 제공 응답의 `segments[0].stationId` 를 그대로 싣는다
+ *   8/5 — **`currentNodeId` 추가**. 사용자가 경로 상세 안내에서 마지막으로 보고
+ *          있던 단계의 `from` 노드 id. 역무원용 위치 조회
+ *          (`GET /staffs/consultations/{id}/location`)가 이 값을 돌려준다
  *
  * 역무원은 클라이언트가 지정하지 않는다 — 서버가 출발역을 기준으로 담당
  * 역무원을 찾아 배정한다. 역 이름은 `stations.name_ko` 와 정확 비교이고
@@ -110,6 +113,14 @@ export interface ConsultationCreateBody {
   departure: string
   /** 도착역 — **한국어** 표기 */
   destination: string
+  /**
+   * 사용자의 역 내 현재 위치 노드 id (도면 그래프 기준. 예: "S3_02").
+   *
+   * = 경로 상세 안내에서 마지막으로 보고 있던 단계의 `from`
+   * (`useCurrentNodeStore`). 상세 안내를 열어 본 적이 없으면 역 내 경로의
+   * 출발 노드로 폴백한다 — 조립 규칙은 useConsultationRequest 참고.
+   */
+  currentNodeId: string
 }
 
 /**
