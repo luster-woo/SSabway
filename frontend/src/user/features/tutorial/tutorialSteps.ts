@@ -33,17 +33,32 @@ export const TUTORIAL_STEPS: readonly TutorialStep[] = [
 ]
 
 /**
- * 미디어 영역 높이를 폭의 몇 %로 둘지 — `padding-bottom` 에 넣는 값.
+ * GIF 영역 높이를 폭의 몇 %로 둘지 — `padding-bottom` 에 넣는다.
  *
- * 세 페이지의 비율이 꽤 달라(2.44 · 1.94 · 1.35), 한 페이지에 맞춰 고정하면
- * 다른 페이지에서 위아래가 크게 빈다. 보고 있는 페이지의 비율을 그대로 쓰고
- * 높이를 부드럽게 바꾼다. `aspect-ratio` 는 브라우저마다 트랜지션이 되는지
- * 갈리므로, 폭 기준 퍼센트로 동작하고 어디서나 애니메이션되는
- * `padding-bottom` 을 쓴다.
+ * **세 페이지가 같은 값을 쓴다.** 페이지마다 비율을 따라가게 하면 넘길 때마다
+ * 팝업 전체가 늘었다 줄었다 해서, 크기를 하나로 통일했다(8/5 팀 의견).
+ *
+ * 값은 콘텐츠 비율들의 **기하평균**이다 — √(2.443 × 1.350) ≒ 1.816, 즉 1/1.816
+ * ≒ 55%. 왜 기하평균인가:
+ *
+ *   - 콘텐츠가 박스보다 납작하면(signs 2.443, photoGuide 1.939) 폭을 꽉 채우고
+ *     위아래가 빈다. 이때 **콘텐츠 크기는 박스 높이와 무관하다** — 박스를 키워도
+ *     그림은 그대로고 흰 여백만 늘어난다.
+ *   - 콘텐츠가 박스보다 길쭉하면(videoCall 1.350) 높이에 맞춰지므로 박스를
+ *     납작하게 할수록 **그림이 작아진다.**
+ *
+ * 그래서 박스를 납작하게 = signs 여백↓ · videoCall 그림↓, 길쭉하게 = 그 반대다.
+ * 기하평균이 양극단(2.443 · 1.350)의 여백을 정확히 같게 만든다:
+ *
+ *   photoGuide  358×185  빈 여백  6.3%  (위아래 6px)
+ *   signs       358×147  빈 여백 25.6%  (위아래 25px)
+ *   videoCall   266×197  빈 여백 25.7%  (좌우 46px)
+ *
+ * 여백이 한쪽으로 치우치지 않도록 `object-contain` + 가운데 정렬로 양쪽에 똑같이
+ * 나눈다. GIF 배경이 순백(#fff)이고 박스도 흰색이라 이 여백은 눈에 보이지 않는다
+ * — 회색 배경(surface-soft)을 쓰면 남는 자리가 띠로 드러나므로 쓰지 말 것.
  */
-export function toMediaPaddingBottom(step: TutorialStep): string {
-  return `${((step.height / step.width) * 100).toFixed(3)}%`
-}
+export const TUTORIAL_MEDIA_PADDING_BOTTOM = '55%'
 
 /** GIF 주소. `public/` 아래의 정적 파일이라 모달을 열 때 처음 내려온다. */
 export function toTutorialGifUrl(step: TutorialStep, lang: Language): string {
