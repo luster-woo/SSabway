@@ -15,16 +15,22 @@ export interface SignCandidate {
  * signageId 는 지도 노드 id 와 같은 값이라(예: S3_02) 길안내의 출발 지점
  * (useStationNodeStore.setStartPoint)으로 그대로 넘긴다.
  *
+ * stationName 은 그 표지판이 속한 역 이름이다(예: "대구역"). GPS 를 걷어낸 뒤로
+ * 출발지(originStation)를 이 값으로 정한다 — 좌표는 없으므로 프론트가
+ * stationCoords 로 붙인다. (toOriginStation 참고)
+ *
  * confident 로 신뢰 여부를 가른다 — true 면 signageId 를 그대로 쓰고, false 면
  * 확신도가 낮다는 뜻이라 그대로 진행하지 않는다. BE 는 확신도가 낮아도
  * signageId 를 비우지 않고 가장 가까운 후보를 담아 보낸다(candidates 참고).
  *
- * ⚠️ BE 는 이 다섯 필드를 모두 내려준다. 예전에는 signageId/floor 만 받고
+ * ⚠️ BE 는 이 필드들을 모두 내려준다. 예전에는 signageId/floor 만 받고
  *    나머지를 버려서 "확신도 낮음 → 확인" 흐름 자체를 만들 수 없었다.
  */
 export interface SignPrediction {
   signageId?: string
   floor?: string
+  /** 표지판이 속한 역 이름. 출발지(originStation)로 쓴다 */
+  stationName?: string
   /** 0~1. 최상위 후보의 확신도 */
   confidence?: number
   /** true 면 signageId 를 그대로 사용, false 면 candidates 로 확인이 필요하다 */
