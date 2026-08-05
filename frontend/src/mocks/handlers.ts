@@ -33,7 +33,6 @@ import {
   MIN_PASSWORD_LENGTH,
   MOCK_USER_ROUTE_CURRENT_INDEX,
   MOCK_USER_ROUTE_STEPS,
-  NEARBY_STATION,
   RATE_LIMITED_EMAIL,
   REFRESH_COOKIE,
   STAFF_ACCOUNT,
@@ -424,30 +423,6 @@ const mockHandlers: HttpHandler[] = [
       okBody('토큰이 재발급되었습니다.', {
         accessToken: issueAccessToken('refresh'),
       }),
-    )
-  }),
-
-  // GPS 기반 근처 역 반환 (명세 「경로」 카테고리, BE 개발전)
-  //
-  // 목은 좌표를 쓰지 않고 고정된 역 하나를 돌려준다. 여기서 확인할 것은
-  // "권한 → 좌표 → 역 이름" 이 화면까지 이어지는가이지 역 판정이 아니다.
-  //
-  // 명세의 상태코드는 200 / 400 두 개뿐이다. 400 은 좌표가 빠졌을 때 낸다.
-  http.get(`${BASE}/routes/gps`, ({ request }) => {
-    const params = new URL(request.url).searchParams
-
-    // Number(null) 과 Number('') 은 0 이라 숫자 변환만으로는 누락을 못 걸러낸다.
-    const isCoord = (value: string | null) =>
-      value !== null && value.trim() !== '' && Number.isFinite(Number(value))
-
-    if (!isCoord(params.get('latitude')) || !isCoord(params.get('longitude'))) {
-      return HttpResponse.json(errorBody('잘못된 형식의 요청 값입니다.'), {
-        status: 400,
-      })
-    }
-
-    return HttpResponse.json(
-      okBody('근처 역 조회 성공', { station: NEARBY_STATION }),
     )
   }),
 

@@ -33,8 +33,6 @@ const users = {
 
 /** 경로 안내 */
 const routes = {
-  nearbyByGps: (lat: number, lng: number) =>
-    `/routes/gps?latitude=${lat}&longitude=${lng}`,
   sign: '/routes/sign',
   navi: '/routes/navi',
   path: '/routes/path',

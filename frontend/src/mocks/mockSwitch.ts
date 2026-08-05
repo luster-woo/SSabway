@@ -49,7 +49,6 @@ const SWITCH = {
   'POST /staffs/login': false,
 
   // 경로
-  'GET /routes/gps': true,
   'POST /routes/navi': true,
 
   /*

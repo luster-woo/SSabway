@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
@@ -6,11 +6,6 @@ import { requestLogout } from '@/shared/api/client'
 import { disableGoogleAutoSelect } from '@/shared/lib/googleIdentity'
 import { useLanguage } from '@/shared/lib/useLanguage'
 import { useAuthStore } from '@/shared/lib/store/useAuthStore'
-import {
-  LOCATION_CONSENT,
-  useLocationConsentStore,
-} from '@/shared/lib/store/useLocationConsentStore'
-import { useOriginStationStore } from '@/shared/lib/store/useOriginStationStore'
 import type { Language } from '@/shared/types/user'
 import {
   AppLogo,
@@ -24,12 +19,8 @@ import type { LoginFromState } from '@/user/features/auth/loginFrom'
 import { WithdrawDialog } from '@/user/features/auth/WithdrawDialog'
 import { LandingSplash } from '@/user/features/start/LandingSplash'
 import { LanguageSelector } from '@/user/features/start/LanguageSelector'
-import { LocationConsentCard } from '@/user/features/start/LocationConsentCard'
-import { LocationConsentStatus } from '@/user/features/start/LocationConsentStatus'
 import { useLandingSplash } from '@/user/features/start/useLandingSplash'
-import { useNearbyStation } from '@/user/features/start/useNearbyStation'
 import { useSyncLanguageOnLeave } from '@/user/features/start/useSyncLanguageOnLeave'
-import { requestLocation } from '@/user/features/start/lib/requestLocation'
 
 const LANGUAGE_LABEL_ID = 'start-language-label'
 
@@ -45,9 +36,8 @@ export default function StartPage() {
 
   /*
     서비스 첫 접속에서만 랜딩(스플래시)을 덮는다.
-
-    이 화면을 가리는 동안에도 아래 화면은 정상적으로 마운트돼 있어야 한다 —
-    위치 동의 카드와 세션 복구가 랜딩 뒤에서 그대로 준비된다.
+    이 화면을 가리는 동안에도 아래 화면은 정상적으로 마운트돼 세션 복구가
+    랜딩 뒤에서 그대로 준비된다.
   */
   const landingPhase = useLandingSplash()
 
@@ -62,98 +52,16 @@ export default function StartPage() {
   /** 회원 탈퇴 다이얼로그. 비밀번호 확인이 필요해 토스트가 아니라 모달로 처리한다. */
   const [isWithdrawOpen, setIsWithdrawOpen] = useState(false)
 
-  const consent = useLocationConsentStore((s) => s.consent)
-  const setConsent = useLocationConsentStore((s) => s.setConsent)
-  const resetConsent = useLocationConsentStore((s) => s.resetConsent)
-
-  const setOriginStation = useOriginStationStore((s) => s.setOriginStation)
-  const clearOriginStation = useOriginStationStore((s) => s.clearOriginStation)
-
   const selectLanguage = (next: Language) => {
     changeLanguage(next)
     showToast(t('language.changed', { lng: next }))
   }
 
   /**
-   * 위치를 잡는 동안 버튼을 잠근다.
-   *
-   * 지하에서는 타임아웃(10초)까지 걸릴 수 있어 그동안 반응이 없으면
-   * 사용자가 버튼을 연타한다. 다른 화면이 알 필요는 없어 로컬 상태로 둔다.
+   * 안내 시작 — 표지판 촬영 화면으로 간다.
+   * 출발지는 촬영한 표지판의 역(stationName)이 정한다(SignCapturePage).
    */
-  const [isRequestingLocation, setIsRequestingLocation] = useState(false)
-
-  const { station, findStation, clear: clearStation } = useNearbyStation()
-
-  /*
-    GPS로 잡은 역을 스토어에 반영한다. 목적지 설정 화면의 "내 위치" 마커 라벨과
-    상담 요청의 출발지(departure)가 이 값을 쓴다.
-
-    ⚠️ null 은 덮어쓰지 않는다.
-
-    station 은 useNearbyStation 의 로컬 state 라 이 화면에 다시 들어올 때마다
-    null 로 시작한다. 그때 스토어까지 비우면 이미 잡아 둔 출발역이 사라지는데,
-    consent 는 스토어에 남아 있어 사용자가 「동의」를 다시 누르지 않으므로
-    GPS 재조회도 일어나지 않는다 → 출발역이 영구히 빈 상태가 된다.
-    (안내를 한 바퀴 돌고 「처음으로」 로 돌아오면 바로 이 상황이었다.
-     그 뒤 도움 요청 화면이 "출발지와 목적지를 알아야 연결할 수 있어요" 로
-     막혀 화상 상담을 시작할 수 없었다.)
-
-    명시적으로 버리는 지점은 아래 changeConsent(「다시 선택」) 하나다.
-  */
-  useEffect(() => {
-    if (station !== null) setOriginStation(station)
-  }, [station, setOriginStation])
-
-  /**
-   * 실제 브라우저 권한을 요청하고, 좌표를 받으면 가까운 역까지 조회한다.
-   *
-   * 좌표를 못 받아도 consent 는 DENIED 로 확정한다. null(선택 전)로 두면
-   * startGuide 의 가드에 걸려 「안내 시작」 을 누를 수 없는데, 지하철역은
-   * GPS 가 안 잡히는 게 정상인 곳이라 그대로 두면 진행이 막힌다.
-   * DENIED 는 "표지판 촬영으로 간다" 는 뜻이고 그게 이때 맞는 경로다.
-   * 다시 시도하고 싶으면 「다시 선택」 → 「동의」 로 돌아올 수 있다.
-   */
-  const allowLocation = async () => {
-    setIsRequestingLocation(true)
-
-    try {
-      // 최근접 역을 정확히 고르려면 고정밀 + 새 좌표가 필요하다.
-      // (지도 "내 위치" 마커는 대략 위치면 되므로 기본 저정밀을 그대로 쓴다.)
-      const coords = await requestLocation({ highAccuracy: true, maxAgeMs: 0 })
-
-      if (coords === null) {
-        setConsent(LOCATION_CONSENT.DENIED)
-        showToast(t('start.consent.unavailable'))
-        return
-      }
-
-      setConsent(LOCATION_CONSENT.GRANTED)
-      showToast(t('start.consent.allowed'))
-
-      // 역 조회는 부가 정보라 실패해도 동의 상태를 되돌리지 않는다.
-      await findStation(coords)
-    } finally {
-      setIsRequestingLocation(false)
-    }
-  }
-
-  const denyLocation = () => {
-    setConsent(LOCATION_CONSENT.DENIED)
-    showToast(t('start.consent.denied'))
-  }
-
-  /** 다시 선택하면 이전 좌표로 찾은 역 이름도 버린다. (스토어까지 함께) */
-  const changeConsent = () => {
-    resetConsent()
-    clearStation()
-    clearOriginStation()
-  }
-
   const startGuide = () => {
-    if (consent === null) {
-      showToast(t('start.needConsentFirst'))
-      return
-    }
     void navigate('/scan')
   }
 
@@ -227,22 +135,6 @@ export default function StartPage() {
               labelledBy={LANGUAGE_LABEL_ID}
             />
           </div>
-        </section>
-
-        <section className="mt-[clamp(16px,3vh,26px)] pb-4">
-          {consent === null ? (
-            <LocationConsentCard
-              onAllow={() => void allowLocation()}
-              onDeny={denyLocation}
-              isRequesting={isRequestingLocation}
-            />
-          ) : (
-            <LocationConsentStatus
-              granted={consent === LOCATION_CONSENT.GRANTED}
-              station={station?.name ?? null}
-              onChange={changeConsent}
-            />
-          )}
         </section>
 
         {isWithdrawOpen ? (
