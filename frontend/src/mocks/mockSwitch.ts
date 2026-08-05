@@ -101,6 +101,15 @@ const SWITCH = {
   'GET /staffs/consultations/:consultationId': false,
 
   /*
+    관리자 — 사용자 위치 보기용 경로 (⚠️ BE 미신설, 8/5 요청).
+
+    **true 로 둔다** — 이 API 는 아직 서버에 없다. 끄면 [사용자 위치 보기] 가
+    항상 404 로 실패해 지도를 볼 수 없다. BE 가 신설하면 false 로 바꾸면 되고,
+    그때 목(data.ts 의 MOCK_USER_ROUTE_*)은 지운다.
+  */
+  'GET /staffs/consultations/:consultationId/route': true,
+
+  /*
     관리자 — 블랙리스트 4종 (✅ BE 개발완료).
 
     핸들러가 없던 동안에는 스위치도 없어서 이 요청만 항상 실서버로 나갔다.

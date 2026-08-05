@@ -345,7 +345,8 @@
       "zoomOut": "Zoom out",
       "recenter": "Back to my location",
       "legend": {
-        "current": "You are here",
+        "myLocation": "My location",
+        "current": "Current leg · direction",
         "upcoming": "Next stop · route ahead",
         "passed": "Covered so far"
       }
