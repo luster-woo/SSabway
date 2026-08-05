@@ -77,6 +77,17 @@ const consultations = {
    * 요청자 본인 검증 있음. 응답 { consultationId, status }.
    */
   leave: (id: number) => `/consultations/${id}/leave`,
+  /**
+   * 상담 자막 → GMS 요약. ✅ BE 구현됨 (ssabway ConsultationSummaryService).
+   *
+   * 상담이 ENDED 여야 받아준다 — leave 가 끝난 뒤에 불러야 한다.
+   * 이미 요약이 있으면 GMS 를 다시 부르지 않고 기존 것을 돌려주므로 재호출에 안전하다.
+   * 요청자 본인만 호출할 수 있고(USER 토큰), 서버는 요약만 저장하고 자막 원문은 버린다.
+   *
+   * 본문 { transcripts: [{ speaker: 'USER'|'STAFF', text }] }
+   * 제한 200문장 / 문장당 100자 / 전체 20,000자
+   */
+  summary: (id: number) => `/consultations/${id}/summary`,
 } as const
 
 /**
