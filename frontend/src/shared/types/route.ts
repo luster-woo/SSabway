@@ -85,6 +85,18 @@ export interface RouteSegment {
    * 실내 안내를 시작하지 않는다 — 엉뚱한 승강장으로 안내하는 것보다 낫다.
    */
   pointCode: string | null
+  /**
+   * 이 구간 출발역의 DB id (`stations.id`). 명세 8/5 추가.
+   *
+   * 상담 요청(`POST /consultations`)의 `stationId` 로 그대로 넘긴다 — 서버가
+   * 이 id 로 담당 역무원을 찾는다. **첫 구간에만 값이 있고 환승 이후 구간은
+   * null** 이다(지원 역이 아직 대구역뿐이라 사실상 `segments[0]` 만 1 이다).
+   * 그래서 "사용자가 실제로 타는 출발역"의 id 는 `segments[0].stationId` 다.
+   *
+   * pointCode 와 같은 자리에 있지만 뜻이 다르다 —
+   * pointCode 는 역 **안**의 개찰구 노드, stationId 는 **역** 자체다.
+   */
+  stationId: number | null
   startStation: string
   endStation: string
   /** 이 구간에서 지나는 역 수 */
@@ -93,10 +105,28 @@ export interface RouteSegment {
   sectionTime: number
 }
 
-/** 추천 경로 한 건. 화면의 카드 하나에 대응한다. */
+/**
+ * 추천 경로 한 건. 화면의 카드 하나에 대응한다.
+ *
+ * ⚠️ 역 이름이 두 벌이다 (명세 8/5 변경). 요청의 `language` 에 맞춰 번역된
+ *    표기와, 한국어 표기가 따로 온다. **섞어 쓰면 안 된다.**
+ *      - `firstStartStation`·`lastEndStation` → 화면에 그대로 뿌리는 값
+ *      - `firstStartStationKor`·`lastEndStationKor` → 서버로 보낼 값
+ *    서버는 역 이름을 `stations.name_ko` 와 정확 비교하므로, 번역된 표기를
+ *    보내면 외국어 사용자만 404 STAFF_NOT_FOUND 로 조용히 실패한다.
+ *
+ * segments 안의 `laneName`·`direction`·`startStation`·`endStation` 도 번역된
+ * 표기다. 이쪽은 한국어 짝이 없고 화면 표시에만 쓰이므로 문제되지 않는다.
+ */
 export interface RoutePath {
+  /** 출발역 — 사용자 선택 언어 표기. 화면 표시용 */
   firstStartStation: string
+  /** 출발역 — 한국어 표기. 서버 전달용 */
+  firstStartStationKor: string
+  /** 최종 도착역 — 사용자 선택 언어 표기. 화면 표시용 */
   lastEndStation: string
+  /** 최종 도착역 — 한국어 표기. 서버 전달용 */
+  lastEndStationKor: string
   /** 총 소요 시간(분) */
   totalTime: number
   /** 총 요금(원) */
@@ -122,17 +152,30 @@ export interface RoutePathResponse {
 /**
  * 사용자가 경로 선택 화면에서 확정한 경로의 요약.
  *
- * 두 역 이름은 ODsay 가 준 표기 그대로다(`firstStartStation`·`lastEndStation`).
- * 안내 정보 확인·도착 완료 화면의 출발·도착 표시와 상담 요청의
- * departure·destination 이 이 값을 쓴다 — 상담은 서버가 역 이름으로 역무원을
- * 배정하므로(`stations.name_ko` 정확 비교) 사용자가 고른 장소명이 아니라
- * **역 이름**이 필요하다.
+ * 경로 응답에서 **이후 화면들이 쓰는 값만** 뽑아 둔 것이다. 화면에 뿌릴 표기와
+ * 서버에 보낼 표기를 **둘 다** 들고 간다 — 경로 조회는 목적지를 정한 시점에
+ * 한 번만 하고, 상담 요청은 그보다 훨씬 뒤(안내 중 도움 요청)에 일어나므로
+ * 그때 다시 조회해 한국어 표기를 얻어올 수 없다.
+ *
+ * - 표시용(`departureStation`·`arrivalStation`) → 안내 정보 확인·도착 완료 화면
+ * - 전달용(`*Kor`, `stationId`) → 상담 요청(`POST /consultations`)
  */
 export interface SelectedRoute {
-  /** 출발역 */
+  /** 출발역 — 사용자 언어 표기. 화면 표시용 */
   departureStation: string
-  /** 최종 도착역 */
+  /** 출발역 — 한국어 표기. 상담 요청의 departure 로 보낸다 */
+  departureStationKor: string
+  /** 최종 도착역 — 사용자 언어 표기. 화면 표시용 */
   arrivalStation: string
+  /** 최종 도착역 — 한국어 표기. 상담 요청의 destination 으로 보낸다 */
+  arrivalStationKor: string
+  /**
+   * 출발역 DB id. 상담 요청의 stationId 로 보낸다.
+   *
+   * 서버가 안 줬을 때(구버전 응답·비지원 역)를 대비해 nullable 이다.
+   * null 이면 상담 요청을 보낼 수 없다 — 요청 필수 필드이기 때문이다.
+   */
+  stationId: number | null
   /** 총 소요 시간(분) */
   totalTime: number
   /** 환승 횟수 */
