@@ -5,6 +5,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { CaptionOverlay } from '@/shared/caption/CaptionOverlay'
 import { useLiveCaption } from '@/shared/caption/useLiveCaption'
 import { useLanguage } from '@/shared/lib/useLanguage'
+import { CONSULTATION_STATUS } from '@/shared/types'
 import { Button, Dialog, useToast } from '@/shared/ui'
 import { OpenViduVideo } from '@/shared/webrtc/OpenViduVideo'
 import { OV_STATUS } from '@/shared/webrtc/useOpenViduSession'
@@ -114,9 +115,34 @@ export default function ConsultationPage() {
 
   const hasConsultationId = consultationId > 0
 
+  /**
+   * 서버가 이미 끝낸 상담이면 어느 상태로 끝났는지. 아니면 null.
+   *
+   * 종료된 상담으로 재진입하는 경로가 실제로 있다 — 이 화면은 URL 에
+   * consultationId 를 들고 있어(새로고침 대비) 통화가 끝난 뒤 뒤로가기·
+   * 새로고침으로 같은 URL 에 다시 들어올 수 있다. 그때 화면을 그대로 두면
+   * 서버가 ENDED 를 주는데도 "역무원을 기다리는 중"이 계속 뜬다.
+   */
+  const closedStatus =
+    call.consultationStatus === CONSULTATION_STATUS.ENDED ||
+    call.consultationStatus === CONSULTATION_STATUS.CANCELED
+      ? call.consultationStatus
+      : null
+
   /** 통화 화면 상단에 띄울 안내. 없으면 null */
   const callNotice = (() => {
     if (!hasConsultationId) return t('consultation.video.noConsultationId')
+    /*
+      종료 안내가 실패 안내보다 먼저다. 끝난 상담은 isJoinFailed 로도 잡히는데
+      (useConsultationMatch 의 isFailed 가 종료를 포함한다) 정상 종료를
+      "연결하지 못했어요"로 보여주면 사용자가 재시도할 것을 찾게 된다.
+      아래 이펙트가 곧 화면을 닫지만, 그 한 프레임에 틀린 문구를 보이지 않는다.
+    */
+    if (closedStatus !== null) {
+      return closedStatus === CONSULTATION_STATUS.CANCELED
+        ? t('consultation.video.canceled')
+        : t('consultation.video.alreadyEnded')
+    }
     if (call.isJoinFailed) return t('consultation.video.joinFailed')
     if (call.status === OV_STATUS.RECONNECTING) {
       return t('consultation.video.reconnecting')
@@ -135,11 +161,33 @@ export default function ConsultationPage() {
     return null
   })()
 
-  const isNoticeAlert = call.isJoinFailed || !hasConsultationId
+  const isNoticeAlert =
+    (call.isJoinFailed && closedStatus === null) || !hasConsultationId
+
+  /**
+   * 통화를 시작하지 못한 채 이 화면을 떠난다. (권한 거부 · 미디어 오류)
+   *
+   * `call.leave()` 가 빠지면 상담이 MATCHED 로 남는다. 이 화면은 역무원이 이미
+   * 수락한 뒤에만 진입하므로(`HelpChatPage` 의 `waiting.isMatched` 게이팅)
+   * 여기서 나가는 사용자는 예외 없이 활성 상담을 하나 들고 있다. ssabway 의
+   * `ACTIVE_STATUSES` 가 WAITING·MATCHED·IN_PROGRESS 를 모두 막고 MATCHED 를
+   * 시간으로 정리하는 스케줄러도 없어서, 정리하지 않으면 다음 도움 요청이
+   * 409 CONSULTATION_DUPLICATED 로 **영구히** 막힌다 — 역무원이 수동으로
+   * 종료해 줄 때까지. 게다가 그 409 는 화면에서 블랙리스트 거절과 구분되지
+   * 않아(`useConsultationRequest` 의 `isRejected`) 원인을 알 방법도 없다.
+   *
+   * leave 는 상태를 보고 취소/종료를 알아서 가르고 멱등이라, 여기서 상담이
+   * WAITING 인지 MATCHED 인지 몰라도 그냥 부르면 된다.
+   */
+  const leaveWithoutCall = () => {
+    call.leave()
+    stop()
+    void navigate('/', { replace: true })
+  }
 
   const denyPermission = () => {
     showToast(t('consultation.video.permission.denied'))
-    void navigate('/', { replace: true })
+    leaveWithoutCall()
   }
 
   const changeMic = () => {
@@ -181,6 +229,29 @@ export default function ConsultationPage() {
     showToast(t('consultation.video.endedByStaff'))
     void navigate('/guide', { replace: true })
   }, [call.status, navigate, showToast, stop, t])
+
+  /**
+   * 서버가 이미 끝낸 상담이면 화면을 닫는다.
+   *
+   * 위의 DISCONNECTED 이펙트와 노리는 구간이 다르다. 그쪽은 **연결된 뒤** 세션이
+   * 끊긴 경우고, 이쪽은 **연결되기 전**부터 이미 끝나 있던 경우다 — 종료 후
+   * 같은 URL 로 재진입하거나, 대기 중 다른 탭에서 취소된 경우. OpenVidu 세션이
+   * 애초에 없으니 sessionDisconnected 가 올 곳이 없어 그쪽 이펙트로는 못 잡는다.
+   *
+   * leave 는 부르지 않는다 — 서버가 이미 끝낸 상담이라 정리할 것이 없다.
+   * 여기서 leave 를 부르면 끝난 상담에 매번 멱등 요청이 한 번씩 더 나간다.
+   */
+  useEffect(() => {
+    if (closedStatus === null) return
+
+    stop()
+    showToast(
+      closedStatus === CONSULTATION_STATUS.CANCELED
+        ? t('consultation.video.canceled')
+        : t('consultation.video.alreadyEnded'),
+    )
+    void navigate('/guide', { replace: true })
+  }, [closedStatus, navigate, showToast, stop, t])
 
   const endCall = () => {
     /*
@@ -307,7 +378,7 @@ export default function ConsultationPage() {
             variant="secondary"
             size="lg"
             fullWidth
-            onClick={() => void navigate('/', { replace: true })}
+            onClick={leaveWithoutCall}
           >
             {t('common.goHome')}
           </Button>

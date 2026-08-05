@@ -435,6 +435,8 @@
       "cameraOff": "已关闭摄像头",
       "ended": "咨询已结束",
       "endedByStaff": "站务员已结束咨询",
+      "alreadyEnded": "该咨询已结束",
+      "canceled": "咨询申请已被取消",
       "waitingStaff": "正在等待工作人员…",
       "queuePosition": "您的排队号码为 {{position}} 号",
       "noConsultationId": "未找到咨询信息，请从帮助页面重新开始。",
