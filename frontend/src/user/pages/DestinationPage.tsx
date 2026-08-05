@@ -32,7 +32,7 @@ import { usePlaceSearch } from '@/user/features/destination-search/hooks/usePlac
  *
  * 지도 초기 위치는 GPS 동의 여부로 갈린다.
  *   동의  → 실제 좌표(또는 시작 화면에서 찾은 인근역)로 맞춘다
- *   비동의 → 서울역에서 시작한다 (useGoogleDestinationMap 의 DEFAULT_CENTER)
+ *   비동의 → 대구역에서 시작한다 (useGoogleDestinationMap 의 DEFAULT_CENTER)
  * 어느 쪽이든 경로 조회의 출발지는 사용자가 직접 지정해야 정해진다.
  */
 export default function DestinationPage() {

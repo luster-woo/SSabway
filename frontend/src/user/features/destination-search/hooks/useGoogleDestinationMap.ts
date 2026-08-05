@@ -9,15 +9,15 @@ import {
 } from '@/user/features/destination-search/lib/googleMarkerIcon'
 
 /**
- * 위치 동의를 하지 않았을 때의 초기 화면 중심 — 서울역.
+ * 위치 동의를 하지 않았을 때의 초기 화면 중심 — 대구역.
  *
  * 동의했다면 실제 GPS 좌표로 화면을 맞추므로 이 값은 쓰이지 않는다.
  * 지도 카메라의 출발점일 뿐, 경로 조회의 출발지가 아니다 — 출발지는 사용자가
  * 지도에서 직접 골라야 정해진다(DestinationPage).
  */
 const DEFAULT_CENTER: google.maps.LatLngLiteral = {
-  lat: 37.55536,
-  lng: 126.97229,
+  lat: 35.87565,
+  lng: 128.5961,
 }
 const DEFAULT_ZOOM = 15
 /** 지점을 고르면 건물이 구분되는 수준까지 당긴다. */
