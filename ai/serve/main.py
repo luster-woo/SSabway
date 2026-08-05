@@ -86,10 +86,19 @@ async def lifespan(app: FastAPI):
                     ', '.join(missing))
     else:
         log.info('모델 로딩 시작 (torch threads=%d)', threads)
-        recognizer = SignRecognizer(det, cls)
-        log.info('모델 로딩 완료 %.2fs | device=%s | %s %dx%d | 클래스 %d개',
-                 recognizer.load_seconds, recognizer.device, recognizer.arch,
-                 recognizer.input_hw[0], recognizer.input_hw[1], len(recognizer.classes))
+        try:
+            recognizer = SignRecognizer(det, cls)
+            log.info('모델 로딩 완료 %.2fs | device=%s | %s %dx%d | 클래스 %d개',
+                     recognizer.load_seconds, recognizer.device, recognizer.arch,
+                     recognizer.input_hw[0], recognizer.input_hw[1],
+                     len(recognizer.classes))
+        except Exception:
+            # 파일은 있는데 못 읽는 경우 — 형식이 안 맞거나 손상됐다.
+            # 여기서 예외가 올라가면 프로세스가 죽어 얼굴 검출·자막까지 함께
+            # 멈춘다. 표지판만 포기하고 나머지는 계속 서비스한다.
+            sign_model_present = False
+            log.exception('표지판 가중치를 읽지 못했습니다(%s, %s). '
+                          '/predict 는 503 을 돌려줍니다.', det, cls)
 
     # 얼굴 검출은 표지판과 독립이다 — 모델이 없어도 표지판 인식은 계속 서비스한다
     global face_model_ready

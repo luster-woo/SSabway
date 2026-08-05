@@ -35,15 +35,20 @@ services:
   # 배포(docker-compose.prod.yml)에도 같은 서비스가 있고 거기서는
   # /opt/models 를 마운트해 표지판 모델까지 올린다.
   #
-  # 여기서는 가중치를 마운트하지 않는다 — 표지판 인식은 /predict 가 503 이
-  # 되지만, 얼굴 검출(227KB 모델은 이미지에 포함)과 자막은 그대로 동작한다.
+  # 표지판 가중치는 ai/serve/models/ 에 두면 자동으로 잡힌다(gitignore 대상).
+  # 없어도 기동한다 — /predict 만 503 이고 얼굴 검출·자막은 정상 동작한다.
+  #   detector.pt    YOLO
+  #   classifier.pt  ResNet18 체크포인트(classes·arch·input_hw 포함)
   ai:
     build: ./ai/serve
     environment:
       TORCH_THREADS: "2"
       MAX_SIDE: "1280"
       TZ: Asia/Seoul
+      MODEL_DIR: /models
       AZURE_SPEECH_KEY: ${AZURE_SPEECH_KEY}
       AZURE_SPEECH_REGION: ${AZURE_SPEECH_REGION:-koreacentral}
+    volumes:
+      - ./ai/serve/models:/models:ro
     ports: ["127.0.0.1:8000:8000"]
     restart: unless-stopped
