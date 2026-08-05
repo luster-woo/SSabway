@@ -17,6 +17,10 @@ export interface AdminShellProps {
  * - 데스크톱 전용이라 md:/lg: 접두사 없이 데스크톱 레이아웃을 그대로 작성하고,
  *   좁은 창에서 무너지지 않도록 min-w-[1024px] + overflow-x-auto 로 감싼다.
  * - 사용자 화면과 달리 다국어를 쓰지 않고 한국어로 고정한다.
+ * - 높이는 h-[100dvh] + overflow-hidden 으로 뷰포트에 고정한다. min-h 로 두면
+ *   본문(예: 상담방 정보패널)이 길어질 때 페이지가 통째로 늘어나 세로 스크롤이
+ *   생기고 [상담 종료] 같은 버튼이 접힌다. 고정해 두면 flex-1/min-h-0 가 본문을
+ *   뷰포트 안에 가두고, 각 패널이 자기 안에서만 스크롤한다.
  */
 export function AdminShell({
   children,
@@ -27,7 +31,7 @@ export function AdminShell({
     <div className="overflow-x-auto">
       <div
         className={cn(
-          'bg-surface-muted text-ink flex min-h-[100dvh] min-w-[1024px] flex-col',
+          'bg-surface-muted text-ink flex h-[100dvh] min-w-[1024px] flex-col overflow-hidden',
           className,
         )}
       >
@@ -39,7 +43,7 @@ export function AdminShell({
           {headerRight ? <div className="ml-auto">{headerRight}</div> : null}
         </header>
 
-        <main className="flex flex-1 flex-col">{children}</main>
+        <main className="flex min-h-0 flex-1 flex-col">{children}</main>
       </div>
     </div>
   )
