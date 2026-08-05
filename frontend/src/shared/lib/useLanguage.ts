@@ -16,7 +16,7 @@ function normalize(value: string | undefined): Language {
 
 /**
  * 현재 언어와 변경 함수를 돌려준다.
- * 사용자가 아무것도 고르지 않았다면 항상 DEFAULT_LANGUAGE('ko')다.
+ * 사용자가 아무것도 고르지 않았다면 항상 DEFAULT_LANGUAGE('en')다.
  */
 export function useLanguage() {
   const { i18n } = useTranslation()

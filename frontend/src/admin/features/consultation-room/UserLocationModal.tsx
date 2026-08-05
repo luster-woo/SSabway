@@ -53,6 +53,8 @@ export function UserLocationModal({
       steps={data?.steps ?? []}
       currentIndex={data?.currentIndex ?? 0}
       status={status}
+      // 관리자 화면은 한국어 고정 — 위 안내문과 지도 헤더의 언어를 맞춘다.
+      lang="ko"
       onClose={onClose}
     />
   )
