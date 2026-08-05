@@ -21,7 +21,8 @@ void i18n
       zh: { common: zhCommon },
     },
     // lng를 명시하면 LanguageDetector가 동작하지 않아 저장된 선택이 무시된다.
-    // 저장값이 없을 때 fallbackLng로 떨어지므로 "선택 전 기본값 = 한국어"가 보장된다.
+    // 저장값이 없을 때 fallbackLng로 떨어지므로
+    // "선택 전 기본값 = DEFAULT_LANGUAGE(영어)"가 보장된다.
     fallbackLng: DEFAULT_LANGUAGE,
     supportedLngs: SUPPORTED_LANGUAGES,
     // en-US, zh-TW 처럼 지역 코드가 붙어도 en, zh 로 매칭시킨다.
@@ -29,7 +30,8 @@ void i18n
     defaultNS: 'common',
     detection: {
       // localStorage만 본다. navigator를 넣으면 브라우저 언어가 기본값을 덮어써
-      // "선택 전 기본값 = 한국어" 규칙이 깨진다.
+      // "선택 전 기본값 = DEFAULT_LANGUAGE" 규칙이 깨진다.
+      // (한국 내 접속이면 브라우저 언어가 ko라 영어 기본값이 무력화된다)
       order: ['localStorage'],
       lookupLocalStorage: LANGUAGE_STORAGE_KEY,
       caches: ['localStorage'],
