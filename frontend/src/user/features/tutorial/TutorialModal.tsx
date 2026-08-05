@@ -11,8 +11,8 @@ import { cn } from '@/shared/lib/cn'
 import { useLanguage } from '@/shared/lib/useLanguage'
 import { Button } from '@/shared/ui'
 import {
+  TUTORIAL_MEDIA_PADDING_BOTTOM,
   TUTORIAL_STEPS,
-  toMediaPaddingBottom,
   toTutorialGifUrl,
 } from '@/user/features/tutorial/tutorialSteps'
 
@@ -43,12 +43,17 @@ function ChevronIcon({ className }: { className?: string }) {
 /**
  * 사용법 안내 모달 — GIF 3장을 옆으로 넘겨 본다.
  *
- * 1) 표지판으로 위치를 잡는다 → 2) 표지판을 어떻게 찍는다 → 3) 막히면 역무원과
- * 화상 상담한다. 이 순서가 실제 사용 흐름이라 페이지 순서를 바꾸지 않는다.
+ * 1) 표지판을 어떻게 찍는다 → 2) 표지판을 이어가며 안내받는다 → 3) 막히면
+ * 역무원과 화상 상담한다. 실제 사용 흐름과 같은 순서다(tutorialSteps 참고).
  *
  * **GIF 안에 문구가 이미 그려져 있다.** 그래서 언어별로 파일이 다르고(선택한
  * 언어의 폴더에서 가져온다), 화면에서는 설명을 덧붙이지 않는다 — 같은 말을 두
  * 번 하게 되고, 번역이 어긋나면 그림과 글이 다른 말을 한다.
+ *
+ * **팝업 크기는 세 페이지가 같다.** GIF 영역 높이를 한 값으로 고정해(비율 선택
+ * 근거는 TUTORIAL_MEDIA_PADDING_BOTTOM 주석) 넘길 때 팝업이 늘었다 줄었다
+ * 하지 않는다. 남는 자리는 가운데 정렬로 양쪽에 똑같이 나뉘고, GIF 배경과 박스가
+ * 모두 흰색이라 눈에 띄지 않는다.
  *
  * 넘기는 방법을 셋 다 둔다: 스와이프(폰) · 화살표 버튼 · ←→ 키(데스크톱).
  * 폰에서 스와이프만 두면 화살표가 없어 넘길 수 있다는 걸 모르는 사용자가 있다.
@@ -158,16 +163,16 @@ export function TutorialModal({ onClose }: TutorialModalProps) {
         </div>
 
         {/*
-          GIF 영역. 높이는 보고 있는 페이지의 비율을 따라가고, 페이지를 넘기면
-          부드럽게 늘거나 줄어든다 (toMediaPaddingBottom 주석 참고).
+          GIF 영역 — 세 페이지 공통 높이. 배경을 흰색으로 두는 것이 중요하다:
+          남는 자리(최대 25.6%)가 GIF 배경과 같은 색이라 여백으로 보이지 않는다.
         */}
         <div
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
           onPointerCancel={handlePointerUp}
-          style={{ paddingBottom: toMediaPaddingBottom(TUTORIAL_STEPS[page]) }}
-          className="bg-surface-soft relative h-0 touch-none overflow-hidden transition-[padding] duration-300 ease-out select-none motion-reduce:transition-none"
+          style={{ paddingBottom: TUTORIAL_MEDIA_PADDING_BOTTOM }}
+          className="relative h-0 touch-none overflow-hidden bg-white select-none"
         >
           <div
             className={cn(
@@ -186,7 +191,7 @@ export function TutorialModal({ onClose }: TutorialModalProps) {
                 <div
                   key={step.id}
                   aria-hidden={index !== page}
-                  className="flex h-full w-full shrink-0 items-center justify-center px-3"
+                  className="flex h-full w-full shrink-0 items-center justify-center"
                 >
                   {shouldLoad ? (
                     <img
@@ -195,7 +200,13 @@ export function TutorialModal({ onClose }: TutorialModalProps) {
                       width={step.width}
                       height={step.height}
                       draggable={false}
-                      className="max-h-full w-full object-contain"
+                      /*
+                        가운데 정렬 + object-contain 이라 남는 자리가 위아래(또는
+                        좌우)에 똑같이 나뉜다. 한쪽으로 치우치지 않는 이유다.
+                        GIF 자체에 콘텐츠 바깥 2% 여백이 들어 있어(가공 스크립트)
+                        그림이 박스 경계에 닿지도 않는다.
+                      */
+                      className="h-full w-full object-contain"
                     />
                   ) : null}
                 </div>

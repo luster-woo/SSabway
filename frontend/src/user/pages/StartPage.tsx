@@ -166,9 +166,14 @@ export default function StartPage() {
         </section>
 
         {/*
-          사용법 안내 — 「안내 시작」 버튼과 겹치지 않게 남는 공간의 가운데(`my-auto`)에 둔다.
+          사용법 안내 — 언어 선택 바로 아래에 붙인다.
+
+          위치 권한 카드가 사라지면서(GPS 제거) 이 아래가 통째로 비었다. 남는
+          공간 가운데(`my-auto`)에 띄우면 기기 높이에 따라 배너가 허공에 떠
+          보이고 언어 선택과의 관계도 흐려진다. 언어를 고른 직후 시선이 그대로
+          내려오는 자리에 두고, 남는 높이는 아래(「안내 시작」 위)에 모은다.
         */}
-        <section className="my-auto py-[clamp(10px,2vh,24px)]">
+        <section className="mt-[clamp(16px,3vh,26px)]">
           <TutorialGuideBanner onOpen={() => setIsTutorialOpen(true)} />
         </section>
 
