@@ -56,6 +56,7 @@ export default function HelpChatPage() {
     cancelConsultation,
     isPending,
     isRejected,
+    rejectedKey,
     isRouteMissing,
   } = useConsultationRequest()
 
@@ -76,10 +77,13 @@ export default function HelpChatPage() {
     }
   }, [consultationId, navigate, waiting.isMatched])
 
-  // 요청이 거절되면(블랙리스트 403 등) 대기 상태를 풀고 버튼으로 되돌린다.
+  // 요청이 거절/실패하면 사유를 알리고 대기 상태를 풀어 버튼으로 되돌린다.
+  // (블랙리스트·중복·역무원 없음 등은 rejectedKey 로 문구가 갈린다)
   useEffect(() => {
-    if (isRejected) setConsultationId(null)
-  }, [isRejected])
+    if (!isRejected) return
+    setConsultationId(null)
+    if (rejectedKey) showToast(t(rejectedKey))
+  }, [isRejected, rejectedKey, showToast, t])
 
   // 대기 중 취소되거나 실패하면(서버 사정) 안내하고 버튼으로 되돌린다.
   useEffect(() => {

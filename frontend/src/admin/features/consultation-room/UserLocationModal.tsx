@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { isAxiosError } from 'axios'
 
 import {
   StationMapOverlay,
@@ -6,6 +7,7 @@ import {
 } from '@/shared/station-map/StationMapOverlay'
 import { DAEGU_NODES } from '@/shared/station-map/daeguNavigation'
 import type { RouteStepRef } from '@/shared/station-map/routePath'
+import type { ApiErrorBody } from '@/shared/types/api'
 import { useUserLocation } from '@/admin/features/consultation-room/useUserLocation'
 
 export interface UserLocationModalProps {
@@ -27,6 +29,13 @@ export interface UserLocationModalProps {
  * 관리자 전용이던 층 탭·시설 범례·자체 줌은 8/5 에 없앴고(공용 오버레이로
  * 통합), 이 컴포넌트에 남는 일은 위치를 조회해 오버레이에 넘기는 것뿐이다.
  */
+/** 404 저장된 위치 없음(CONSULTATION_LOCATION_NOT_FOUND)인지. */
+function isLocationNotFound(error: unknown): boolean {
+  if (!isAxiosError(error)) return false
+  const code = (error.response?.data as ApiErrorBody | undefined)?.code
+  return code === 'CONSULTATION_LOCATION_NOT_FOUND'
+}
+
 export function UserLocationModal({
   consultationId,
   onClose,
@@ -35,6 +44,7 @@ export function UserLocationModal({
     data: nodeId,
     isPending,
     isError,
+    error,
   } = useUserLocation(consultationId, true)
 
   // 응답 노드가 도면 그래프에 없으면(서버·도면 데이터 불일치) 그릴 수 없다.
@@ -65,7 +75,15 @@ export function UserLocationModal({
   const status: StationMapStatus | undefined = isPending
     ? { kind: 'loading', message: '사용자 위치를 불러오는 중…' }
     : isError
-      ? { kind: 'error', message: '사용자 위치를 불러오지 못했습니다.' }
+      ? {
+          kind: 'error',
+          // 404 CONSULTATION_LOCATION_NOT_FOUND 는 "저장된 위치가 없음"이라
+          // 통신 실패와 다르게 안내한다. (사용자가 상세 안내를 연 적 없어
+          // 서버에 보관된 currentNodeId 가 없을 때 서버가 이 코드를 준다)
+          message: isLocationNotFound(error)
+            ? '사용자의 역 내 위치 정보가 없습니다.'
+            : '사용자 위치를 불러오지 못했습니다.',
+        }
       : !nodeId || isUnknownNode
         ? { kind: 'error', message: '사용자의 역 내 위치 정보가 없습니다.' }
         : undefined
