@@ -160,6 +160,19 @@
       "unavailable": "Couldn't find your location · You can continue by scanning a sign",
       "nearStation": "Nearest station: {{station}}",
       "switchToAllow": "Use my location"
+    },
+    "tutorial": {
+      "eyebrow": "First time here?",
+      "bannerTitle": "See how it works",
+      "title": "How it works",
+      "prev": "Previous",
+      "next": "Next",
+      "goToStep": "View guide {{current}} of {{total}}",
+      "steps": {
+        "signs": "How station signs are linked to guide you to your location",
+        "photoGuide": "How to photograph a sign correctly, with wrong examples",
+        "videoCall": "How to start a video call with staff when you get lost"
+      }
     }
   },
   "signCapture": {

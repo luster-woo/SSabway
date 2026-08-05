@@ -28,6 +28,8 @@ import { LandingSplash } from '@/user/features/start/LandingSplash'
 import { LanguageSelector } from '@/user/features/start/LanguageSelector'
 import { LocationConsentCard } from '@/user/features/start/LocationConsentCard'
 import { LocationConsentStatus } from '@/user/features/start/LocationConsentStatus'
+import { TutorialGuideBanner } from '@/user/features/start/TutorialGuideBanner'
+import { TutorialModal } from '@/user/features/tutorial/TutorialModal'
 import { useLandingSplash } from '@/user/features/start/useLandingSplash'
 import { useNearbyStation } from '@/user/features/start/useNearbyStation'
 import { useSyncLanguageOnLeave } from '@/user/features/start/useSyncLanguageOnLeave'
@@ -69,6 +71,12 @@ export default function StartPage() {
 
   /** 회원 탈퇴 다이얼로그. 비밀번호 확인이 필요해 토스트가 아니라 모달로 처리한다. */
   const [isWithdrawOpen, setIsWithdrawOpen] = useState(false)
+
+  /**
+   * 사용법 안내 모달. 열 때마다 새로 마운트해 1페이지부터 보게 한다.
+   * (GIF 도 그때 처음 내려온다 — 안 여는 사용자는 받지 않는다)
+   */
+  const [isTutorialOpen, setIsTutorialOpen] = useState(false)
 
   const consent = useLocationConsentStore((s) => s.consent)
   const setConsent = useLocationConsentStore((s) => s.setConsent)
@@ -265,10 +273,30 @@ export default function StartPage() {
           )}
         </section>
 
+        {/*
+          사용법 안내 — 권한을 고른 뒤 카드가 한 줄 요약으로 줄면서 생기는
+          빈 공간에 놓는다. `my-auto` 로 그 공간의 가운데에 뜬다.
+
+          권한을 고르기 전에는 띄우지 않는다. 그때는 권한 카드가 커서 320px
+          기기에서 이미 화면을 넘기고 있어(스크롤로 닿는다) 배너를 더하면
+          「안내 시작」 이 더 멀어진다. 권한 선택은 「안내 시작」 의 전제조건이라
+          (startGuide 가드) 모든 사용자가 이 상태를 반드시 지나므로, 안내를
+          못 보고 시작하는 사용자는 생기지 않는다.
+        */}
+        {consent === null ? null : (
+          <section className="my-auto py-[clamp(10px,2vh,24px)]">
+            <TutorialGuideBanner onOpen={() => setIsTutorialOpen(true)} />
+          </section>
+        )}
+
         {isWithdrawOpen ? (
           <WithdrawDialog onClose={() => setIsWithdrawOpen(false)} />
         ) : null}
       </MobileScreen>
+
+      {isTutorialOpen ? (
+        <TutorialModal onClose={() => setIsTutorialOpen(false)} />
+      ) : null}
 
       {installPrompt.phase === 'hidden' ? null : (
         <InstallPromptSheet

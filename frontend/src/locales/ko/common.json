@@ -160,6 +160,19 @@
       "unavailable": "위치를 찾을 수 없어요 · 표지판 촬영으로 진행할 수 있어요",
       "nearStation": "가까운 역: {{station}}",
       "switchToAllow": "동의로 바꾸기"
+    },
+    "tutorial": {
+      "eyebrow": "처음이신가요?",
+      "bannerTitle": "1분이면 끝나는 사용법 보기",
+      "title": "사용법 안내",
+      "prev": "이전",
+      "next": "다음",
+      "goToStep": "{{current}}번째 안내 보기 (전체 {{total}}장)",
+      "steps": {
+        "signs": "역 안내 표지판을 이어가며 위치를 안내하는 방법",
+        "photoGuide": "표지판을 올바르게 촬영하는 방법과 잘못된 예",
+        "videoCall": "길을 찾기 어려울 때 역무원과 화상 상담하는 방법"
+      }
     }
   },
   "signCapture": {

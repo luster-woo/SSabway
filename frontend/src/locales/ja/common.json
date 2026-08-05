@@ -160,6 +160,19 @@
       "unavailable": "位置を取得できません · 標識の撮影で進められます",
       "nearStation": "最寄り駅: {{station}}",
       "switchToAllow": "同意に変更"
+    },
+    "tutorial": {
+      "eyebrow": "初めてご利用ですか？",
+      "bannerTitle": "1分でわかる使い方を見る",
+      "title": "使い方ガイド",
+      "prev": "前へ",
+      "next": "次へ",
+      "goToStep": "{{total}}枚中{{current}}枚目のガイドを見る",
+      "steps": {
+        "signs": "駅の案内標識をたどって現在地を案内する仕組み",
+        "photoGuide": "標識の正しい撮影方法と間違った例",
+        "videoCall": "道に迷ったときに駅員とビデオ通話をする方法"
+      }
     }
   },
   "signCapture": {

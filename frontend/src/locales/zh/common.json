@@ -160,6 +160,19 @@
       "unavailable": "无法获取位置 · 可通过拍摄指示牌继续",
       "nearStation": "最近车站: {{station}}",
       "switchToAllow": "改为同意"
+    },
+    "tutorial": {
+      "eyebrow": "第一次使用吗？",
+      "bannerTitle": "查看 1 分钟使用说明",
+      "title": "使用说明",
+      "prev": "上一页",
+      "next": "下一页",
+      "goToStep": "查看第 {{current}} 张说明（共 {{total}} 张）",
+      "steps": {
+        "signs": "如何通过车站标志牌为您指引所在位置",
+        "photoGuide": "标志牌的正确拍摄方法与错误示例",
+        "videoCall": "找不到路时如何与站务员进行视频通话"
+      }
     }
   },
   "signCapture": {
