@@ -23,6 +23,10 @@ public record ConsultationCreateRequest(
 
         @NotBlank(message = "도착역 이름은 필수입니다.")
         @Size(max = 255, message = "도착역 이름은 255자 이하여야 합니다.")
-        String destination
+        String destination,
+
+        @NotBlank(message = "현재 위치 노드는 필수입니다.")
+        @Size(max = 255, message = "현재 위치 노드는 255자 이하여야 합니다.")
+        String currentNodeId
 ) {
 }
