@@ -52,6 +52,7 @@ public enum ErrorCode {
     CONSULTATION_NOT_ENDED(HttpStatus.CONFLICT, "종료된 상담만 요약할 수 있습니다."),
     GMS_REQUEST_FAILED(HttpStatus.BAD_GATEWAY, "상담 요약 모델 호출에 실패했습니다."),
     GMS_INVALID_RESPONSE(HttpStatus.BAD_GATEWAY, "상담 요약 모델의 응답을 확인할 수 없습니다."),
+    CONSULTATION_LOCATION_NOT_FOUND(HttpStatus.NOT_FOUND, "저장된 위치 정보가 없습니다."), // 404
 
     WEBRTC_SERVER_ERROR(HttpStatus.BAD_GATEWAY, "화상 연결 서버 처리에 실패했습니다."),
 
