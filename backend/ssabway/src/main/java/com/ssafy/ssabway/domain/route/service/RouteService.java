@@ -78,25 +78,33 @@ public class RouteService {
 
         return new RouteResponse(
                 path.info().firstStartStation(),
+                korOrDefault(path.info().firstStartStationKor(), path.info().firstStartStation()),
                 path.info().lastEndStation(),
+                korOrDefault(path.info().lastEndStationKor(), path.info().lastEndStation()),
                 path.info().totalTime(),
                 path.info().payment(),
                 segments.size() - 1,
                 segments);
     }
 
+
     private RouteSegmentResponse toSegment(OdsayRouteResponse.SubPath subPath, Language language) {
+        // 지하철 구간의 lane은 항상 1개다 (버스는 여러 노선이 서지만 지하철은 아님)
         OdsayRouteResponse.Lane lane = subPath.lane().getFirst();
         SubwayLane subwayLane = SubwayLane.from(lane.subwayCode());
 
-        String startKor = startNameKorOf(subPath);
+        // 매핑 키는 한국어 역명이다. startName은 요청 언어로 번역되어 오므로
+        // ~Kor를 써야 언어와 무관하게 동작한다
+        StartPoint.Value startPoint = StartPoint.of(
+                startNameKorOf(subPath), subwayLane, subPath.wayCode());
 
         return new RouteSegmentResponse(
                 subwayLane,
                 lane.name(),
                 subPath.wayCode(),
                 subwayLane.directionOf(subPath.wayCode(), language),
-                StartPoint.codeOf(startKor, subwayLane, subPath.wayCode()),
+                startPoint == null ? null : startPoint.stationId(),
+                startPoint == null ? null : startPoint.pointCode(),
                 subPath.startName(),
                 subPath.endName(),
                 subPath.stationCount(),
@@ -121,5 +129,10 @@ public class RouteService {
 
     private String startNameKorOf(OdsayRouteResponse.SubPath subPath) {
         return subPath.startNameKor() != null ? subPath.startNameKor() : subPath.startName();
+    }
+
+    // lang=0(국문)일 때 ODsay는 ~Kor 필드를 주지 않는다. 그때는 원본 자체가 한국어다
+    private String korOrDefault(String kor, String fallback) {
+        return kor != null ? kor : fallback;
     }
 }
