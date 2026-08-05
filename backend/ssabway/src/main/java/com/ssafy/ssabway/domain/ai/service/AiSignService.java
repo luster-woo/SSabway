@@ -6,6 +6,8 @@ import com.ssafy.ssabway.domain.ai.dto.response.SignPredictResponse;
 import com.ssafy.ssabway.domain.navigation.model.NavNode;
 import com.ssafy.ssabway.domain.navigation.model.NavigationGraph;
 import com.ssafy.ssabway.domain.navigation.repository.NavigationGraphRepository;
+import com.ssafy.ssabway.domain.point.repository.SignLocationRepository;
+import com.ssafy.ssabway.domain.point.repository.SignLocationView;
 import com.ssafy.ssabway.global.exception.BusinessException;
 import com.ssafy.ssabway.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -17,12 +19,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.Set;
 
-/*
-    사진 한 장을 AI 서버에 보내 어느 표지판인지 알아낸다.
-
-    AI 서버는 표지판 id 만 알고 층은 모른다. 층은 지도 데이터에 있으므로
-    여기서 그래프를 찾아 붙인다. DB 를 쓰지 않아 @Transactional 이 없다.
- */
+// 층·역은 DB(points ─ stations)에서 코드로 조회해 붙인다.
+// 읽기 전용 단건 조회라 @Transactional 없이 둔다.
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -35,6 +33,10 @@ public class AiSignService {
 
     private final AiClient aiClient;
     private final NavigationGraphRepository navigationGraphRepository;
+
+    private static final String DEFAULT_STATION_NAME = "대구역";
+
+    private final SignLocationRepository signLocationRepository;   // 필드 추가
 
     public SignPredictResponse predict(MultipartFile image) {
 
@@ -56,9 +58,17 @@ public class AiSignService {
         log.info("표지판 인식 {} ({}, {}) {}ms",
                 result.sign(), result.confidence(), result.status(), result.elapsedMs());
 
+        SignLocationView loc = signLocationRepository.findBySign(result.sign()).orElse(null);
+
+        // 매핑 없으면 역은 대구역 기본값, 층은 기존 JSON 그래프 폴백
+        String stationName = loc != null ? loc.getNameKo() : DEFAULT_STATION_NAME;
+        String floor       = loc != null ? String.valueOf(loc.getFloor())
+                : floorOf(graph, result.sign());
+
         return new SignPredictResponse(
-                result.sign(),
-                floorOf(graph, result.sign()),
+                result.sign(),   // 코드
+                floor,           // 층 (DB)
+                stationName,     // 역
                 result.confidence(),
                 result.confident(),
                 toCandidates(graph, result.candidates())
