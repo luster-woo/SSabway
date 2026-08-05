@@ -33,8 +33,8 @@ export default function RoutePage() {
   const { language } = useLanguage()
   const destination = useDestinationStore((state) => state.destination)
   /**
-   * 출발지는 목적지 화면에서 정해진다 — 지도에서 직접 고르거나(MANUAL),
-   * 시작 화면의 GPS 결과가 들어와 있거나(GPS) 둘 중 하나다.
+   * 출발지는 표지판 촬영으로 인식한 역(SIGN)이 기본이고, 목적지 화면 지도에서
+   * 사용자가 직접 고르면(MANUAL) 그 값이 우선한다.
    *
    * ⚠️ 폴백을 두지 않는다. 예전에는 값이 없으면 대구역으로 대신 조회했는데,
    *    사용자가 고르지도 않은 출발지의 경로를 보여주는 셈이라 잘못된 안내였다.
