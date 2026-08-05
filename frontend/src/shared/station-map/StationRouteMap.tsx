@@ -101,10 +101,18 @@ export function StationRouteMap({
     (currentStep ? DAEGU_NODES[currentStep.from] : undefined) ??
     currentPath?.[0] ??
     null
+  /*
+    다음 위치. from === to 인 단계(경로 없이 위치 점 하나만 그리는 화면이
+    만드는 형태 — UserLocationModal 참고)에서는 다음 위치가 곧 현재 위치라
+    고리를 그리지 않는다 — 내 위치 점 밑에 깔려 보이지도 않지만, 확대 배율에
+    따라 가장자리가 비쳐 "다음 위치가 있다"로 오해될 수 있다.
+  */
   const nextPoint =
-    (currentStep ? DAEGU_NODES[currentStep.to] : undefined) ??
-    currentPath?.[currentPath.length - 1] ??
-    null
+    currentStep && currentStep.to !== currentStep.from
+      ? (DAEGU_NODES[currentStep.to] ??
+        currentPath?.[currentPath.length - 1] ??
+        null)
+      : null
 
   /*
     남은 경로(현재 구간부터 끝까지)의 화살촉.
