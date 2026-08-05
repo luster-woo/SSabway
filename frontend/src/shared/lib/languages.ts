@@ -7,8 +7,8 @@ export interface LanguageOption {
 }
 
 export const LANGUAGE_OPTIONS: readonly LanguageOption[] = [
-  { code: 'ko', label: '한국어' },
   { code: 'en', label: 'English' },
   { code: 'ja', label: '日本語' },
   { code: 'zh', label: '中文' },
+  { code: 'ko', label: '한국어' },
 ]
