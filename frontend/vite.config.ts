@@ -107,15 +107,20 @@ export default defineConfig(({ mode }) => {
         },
         manifest: {
           id: '/',
-          name: 'Station Guide',
-          short_name: 'StationGuide',
+          // UI·홈 화면 아이콘 라벨을 모두 SSabway 로 맞춘다.
+          name: 'SSabway',
+          short_name: 'SSabway',
           description: 'Indoor navigation for subway stations',
           start_url: '/',
           scope: '/',
           display: 'standalone',
+          // standalone 을 못 쓰는 브라우저에서 브라우저 탭으로 떨어지기 전에
+          // 주소창만 없는 minimal-ui 를 한 번 더 시도한다.
+          display_override: ['standalone', 'minimal-ui'],
           orientation: 'portrait',
           background_color: '#ffffff',
-          theme_color: '#1e6fd9',
+          // 브랜드 그라디언트의 진한 쪽. index.html 의 theme-color 와 같아야 한다.
+          theme_color: '#02457a',
         },
       }),
     ],
