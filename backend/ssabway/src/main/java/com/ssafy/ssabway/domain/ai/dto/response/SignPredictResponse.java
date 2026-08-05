@@ -15,6 +15,7 @@ public record SignPredictResponse(
 
         String signageId,
         String floor,
+        String stationName,
         double confidence,
 
         /* true 면 그대로 사용, false 면 candidates 를 보여주고 사용자에게 고르게 한다 */
