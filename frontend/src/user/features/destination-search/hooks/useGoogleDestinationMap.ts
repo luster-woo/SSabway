@@ -9,11 +9,10 @@ import {
 } from '@/user/features/destination-search/lib/googleMarkerIcon'
 
 /**
- * 위치 동의를 하지 않았을 때의 초기 화면 중심 — 대구역.
+ * 지도 초기 화면 중심 — 대구역.
  *
- * 동의했다면 실제 GPS 좌표로 화면을 맞추므로 이 값은 쓰이지 않는다.
- * 지도 카메라의 출발점일 뿐, 경로 조회의 출발지가 아니다 — 출발지는 사용자가
- * 지도에서 직접 골라야 정해진다(DestinationPage).
+ * 표지판으로 인식한 출발역이 있으면 그쪽으로 카메라가 맞춰지므로 이 값은
+ * 폴백일 뿐이다. 지도 카메라의 출발점일 뿐, 경로 조회의 출발지가 아니다.
  */
 const DEFAULT_CENTER: google.maps.LatLngLiteral = {
   lat: 35.87565,
@@ -41,7 +40,7 @@ export interface UseDestinationMapOptions {
   origin: MapPoint | null
   /** 확정된 도착지. null이면 마커를 감춘다. */
   destination: MapPoint | null
-  /** GPS 동의 시 사용자의 현재 좌표. null이면 내 위치 마커를 감춘다. */
+  /** 사용자의 현재 위치(표지판으로 인식한 역). null이면 내 위치 마커를 감춘다. */
   myLocation: { latitude: number; longitude: number } | null
 }
 
@@ -117,12 +116,12 @@ export function useGoogleDestinationMap(
   }, [containerRef, isReady])
 
   /*
-    "내 위치" 마커 — GPS 동의로 좌표를 받으면 파란 원을 찍는다.
+    "내 위치" 마커 — 표지판으로 인식한 출발역 좌표에 파란 원을 찍는다.
 
     화면 이동은 첫 좌표를 받은 순간 딱 한 번만 한다(didCenterRef). 매번 옮기면
     사용자가 지도를 둘러보는 중에 카메라가 되돌아와 조작이 튕긴다.
-    동의하지 않았으면 좌표가 없어 이 이펙트는 아무것도 하지 않고, 지도는
-    생성 시의 DEFAULT_CENTER(서울역)에 머문다.
+    좌표가 없으면(표지판 없이 직접 진입) 이 이펙트는 아무것도 하지 않고, 지도는
+    생성 시의 DEFAULT_CENTER(대구역)에 머문다.
   */
   useEffect(() => {
     const map = isReady ? mapRef.current : null

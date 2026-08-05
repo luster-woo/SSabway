@@ -6,9 +6,10 @@ export interface Station {
 }
 
 /**
- * GPS로 찾은 최근접 역 (이름 + 좌표).
- * 시작 화면의 "가까운 역" 표시와, 목적지 지도에서 "내 위치(파란 원)"를 그 역 위치에
- * 찍는 데 쓴다. (내부 도면용 Station 과 달리 실세계 위경도를 갖는다.)
+ * 출발역 (이름 + 실세계 좌표).
+ * 표지판 촬영으로 인식한 역(stationName)에 stationCoords 로 좌표를 붙여 만든다.
+ * 목적지 지도의 "내 위치(파란 원)"·출발지 마커와 경로 조회(/routes/path 의
+ * startX/startY)가 이 값을 쓴다. (내부 도면용 Station 과 달리 위경도를 갖는다.)
  */
 export interface NearestStation {
   name: string

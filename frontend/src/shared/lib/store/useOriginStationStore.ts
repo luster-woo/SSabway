@@ -5,8 +5,8 @@ import type { NearestStation } from '@/shared/types/station'
 
 /** 출발지를 무엇으로 잡았는지. 화면 문구가 이 값으로 갈린다. */
 export const ORIGIN_SOURCE = {
-  /** 시작 화면에서 GPS 로 찾은 가까운 역 */
-  GPS: 'GPS',
+  /** 표지판 촬영으로 인식한 역 (기본 경로) */
+  SIGN: 'SIGN',
   /** 사용자가 지도에서 직접 고름 */
   MANUAL: 'MANUAL',
 } as const
@@ -29,10 +29,10 @@ interface OriginStationState {
  * 경로 조회의 출발지.
  *
  * 두 경로로 채워진다.
- *   ① 시작 화면에서 GPS 동의 후 찾은 가까운 역        → source: GPS
+ *   ① 표지판 촬영으로 인식한 역                        → source: SIGN
  *   ② 목적지 화면 지도에서 사용자가 직접 고른 장소     → source: MANUAL
  *
- * 나중에 정해진 값이 이긴다 — 사용자가 지도에서 직접 골랐다면 GPS 추정보다
+ * 나중에 정해진 값이 이긴다 — 사용자가 지도에서 직접 골랐다면 표지판 추정보다
  * 그 선택이 우선이다. 목적지 지도의 "내 위치(파란 원)"와 경로 조회의 startX/Y가
  * 모두 이 값을 본다.
  *
@@ -50,7 +50,7 @@ export const useOriginStationStore = create<OriginStationState>()(
     (set) => ({
       originStation: null,
       originSource: null,
-      setOriginStation: (station, source = ORIGIN_SOURCE.GPS) =>
+      setOriginStation: (station, source = ORIGIN_SOURCE.SIGN) =>
         set({
           originStation: station,
           originSource: station ? source : null,
