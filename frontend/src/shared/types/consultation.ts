@@ -81,21 +81,34 @@ export interface ConnectionData {
 }
 
 /**
- * `POST /api/v1/consultations` 요청 본문 (BE ssabway ConsultationCreateRequest,
- * 8/4 갱신 — `departureStationId` 가 삭제되고 두 필드만 남았다).
+ * `POST /api/v1/consultations` 요청 본문 (BE ssabway ConsultationCreateRequest).
  *
- * 역무원은 클라이언트가 지정하지 않는다 — 서버가 `departure` **역 이름**으로
- * 담당 역무원을 찾아 배정한다(`stations.name_ko = :departure` 정확 비교,
- * StaffRepository.findByDepartureStationName). 서버는 trim 만 하므로
+ * 변경 이력
+ *   8/4 — `departureStationId` 삭제, 역 이름 두 개만 남음
+ *   8/5 — **`stationId` 추가**. 경로 제공 응답의 `segments[0].stationId` 를 그대로 싣는다
+ *
+ * 역무원은 클라이언트가 지정하지 않는다 — 서버가 출발역을 기준으로 담당
+ * 역무원을 찾아 배정한다. 역 이름은 `stations.name_ko` 와 정확 비교이고
+ * (StaffRepository.findByDepartureStationName) 서버는 trim 만 하므로
  * "동대구"/"동대구역" 같은 표기 차이도 404 STAFF_NOT_FOUND 다.
  *
- * ⚠️ 그래서 departure 는 더 이상 자유 입력이 아니다 — DB `stations.name_ko`
- *    표기와 완전히 일치해야 한다. destination 은 여전히 자유 입력.
+ * ⚠️ 그래서 `departure` 에는 **한국어 역 이름**을 넣어야 한다. 경로 응답의
+ *    `firstStartStation` 은 사용자 언어로 번역된 표기라("Daegu Station")
+ *    그대로 보내면 외국어 사용자만 조용히 404 가 된다. `firstStartStationKor`
+ *    쪽을 쓸 것 — `SelectedRoute.departureStationKor` 가 그 값이다.
  *
- * 두 필드 모두 필수다(@NotBlank + @Size(255)). 하나라도 빠지면 400.
+ * ⚠️ 명세서의 Request 표에는 필드명이 `startStation`·`endStation` 으로 적혀
+ *    있지만, 같은 문서의 JSON 예시와 실제 BE 는 `departure`·`destination` 이다.
+ *    동작하는 쪽(예시·BE)에 맞춘다. 표가 갱신되면 이 주석도 정리할 것.
+ *
+ * 세 필드 모두 필수다(@NotNull / @NotBlank + @Size(255)). 하나라도 빠지면 400.
  */
 export interface ConsultationCreateBody {
+  /** 출발역 DB id (`stations.id`). 대구역 = 1 */
+  stationId: number
+  /** 출발역 — **한국어** 표기 */
   departure: string
+  /** 도착역 — **한국어** 표기 */
   destination: string
 }
 

@@ -492,8 +492,14 @@ const mockHandlers: HttpHandler[] = [
       typeof value !== 'string' || value.trim() === ''
 
     // BE 의 필드 선언 순서대로 메시지를 모은다 (DTO 의 message 문구 그대로).
-    // 8/4 — departureStationId 삭제됨. 두 필드만 검증한다.
+    // 8/4 departureStationId 삭제 → 8/5 stationId 추가. 세 필드를 검증한다.
     const violations: string[] = []
+    if (
+      typeof body.stationId !== 'number' ||
+      !Number.isInteger(body.stationId)
+    ) {
+      violations.push('역 ID는 필수입니다.')
+    }
     if (isBlank(body.departure)) {
       violations.push('출발역 이름은 필수입니다.')
     } else if ((body.departure ?? '').length > MAX_PLACE_NAME_LENGTH) {
