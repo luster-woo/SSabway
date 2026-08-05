@@ -1,10 +1,6 @@
 package com.ssafy.ssabway.domain.consultation.controller;
 
-import com.ssafy.ssabway.domain.consultation.dto.response.ConsultationAcceptResponse;
-import com.ssafy.ssabway.domain.consultation.dto.response.ConsultationDetailResponse;
-import com.ssafy.ssabway.domain.consultation.dto.response.ConsultationInfoResponse;
-import com.ssafy.ssabway.domain.consultation.dto.response.HistoryResponse;
-import com.ssafy.ssabway.domain.consultation.dto.response.WaitingResponse;
+import com.ssafy.ssabway.domain.consultation.dto.response.*;
 import com.ssafy.ssabway.domain.consultation.service.ConsultationService;
 import com.ssafy.ssabway.global.common.ApiResponse;
 import com.ssafy.ssabway.global.common.PageResponse;
@@ -45,6 +41,17 @@ public class ConsultationController {
         return ResponseEntity.ok(
                 ApiResponse.ok("조회에 성공하였습니다.",
                         consultationService.getInfo(staffId, consultationId)));
+    }
+
+    // 담당 상담 요청자의 현재 위치(currentNodeId) 조회
+    @GetMapping("/consultations/{consultationId}/location")
+    public ResponseEntity<ApiResponse<ConsultationLocationResponse>> getLocation(
+            @AuthenticationPrincipal Long staffId,
+            @PathVariable Long consultationId) {
+
+        return ResponseEntity.ok(
+                ApiResponse.ok("위치 조회에 성공하였습니다.",
+                        consultationService.getLocation(staffId, consultationId)));
     }
 
     @GetMapping("/consultations")

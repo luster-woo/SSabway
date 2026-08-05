@@ -49,6 +49,14 @@ export interface StationMapOverlayProps {
   /** 값이 있으면 지도 대신 이 상태를 보여준다 */
   status?: StationMapStatus
   /**
+   * 범례 구성. 'route'(기본)는 내 위치 + 경로선 3색을 모두 보여준다.
+   *
+   * 'locationOnly' 는 '내 위치'만 남긴다 — 관리자 [사용자 위치 보기] 는
+   * 경로 없이 현재 위치 점 하나만 그리므로(UserLocationModal 참고), 경로선
+   * 범례가 있으면 지도에 없는 것을 설명하게 된다.
+   */
+  legend?: 'route' | 'locationOnly'
+  /**
    * 문구를 이 언어로 고정한다. 없으면 앱의 현재 언어를 따른다.
    *
    * 관리자 화면은 한국어 고정이라 'ko' 를 넘긴다. 앱 기본 언어가 영어라
@@ -227,6 +235,7 @@ export function StationMapOverlay({
   steps,
   currentIndex,
   status,
+  legend = 'route',
   lang,
   onClose,
 }: StationMapOverlayProps) {
@@ -423,13 +432,18 @@ export function StationMapOverlay({
   /**
    * 범례. '내 위치'는 지도의 마커와 같은 흰 테두리 점으로 보여서
    * 경로선 색(현재 구간·남은 경로)과 다른 것이라는 걸 알 수 있게 한다.
+   * 위치만 그리는 화면(legend='locationOnly')에는 경로선 항목을 넣지 않는다.
    */
-  const legendItems = [
-    { key: 'myLocation', color: MY_LOCATION_COLOR, ringed: true },
+  const routeLegendItems = [
     { key: 'current', color: ROUTE_COLOR.current, ringed: false },
     { key: 'upcoming', color: ROUTE_COLOR.upcoming, ringed: false },
     { key: 'passed', color: ROUTE_COLOR.passed, ringed: false },
   ] as const
+
+  const legendItems = [
+    { key: 'myLocation', color: MY_LOCATION_COLOR, ringed: true } as const,
+    ...(legend === 'locationOnly' ? [] : routeLegendItems),
+  ]
 
   return (
     <div

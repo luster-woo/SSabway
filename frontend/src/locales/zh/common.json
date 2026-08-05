@@ -476,5 +476,18 @@
   "trip": {
     "originEmpty": "选择出发地",
     "destinationEmpty": "选择目的地"
+  },
+  "install": {
+    "title": "安装 SSabway",
+    "description": "全屏打开，在地下也能保留您的路线。",
+    "manualDescription": "两步即可添加到主屏幕。",
+    "step1": "点按浏览器工具栏中的分享按钮",
+    "step2": "选择「添加到主屏幕」",
+    "action": "安装",
+    "gotIt": "知道了",
+    "later": "以后再说",
+    "close": "关闭",
+    "installed": "已安装！请从主屏幕打开 SSabway。",
+    "unavailable": "无法开始安装 · 请使用浏览器菜单中的「安装应用」"
   }
 }

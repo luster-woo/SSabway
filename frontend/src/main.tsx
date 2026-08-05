@@ -3,6 +3,8 @@ import { createRoot } from 'react-dom/client'
 import { RouterProvider } from 'react-router-dom'
 import { registerSW } from 'virtual:pwa-register'
 import '@/shared/lib/i18n'
+// 설치 프롬프트 이벤트는 React 마운트보다 먼저 올 수 있어 부팅 시점에 리스너를 건다.
+import '@/shared/pwa/installPromptEvent'
 import { AppProviders } from '@/app/providers'
 import { router } from '@/app/router'
 import { env, IS_DEV } from '@/shared/lib/env'
