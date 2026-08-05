@@ -8,6 +8,8 @@ import {
 } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import type { Language } from '@/shared/types/user'
+
 import {
   DAEGU_MAP_HEIGHT,
   DAEGU_MAP_WIDTH,
@@ -46,6 +48,14 @@ export interface StationMapOverlayProps {
   currentIndex: number
   /** 값이 있으면 지도 대신 이 상태를 보여준다 */
   status?: StationMapStatus
+  /**
+   * 문구를 이 언어로 고정한다. 없으면 앱의 현재 언어를 따른다.
+   *
+   * 관리자 화면은 한국어 고정이라 'ko' 를 넘긴다. 앱 기본 언어가 영어라
+   * (DEFAULT_LANGUAGE) 이걸 넘기지 않으면 역무원 화면에서 한국어 안내문
+   * 옆에 영어 헤더가 붙는다.
+   */
+  lang?: Language
   onClose: () => void
 }
 
@@ -211,14 +221,17 @@ function toInitialViewport(
  *
  * 문구는 `routeGuide.stationMap.*` 키를 쓴다 — 관리자 화면에서도 같은 키를
  * 쓰는 편이 번역을 두 벌로 나누는 것보다 어긋날 위험이 적다.
+ * (관리자는 `lang="ko"` 로 한국어로 고정해서 쓴다)
  */
 export function StationMapOverlay({
   steps,
   currentIndex,
   status,
+  lang,
   onClose,
 }: StationMapOverlayProps) {
-  const { t } = useTranslation()
+  // lng 를 주면 그 언어로 고정되고, undefined 면 현재 언어를 따른다.
+  const { t } = useTranslation(undefined, { lng: lang })
 
   const clampedIndex = clamp(currentIndex, 0, Math.max(steps.length - 1, 0))
 

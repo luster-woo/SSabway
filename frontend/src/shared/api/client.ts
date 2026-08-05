@@ -14,6 +14,9 @@ const LOGIN_PATH: Record<AuthRole, string> = {
   admin: '/admin/login',
 }
 
+/** 모든 요청의 공통 접두사. axios 인스턴스와 keepalive 요청이 함께 쓴다. */
+const API_ROOT = `${env.API_BASE_URL}/api/v1`
+
 /**
  * 인터셉터가 없는 인스턴스.
  *
@@ -24,7 +27,7 @@ const LOGIN_PATH: Record<AuthRole, string> = {
  * 리프레시 토큰은 쿠키로 오가므로 withCredentials 는 여기에도 필요하다.
  */
 const bareClient = axios.create({
-  baseURL: `${env.API_BASE_URL}/api/v1`,
+  baseURL: API_ROOT,
   // userApi 와 같은 값. 없으면 네트워크가 멈췄을 때 요청이 무한정 걸려 있는다.
   timeout: 10_000,
   withCredentials: true,
@@ -146,7 +149,7 @@ function redirectToLogin(role: AuthRole) {
 
 function createClient(role: AuthRole): AxiosInstance {
   const instance = axios.create({
-    baseURL: `${env.API_BASE_URL}/api/v1`,
+    baseURL: API_ROOT,
     timeout: 10_000,
     withCredentials: true,
   })
@@ -242,6 +245,44 @@ export async function requestLogout(role: AuthRole): Promise<void> {
   } finally {
     useAuthStore.getState().clearAccessToken(role)
   }
+}
+
+/**
+ * 페이지가 사라지는 순간에 보내는 PATCH. 결과를 기다리지 않는다.
+ *
+ * 왜 axios 가 아닌가 — 탭을 닫거나 백그라운드로 보내면 XHR 은 중간에 취소될
+ * 수 있다. 왜 navigator.sendBeacon 이 아닌가 — Authorization 헤더를 실을 수
+ * 없다. fetch 의 keepalive 가 둘 다 해결한다(문서가 언로드된 뒤에도 전송이
+ * 이어지고, 헤더는 그대로 붙는다).
+ *
+ * ⚠️ keepalive 요청의 본문은 브라우저가 64KB 로 제한한다. 언어 코드처럼 아주
+ *    작은 본문에만 쓸 것.
+ * ⚠️ 인터셉터를 타지 않아 401 재발급이 없다. 이탈 중에 재발급까지 이어갈 수는
+ *    없으므로, 실패해도 화면에 영향이 없는 요청에만 쓴다.
+ *
+ * 토큰이 없으면(비로그인) 아무것도 보내지 않는다.
+ */
+export function sendKeepalivePatch(
+  role: AuthRole,
+  path: string,
+  body: unknown,
+): void {
+  const token = useAuthStore.getState().accessToken[role]
+  if (!token) return
+
+  void fetch(`${API_ROOT}${path}`, {
+    method: 'PATCH',
+    keepalive: true,
+    // 리프레시 토큰 쿠키를 함께 보낸다. (axios 의 withCredentials 와 같은 뜻)
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(body),
+  }).catch(() => {
+    // 이탈 중이라 결과를 반영할 화면이 없다.
+  })
 }
 
 /**
