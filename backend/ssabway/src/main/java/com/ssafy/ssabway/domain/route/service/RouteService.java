@@ -86,17 +86,22 @@ public class RouteService {
     }
 
     private RouteSegmentResponse toSegment(OdsayRouteResponse.SubPath subPath, Language language) {
-        OdsayRouteResponse.Lane lane = subPath.lane().getFirst();
+        // 지하철 구간의 lane은 항상 1개다 (버스는 여러 노선이 서지만 지하철은 아님)
+        OdsayRouteResponse.Lane lane = subPath.lane().get(0);
         SubwayLane subwayLane = SubwayLane.from(lane.subwayCode());
 
-        String startKor = startNameKorOf(subPath);
+        // 매핑 키는 한국어 역명이다. startName은 요청 언어로 번역되어 오므로
+        // ~Kor를 써야 언어와 무관하게 동작한다
+        StartPoint.Value startPoint = StartPoint.of(
+                startNameKorOf(subPath), subwayLane, subPath.wayCode());
 
         return new RouteSegmentResponse(
                 subwayLane,
                 lane.name(),
                 subPath.wayCode(),
                 subwayLane.directionOf(subPath.wayCode(), language),
-                StartPoint.codeOf(startKor, subwayLane, subPath.wayCode()),
+                startPoint == null ? null : startPoint.stationId(),
+                startPoint == null ? null : startPoint.pointCode(),
                 subPath.startName(),
                 subPath.endName(),
                 subPath.stationCount(),
