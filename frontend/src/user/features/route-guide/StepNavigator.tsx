@@ -41,8 +41,19 @@ export function StepNavigator({
         {t('routeGuide.prev')}
       </Button>
 
-      {/* 진행 상황은 헤더의 진행률 바가 읽어주므로 점은 시각 표시만 한다. */}
-      <div aria-hidden className="flex items-center justify-center gap-2">
+      {/*
+        진행 상황은 헤더의 진행률 바가 읽어주므로 점은 시각 표시만 한다.
+        가운데 칸은 flex-1 min-w-0 로 좌우 [이전]/[다음] 버튼 사이 남는 폭을
+        차지하되 max-w 로 상한을 둔다. 점은 그 폭 안에서 flex-wrap 으로 접힌다.
+
+        max-w-[108px]: 한 줄 최대 7개. (점 7개×8px + 간격 6개×8px = 104px 는
+        들어가고, 8개째는 +16px=120px 라 다음 줄로 넘어간다.) 화면이 좁아
+        남는 폭이 108px 보다 작으면 그보다 일찍 접혀 어떤 폰에서도 안 넘친다.
+      */}
+      <div
+        aria-hidden
+        className="flex min-w-0 max-w-[108px] flex-1 flex-wrap items-center justify-center gap-x-2 gap-y-1.5"
+      >
         {Array.from({ length: count }, (_, index) => (
           <span
             key={index}
