@@ -100,13 +100,14 @@ const SWITCH = {
   'GET /staffs/consultations/:consultationId': false,
 
   /*
-    관리자 — 사용자 위치 보기용 경로 (⚠️ BE 미신설, 8/5 요청).
+    관리자 — 역무원용 위치 조회 (✅ BE 개발완료, 8/5 신설).
 
-    **true 로 둔다** — 이 API 는 아직 서버에 없다. 끄면 [사용자 위치 보기] 가
-    항상 404 로 실패해 지도를 볼 수 없다. BE 가 신설하면 false 로 바꾸면 되고,
-    그때 목(data.ts 의 MOCK_USER_ROUTE_*)은 지운다.
+    상담 요청(POST /consultations)의 currentNodeId 를 서버가 보관했다가
+    돌려주는 구조라, 실서버 검증은 상담 4종과 같은 서버에 붙어야 의미가 있다.
+    (8/5 — 경로 전체를 주는 GET …/route 신설안은 이 API 로 대체됐다.
+     그때의 목 MOCK_USER_ROUTE_* 는 지웠다)
   */
-  'GET /staffs/consultations/:consultationId/route': true,
+  'GET /staffs/consultations/:consultationId/location': false,
 
   /*
     관리자 — 블랙리스트 4종 (✅ BE 개발완료).

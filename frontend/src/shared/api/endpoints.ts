@@ -134,18 +134,18 @@ const admin = {
    */
   consultationInfo: (id: number) => `/staffs/consultations/${id}`,
   /**
-   * 진행 중 상담에서 사용자가 안내받고 있는 역 내 경로 + 지금 보고 있는 단계.
+   * 역무원용 위치 조회 — 담당 상담 요청자의 역 내 현재 위치 노드.
+   * ✅ BE 개발완료 (8/5 신설).
    *
-   * ⚠️ BE 신설 요청 상태 (8/5). 지금은 목(mocks/handlers.ts)이 응답한다.
+   * 응답 data 는 `{ currentNodeId: "S3_02" }` 하나다. 사용자가 상담 요청
+   * (`POST /consultations`)에 실어 보낸 값 — 즉 **요청 시점에 마지막으로 보고
+   * 있던 안내 단계의 from** 이다. 지도 표시는 UserLocationModal 이
+   * DAEGU_NODES 에서 좌표를 찾아 점으로 그린다.
    *
-   * 응답은 사용자 경로 상세 안내(POST /routes/navi)의 steps 에서 지도에 필요한
-   * 세 필드(edgeId·from·to)만 남긴 것 + currentIndex 다. 역무원 화면이
-   * 사용자와 같은 지도를 그리므로 필드가 갈리면 두 화면이 어긋난다.
-   *
-   * POST /routes/navi 를 역무원이 대신 부를 수는 없다 — 요청 파라미터
-   * (startPoint·교통카드·현금 보유 등)가 전부 사용자 입력값이기 때문이다.
+   * (경로 전체를 주는 GET …/route 신설안(8/5)은 BE 가 위치 단건 조회로
+   *  대체 구현했다 — 경로선 없이 현재 위치 점만 표시한다.)
    */
-  consultationRoute: (id: number) => `/staffs/consultations/${id}/route`,
+  consultationLocation: (id: number) => `/staffs/consultations/${id}/location`,
   /**
    * 상담 수락 — ✅ BE 구현됨. ⚠️ 8/4 소유가 webrtc → **ssabway** 로 이동.
    * 상태 잠금 + 세션 생성 + 역무원 토큰 발급을 1-call 로 처리한다

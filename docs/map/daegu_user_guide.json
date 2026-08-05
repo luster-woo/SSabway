@@ -1054,12 +1054,12 @@
    "distanceM": 79,
    "status": "reviewed",
    "text": {
-    "ko": "계단으로 내려가 표지판 앞까지 80m 걸어가세요",
-    "en": "Take the stairs down and walk 80 m to the sign.",
-    "ja": "階段を下りて案内板の前まで80m歩いてください。",
-    "zh": "下楼梯，走80米至指示牌前。"
+    "ko": "계단으로 내려가 50m 직진한 뒤, 왼쪽으로 꺾어 25m 이동하면 오른쪽에 표지판이 있습니다",
+    "en": "Go down the stairs, walk straight 50 m, turn left and continue 25 m — the sign is on your right.",
+    "ja": "階段を下りて50m直進し、左に曲がって25m進むと右側に案内板があります。",
+    "zh": "下楼梯后直行50米，左转再走25米，指示牌在右侧。"
    },
-   "translatedFrom": "계단으로 내려가 표지판 앞까지 80m 걸어가세요"
+   "translatedFrom": "계단으로 내려가 50m 직진한 뒤, 왼쪽으로 꺾어 25m 이동하면 오른쪽에 표지판이 있습니다"
   },
   "E030:S3_05": {
    "from": "S2_01",
@@ -1069,12 +1069,12 @@
    "distanceM": 79,
    "status": "reviewed",
    "text": {
-    "ko": "표지판이 보이는 곳까지 계단을 올라가 80m 이동하세요",
-    "en": "Go up the stairs and continue 80 m until the sign comes into view.",
-    "ja": "階段を上がって案内板が見えるところまで80m進んでください。",
-    "zh": "上楼梯后前行80米，直到看见指示牌。"
+    "ko": "왼쪽으로 꺾어 25m 이동한 뒤, 오른쪽으로 돌아 계단을 올라 50m 직진하세요",
+    "en": "Turn left and continue 25 m, then turn right, go up the stairs and walk straight 50 m.",
+    "ja": "左に曲がって25m進み、右に曲がって階段を上がり50m直進してください。",
+    "zh": "左转走25米，然后右转上楼梯，直行50米。"
    },
-   "translatedFrom": "표지판이 보이는 곳까지 계단을 올라가 80m 이동하세요"
+   "translatedFrom": "왼쪽으로 꺾어 25m 이동한 뒤, 오른쪽으로 돌아 계단을 올라 50m 직진하세요"
   },
   "E031:EV2_01": {
    "from": "S2_01",
@@ -1144,12 +1144,12 @@
    "distanceM": 104,
    "status": "reviewed",
    "text": {
-    "ko": "계단을 이용해 표지판 앞까지 100m 이동하세요",
-    "en": "Take the stairs and go 100 m to the sign.",
-    "ja": "階段を使って案内板の前まで100m進んでください。",
-    "zh": "走楼梯前行100米至指示牌前。"
+    "ko": "30m 직진한 뒤 왼쪽으로 꺾어, 계단을 지나 70m 이동하세요",
+    "en": "Walk straight 30 m, turn left, then pass the stairs and continue 70 m.",
+    "ja": "30m直進して左に曲がり、階段を通って70m進んでください。",
+    "zh": "直行30米后左转，经过楼梯再走70米。"
    },
-   "translatedFrom": "계단을 이용해 표지판 앞까지 100m 이동하세요"
+   "translatedFrom": "30m 직진한 뒤 왼쪽으로 꺾어, 계단을 지나 70m 이동하세요"
   },
   "E033:S2_03": {
    "from": "S2_02",
@@ -1159,12 +1159,12 @@
    "distanceM": 104,
    "status": "reviewed",
    "text": {
-    "ko": "표지판이 보이는 곳까지 계단을 지나 100m 이동하세요",
-    "en": "Pass the stairs and continue 100 m until the sign comes into view.",
-    "ja": "階段を通って案内板が見えるところまで100m進んでください。",
-    "zh": "经过楼梯前行100米，直到看见指示牌。"
+    "ko": "계단을 지나 70m 이동한 뒤, 오른쪽으로 꺾어 30m 가면 표지판이 있습니다",
+    "en": "Pass the stairs and continue 70 m, then turn right and walk 30 m to reach the sign.",
+    "ja": "階段を通って70m進み、右に曲がって30m行くと案内板があります。",
+    "zh": "经过楼梯前行70米后右转，再走30米即到指示牌。"
    },
-   "translatedFrom": "표지판이 보이는 곳까지 계단을 지나 100m 이동하세요"
+   "translatedFrom": "계단을 지나 70m 이동한 뒤, 오른쪽으로 꺾어 30m 가면 표지판이 있습니다"
   },
   "E034:EV1_01": {
    "from": "S2_03",

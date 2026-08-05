@@ -17,6 +17,8 @@ import {
 import { AccountMenu } from '@/user/features/auth/AccountMenu'
 import type { LoginFromState } from '@/user/features/auth/loginFrom'
 import { WithdrawDialog } from '@/user/features/auth/WithdrawDialog'
+import { InstallPromptSheet } from '@/user/features/install/InstallPromptSheet'
+import { useInstallPrompt } from '@/user/features/install/useInstallPrompt'
 import { LandingSplash } from '@/user/features/start/LandingSplash'
 import { LanguageSelector } from '@/user/features/start/LanguageSelector'
 import { useLandingSplash } from '@/user/features/start/useLandingSplash'
@@ -40,6 +42,12 @@ export default function StartPage() {
     랜딩 뒤에서 그대로 준비된다.
   */
   const landingPhase = useLandingSplash()
+
+  /*
+    앱 설치 유도 바텀시트. 랜딩이 완전히 걷힌 뒤에 올라온다.
+    (표시 주기·조건은 useInstallPrompt 주석 참고 — 접속마다 1회)
+  */
+  const installPrompt = useInstallPrompt(landingPhase === 'hidden')
 
   /*
     'idle' 은 비로그인이 아니라 "아직 모름" 이다. (UserApp 의 useRestoreSession)
@@ -84,6 +92,18 @@ export default function StartPage() {
    */
   const moveToLogin = () => {
     void navigate('/login', { state: { from: '/' } satisfies LoginFromState })
+  }
+
+  /**
+   * 설치 버튼. 브라우저 다이얼로그의 결과만 안내하고, 사용자가 그 다이얼로그에서
+   * 직접 취소한 경우(dismissed)와 iOS 안내를 닫은 경우는 조용히 넘긴다 —
+   * 이미 무슨 일이 있었는지 아는 사용자에게 토스트는 잔소리다.
+   */
+  const acceptInstall = async () => {
+    const outcome = await installPrompt.accept()
+
+    if (outcome === 'accepted') showToast(t('install.installed'))
+    else if (outcome === 'unavailable') showToast(t('install.unavailable'))
   }
 
   return (
@@ -141,6 +161,15 @@ export default function StartPage() {
           <WithdrawDialog onClose={() => setIsWithdrawOpen(false)} />
         ) : null}
       </MobileScreen>
+
+      {installPrompt.phase === 'hidden' ? null : (
+        <InstallPromptSheet
+          variant={installPrompt.variant}
+          leaving={installPrompt.phase === 'leaving'}
+          onAccept={() => void acceptInstall()}
+          onDismiss={installPrompt.dismiss}
+        />
+      )}
     </>
   )
 }
