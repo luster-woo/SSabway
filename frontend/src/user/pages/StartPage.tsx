@@ -22,9 +22,11 @@ import {
 import { AccountMenu } from '@/user/features/auth/AccountMenu'
 import type { LoginFromState } from '@/user/features/auth/loginFrom'
 import { WithdrawDialog } from '@/user/features/auth/WithdrawDialog'
+import { LandingSplash } from '@/user/features/start/LandingSplash'
 import { LanguageSelector } from '@/user/features/start/LanguageSelector'
 import { LocationConsentCard } from '@/user/features/start/LocationConsentCard'
 import { LocationConsentStatus } from '@/user/features/start/LocationConsentStatus'
+import { useLandingSplash } from '@/user/features/start/useLandingSplash'
 import { useNearbyStation } from '@/user/features/start/useNearbyStation'
 import { useSyncLanguageOnLeave } from '@/user/features/start/useSyncLanguageOnLeave'
 import { requestLocation } from '@/user/features/start/lib/requestLocation'
@@ -40,6 +42,14 @@ export default function StartPage() {
 
   // 페이지를 벗어날 때, 로그인 상태에서 언어가 바뀌었다면 서버에 저장한다.
   useSyncLanguageOnLeave()
+
+  /*
+    서비스 첫 접속에서만 랜딩(스플래시)을 덮는다.
+
+    이 화면을 가리는 동안에도 아래 화면은 정상적으로 마운트돼 있어야 한다 —
+    위치 동의 카드와 세션 복구가 랜딩 뒤에서 그대로 준비된다.
+  */
+  const landingPhase = useLandingSplash()
 
   /*
     'idle' 은 비로그인이 아니라 "아직 모름" 이다. (UserApp 의 useRestoreSession)
@@ -169,70 +179,76 @@ export default function StartPage() {
   }
 
   return (
-    <MobileScreen
-      header={
-        <div className="flex justify-end">
-          {isAuthPending ? (
-            // 아바타와 같은 크기의 빈 자리. 판정이 끝날 때 헤더가 흔들리지 않는다.
-            <div aria-hidden className="size-[34px]" />
+    <>
+      {landingPhase === 'hidden' ? null : (
+        <LandingSplash leaving={landingPhase === 'leaving'} />
+      )}
+
+      <MobileScreen
+        header={
+          <div className="flex justify-end">
+            {isAuthPending ? (
+              // 아바타와 같은 크기의 빈 자리. 판정이 끝날 때 헤더가 흔들리지 않는다.
+              <div aria-hidden className="size-[34px]" />
+            ) : (
+              <AccountMenu
+                isLoggedIn={isLoggedIn}
+                onSignIn={moveToLogin}
+                onSignOut={() => void signOut()}
+                onDeleteAccount={() => setIsWithdrawOpen(true)}
+              />
+            )}
+          </div>
+        }
+        footer={
+          <Button size="lg" fullWidth onClick={startGuide}>
+            {t('start.startGuide')}
+          </Button>
+        }
+      >
+        <section className="flex flex-col items-center pt-[clamp(12px,3vh,28px)] text-center">
+          <AppLogo />
+          <h1 className="text-ink mt-[clamp(16px,3vh,26px)] text-[clamp(24px,7.5vw,30px)] leading-none font-bold">
+            {t('app.name')}
+          </h1>
+          <p className="text-ink-muted mt-3 text-[clamp(12px,3.6vw,13px)] leading-5">
+            {t('app.tagline')}
+          </p>
+        </section>
+
+        <section className="mt-[clamp(20px,4.5vh,38px)]">
+          <SectionLabel id={LANGUAGE_LABEL_ID}>
+            {t('language.select')}
+          </SectionLabel>
+          <div className="mt-3">
+            <LanguageSelector
+              value={language}
+              onChange={selectLanguage}
+              labelledBy={LANGUAGE_LABEL_ID}
+            />
+          </div>
+        </section>
+
+        <section className="mt-[clamp(16px,3vh,26px)] pb-4">
+          {consent === null ? (
+            <LocationConsentCard
+              onAllow={() => void allowLocation()}
+              onDeny={denyLocation}
+              isRequesting={isRequestingLocation}
+            />
           ) : (
-            <AccountMenu
-              isLoggedIn={isLoggedIn}
-              onSignIn={moveToLogin}
-              onSignOut={() => void signOut()}
-              onDeleteAccount={() => setIsWithdrawOpen(true)}
+            <LocationConsentStatus
+              granted={consent === LOCATION_CONSENT.GRANTED}
+              station={station?.name ?? null}
+              onChange={changeConsent}
             />
           )}
-        </div>
-      }
-      footer={
-        <Button size="lg" fullWidth onClick={startGuide}>
-          {t('start.startGuide')}
-        </Button>
-      }
-    >
-      <section className="flex flex-col items-center pt-[clamp(12px,3vh,28px)] text-center">
-        <AppLogo />
-        <h1 className="text-ink mt-[clamp(16px,3vh,26px)] text-[clamp(24px,7.5vw,30px)] leading-none font-bold">
-          {t('app.name')}
-        </h1>
-        <p className="text-ink-muted mt-3 text-[clamp(12px,3.6vw,13px)] leading-5">
-          {t('app.tagline')}
-        </p>
-      </section>
+        </section>
 
-      <section className="mt-[clamp(20px,4.5vh,38px)]">
-        <SectionLabel id={LANGUAGE_LABEL_ID}>
-          {t('language.select')}
-        </SectionLabel>
-        <div className="mt-3">
-          <LanguageSelector
-            value={language}
-            onChange={selectLanguage}
-            labelledBy={LANGUAGE_LABEL_ID}
-          />
-        </div>
-      </section>
-
-      <section className="mt-[clamp(16px,3vh,26px)] pb-4">
-        {consent === null ? (
-          <LocationConsentCard
-            onAllow={() => void allowLocation()}
-            onDeny={denyLocation}
-            isRequesting={isRequestingLocation}
-          />
-        ) : (
-          <LocationConsentStatus
-            granted={consent === LOCATION_CONSENT.GRANTED}
-            station={station?.name ?? null}
-            onChange={changeConsent}
-          />
-        )}
-      </section>
-
-      {isWithdrawOpen ? (
-        <WithdrawDialog onClose={() => setIsWithdrawOpen(false)} />
-      ) : null}
-    </MobileScreen>
+        {isWithdrawOpen ? (
+          <WithdrawDialog onClose={() => setIsWithdrawOpen(false)} />
+        ) : null}
+      </MobileScreen>
+    </>
   )
 }
