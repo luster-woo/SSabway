@@ -22,6 +22,11 @@ import {
   predictSign,
   type SignPrediction,
 } from '@/user/features/sign-capture/lib/predictSign'
+import { toOriginStation } from '@/shared/lib/stationCoords'
+import {
+  ORIGIN_SOURCE,
+  useOriginStationStore,
+} from '@/shared/lib/store/useOriginStationStore'
 import { useStationNodeStore } from '@/shared/lib/store/useStationNodeStore'
 
 /** 인식 후 기본 이동 경로. 시작 화면에서 바로 들어온 경우다. */
@@ -46,6 +51,7 @@ export default function SignCapturePage() {
   const { showToast } = useToast()
   const { status, errorType, stream, restart } = useCameraStream()
   const setStartPoint = useStationNodeStore((s) => s.setStartPoint)
+  const setOriginStation = useOriginStationStore((s) => s.setOriginStation)
 
   const videoRef = useRef<HTMLVideoElement>(null)
   const previewRef = useRef<HTMLDivElement>(null)
@@ -114,10 +120,12 @@ export default function SignCapturePage() {
     setIsAnalyzing(true)
 
     /*
-      인식 결과의 signageId 를 출발 노드로 스토어에 담는다. 이 값이 이어지는
-      길안내(/routes/navi) 요청의 startPoint 가 된다 — 담지 않으면
-      resolveStationNodes 가 파일럿 기본값(EX0_01)으로 폴백해, 어디를 찍든
-      항상 같은 지점에서 출발하는 안내가 나간다.
+      인식 결과의 signageId 를 역 내 출발 노드로, stationName 을 지하철 경로의
+      출발지(originStation)로 스토어에 담는다.
+        - signageId → /routes/navi 의 startPoint. 담지 않으면 resolveStationNodes
+          가 파일럿 기본값(EX0_01)으로 폴백해 어디를 찍든 같은 지점에서 출발한다.
+        - stationName → originStation. GPS 를 걷어낸 뒤로 출발지는 이 값이 정한다.
+          목적지 지도의 출발지 점과 /routes/path 의 startX/Y 가 여기서 나온다.
 
       요청 실패 / 확신도 낮음 / 성공 세 갈래로 나눈다. 실패·저확신은 촬영본을
       그대로 둔 채 모달로 알리고, confident 인 경우에만 다음 화면으로 넘어간다.
@@ -143,6 +151,15 @@ export default function SignCapturePage() {
     }
 
     setStartPoint(prediction.signageId)
+
+    // 인식한 역을 출발지로 담는다. 좌표는 stationCoords 로 붙인다.
+    // (표지판이 역 이름을 못 주는 예외 상황이면 출발지는 기존 값을 유지한다)
+    if (prediction.stationName) {
+      setOriginStation(
+        toOriginStation(prediction.stationName),
+        ORIGIN_SOURCE.SIGN,
+      )
+    }
 
     // 되돌아갈 때는 replace로 남겨 뒤로가기가 카메라 화면에 다시 걸리지 않게 한다.
     void navigate(returnTo ?? DEFAULT_NEXT_PATH, {

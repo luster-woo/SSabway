@@ -20,7 +20,6 @@ import {
   SDK_STATUS,
   useGoogleMapsSdk,
 } from '@/user/features/destination-search/hooks/useGoogleMapsSdk'
-import { useMyLocation } from '@/user/features/destination-search/hooks/useMyLocation'
 import { usePlaceSearch } from '@/user/features/destination-search/hooks/usePlaceSearch'
 
 /**
@@ -30,10 +29,10 @@ import { usePlaceSearch } from '@/user/features/destination-search/hooks/usePlac
  * 한 장소를 골라 어느 쪽으로 쓸지 사용자가 정하는 구조라, "구미역"처럼 출발도
  * 도착도 될 수 있는 지점을 한 화면에서 양쪽 다 지정할 수 있다.
  *
- * 지도 초기 위치는 GPS 동의 여부로 갈린다.
- *   동의  → 실제 좌표(또는 시작 화면에서 찾은 인근역)로 맞춘다
- *   비동의 → 대구역에서 시작한다 (useGoogleDestinationMap 의 DEFAULT_CENTER)
- * 어느 쪽이든 경로 조회의 출발지는 사용자가 직접 지정해야 정해진다.
+ * 출발지는 이 화면에 오기 전 표지판 촬영으로 인식한 역(SIGN)이 기본값이고,
+ * "내 위치" 파란 원도 그 역에 찍힌다. 사용자가 지도에서 다른 출발지를 직접
+ * 고르면(MANUAL) 그 선택이 우선한다. 지도 초기 중심은 대구역이다
+ * (useGoogleDestinationMap 의 DEFAULT_CENTER).
  */
 export default function DestinationPage() {
   const { t } = useTranslation()
@@ -58,28 +57,25 @@ export default function DestinationPage() {
   const { results, isSearching, hasSearched, errorType } =
     usePlaceSearch(submittedQuery)
 
-  // GPS 동의가 돼 있으면 실제 좌표를 받아온다. (동의 전/거부면 null)
-  const rawLocation = useMyLocation(status === SDK_STATUS.READY)
-
   /*
     파란 원("내 위치")의 위치.
 
-    시작 화면이 GPS 로 찾아 둔 인근역이 있으면 그 좌표를, 없으면 방금 받은 GPS
-    좌표를 쓴다. 단 사용자가 지도에서 출발지를 직접 골랐다면(MANUAL) 그 값은
-    "내 위치"가 아니므로 여기서는 쓰지 않는다 — 그건 출발지 마커가 따로 그린다.
+    표지판으로 인식한 역(SIGN)이 곧 사용자의 현재 위치라 그 역 좌표에 찍는다.
+    지도에서 출발지를 직접 고른 경우(MANUAL)는 "내 위치"가 아니므로 여기서
+    쓰지 않는다 — 그건 출발지 마커가 따로 그린다.
 
     새 객체 리터럴이 매 렌더 지도를 다시 맞추지 않도록 메모한다.
   */
   const originSource = useOriginStationStore((state) => state.originSource)
   const myLocation = useMemo(
     () =>
-      originStation && originSource === ORIGIN_SOURCE.GPS
+      originStation && originSource === ORIGIN_SOURCE.SIGN
         ? {
             latitude: originStation.latitude,
             longitude: originStation.longitude,
           }
-        : rawLocation,
-    [originStation, originSource, rawLocation],
+        : null,
+    [originStation, originSource],
   )
 
   const { recenterToMyLocation } = useGoogleDestinationMap(mapContainerRef, {
