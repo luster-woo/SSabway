@@ -166,20 +166,11 @@ export default function StartPage() {
         </section>
 
         {/*
-          사용법 안내 — 권한을 고른 뒤 카드가 한 줄 요약으로 줄면서 생기는
-          빈 공간에 놓는다. `my-auto` 로 그 공간의 가운데에 뜬다.
-
-          권한을 고르기 전에는 띄우지 않는다. 그때는 권한 카드가 커서 320px
-          기기에서 이미 화면을 넘기고 있어(스크롤로 닿는다) 배너를 더하면
-          「안내 시작」 이 더 멀어진다. 권한 선택은 「안내 시작」 의 전제조건이라
-          (startGuide 가드) 모든 사용자가 이 상태를 반드시 지나므로, 안내를
-          못 보고 시작하는 사용자는 생기지 않는다.
+          사용법 안내 — 「안내 시작」 버튼과 겹치지 않게 남는 공간의 가운데(`my-auto`)에 둔다.
         */}
-        {consent === null ? null : (
-          <section className="my-auto py-[clamp(10px,2vh,24px)]">
-            <TutorialGuideBanner onOpen={() => setIsTutorialOpen(true)} />
-          </section>
-        )}
+        <section className="my-auto py-[clamp(10px,2vh,24px)]">
+          <TutorialGuideBanner onOpen={() => setIsTutorialOpen(true)} />
+        </section>
 
         {isWithdrawOpen ? (
           <WithdrawDialog onClose={() => setIsWithdrawOpen(false)} />
