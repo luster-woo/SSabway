@@ -17,10 +17,10 @@ import java.util.Map;
 public final class StartPoint {
 
     private static final Map<Key, Value> CODES = Map.of(
-            new Key("대구역", SubwayLane.DAEGU_LINE_1, 1),   new Value(1L, "GA_04"), // 설화명곡 방면
-            new Key("대구역", SubwayLane.DAEGU_LINE_1, 2),   new Value(1L, "GA_03"), // 하양 방면
-            new Key("대구역", SubwayLane.DAEGYEONG_LINE, 1), new Value(1L, "GA_02"), // 구미 방면
-            new Key("대구역", SubwayLane.DAEGYEONG_LINE, 2), new Value(1L, "GA_01")  // 경산 방면
+            new Key("대구역", SubwayLane.DAEGU_LINE_1, 1),   new Value(1L, "GA0_04"), // 설화명곡 방면
+            new Key("대구역", SubwayLane.DAEGU_LINE_1, 2),   new Value(1L, "GA0_03"), // 하양 방면
+            new Key("대구역", SubwayLane.DAEGYEONG_LINE, 1), new Value(1L, "GA0_02"), // 구미 방면
+            new Key("대구역", SubwayLane.DAEGYEONG_LINE, 2), new Value(1L, "GA0_01")  // 경산 방면
     );
 
     private StartPoint() {}
