@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { isAxiosError } from 'axios'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
@@ -14,6 +14,7 @@ import { IS_DEV } from '@/shared/lib/env'
 import type { ApiErrorBody } from '@/shared/types/api'
 import { Button, MobileScreen, useToast } from '@/shared/ui'
 import { TripEndpointBar } from '@/shared/ui/TripEndpointBar'
+import { RouteNoticePopup } from '@/user/features/route-select/RouteNoticePopup'
 import { RouteOptionCard } from '@/user/features/route-select/RouteOptionCard'
 import { ChevronLeftIcon } from '@/user/features/route-select/icons'
 import { toLangCode } from '@/user/features/auth/lib/language'
@@ -166,6 +167,15 @@ export default function RoutePage() {
   const badges = useMemo(() => toRouteBadges(data ?? []), [data])
 
   const [selectedIndex, setSelectedIndex] = useState(0)
+
+  /* 경로가 로드되면 안내 팝업을 5초간 띄운다. 재조회로 data 가 바뀌면 다시 뜬다. */
+  const [showNotice, setShowNotice] = useState(false)
+  useEffect(() => {
+    if (!data || data.length === 0) return
+    setShowNotice(true)
+    const timer = window.setTimeout(() => setShowNotice(false), 5000)
+    return () => window.clearTimeout(timer)
+  }, [data])
 
   const startGuide = (index: number) => {
     const path = paths[index]
@@ -320,6 +330,13 @@ export default function RoutePage() {
           ))}
         </div>
       ) : null}
+
+      {/* 목적지·하차역 안내 팝업 — 경로가 로드되면 하단에 잠깐 떠올랐다 사라진다. */}
+      <RouteNoticePopup
+        show={showNotice}
+        destinationName={destinationName}
+        stationName={paths[selectedIndex]?.lastEndStation ?? null}
+      />
     </MobileScreen>
   )
 }

@@ -81,6 +81,15 @@ export default defineConfig(({ mode }) => {
                  UserApp 의 ConsultationPage lazy 와 짝을 이룬다.
             */
             '**/assets/browser-*',
+            /*
+              사용법 안내 애니메이션(언어별 3장, 합계 약 14MB).
+
+              GIF 시절에는 기본 globPatterns 에 gif 가 없어 자동으로 빠졌지만,
+              webp 로 바꾸면서(8/6, 반복 재생을 멈추려고) 기본 패턴에 걸리게
+              됐다. 제외하지 않으면 모달을 열지 않는 사용자도 첫 방문에
+              전부 내려받는다. 모달을 열 때 받고 HTTP 캐시에 맡긴다.
+            */
+            '**/tutorial/**',
             '**/config.js',
             // 개발 전용 목 서버 워커. 빌드 산출물에 복사되지만 등록되지 않으므로
             // precache 대상에서 제외한다.

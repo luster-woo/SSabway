@@ -254,6 +254,8 @@
       "noIndoorGuide": "Indoor guidance isn't available for this route\nChoose another route",
       "title": "Recommended routes",
       "back": "Back",
+      "pathIntro": "This is the subway route to {{destination}}.\nWe'll guide you to {{station}}.",
+      "walkNotice": "Additional travel may be needed after exiting the station!",
       "badge": {
         "fastest": "Fastest",
         "noTransfer": "No transfer",
@@ -288,6 +290,7 @@
     "origin": "From",
     "destination": "To",
     "change": "Change",
+    "rescan": "Retake",
     "detail": {
       "gps": "Based on your location",
       "manual": "Picked on the map",

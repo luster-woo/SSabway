@@ -3,13 +3,13 @@ import type { Language } from '@/shared/types/user'
 /**
  * 사용법 안내 모달의 한 페이지.
  *
- * GIF 안에 이미 문구가 그려져 있어(언어별로 파일이 다른 이유다) 화면에서 설명을
- * 덧붙이지 않는다. 여기 있는 문구는 스크린리더용 대체 텍스트뿐이다.
+ * 애니메이션 안에 이미 문구가 그려져 있어(언어별로 파일이 다른 이유다) 화면에서
+ * 설명을 덧붙이지 않는다. 여기 있는 문구는 스크린리더용 대체 텍스트뿐이다.
  */
 export interface TutorialStep {
   /** i18n 키 조각. `start.tutorial.steps.{id}` */
   id: 'signs' | 'photoGuide' | 'videoCall'
-  /** `public/tutorial/{lang}/{file}.gif` */
+  /** `public/tutorial/{lang}/{file}.webp` */
   file: string
   /** 원본 크기 — 이미지 자리를 미리 잡아 로딩 중 레이아웃이 튀지 않게 한다. */
   width: number
@@ -60,7 +60,41 @@ export const TUTORIAL_STEPS: readonly TutorialStep[] = [
  */
 export const TUTORIAL_MEDIA_PADDING_BOTTOM = '55%'
 
-/** GIF 주소. `public/` 아래의 정적 파일이라 모달을 열 때 처음 내려온다. */
-export function toTutorialGifUrl(step: TutorialStep, lang: Language): string {
-  return `/tutorial/${lang}/${step.file}.gif`
+/**
+ * 애니메이션 주소. `public/` 아래의 정적 파일이라 모달을 열 때 처음 내려온다.
+ *
+ * ⚠️ 포맷은 애니메이션 webp 다 — GIF 는 반복 재생이 멈추지 않아 사진이 다
+ * 나온 뒤에도 계속 돌았다. webp 는 ANIM 청크의 루프 횟수를 1 로 박아
+ * **한 번 재생하고 마지막 프레임에서 멈춘다.** 에셋을 다시 만들면 루프
+ * 횟수를 반드시 1 로 인코딩할 것 (public/tutorial/README.md 참고).
+ */
+export function toTutorialMediaUrl(step: TutorialStep, lang: Language): string {
+  return `/tutorial/${lang}/${step.file}.webp`
+}
+
+/** 한 번 받은 파일은 세션 동안 다시 받지 않는다. 실패한 요청은 남기지 않는다. */
+const mediaBlobCache = new Map<string, Promise<Blob>>()
+
+/**
+ * 애니메이션 파일을 blob 으로 받는다 — **다시 열면 처음부터 재생시키기 위해서다.**
+ *
+ * 루프 1회짜리 애니메이션은 브라우저가 "이 주소는 이미 끝까지 재생됨" 상태를
+ * 세션 내내 기억한다. 같은 주소로 모달을 다시 열면 마지막 프레임에 멈춘 채로
+ * 뜬다. 열 때마다 이 blob 으로 **새 objectURL** 을 만들면 브라우저에게는 새
+ * 리소스라 처음부터 재생된다. blob 은 여기 캐시에 남으므로 네트워크는 처음
+ * 한 번만 탄다 (지하 약전파 구간 고려 — 주소에 난수를 붙이는 방식은 매번
+ * 다시 내려받아서 쓰지 않았다).
+ */
+export function fetchTutorialMediaBlob(url: string): Promise<Blob> {
+  let pending = mediaBlobCache.get(url)
+  if (!pending) {
+    pending = fetch(url).then((response) => {
+      if (!response.ok) throw new Error(`tutorial media ${response.status}`)
+      return response.blob()
+    })
+    // 실패(오프라인 등)를 캐시에 남기면 재시도가 영영 막힌다.
+    pending.catch(() => mediaBlobCache.delete(url))
+    mediaBlobCache.set(url, pending)
+  }
+  return pending
 }
