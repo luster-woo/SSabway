@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 
 import { useDestinationStore } from '@/shared/lib/store/useDestinationStore'
 import { useSelectedRouteStore } from '@/shared/lib/store/useSelectedRouteStore'
-import { Button, CheckIcon, MobileScreen } from '@/shared/ui'
+import { Button, CheckIcon, ChevronLeftIcon, MobileScreen } from '@/shared/ui'
 import { ArrivalSummaryCard } from '@/user/features/arrival/ArrivalSummaryCard'
 import { toArrivalSummary } from '@/user/features/arrival/lib/toArrivalSummary'
 
@@ -35,9 +35,7 @@ export default function ArrivalPage() {
           onClick={() => void navigate(-1)}
           className="text-ink -ml-1.5 flex size-8 items-center justify-center rounded-full"
         >
-          <span aria-hidden className="text-2xl">
-            ‹
-          </span>
+          <ChevronLeftIcon className="size-5" />
         </button>
       }
       footer={
