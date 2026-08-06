@@ -13,7 +13,8 @@ import { Button } from '@/shared/ui'
 import {
   TUTORIAL_MEDIA_PADDING_BOTTOM,
   TUTORIAL_STEPS,
-  toTutorialGifUrl,
+  fetchTutorialMediaBlob,
+  toTutorialMediaUrl,
 } from '@/user/features/tutorial/tutorialSteps'
 
 export interface TutorialModalProps {
@@ -41,24 +42,27 @@ function ChevronIcon({ className }: { className?: string }) {
 }
 
 /**
- * 사용법 안내 모달 — GIF 3장을 옆으로 넘겨 본다.
+ * 사용법 안내 모달 — 애니메이션(webp) 3장을 옆으로 넘겨 본다.
  *
  * 1) 표지판을 어떻게 찍는다 → 2) 표지판을 이어가며 안내받는다 → 3) 막히면
  * 역무원과 화상 상담한다. 실제 사용 흐름과 같은 순서다(tutorialSteps 참고).
  *
- * **GIF 안에 문구가 이미 그려져 있다.** 그래서 언어별로 파일이 다르고(선택한
+ * **애니메이션은 한 번만 재생되고 마지막 프레임에서 멈춘다.** GIF 시절에는
+ * 반복 재생이 멈추지 않아 webp(루프 1회)로 바꿨다 — toTutorialMediaUrl 주석 참고.
+ *
+ * **그림 안에 문구가 이미 그려져 있다.** 그래서 언어별로 파일이 다르고(선택한
  * 언어의 폴더에서 가져온다), 화면에서는 설명을 덧붙이지 않는다 — 같은 말을 두
  * 번 하게 되고, 번역이 어긋나면 그림과 글이 다른 말을 한다.
  *
- * **팝업 크기는 세 페이지가 같다.** GIF 영역 높이를 한 값으로 고정해(비율 선택
- * 근거는 TUTORIAL_MEDIA_PADDING_BOTTOM 주석) 넘길 때 팝업이 늘었다 줄었다
- * 하지 않는다. 남는 자리는 가운데 정렬로 양쪽에 똑같이 나뉘고, GIF 배경과 박스가
- * 모두 흰색이라 눈에 띄지 않는다.
+ * **팝업 크기는 세 페이지가 같다.** 미디어 영역 높이를 한 값으로 고정해(비율
+ * 선택 근거는 TUTORIAL_MEDIA_PADDING_BOTTOM 주석) 넘길 때 팝업이 늘었다 줄었다
+ * 하지 않는다. 남는 자리는 가운데 정렬로 양쪽에 똑같이 나뉘고, 그림 배경과
+ * 박스가 모두 흰색이라 눈에 띄지 않는다.
  *
  * 넘기는 방법을 셋 다 둔다: 스와이프(폰) · 화살표 버튼 · ←→ 키(데스크톱).
  * 폰에서 스와이프만 두면 화살표가 없어 넘길 수 있다는 걸 모르는 사용자가 있다.
  *
- * GIF 는 한 장에 150~650KB 라 3장을 한꺼번에 받지 않는다. 다음 한 장까지만
+ * 한 장에 400KB~1.6MB 라 3장을 한꺼번에 받지 않는다. 다음 한 장까지만
  * 미리 받으므로, 1페이지만 보고 닫는 사용자는 두 장만 내려받는다.
  * (지하 약전파 구간을 고려한 선택 — loadedUpTo 주석 참고)
  */
@@ -81,6 +85,60 @@ export function TutorialModal({ onClose }: TutorialModalProps) {
   useEffect(() => {
     setLoadedUpTo((loaded) => Math.max(loaded, page + 1))
   }, [page])
+
+  /*
+    페이지별 표시 주소 — 정적 주소가 아니라 **이번 열람 전용 blob 주소**다.
+
+    애니메이션이 루프 1회라, 같은 주소를 다시 쓰면 브라우저가 "이미 끝까지
+    재생한 그림"으로 기억해 마지막 프레임에 멈춘 채 뜬다. 모달을 열 때마다
+    새 objectURL 을 만들어 매번 처음부터 재생시킨다. 파일 자체는
+    fetchTutorialMediaBlob 의 세션 캐시에 있어 다시 내려받지 않는다.
+  */
+  const [mediaByUrl, setMediaByUrl] = useState<Record<string, string>>({})
+  const requestedRef = useRef(new Set<string>())
+  const aliveRef = useRef(true)
+
+  useEffect(() => {
+    TUTORIAL_STEPS.forEach((step, index) => {
+      if (index > loadedUpTo) return
+
+      const url = toTutorialMediaUrl(step, language)
+      if (requestedRef.current.has(url)) return
+      requestedRef.current.add(url)
+
+      fetchTutorialMediaBlob(url)
+        .then((blob) => {
+          if (!aliveRef.current) return
+          setMediaByUrl((prev) => ({
+            ...prev,
+            [url]: URL.createObjectURL(blob),
+          }))
+        })
+        .catch(() => {
+          // 못 받으면 원 주소로 그냥 띄운다 — "다시 열면 재재생"만 포기한다.
+          if (!aliveRef.current) return
+          requestedRef.current.delete(url)
+          setMediaByUrl((prev) => ({ ...prev, [url]: url }))
+        })
+    })
+  }, [loadedUpTo, language])
+
+  /* 닫힐 때 blob 주소를 회수한다. 다음 열람은 새 주소를 만들어 다시 재생된다. */
+  const mediaByUrlRef = useRef(mediaByUrl)
+  useEffect(() => {
+    mediaByUrlRef.current = mediaByUrl
+  }, [mediaByUrl])
+  useEffect(() => {
+    // StrictMode 는 마운트→언마운트→재마운트로 이펙트를 두 번 돌린다.
+    // 여기서 되돌려 놓지 않으면 첫 가짜 언마운트가 alive 를 영영 꺼 버린다.
+    aliveRef.current = true
+    return () => {
+      aliveRef.current = false
+      Object.values(mediaByUrlRef.current).forEach((src) => {
+        if (src.startsWith('blob:')) URL.revokeObjectURL(src)
+      })
+    }
+  }, [])
 
   /** 드래그 중 손가락을 따라 움직인 거리(px). 놓으면 0 으로 돌아간다. */
   const [dragX, setDragX] = useState(0)
@@ -185,7 +243,8 @@ export function TutorialModal({ onClose }: TutorialModalProps) {
             }}
           >
             {TUTORIAL_STEPS.map((step, index) => {
-              const shouldLoad = index <= loadedUpTo
+              const mediaSrc = mediaByUrl[toTutorialMediaUrl(step, language)]
+              const shouldLoad = index <= loadedUpTo && !!mediaSrc
 
               return (
                 <div
@@ -195,7 +254,7 @@ export function TutorialModal({ onClose }: TutorialModalProps) {
                 >
                   {shouldLoad ? (
                     <img
-                      src={toTutorialGifUrl(step, language)}
+                      src={mediaSrc}
                       alt={t(`start.tutorial.steps.${step.id}`)}
                       width={step.width}
                       height={step.height}
