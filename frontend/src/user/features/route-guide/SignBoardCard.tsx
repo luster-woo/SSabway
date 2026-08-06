@@ -39,13 +39,13 @@ export function SignBoardCard({ sign }: SignBoardCardProps) {
       <img
         src={sign.photoUrl}
         alt={`${sign.title} · ${sign.subtitle}`}
-        className="bg-sign h-[clamp(150px,46vw,176px)] w-full rounded-xl object-cover"
+        className="bg-sign h-[clamp(168px,52vw,202px)] w-full rounded-xl object-cover"
       />
     )
   }
 
   return (
-    <div className="bg-sign flex h-[clamp(150px,46vw,176px)] items-stretch overflow-hidden rounded-xl">
+    <div className="bg-sign flex h-[clamp(168px,52vw,202px)] items-stretch overflow-hidden rounded-xl">
       {sign.exitNumber ? (
         <div className="bg-sign-exit text-sign flex w-[clamp(88px,26vw,100px)] shrink-0 flex-col items-center justify-center gap-1">
           <span className="text-[clamp(30px,9vw,34px)] leading-none font-extrabold">
