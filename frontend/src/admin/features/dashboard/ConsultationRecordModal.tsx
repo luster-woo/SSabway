@@ -41,9 +41,8 @@ export function ConsultationRecordModal({
       </p>
 
       <div className="bg-surface-muted mt-4 rounded-2xl px-4 py-3">
-        <p className="text-ink-muted text-[12.5px] font-bold">AI 요약</p>
-        <p className="text-ink mt-1.5 text-[13px] font-bold">
-          {summary ?? '요약이 아직 생성되지 않았습니다.'}
+        <p className="text-ink text-[13px] font-bold">
+          {summary || '요약을 생성 중입니다...'}
         </p>
       </div>
 

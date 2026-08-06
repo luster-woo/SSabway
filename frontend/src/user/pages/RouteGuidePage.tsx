@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
 import { useCurrentNodeStore } from '@/shared/lib/store/useCurrentNodeStore'
+import { useElevatorFallbackStore } from '@/shared/lib/store/useElevatorFallbackStore'
 import { useGuideStepStore } from '@/shared/lib/store/useGuideStepStore'
 import { useRoutePreferenceStore } from '@/shared/lib/store/useRoutePreferenceStore'
 import {
@@ -64,25 +65,40 @@ export default function RouteGuidePage() {
   const finalPoint = useStationNodeStore((state) => state.finalPoint)
 
   /*
-    "엘리베이터 없이 다시 찾기"를 누르면 켜진다.
+    "엘리베이터 없이 다시 찾기"를 누른 구간.
 
-    저장된 답을 고치지 않고 이 화면에서만 덮어쓴다. 사용자가 엘리베이터를
+    저장된 답을 고치지 않고 이 구간에만 덮어쓴다. 사용자가 엘리베이터를
     원한다는 사실 자체는 바뀌지 않았고(이 역에 계단 없는 길이 없을 뿐),
     답을 덮어쓰면 다른 역에서 다시 안내할 때도 계단을 쓰게 된다.
+
+    ⚠️ 지역 state 로 두면 안 된다. 도움 요청 → 화상 상담을 다녀오면 이 페이지가
+       다시 마운트되면서 값이 false 로 돌아가, 이미 통과한 "엘리베이터 경로가
+       없어요" 안내를 처음부터 다시 만난다. (요청 본문이 queryKey 라 성공했던
+       응답의 캐시와도 어긋난다) 그래서 sessionStorage 스토어에 남긴다.
   */
-  const [ignoreElevator, setIgnoreElevator] = useState(false)
+  const elevatorFallbackPoint = useElevatorFallbackStore(
+    (state) => state.finalPoint,
+  )
+  const setElevatorFallback = useElevatorFallbackStore(
+    (state) => state.setElevatorFallback,
+  )
 
   const request = useMemo<NavRouteRequest | null>(() => {
     if (!answers) return null
 
     const nodes = resolveStationNodes({ startPoint, finalPoint })
 
+    // 그때 그 구간에서 고른 선택만 되살린다 — 다른 역·다른 여정에는 번지지 않는다.
+    const ignoreElevator =
+      elevatorFallbackPoint !== null &&
+      elevatorFallbackPoint === nodes.finalPoint
+
     return buildNaviRequest({
       ...nodes,
       answers: ignoreElevator ? { ...answers, useElevator: false } : answers,
       langCode: toLangCode(language),
     })
-  }, [answers, startPoint, finalPoint, ignoreElevator, language])
+  }, [answers, startPoint, finalPoint, elevatorFallbackPoint, language])
 
   const { data, isPending, isError, error, refetch } = useRouteGuide(request)
 
@@ -201,7 +217,9 @@ export default function RouteGuidePage() {
 
   /** 엘리베이터 조건을 빼고 다시 찾는다. request 가 바뀌어 자동으로 재조회된다. */
   const retryWithoutElevator = () => {
-    setIgnoreElevator(true)
+    setElevatorFallback(
+      resolveStationNodes({ startPoint, finalPoint }).finalPoint,
+    )
     showToast(t('routeGuide.retryingWithStairs'))
   }
 

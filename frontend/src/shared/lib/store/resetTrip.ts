@@ -1,4 +1,5 @@
 import { useDestinationStore } from '@/shared/lib/store/useDestinationStore'
+import { useElevatorFallbackStore } from '@/shared/lib/store/useElevatorFallbackStore'
 import { useGuideStepStore } from '@/shared/lib/store/useGuideStepStore'
 import { useSelectedRouteStore } from '@/shared/lib/store/useSelectedRouteStore'
 import { useStationNodeStore } from '@/shared/lib/store/useStationNodeStore'
@@ -17,6 +18,7 @@ import { useStationNodeStore } from '@/shared/lib/store/useStationNodeStore'
  *   selectedRoute  그 목적지로 계산해 고른 지하철 경로 (목적지가 없으면 무의미)
  *   finalPoint     경로 선택이 정한 역 내 도착 노드 (같은 이유)
  *   guideStep      상세 안내에서 보고 있던 단계 (지난 여정의 진행 상태)
+ *   elevatorFallback  "계단을 포함해 다시 찾기" 선택 (그 구간에서만 유효했다)
  *
  * 비우지 않는 것
  *   startPoint     새 인식 결과로 곧 덮인다
@@ -33,4 +35,5 @@ export function resetTripSelection() {
   useSelectedRouteStore.getState().clearSelectedRoute()
   useStationNodeStore.getState().setFinalPoint(null)
   useGuideStepStore.getState().clearGuideStep()
+  useElevatorFallbackStore.getState().clearElevatorFallback()
 }
