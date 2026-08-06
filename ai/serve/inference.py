@@ -7,6 +7,7 @@ src/05_two_stage_eval.py 와 같은 결과를 내야 한다. 임계값이나 박
 양쪽을 같이 고쳐야 한다.
 """
 import os
+import threading
 import time
 from pathlib import Path
 
@@ -73,6 +74,13 @@ class SignRecognizer:
 
         t0 = time.time()
         self.det = YOLO(str(det_path))
+        # ultralytics 는 predict() 호출마다 self.predictor 의 상태(batch, args,
+        # results)를 재사용하며 덮어쓴다 — 같은 YOLO 인스턴스를 여러 스레드가
+        # 동시에 호출하면(uvicorn 이 sync 라우트를 스레드풀에서 돌린다) 한쪽
+        # 요청의 이미지 정보가 다른 쪽 후처리에 섞여 들어갈 수 있다.
+        # 검출 호출만 락으로 직렬화해 막는다 — 이후 분류기(self.clf)와
+        # 변환(self.tf)은 상태가 없어 그대로 동시 호출해도 안전하다.
+        self._det_lock = threading.Lock()
 
         ckpt = torch.load(str(cls_path), map_location='cpu', weights_only=False)
         self.classes = ckpt['classes']
@@ -97,8 +105,9 @@ class SignRecognizer:
     def _detect(self, img):
         # device 를 넘기지 않으면 ultralytics 가 알아서 고르는데, CUDA 가 보이지만
         # 쓸 수 없는 환경에서 잘못된 장치를 집는다. 명시적으로 지정한다.
-        return self.det.predict(img, conf=DET_CONF, verbose=False,
-                                device=self.device)[0]
+        with self._det_lock:
+            return self.det.predict(img, conf=DET_CONF, verbose=False,
+                                    device=self.device)[0]
 
     def _warmup(self):
         dummy = Image.new('RGB', (640, 480), (127, 127, 127))
