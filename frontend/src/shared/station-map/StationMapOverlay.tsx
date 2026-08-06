@@ -540,6 +540,8 @@ export function StationMapOverlay({
               currentIndex={clampedIndex}
               // 확대해도 마커·선의 화면 크기가 일정하도록 뷰포트에 비례해 역보정한다.
               markerScale={viewport.half / MARKER_REFERENCE_HALF}
+              // 헤더·범례와 도면 속 장소 명칭의 언어를 같이 맞춘다.
+              lang={lang}
             />
 
             {/* 줌·복귀 버튼 */}

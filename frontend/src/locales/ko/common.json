@@ -375,6 +375,27 @@
         "current": "현재 구간 · 진행 방향",
         "upcoming": "다음 위치 · 남은 경로",
         "passed": "지나온 경로"
+      },
+      "mapAlt": "역 내 도면과 안내 경로",
+      "label": {
+        "shop": "상점",
+        "smokingArea": "흡연장",
+        "lotteDepartmentStore": "롯데백화점",
+        "departmentStore": "백화점",
+        "center": "중앙",
+        "parking": "주차장",
+        "meetingRoom": "회의실",
+        "policeStation": "경찰서",
+        "restaurant": "식당",
+        "nursingRoom": "수유실",
+        "daegyeongLineGumi": "대경선 (구미방면)",
+        "daegyeongLineGyeongsan": "대경선 (경산방면)",
+        "platform1": "1번 승강장) 서울 / 대전 / 영주 / 김천 방면",
+        "platform6": "6번 승강장) 부산 / 진주 / 부전 / 신해운대 방면",
+        "daeguStationExit1": "대구역 1번 출구",
+        "daeguStationExit2": "대구역 2번 출구",
+        "daeguStationExit3": "대구역 3번 출구",
+        "daeguStationExit4": "대구역 4번 출구"
       }
     },
     "help": "도움 요청",
