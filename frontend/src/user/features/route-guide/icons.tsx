@@ -41,10 +41,10 @@ export function ArrowUpIcon(props: IconProps) {
 export function RescanIcon(props: IconProps) {
   return (
     <svg {...BASE} strokeWidth={2} {...props}>
-      <path d="M4.2 9.5A8 8 0 0 1 17 6.2" />
-      <path d="M14.4 6h3v3" />
-      <path d="M19.8 14.5A8 8 0 0 1 7 17.8" />
-      <path d="M9.6 18h-3v-3" />
+      <path d="M4.7 9.1A8 8 0 0 1 19.9 11.4" />
+      <path d="M17.7 9.1L19.9 11.4 21.5 8.6" />
+      <path d="M19.3 15.9A8 8 0 0 1 4.1 13.6" />
+      <path d="M6.3 15.9L4.1 13.6 2.5 16.4" />
       <rect x="8" y="9.5" width="8" height="6" rx="1.8" />
       <circle cx="12" cy="12.5" r="1.4" />
     </svg>

@@ -81,9 +81,10 @@ export default function HelpChatPage() {
   // (블랙리스트·중복·역무원 없음 등은 rejectedKey 로 문구가 갈린다)
   useEffect(() => {
     if (!isRejected) return
+    // 대기 상태만 풀어 버튼으로 되돌린다.
+    // 거절 사유(블랙리스트 등)는 아래에 봇 코멘트로 그린다.
     setConsultationId(null)
-    if (rejectedKey) showToast(t(rejectedKey))
-  }, [isRejected, rejectedKey, showToast, t])
+  }, [isRejected])
 
   // 대기 중 취소되거나 실패하면(서버 사정) 안내하고 버튼으로 되돌린다.
   useEffect(() => {
@@ -204,6 +205,12 @@ export default function HelpChatPage() {
                 {t('helpChat.recordNotice')}
               </p>
             </div>
+
+            {/* 요청이 거절되면 사유를 봇 코멘트로 남긴다
+                (블랙리스트·중복 요청·역무원 없음 등) */}
+            {isRejected && rejectedKey ? (
+              <BotBubble>{t(rejectedKey)}</BotBubble>
+            ) : null}
           </>
         ) : null}
       </main>
