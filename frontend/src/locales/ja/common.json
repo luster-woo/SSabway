@@ -270,7 +270,7 @@
       "started": "{{station}}まで案内を開始します",
       "durationMin": "{{m}}分",
       "durationHour": "{{h}}時間{{m}}分",
-      "fare": "{{amount}}ウォン",
+      "fare": "{{amount}}₩",
       "needOrigin": "出発地がまだ決まっていません\n地図で選んでください",
       "needDestination": "目的地がまだ決まっていません\n地図で選んでください",
       "pickOnMap": "地図で選ぶ",

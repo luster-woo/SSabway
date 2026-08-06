@@ -95,3 +95,48 @@ export async function searchPlaces(
 
   return places
 }
+
+
+/**
+ * 지도에서 탭한 좌표에 가장 가까운 장소(건물·POI)를 찾는다.
+ *
+ * 검색과 같은 Places API 를 쓰므로 Geocoding API 활성화가 필요 없다. rankBy
+ * DISTANCE + type 'establishment' 로 가장 가까운 건물/시설 하나를 집어, 그 이름을
+ * 목적지 후보로 쓴다(좌표 대신 건물명이 뜨게 하는 목적). 표기 언어는 SDK 로드
+ * 시점 언어를 따른다(검색과 동일).
+ *
+ * 근처에 장소가 없으면 null — 호출부가 좌표로 폴백한다.
+ */
+export async function findNearestPlace(
+  latitude: number,
+  longitude: number,
+): Promise<Place | null> {
+  if (
+    typeof google === 'undefined' ||
+    typeof google.maps === 'undefined' ||
+    typeof google.maps.places === 'undefined'
+  ) {
+    return null
+  }
+
+  const service = new google.maps.places.PlacesService(
+    document.createElement('div'),
+  )
+
+  const result = await new Promise<google.maps.places.PlaceResult | null>(
+    (resolve) => {
+      service.nearbySearch(
+        {
+          location: { lat: latitude, lng: longitude },
+          rankBy: google.maps.places.RankBy.DISTANCE,
+          type: 'establishment',
+        },
+        (res, status) => {
+          resolve(status === 'OK' && res && res.length > 0 ? (res[0] ?? null) : null)
+        },
+      )
+    },
+  )
+
+  return result ? toPlace(result) : null
+}

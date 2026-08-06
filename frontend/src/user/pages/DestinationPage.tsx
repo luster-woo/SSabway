@@ -104,6 +104,8 @@ export default function DestinationPage() {
     origin: originPoint,
     destination,
     myLocation,
+    // 지도를 탭하면 그 지점을 검색 결과처럼 후보로 잡는다.
+    onPickPoint: setSelected,
   })
 
   // 결과가 도착하면 첫 번째 후보를 기본 선택한다.
