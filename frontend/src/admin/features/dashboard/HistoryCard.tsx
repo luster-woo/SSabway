@@ -63,7 +63,8 @@ export function HistoryCard({
           {userEmail}
         </p>
         <p className="text-ink-muted mt-2 text-[13px]">
-          AI 요약  {summary ?? '요약 없음'}
+          <span className="text-ink font-bold">AI 요약</span>{' '}
+          {summary ?? '요약 없음'}
         </p>
       </div>
 
