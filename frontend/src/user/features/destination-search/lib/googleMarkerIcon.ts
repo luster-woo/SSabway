@@ -3,7 +3,7 @@ const WIDTH = 34
 const HEIGHT = 44
 
 /** 인라인 SVG 마커. 별도 이미지 요청 없이 브랜드 색상 토큰만 여기서 관리한다. */
-const MARKER_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 34 44" fill="none"><path d="M17 43C17 43 32 27.5 32 17A15 15 0 1 0 2 17C2 27.5 17 43 17 43Z" fill="#018abe" stroke="#02457a" stroke-width="2" stroke-linejoin="round"/><circle cx="17" cy="17" r="5.6" fill="#ffffff"/></svg>`
+const MARKER_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 34 44" fill="none"><path d="M17 43C17 43 32 27.5 32 17A15 15 0 1 0 2 17C2 27.5 17 43 17 43Z" fill="#dc2626" stroke="#991b1b" stroke-width="2" stroke-linejoin="round"/><circle cx="17" cy="17" r="5.6" fill="#ffffff"/></svg>`
 
 /**
  * 목적지 마커 아이콘 (Google 지도용).
@@ -19,7 +19,7 @@ export function buildDestinationMarkerIcon(): google.maps.Icon {
   }
 }
 
-/** 출발지 마커 SVG. 도착지(파랑)와 색으로 구분되도록 초록 계열로 그린다. */
+/** 출발지 마커 SVG. 도착지(빨강)와 색으로 구분되도록 초록 계열로 그린다. */
 const ORIGIN_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 34 44" fill="none"><path d="M17 43C17 43 32 27.5 32 17A15 15 0 1 0 2 17C2 27.5 17 43 17 43Z" fill="#0f9d58" stroke="#0b6b3a" stroke-width="2" stroke-linejoin="round"/><circle cx="17" cy="17" r="5.6" fill="#ffffff"/></svg>`;
 
 /**
