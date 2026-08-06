@@ -375,6 +375,27 @@
         "current": "現在の区間・進行方向",
         "upcoming": "次の地点・残りの経路",
         "passed": "通ってきた経路"
+      },
+      "mapAlt": "駅構内図と案内ルート",
+      "label": {
+        "shop": "商店",
+        "smokingArea": "喫煙所",
+        "lotteDepartmentStore": "ロッテ百貨店",
+        "departmentStore": "百貨店",
+        "center": "中央",
+        "parking": "駐車場",
+        "meetingRoom": "会議室",
+        "policeStation": "警察署",
+        "restaurant": "レストラン",
+        "nursingRoom": "授乳室",
+        "daegyeongLineGumi": "大慶線（亀尾方面）",
+        "daegyeongLineGyeongsan": "大慶線（慶山方面）",
+        "platform1": "1番のりば）ソウル / 大田 / 栄州 / 金泉方面",
+        "platform6": "6番のりば）釜山 / 晋州 / 釜田 / 新海雲台方面",
+        "daeguStationExit1": "大邱駅 1番出口",
+        "daeguStationExit2": "大邱駅 2番出口",
+        "daeguStationExit3": "大邱駅 3番出口",
+        "daeguStationExit4": "大邱駅 4番出口"
       }
     },
     "help": "ヘルプ",
