@@ -7,7 +7,7 @@ import { FlagIcon, PinIcon } from '@/user/features/user-info/icons'
 
 export interface GuideEndpointCardProps {
   info: GuideInfo
-  /** 출발지 '변경' — 표지판 촬영 화면으로 보낸다. */
+  /** 출발지 '재촬영' — 표지판 촬영 화면으로 보낸다. */
   onChangeOrigin: () => void
   /** 도착지 '변경' — 목적지 설정(지도) 화면으로 보낸다. */
   onChangeDestination: () => void
@@ -28,7 +28,7 @@ export function GuideEndpointCard({
         endpoint={info.origin}
         icon={<PinIcon className="size-[18px]" />}
         onChange={onChangeOrigin}
-        changeLabel={t('userInfo.change')}
+        changeLabel={t('userInfo.rescan')}
         className="px-4 pt-4 pb-3"
       />
 

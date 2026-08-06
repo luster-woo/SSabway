@@ -254,6 +254,8 @@
       "noIndoorGuide": "이 경로는 실내 안내를 제공하지 않아요\n다른 경로를 선택해 주세요",
       "title": "추천 경로",
       "back": "뒤로가기",
+      "pathIntro": "{{destination}}까지 가는 지하철 경로입니다.\n{{station}}까지 안내해 드려요.",
+      "walkNotice": "역에서 나온 뒤에는 별도의 이동이 필요할 수 있습니다!",
       "badge": {
         "fastest": "빠른 길",
         "noTransfer": "환승 없음",
@@ -288,6 +290,7 @@
     "origin": "출발",
     "destination": "도착",
     "change": "변경",
+    "rescan": "재촬영",
     "detail": {
       "gps": "현재 위치 기준",
       "manual": "지도에서 선택",

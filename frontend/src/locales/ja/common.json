@@ -254,6 +254,8 @@
       "noIndoorGuide": "この経路は屋内案内に対応していません\n別の経路を選んでください",
       "title": "おすすめルート",
       "back": "戻る",
+      "pathIntro": "{{destination}}までの地下鉄ルートです。\n{{station}}までご案内します。",
+      "walkNotice": "駅を出た後、別途移動が必要な場合があります！",
       "badge": {
         "fastest": "最速",
         "noTransfer": "乗換なし",
@@ -288,6 +290,7 @@
     "origin": "出発",
     "destination": "到着",
     "change": "変更",
+    "rescan": "再撮影",
     "detail": {
       "gps": "現在地を基準",
       "manual": "地図で選択",

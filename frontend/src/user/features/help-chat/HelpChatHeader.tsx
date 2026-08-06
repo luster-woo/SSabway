@@ -1,5 +1,7 @@
 import { useTranslation } from 'react-i18next'
 
+import { ChevronLeftIcon } from '@/shared/ui'
+
 export interface HelpChatHeaderProps {
   onBack: () => void
 }
@@ -14,9 +16,9 @@ export function HelpChatHeader({ onBack }: HelpChatHeaderProps) {
         type="button"
         aria-label={t('helpChat.back')}
         onClick={onBack}
-        className="text-ink -ml-2 flex size-8 shrink-0 items-center justify-center rounded-full text-2xl"
+        className="text-ink -ml-2 flex size-8 shrink-0 items-center justify-center rounded-full"
       >
-        ‹
+        <ChevronLeftIcon className="size-5" />
       </button>
 
       <span

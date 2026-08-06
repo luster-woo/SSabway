@@ -254,6 +254,8 @@
       "noIndoorGuide": "该路线暂不支持站内引导\n请选择其他路线",
       "title": "推荐路线",
       "back": "返回",
+      "pathIntro": "这是前往{{destination}}的地铁路线。\n我们将引导您到{{station}}。",
+      "walkNotice": "出站后可能还需要另行前往目的地！",
       "badge": {
         "fastest": "最快",
         "noTransfer": "无需换乘",
@@ -288,6 +290,7 @@
     "origin": "出发",
     "destination": "到达",
     "change": "更改",
+    "rescan": "重拍",
     "detail": {
       "gps": "基于当前位置",
       "manual": "在地图上选择",

@@ -81,7 +81,7 @@ export function TutorialFab() {
             type="button"
             onClick={() => setIsOpen(true)}
             aria-label={t('start.tutorial.title')}
-            className={`pointer-events-auto absolute right-3 ${FAB_TOP} bg-surface/95 border-line text-brand-dark focus-visible:ring-brand flex size-11 -translate-y-1/2 items-center justify-center rounded-full border shadow-[0_4px_12px_rgba(15,23,42,0.18)] backdrop-blur-sm transition focus-visible:ring-2 focus-visible:outline-none active:scale-95`}
+            className={`pointer-events-auto absolute right-3 ${FAB_TOP} bg-surface/95 border-brand/60 text-brand-dark focus-visible:ring-brand flex size-11 -translate-y-1/2 items-center justify-center rounded-full border shadow-[0_4px_12px_rgba(15,23,42,0.18)] backdrop-blur-sm transition focus-visible:ring-2 focus-visible:outline-none active:scale-95`}
           >
             <QuestionIcon className="size-5" />
           </button>
