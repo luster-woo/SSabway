@@ -7,6 +7,7 @@ import {
   useOpenViduSession,
   type OpenViduStatus,
 } from '@/shared/webrtc/useOpenViduSession'
+import { useRemoteViewportAspect } from '@/shared/webrtc/useViewportAspect'
 import { openviduApi } from '@/admin/lib/openviduApi'
 import type { StreamManager } from 'openvidu-browser'
 
@@ -20,6 +21,11 @@ export interface UseConsultationRoomResult {
   isRestoreFailed: boolean
   /** 녹음이 돌고 있는지 (start 성공 여부) */
   isRecording: boolean
+  /**
+   * 사용자 화면의 가로 ÷ 세로. 사용자 브라우저가 재서 보내 준 값이고,
+   * 아직 못 받았으면 null (VideoStage 가 기본 비율로 떨어진다).
+   */
+  userScreenAspect: number | null
 }
 
 /**
@@ -82,10 +88,24 @@ export function useConsultationRoom(
     }
   }, [consultationId, startSession, token])
 
-  const { status, remoteStream } = useOpenViduSession({
+  /*
+    ovSession 이라 이름 붙인 이유 — 위쪽 `session` 은 스토어에 담긴 상담 세션
+    정보(토큰·ID)이고 이건 접속이 끝난 OpenVidu 세션 객체다. 서로 다른 것이다.
+  */
+  const {
+    status,
+    remoteStream,
+    session: ovSession,
+  } = useOpenViduSession({
     token,
     publish: { audio: true, video: false },
   })
+
+  /*
+    사용자 화면 비율. 영상 틀을 이 비율로 잡아야 사용자와 같은 화각이 된다 —
+    상수로 박아 두면 기기마다 양옆이 어긋난다 (useViewportAspect 주석 참고).
+  */
+  const userScreenAspect = useRemoteViewportAspect(ovSession)
 
   /*
     사용자 접속을 확인한 순간 녹음을 시작한다.
@@ -124,5 +144,6 @@ export function useConsultationRoom(
     isRestoring,
     isRestoreFailed,
     isRecording,
+    userScreenAspect,
   }
 }
