@@ -28,9 +28,32 @@ import {
   useOriginStationStore,
 } from '@/shared/lib/store/useOriginStationStore'
 import { useStationNodeStore } from '@/shared/lib/store/useStationNodeStore'
+import {
+  toErrorKey,
+  type ErrorKeyTable,
+} from '@/user/features/auth/lib/mockHttpError'
 
 /** 인식 후 기본 이동 경로. 시작 화면에서 바로 들어온 경우다. */
 const DEFAULT_NEXT_PATH = '/destination'
+
+/**
+ * 표지판 인식 실패를 사유별 문구로 가른다(모달 설명). code 를 먼저 본다.
+ *   AI_SIGN_NOT_DETECTED  404 사진에서 표지판을 못 찾음
+ *   AI_IMAGE_TOO_LARGE    413 용량 초과(15MB)
+ *   AI_IMAGE_INVALID/REQUIRED 400 이미지 자체를 못 읽음
+ *   AI_SERVER_ERROR       502 인식 서버 일시 장애
+ * code 가 없는 실패(200 봉투 실패·네트워크)는 fallback(일반 실패 문구)로 둔다.
+ */
+const PREDICT_ERROR_KEY: ErrorKeyTable = {
+  byCode: {
+    AI_SIGN_NOT_DETECTED: 'signCapture.predictFail.notDetected',
+    AI_IMAGE_TOO_LARGE: 'signCapture.predictFail.tooLarge',
+    AI_IMAGE_INVALID: 'signCapture.predictFail.invalidImage',
+    AI_IMAGE_REQUIRED: 'signCapture.predictFail.invalidImage',
+    AI_SERVER_ERROR: 'signCapture.predictFail.serverError',
+  },
+}
+const PREDICT_FALLBACK_KEY = 'signCapture.analyzeFailedDescription'
 
 /** 다른 화면이 '출발지 변경'으로 보낼 때 넘겨주는 복귀 경로 */
 interface SignCaptureState {
@@ -60,6 +83,10 @@ export default function SignCapturePage() {
   const [isFlashing, setIsFlashing] = useState(false)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [isAnalyzeFailed, setIsAnalyzeFailed] = useState(false)
+  // 분석 실패 모달에 띄울 설명의 i18n 키. code 로 사유가 갈린다.
+  const [analyzeFailedKey, setAnalyzeFailedKey] = useState(
+    PREDICT_FALLBACK_KEY,
+  )
   // 인식은 됐지만 확신도가 낮아(confident=false) 그대로 진행하기 위험한 경우
   const [isLowConfidence, setIsLowConfidence] = useState(false)
 
@@ -135,10 +162,14 @@ export default function SignCapturePage() {
     let prediction: SignPrediction
     try {
       prediction = await predictSign(capturedBlobRef.current)
-    } catch {
+    } catch (error) {
       // 토스트는 금방 사라져 원인을 놓치기 쉽다 — 재촬영을 유도하는
       // 모달로 띄운다 (버튼이 촬영본을 지우고 카메라로 되돌린다).
+      // 설명은 실패 code 에 맞춰 갈린다(표지판 못 찾음·용량 초과·서버 장애 등).
       setIsAnalyzing(false)
+      setAnalyzeFailedKey(
+        toErrorKey(error, PREDICT_ERROR_KEY, PREDICT_FALLBACK_KEY),
+      )
       setIsAnalyzeFailed(true)
       return
     }
@@ -221,7 +252,7 @@ export default function SignCapturePage() {
       {isAnalyzeFailed ? (
         <Dialog
           title={t('signCapture.analyzeFailedTitle')}
-          description={t('signCapture.analyzeFailedDescription')}
+          description={t(analyzeFailedKey)}
         >
           <Button
             size="lg"

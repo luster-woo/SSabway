@@ -14,6 +14,7 @@ import SignCapturePage from '@/user/pages/SignCapturePage'
 import SignUpPage from '@/user/pages/SignUpPage'
 import StartPage from '@/user/pages/StartPage'
 import UserInfoPage from '@/user/pages/UserInfoPage'
+import { TutorialFab } from '@/user/features/tutorial/TutorialFab'
 
 /**
  * 화상 상담만 lazy 로 뺀다.
@@ -70,6 +71,13 @@ export default function UserApp() {
         <Route path="arrival" element={<ArrivalPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
+
+      {/*
+        사용법 안내 플로팅 위젯. 페이지가 아니라 여기 한 번만 마운트해야
+        어느 화면에서든 같은 자리에 뜬다 — 노출 페이지는 TutorialFab 의
+        FAB_POSITION 이 정한다 (통화·챗봇 화면 제외).
+      */}
+      <TutorialFab />
     </ToastProvider>
   )
 }
