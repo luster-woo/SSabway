@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 
-import type { StreamManager } from 'openvidu-browser'
+import type { Session, StreamManager } from 'openvidu-browser'
 
 import type { ConsultationStatus } from '@/shared/types'
 import {
@@ -19,6 +19,11 @@ export interface UseConsultationCallResult {
   queuePosition: number | null
   /** 역무원 스트림(음성만). 재생하려면 엘리먼트에 붙여야 한다 */
   staffStream: StreamManager | null
+  /**
+   * 접속이 끝난 OpenVidu 세션. 화면 비율 통보(usePublishViewportAspect)처럼
+   * 연결·발행 밖의 세션 기능이 필요한 곳만 쓴다.
+   */
+  session: Session | null
   /** 역무원이 아직 수락하지 않아 기다리는 중 */
   isWaitingMatch: boolean
   /** 제한 시간 안에 매칭되지 않았다 */
@@ -44,7 +49,7 @@ export function useConsultationCall(
 ): UseConsultationCallResult {
   const match = useConsultationMatch(consultationId, localStream !== null)
 
-  const { status, remoteStream, leave } = useOpenViduSession({
+  const { status, remoteStream, session, leave } = useOpenViduSession({
     token: match.token,
     publish: localStream
       ? { stream: localStream, audio: true, video: true }
@@ -94,6 +99,7 @@ export function useConsultationCall(
     consultationStatus: match.status,
     queuePosition: match.queuePosition,
     staffStream: remoteStream,
+    session,
     isWaitingMatch:
       localStream !== null && match.token === null && !match.isFailed,
     isJoinFailed: match.isFailed,

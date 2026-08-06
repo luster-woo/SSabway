@@ -114,25 +114,16 @@ export default function LoginPage() {
         </p>
       </section>
 
-      <div className="mt-[clamp(20px,4.5vh,34px)]">
-        <GoogleLoginButton
-          onCredential={(idToken) => void submitGoogleLogin(idToken)}
-          isPending={isGooglePending}
-          errorKey={googleErrorKey}
-        />
-      </div>
+      {/*
+        이메일 로그인이 먼저다.
 
-      {/* 구분선 가운데에 "또는 이메일로" */}
-      <div className="mt-[clamp(18px,4vh,28px)] flex items-center gap-3">
-        <span aria-hidden className="bg-line h-px flex-1" />
-        <span className="text-ink-muted text-[12.5px]">
-          {t('auth.login.orEmail')}
-        </span>
-        <span aria-hidden className="bg-line h-px flex-1" />
-      </div>
-
+        구글 세션이 있는 사용자에게는 GIS 가 아바타·계정명·이메일이 든 개인화
+        버튼을 그린다. 그게 화면 맨 위에 있으면 두 줄짜리 카드가 제목 바로
+        아래를 차지해 기본 로그인 폼보다 무거워 보인다. 화면 제목·부제가
+        "이메일과 비밀번호로 로그인하세요" 인 것과도 순서가 어긋난다.
+      */}
       <form
-        className="mt-[clamp(18px,4vh,28px)]"
+        className="mt-[clamp(20px,4.5vh,34px)]"
         onSubmit={(event) => void submitLogin(event)}
         noValidate
       >
@@ -172,6 +163,23 @@ export default function LoginPage() {
           {t('auth.login.title')}
         </Button>
       </form>
+
+      {/* 구분선 가운데에 "또는 구글 계정으로" */}
+      <div className="mt-[clamp(18px,4vh,28px)] flex items-center gap-3">
+        <span aria-hidden className="bg-line h-px flex-1" />
+        <span className="text-ink-muted text-[12.5px]">
+          {t('auth.login.orGoogle')}
+        </span>
+        <span aria-hidden className="bg-line h-px flex-1" />
+      </div>
+
+      <div className="mt-[clamp(18px,4vh,28px)]">
+        <GoogleLoginButton
+          onCredential={(idToken) => void submitGoogleLogin(idToken)}
+          isPending={isGooglePending}
+          errorKey={googleErrorKey}
+        />
+      </div>
 
       <div className="mt-[clamp(16px,3.5vh,24px)] flex flex-col items-center gap-[clamp(10px,2vh,16px)] pb-6">
         <button

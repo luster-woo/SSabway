@@ -32,3 +32,37 @@ export function toOriginStation(stationName: string): NearestStation {
     longitude: coords.longitude,
   }
 }
+
+/**
+ * 역 이름(한국어) → i18n 키.
+ *
+ * 표지판 인식(BE SignPredictResponse.stationName)은 언어와 무관하게 한국어
+ * 이름만 돌려준다("대구역"). 스토어에는 그 한국어 이름을 그대로 둬야 한다 —
+ * 좌표 조회(STATION_COORDS)와 BE 대조가 이 이름을 키로 쓰기 때문이다.
+ * 화면에 보일 때만 이 표로 사용자 언어 표기를 찾는다.
+ *
+ * 지원 역이 늘면 STATION_COORDS 와 함께 여기 한 줄씩 추가하고 4개 로케일에
+ * 같은 키를 넣는다.
+ */
+const STATION_NAME_KEY: Record<string, string> = {
+  대구역: 'station.daegu',
+}
+
+/** t 함수의 최소 형태. i18next TFunction 의 제네릭에 묶이지 않게 좁혀 받는다. */
+type TranslateFn = (key: string, options?: { defaultValue?: string }) => string
+
+/**
+ * 저장된 역 이름을 화면 표기용으로 바꾼다.
+ *
+ * 표에 없는 이름 — 사용자가 지도에서 직접 고른 장소(MANUAL)나 아직 등록하지
+ * 않은 역 — 은 원문을 그대로 돌려준다. 구글 장소 이름은 이미 사용자 언어로
+ * 검색된 결과라 번역할 것이 없다.
+ */
+export function localizeStationName(
+  name: string | null | undefined,
+  t: TranslateFn,
+): string | null {
+  if (!name) return null
+  const key = STATION_NAME_KEY[name]
+  return key ? t(key, { defaultValue: name }) : name
+}

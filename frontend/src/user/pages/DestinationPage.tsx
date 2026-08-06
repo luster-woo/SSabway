@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
 import { cn } from '@/shared/lib/cn'
+import { localizeStationName } from '@/shared/lib/stationCoords'
 import { useDestinationStore } from '@/shared/lib/store/useDestinationStore'
 import {
   ORIGIN_SOURCE,
@@ -50,9 +51,6 @@ export default function DestinationPage() {
   const destination = useDestinationStore((state) => state.destination)
   const setDestination = useDestinationStore((state) => state.setDestination)
   const originStation = useOriginStationStore((state) => state.originStation)
-  const setOriginStation = useOriginStationStore(
-    (state) => state.setOriginStation,
-  )
 
   const { results, isSearching, hasSearched, errorType } =
     usePlaceSearch(submittedQuery)
@@ -78,10 +76,32 @@ export default function DestinationPage() {
     [originStation, originSource],
   )
 
+  /*
+    화면에 보일 출발지 이름.
+
+    표지판 인식이 주는 역 이름은 언어와 무관하게 한국어("대구역")다. 스토어에는
+    그 원문을 그대로 두고(좌표 조회·BE 대조가 이 이름을 키로 쓴다) 표시할 때만
+    사용자 언어 표기로 바꾼다. 지도에서 직접 고른 장소는 이미 사용자 언어라
+    localizeStationName 이 원문을 그대로 돌려준다.
+  */
+  const originLabel = localizeStationName(originStation?.name, t)
+
+  /*
+    지도 출발지 마커에도 같은 이름을 쓴다. 마커 title 은 값이 바뀔 때만 갱신하면
+    되므로, 새 객체 리터럴로 매 렌더 이펙트를 깨우지 않도록 메모한다.
+  */
+  const originPoint = useMemo(
+    () =>
+      originStation
+        ? { ...originStation, name: originLabel ?? originStation.name }
+        : null,
+    [originStation, originLabel],
+  )
+
   const { recenterToMyLocation } = useGoogleDestinationMap(mapContainerRef, {
     isReady: status === SDK_STATUS.READY,
     selected,
-    origin: originStation,
+    origin: originPoint,
     destination,
     myLocation,
   })
@@ -118,38 +138,17 @@ export default function DestinationPage() {
     setSubmittedQuery('')
   }
 
-  /*
-    같은 지점인지 좌표로 판정한다. placeId 는 검색 소스가 달라지면 바뀌지만
-    (GPS 로 찾은 인근역에는 아예 없다) 좌표는 어느 경로로 들어와도 같다.
-  */
-  const isSamePoint = (
-    a: { latitude: number; longitude: number } | null,
-    b: { latitude: number; longitude: number } | null,
-  ) => !!a && !!b && a.latitude === b.latitude && a.longitude === b.longitude
-
-  const applyOrigin = () => {
-    if (!selected) return
-    setOriginStation(
-      {
-        name: selected.name,
-        latitude: selected.latitude,
-        longitude: selected.longitude,
-      },
-      ORIGIN_SOURCE.MANUAL,
-    )
-    showToast(t('destination.originApplied', { name: selected.name }))
-  }
-
-  const applyDestination = () => {
+  /**
+   * 목적지를 확정하고 곧바로 경로 선택 화면으로 넘어간다.
+   *
+   * 출발지는 표지판 인식으로 잡힌 현재 역을 그대로 쓰므로, 이 화면에서 사용자가
+   * 정하는 것은 목적지 하나뿐이다. 다른 목적지로 바꾸려면 위 목록에서 다른
+   * 후보를 고르거나 검색을 다시 하면 된다.
+   */
+  const confirmDestination = () => {
     if (!selected) return
     setDestination(selected)
     showToast(t('destination.destinationApplied', { name: selected.name }))
-  }
-
-  const canProceed = !!originStation && !!destination
-
-  const confirmTrip = () => {
-    if (!canProceed) return
     void navigate('/route')
   }
 
@@ -197,7 +196,7 @@ export default function DestinationPage() {
         <div className="pointer-events-auto">
           <TripEndpointBar
             className="border-line bg-surface/95 rounded-2xl border px-3.5 py-2 shadow-sm backdrop-blur"
-            originName={originStation?.name ?? null}
+            originName={originLabel}
             destinationName={destination?.name ?? null}
           />
         </div>
@@ -252,13 +251,7 @@ export default function DestinationPage() {
         <div className="absolute inset-x-0 bottom-0 z-10">
           <SelectedPlaceCard
             place={selected}
-            isOrigin={isSamePoint(selected, originStation)}
-            isDestination={isSamePoint(selected, destination)}
-            canProceed={canProceed}
-            onSetOrigin={applyOrigin}
-            onSetDestination={applyDestination}
-            onConfirm={confirmTrip}
-            onReset={resetSearch}
+            onConfirm={confirmDestination}
           />
         </div>
       ) : null}
