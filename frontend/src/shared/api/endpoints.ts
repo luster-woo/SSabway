@@ -121,6 +121,27 @@ const openvidu = {
     `/openvidu/sessions/${encodeURIComponent(sessionId)}/end`,
 } as const
 
+/**
+ * 민원 기록 조회(GET /staffs/history)의 쿼리 파라미터.
+ *
+ * email·from·to 는 백엔드에서 @RequestParam(required = false) 라 전부 선택이며,
+ * 서로 독립이다 — 기간만, 이메일만, 둘 다 어느 조합이든 된다.
+ *   email : 정확 일치, 대소문자 무관
+ *   from  : yyyy-MM-dd. 그 날 00:00 부터
+ *   to    : yyyy-MM-dd. 그 날 전체를 포함(경계 포함)
+ *
+ * ⚠️ 날짜를 Date 가 아니라 문자열로 받는다. Date 를 toISOString 으로 넘기면
+ *    UTC 로 밀려 KST 자정 근처에서 하루가 어긋난다. 백엔드는 LocalDate 라
+ *    화면에서 고른 그 날짜가 그대로 가야 한다. (historyFilter.ts 의 toDateParam)
+ */
+export interface HistoryQueryParams {
+  /** 1부터. 검색 조건이 바뀌면 화면이 1 로 되돌린다. */
+  page: number
+  email?: string | null
+  from?: string | null
+  to?: string | null
+}
+
 /** 관리자 */
 const admin = {
   login: '/staffs/login',
@@ -129,8 +150,19 @@ const admin = {
   /**
    * 민원 기록 목록. ✅ BE 개발완료 (ConsultationController GET /staffs/history).
    * useConsultationHistory 의 매핑 함수 주석 참고. 페이지는 1부터, 6건씩.
+   *
+   * page 를 뺀 셋은 전부 선택이다 (8/6 BE 추가 — @RequestParam(required = false)).
+   * 검색 조건 없이 부르면 예전과 똑같이 전체 목록이 온다.
    */
-  history: (page: number) => `/staffs/history?page=${page}`,
+  history: (params: HistoryQueryParams) => {
+    const query = new URLSearchParams({ page: String(params.page) })
+    // 빈 문자열을 그대로 실으면 백엔드가 "빈 값과 정확히 일치"로 읽어 0건이 된다.
+    // 값이 없는 조건은 파라미터 자체를 빼야 한다.
+    if (params.email) query.set('email', params.email)
+    if (params.from) query.set('from', params.from)
+    if (params.to) query.set('to', params.to)
+    return `/staffs/history?${query.toString()}`
+  },
   /**
    * 원본 상담 내역(녹취) 조회. ✅ BE 개발완료 (ConsultationController.getDetail).
    *

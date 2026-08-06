@@ -4,7 +4,13 @@ export type { ButtonProps, ButtonSize, ButtonVariant } from '@/shared/ui/Button'
 export { Card } from '@/shared/ui/Card'
 export { Dialog } from '@/shared/ui/Dialog'
 export type { DialogProps } from '@/shared/ui/Dialog'
-export { CheckIcon, InfoIcon, UserIcon } from '@/shared/ui/icons'
+export {
+  CalendarIcon,
+  CheckIcon,
+  InfoIcon,
+  SearchIcon,
+  UserIcon,
+} from '@/shared/ui/icons'
 export { LoadingOverlay } from '@/shared/ui/LoadingOverlay'
 export { MobileScreen } from '@/shared/ui/MobileScreen'
 export { MobileViewport } from '@/shared/ui/MobileViewport'

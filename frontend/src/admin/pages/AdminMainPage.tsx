@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { requestLogout } from '@/shared/api/client'
@@ -17,6 +18,13 @@ export default function AdminMainPage() {
   const navigate = useNavigate()
   const staffCode = useAdminProfileStore((s) => s.staffCode)
   const clearStaffCode = useAdminProfileStore((s) => s.clearStaffCode)
+
+  /*
+    블랙리스트 명단은 민원 기록이 아니라 역무원 계정 단위의 목록이라 헤더에 둔다.
+    여는 버튼만 여기 있고 모달 본체·등록·해제는 HistoryPanel 이 그대로 갖고 있어
+    (사유 수정 모달과 상태를 공유해야 한다) 열림 여부만 이 위로 올렸다.
+  */
+  const [isRosterOpen, setIsRosterOpen] = useState(false)
 
   /**
    * 로그아웃.
@@ -47,6 +55,15 @@ export default function AdminMainPage() {
             variant="onDark"
             size="sm"
             className="rounded-full"
+            onClick={() => setIsRosterOpen(true)}
+          >
+            블랙리스트 명단
+          </AdminButton>
+
+          <AdminButton
+            variant="onDark"
+            size="sm"
+            className="rounded-full"
             onClick={() => void signOut()}
           >
             로그아웃
@@ -60,7 +77,10 @@ export default function AdminMainPage() {
     >
       <div className="grid min-h-0 flex-1 grid-cols-[minmax(0,4fr)_minmax(0,5fr)] gap-6 p-6">
         <WaitingPanel />
-        <HistoryPanel />
+        <HistoryPanel
+          isRosterOpen={isRosterOpen}
+          onRosterOpenChange={setIsRosterOpen}
+        />
       </div>
     </AdminShell>
   )
