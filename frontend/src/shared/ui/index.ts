@@ -9,6 +9,7 @@ export {
   CalendarIcon,
   CheckIcon,
   ChevronDownIcon,
+  ChevronLeftIcon,
   InfoIcon,
   LogoutIcon,
   SearchIcon,
