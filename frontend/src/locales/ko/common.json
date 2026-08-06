@@ -31,7 +31,7 @@
     "login": {
       "title": "로그인",
       "subtitle": "이메일과 비밀번호로 로그인하세요.",
-      "orEmail": "또는 이메일로",
+      "orGoogle": "또는 구글 계정으로",
       "email": "이메일",
       "emailPlaceholder": "you@example.com",
       "password": "비밀번호",
