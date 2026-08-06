@@ -17,6 +17,15 @@ import { HelpChatHeader } from '@/user/features/help-chat/HelpChatHeader'
 const GUTTER = 'px-[clamp(16px,5vw,24px)]'
 
 /**
+ * 블랙리스트 거절(403 CONSULTATION_BLOCKED)의 문구 키.
+ *
+ * 이 사유만 봇 말풍선이 아니라 **가운데 경고 박스**로 그린다 — 다른 거절
+ * (중복 요청·역무원 없음)은 "잠시 후 다시"로 이어지는 대화의 일부지만,
+ * 차단은 여기서 할 수 있는 것이 없다는 최종 안내라 무게가 달라야 한다.
+ */
+const BLOCKED_KEY = 'helpChat.rejected.blocked'
+
+/**
  * 7. 도움 요청(SSabway 도우미) — 경로 안내 중 도움 요청을 누르면 오는 화면.
  *
  * 챗봇처럼 보이지만 자유 입력은 없고 버튼 클릭으로만 진행된다.
@@ -105,7 +114,9 @@ export default function HelpChatPage() {
   const goLogin = () => {
     // 로그인 성공 시 LoginPage 가 이 `from` 으로 돌아온다.
     // (히스토리로 되돌리면 안 되는 이유는 features/auth/loginFrom 주석 참고)
-    void navigate('/login', { state: { from: '/help' } satisfies LoginFromState })
+    void navigate('/login', {
+      state: { from: '/help' } satisfies LoginFromState,
+    })
   }
 
   /** 상담을 요청하고 이 화면에서 대기 상태로 전환한다. (페이지 이동 없음) */
@@ -125,7 +136,9 @@ export default function HelpChatPage() {
     <MobileViewport className="bg-surface-soft flex flex-col">
       <HelpChatHeader onBack={() => void navigate(-1)} />
 
-      <main className={`${GUTTER} flex flex-1 flex-col gap-4 overflow-y-auto py-5`}>
+      <main
+        className={`${GUTTER} flex flex-1 flex-col gap-4 overflow-y-auto py-5`}
+      >
         <BotBubble>{t('helpChat.greeting')}</BotBubble>
 
         {/* 사용자 쪽 선택지. 누르고 나면 보낸 말풍선처럼 남는다. */}
@@ -137,7 +150,7 @@ export default function HelpChatPage() {
           <button
             type="button"
             onClick={requestConnection}
-            className="bg-brand-gradient focus-visible:ring-brand self-end rounded-full px-7 py-3 text-[14px] font-bold text-white shadow-sm transition active:brightness-95 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+            className="bg-brand-gradient focus-visible:ring-brand self-end rounded-full px-7 py-3 text-[14px] font-bold text-white shadow-sm transition focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none active:brightness-95"
           >
             {t('helpChat.connectStaff')}
           </button>
@@ -149,7 +162,7 @@ export default function HelpChatPage() {
             <button
               type="button"
               onClick={goLogin}
-              className="border-brand bg-surface text-brand-dark focus-visible:ring-brand mx-auto mt-1 h-[52px] w-[82%] rounded-full border-[1.6px] text-[14.5px] font-bold transition active:brightness-95 focus-visible:ring-2 focus-visible:outline-none"
+              className="border-brand bg-surface text-brand-dark focus-visible:ring-brand mx-auto mt-1 h-[52px] w-[82%] rounded-full border-[1.6px] text-[14.5px] font-bold transition focus-visible:ring-2 focus-visible:outline-none active:brightness-95"
             >
               {t('helpChat.loginAndConnect')}
             </button>
@@ -191,7 +204,7 @@ export default function HelpChatPage() {
                   <button
                     type="button"
                     onClick={() => void cancelWaiting()}
-                    className="border-line bg-surface text-ink focus-visible:ring-brand h-11 w-[82%] rounded-2xl border text-[13px] transition active:brightness-95 focus-visible:ring-2 focus-visible:outline-none"
+                    className="border-line bg-surface text-ink focus-visible:ring-brand h-11 w-[82%] rounded-2xl border text-[13px] transition focus-visible:ring-2 focus-visible:outline-none active:brightness-95"
                   >
                     {t('common.cancel')}
                   </button>
@@ -201,7 +214,7 @@ export default function HelpChatPage() {
                   type="button"
                   disabled={isPending}
                   onClick={() => void startVideoCall()}
-                  className="bg-brand-gradient focus-visible:ring-brand h-[52px] w-[82%] rounded-2xl text-[15px] font-bold text-white shadow-sm transition active:brightness-95 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:opacity-60"
+                  className="bg-brand-gradient focus-visible:ring-brand h-[52px] w-[82%] rounded-2xl text-[15px] font-bold text-white shadow-sm transition focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none active:brightness-95 disabled:opacity-60"
                 >
                   {t('helpChat.connect')}
                 </button>
@@ -211,10 +224,38 @@ export default function HelpChatPage() {
               </p>
             </div>
 
-            {/* 요청이 거절되면 사유를 봇 코멘트로 남긴다
-                (블랙리스트·중복 요청·역무원 없음 등) */}
+            {/* 요청이 거절되면 사유를 알린다. 블랙리스트 차단은 가운데 경고
+                박스(BLOCKED_KEY 주석 참고), 그 밖(중복·역무원 없음)은 봇 코멘트. */}
             {isRejected && rejectedKey ? (
-              <BotBubble>{t(rejectedKey)}</BotBubble>
+              rejectedKey === BLOCKED_KEY ? (
+                <div
+                  role="alert"
+                  className="border-danger/30 bg-danger/5 mx-auto mt-2 flex w-[88%] flex-col items-center gap-2.5 rounded-2xl border-[1.6px] px-5 py-5 text-center"
+                >
+                  <span
+                    aria-hidden
+                    className="bg-danger/10 text-danger flex size-11 items-center justify-center rounded-full"
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={2.1}
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="size-6"
+                    >
+                      <path d="M10.3 4.1 2.9 17a2 2 0 0 0 1.7 3h14.8a2 2 0 0 0 1.7-3L13.7 4.1a2 2 0 0 0-3.4 0Z" />
+                      <path d="M12 9.5v4M12 17h.01" />
+                    </svg>
+                  </span>
+                  <p className="text-danger text-[14px] leading-relaxed font-bold whitespace-pre-line">
+                    {t(rejectedKey)}
+                  </p>
+                </div>
+              ) : (
+                <BotBubble>{t(rejectedKey)}</BotBubble>
+              )
             ) : null}
           </>
         ) : null}
@@ -226,14 +267,14 @@ export default function HelpChatPage() {
         <button
           type="button"
           onClick={() => leaveTo('/guide')}
-          className="border-line bg-surface text-ink focus-visible:ring-brand h-11 flex-1 rounded-2xl border text-[13px] transition active:brightness-95 focus-visible:ring-2 focus-visible:outline-none"
+          className="border-line bg-surface text-ink focus-visible:ring-brand h-11 flex-1 rounded-2xl border text-[13px] transition focus-visible:ring-2 focus-visible:outline-none active:brightness-95"
         >
           {t('helpChat.backToGuide')}
         </button>
         <button
           type="button"
           onClick={() => leaveTo('/')}
-          className="border-line bg-surface text-ink focus-visible:ring-brand h-11 flex-1 rounded-2xl border text-[13px] transition active:brightness-95 focus-visible:ring-2 focus-visible:outline-none"
+          className="border-line bg-surface text-ink focus-visible:ring-brand h-11 flex-1 rounded-2xl border text-[13px] transition focus-visible:ring-2 focus-visible:outline-none active:brightness-95"
         >
           {t('common.goHome')}
         </button>

@@ -150,7 +150,8 @@ export default function DestinationPage() {
   const confirmDestination = () => {
     if (!selected) return
     setDestination(selected)
-    showToast(t('destination.destinationApplied', { name: selected.name }))
+    // 확정 토스트는 띄우지 않는다 — 경로 선택 화면의 안내 팝업(RouteNoticePopup)과
+    // 같은 자리에 겹쳐서, 다음 화면이 곧바로 같은 내용을 알려주는 것으로 충분하다.
     void navigate('/route')
   }
 
@@ -251,10 +252,7 @@ export default function DestinationPage() {
 
       {selected ? (
         <div className="absolute inset-x-0 bottom-0 z-10">
-          <SelectedPlaceCard
-            place={selected}
-            onConfirm={confirmDestination}
-          />
+          <SelectedPlaceCard place={selected} onConfirm={confirmDestination} />
         </div>
       ) : null}
     </MobileViewport>
