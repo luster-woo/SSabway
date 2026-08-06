@@ -1,7 +1,8 @@
 import { useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 
-import { DAEGU_MAP_SVG } from '@/shared/station-map/daeguMap'
 import { DAEGU_NODES } from '@/shared/station-map/daeguNavigation'
+import { toLocalizedMapSvg } from '@/shared/station-map/mapLabels'
 import {
   DIRECTION_ARROW_PATH,
   DIRECTION_ARROW_WIDTH,
@@ -21,6 +22,7 @@ import {
   toStepPath,
   type RouteStepRef,
 } from '@/shared/station-map/routePath'
+import type { Language } from '@/shared/types/user'
 
 /** 다음 위치 마커 반지름 (도면 좌표 기준, markerScale=1 일 때) */
 const NEXT_RADIUS = 26
@@ -60,6 +62,14 @@ export interface StationRouteMapProps {
    * 비례한 값을 넘겨 화면상 크기를 일정하게 유지한다.
    */
   markerScale?: number
+  /**
+   * 도면에 적힌 장소 명칭을 이 언어로 고정한다. 없으면 앱의 현재 언어를 따른다.
+   *
+   * 관리자 화면(사용자 위치 보기)은 한국어 고정이다 — 역무원이 실제 역 안내판·
+   * 무전으로 말하는 이름과 화면이 어긋나면 안 되기 때문이다. 사용자 앱은 이걸
+   * 넘기지 않아 선택한 언어를 그대로 따른다. (StationMapOverlay 의 lang 과 같은 값)
+   */
+  lang?: Language
 }
 
 /**
@@ -87,7 +97,23 @@ export function StationRouteMap({
   steps,
   currentIndex,
   markerScale = 1,
+  lang,
 }: StationRouteMapProps) {
+  // lng 를 주면 그 언어로 고정되고, undefined 면 현재 언어를 따른다.
+  const { t, i18n } = useTranslation(undefined, { lng: lang })
+
+  /*
+    도면의 장소 명칭을 화면 언어로 갈아 끼운 마크업.
+
+    캐시 키는 실제로 쓰인 언어여야 한다 — lang 이 없을 때는 앱의 현재 언어이고,
+    그 값은 사용자가 언어를 바꾸면 달라진다. resolvedLanguage 를 키로 쓰면
+    언어 전환 시 새로 만들고, 되돌아오면 캐시를 재사용한다.
+  */
+  const mapSvg = useMemo(
+    () => toLocalizedMapSvg(lang ?? i18n.resolvedLanguage ?? '', t),
+    [lang, i18n.resolvedLanguage, t],
+  )
+
   const viewBox = `${String(cx - half)} ${String(cy - half)} ${String(half * 2)} ${String(half * 2)}`
 
   // 단계별 경로선. 인덱스가 steps 와 나란해야 진행 상태를 칠할 수 있다.
@@ -155,7 +181,7 @@ export function StationRouteMap({
     <svg
       viewBox={viewBox}
       role="img"
-      aria-label="역 내 도면과 안내 경로"
+      aria-label={t('routeGuide.stationMap.mapAlt')}
       className="bg-surface-muted block h-full w-full"
     >
       <style>{`
@@ -189,7 +215,7 @@ export function StationRouteMap({
         }
       `}</style>
 
-      <g dangerouslySetInnerHTML={{ __html: DAEGU_MAP_SVG }} />
+      <g dangerouslySetInnerHTML={{ __html: mapSvg }} />
 
       {/* 전체 경로 — 지나온 구간은 회색, 남은 구간은 파랑 */}
       <g fill="none" strokeLinecap="round" strokeLinejoin="round">

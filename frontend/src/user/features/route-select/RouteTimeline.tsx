@@ -86,7 +86,7 @@ export function RouteTimeline({
           <span
             key={`${station}-label-${index}`}
             className={cn(
-              'text-ink-muted min-w-0 truncate text-[11px]',
+              'text-ink-muted min-w-0 truncate text-[11px] font-bold',
               index === 0 && 'text-left',
               index === lastIndex && lastIndex !== 0 && 'text-right',
             )}
