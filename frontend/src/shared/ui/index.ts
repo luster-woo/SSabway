@@ -5,9 +5,12 @@ export { Card } from '@/shared/ui/Card'
 export { Dialog } from '@/shared/ui/Dialog'
 export type { DialogProps } from '@/shared/ui/Dialog'
 export {
+  BanIcon,
   CalendarIcon,
   CheckIcon,
+  ChevronDownIcon,
   InfoIcon,
+  LogoutIcon,
   SearchIcon,
   UserIcon,
 } from '@/shared/ui/icons'

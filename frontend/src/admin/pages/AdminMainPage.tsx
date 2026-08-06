@@ -2,9 +2,11 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { requestLogout } from '@/shared/api/client'
+import { BanIcon } from '@/shared/ui'
 import { useAdminProfileStore } from '@/admin/features/auth/useAdminProfileStore'
 import { WaitingPanel } from '@/admin/features/consultation-receive/WaitingPanel'
 import { HistoryPanel } from '@/admin/features/dashboard/HistoryPanel'
+import { AdminAccountMenu } from '@/admin/ui/AdminAccountMenu'
 import { AdminButton } from '@/admin/ui/AdminButton'
 import { AdminShell } from '@/admin/ui/AdminShell'
 
@@ -50,28 +52,29 @@ export default function AdminMainPage() {
   return (
     <AdminShell
       headerRight={
-        <div className="flex items-center gap-4">
+        /*
+          헤더에는 업무 진입점 하나(블랙리스트 명단)와 계정 메뉴 하나만 둔다.
+          이전에는 [명단][로그아웃][사번] 셋이 같은 무게로 놓여 있어 어느 것도
+          눈에 띄지 않는다는 지적이 있었다. 사번·로그아웃은 계정 메뉴로 접고,
+          남은 하나만 강조색으로 띄운다.
+        */
+        <div className="flex items-center gap-3">
           <AdminButton
-            variant="onDark"
+            variant="onDarkAccent"
             size="sm"
             className="rounded-full"
             onClick={() => setIsRosterOpen(true)}
           >
+            <BanIcon aria-hidden className="size-[15px]" />
             블랙리스트 명단
           </AdminButton>
 
-          <AdminButton
-            variant="onDark"
-            size="sm"
-            className="rounded-full"
-            onClick={() => void signOut()}
-          >
-            로그아웃
-          </AdminButton>
+          <span aria-hidden className="h-6 w-px bg-white/20" />
 
-          {staffCode ? (
-            <span className="text-[13px] text-white/80">{staffCode}</span>
-          ) : null}
+          <AdminAccountMenu
+            staffCode={staffCode}
+            onSignOut={() => void signOut()}
+          />
         </div>
       }
     >
