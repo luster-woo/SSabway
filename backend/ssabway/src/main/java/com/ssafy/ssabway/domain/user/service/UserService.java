@@ -4,6 +4,7 @@ import com.ssafy.ssabway.domain.auth.service.RefreshTokenService;
 import com.ssafy.ssabway.domain.user.dto.request.*;
 import com.ssafy.ssabway.domain.user.dto.response.EmailDuplicateResponse;
 import com.ssafy.ssabway.domain.user.dto.response.LoginResult;
+import com.ssafy.ssabway.domain.user.dto.response.UserMeResponse;
 import com.ssafy.ssabway.domain.user.entity.Provider;
 import com.ssafy.ssabway.domain.user.entity.User;
 import com.ssafy.ssabway.domain.user.repository.UserRepository;
@@ -84,11 +85,15 @@ public class UserService {
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
 
-        // 소셜 가입자는 password_hash가 NULL이라 비밀번호로 본인 확인을 할 수 없음
-        // 구글 로그인이 붙으면 별도 확인 수단이 필요!!!
-        if (user.getPasswordHash() == null) throw new BusinessException(ErrorCode.SOCIAL_LOGIN_REQUIRED);
-
-        if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) throw new BusinessException(ErrorCode.PASSWORD_MISMATCH);
+        /*
+            탈퇴의 비밀번호 확인은 재인증이 아니라 실수 방지 목적
+            소셜 가입자는 password_hash가 NULL이라 확인할 수단이 없으므로,
+            서버는 토큰만 신뢰하고 확인 절차는 프론트(모달 등)에 맡김
+         */
+        if (user.getProvider() == Provider.LOCAL
+                && !passwordEncoder.matches(request.password(), user.getPasswordHash())) {
+            throw new BusinessException(ErrorCode.PASSWORD_MISMATCH);
+        }
 
         user.withdraw();
 
@@ -129,5 +134,12 @@ public class UserService {
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
         user.changeLanguage(request.language());
+    }
+
+    public UserMeResponse getMe(Long userId){
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        return UserMeResponse.from(user);
     }
 }

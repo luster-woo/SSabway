@@ -42,8 +42,7 @@ export default function AdminConsultationPage() {
     isPending,
     isError,
   } = useConsultationDetail(isValidId ? consultationId : 0)
-  const { registerBlacklist, lastFailureMessage, pendingEmail } =
-    useBlacklist()
+  const { registerBlacklist, lastFailureMessage, pendingEmail } = useBlacklist()
   const { endConsultation, isPending: isEndPending } = useEndConsultation()
   const room = useConsultationRoom(isValidId ? consultationId : 0)
 
@@ -141,6 +140,7 @@ export default function AdminConsultationPage() {
             isRestoring={room.isRestoring}
             isRestoreFailed={room.isRestoreFailed}
             isRecording={room.isRecording}
+            userScreenAspect={room.userScreenAspect}
           />
         </div>
 

@@ -11,6 +11,7 @@ import { Button, Dialog, useToast } from '@/shared/ui'
 import { OpenViduVideo } from '@/shared/webrtc/OpenViduVideo'
 import { OV_STATUS } from '@/shared/webrtc/useOpenViduSession'
 import { useRemoteMediaStream } from '@/shared/webrtc/useRemoteMediaStream'
+import { usePublishViewportAspect } from '@/shared/webrtc/useViewportAspect'
 import { CallControls } from '@/user/features/consultation/CallControls'
 import { CameraStage } from '@/user/features/consultation/CameraStage'
 import { ConnectedBadge } from '@/user/features/consultation/ConnectedBadge'
@@ -92,6 +93,18 @@ export default function ConsultationPage() {
   const mosaic = useFaceMosaic(stream)
 
   const call = useConsultationCall(consultationId, mosaic.stream)
+
+  /*
+    역무원 화면의 화각을 이 화면과 맞춘다.
+
+    이 화면은 MobileViewport 를 쓰지 않는다 — 카메라가 화면을 꽉 채워야 해서
+    폰 규격 컬럼(max-w-[430px]) 없이 뷰포트를 그대로 쓴다. 그래서 크롭 기준
+    박스는 기기 화면 그 자체이고, 주소창이 오르내릴 때마다 세로가 변한다.
+    역무원 쪽이 그 값을 상수로 들고 있으면 기기마다 양옆이 어긋나므로,
+    실제로 잰 값을 통화 내내 보내 준다. (자세한 이유는 훅 주석 참고)
+  */
+  const cameraBoxRef = useRef<HTMLDivElement>(null)
+  usePublishViewportAspect(call.session, cameraBoxRef)
 
   /*
     역무원 발화 자막. 역무원 음성(staffStream)을 사용자가 고른 언어로 번역해
@@ -382,7 +395,11 @@ export default function ConsultationPage() {
         영상은 기기 밖으로 나가지 않는다. 상단의 "얼굴 모자이크 적용 중"
         배지가 그 사실을 사용자에게 알린다.
       */}
-      <CameraStage stream={stream} isCameraOn={isCameraOn} />
+      <CameraStage
+        stream={stream}
+        isCameraOn={isCameraOn}
+        boxRef={cameraBoxRef}
+      />
 
       <div className="px-safe relative flex flex-1 flex-col">
         <header className="flex shrink-0 flex-col items-center gap-2 pt-[calc(env(safe-area-inset-top,0px)+1rem)]">
