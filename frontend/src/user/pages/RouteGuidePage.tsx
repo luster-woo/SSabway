@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
+import { cn } from '@/shared/lib/cn'
 import { useCurrentNodeStore } from '@/shared/lib/store/useCurrentNodeStore'
 import { useElevatorFallbackStore } from '@/shared/lib/store/useElevatorFallbackStore'
 import { useGuideStepStore } from '@/shared/lib/store/useGuideStepStore'
@@ -31,6 +32,7 @@ import {
   toNavFailure,
 } from '@/user/features/route-guide/lib/naviError'
 import { useRouteGuide } from '@/user/features/route-guide/useRouteGuide'
+import { useStepSwipe } from '@/user/features/route-guide/useStepSwipe'
 
 /** 경로 재탐색을 마치고 돌아올 경로. SignCapturePage가 state로 받는다. */
 const ROUTE_GUIDE_PATH = '/guide'
@@ -186,6 +188,18 @@ export default function RouteGuidePage() {
   const goNextStep = () => {
     setActiveIndex((index) => Math.min(index + 1, steps.length - 1))
   }
+
+  /*
+    표지판 카드를 좌우로 끌어도 단계가 넘어간다. 드래그 중에는 카드가
+    손가락을 따라오고, 놓으면 트랙 transition 이 새 단계(또는 제자리)로
+    미끄러뜨린다. 첫·마지막 단계 밖으로는 저항만 걸리고 넘어가지 않는다.
+  */
+  const swipe = useStepSwipe({
+    onSwipeLeft: goNextStep,
+    onSwipeRight: goPrevStep,
+    canSwipeLeft: activeIndex < steps.length - 1,
+    canSwipeRight: activeIndex > 0,
+  })
 
   /** 마지막 단계에서만 노출. 도착 완료 화면(6-1)으로 넘어간다. */
   const completeArrival = () => {
@@ -358,16 +372,45 @@ export default function RouteGuidePage() {
               {step.sign ? t('routeGuide.nextSign') : t('routeGuide.nextPoint')}
             </SectionLabel>
 
-            {/* 표지판이 있는 지점과 없는 지점(개찰구·편의점)은 카드가 다르다. */}
-            {step.sign ? (
-              <SignBoardCard sign={step.sign} />
-            ) : (
-              <ArrivalPointCard
-                arriveType={step.arriveType}
-                arriveCategory={step.arriveCategory}
-                arrivedFor={step.arrivedFor}
-              />
-            )}
+            {/*
+              모든 단계의 카드를 가로 트랙으로 늘어놓고 보이는 창만 남긴다.
+              트랙 너비는 컨테이너와 같으므로 translateX(-100%) = 카드 한 장이다.
+              드래그 중에는 transition 을 꺼 손가락에 붙고, 놓으면 켜져 미끄러진다.
+            */}
+            <div
+              {...swipe.handlers}
+              className="touch-pan-y overflow-hidden select-none"
+            >
+              <div
+                className={cn(
+                  'flex',
+                  !swipe.isDragging &&
+                    'transition-transform duration-300 ease-out',
+                )}
+                style={{
+                  transform: `translateX(calc(${-activeIndex * 100}% + ${swipe.dragX}px))`,
+                }}
+              >
+                {steps.map((guideStep, index) => (
+                  <div
+                    key={`${index}-${guideStep.from}`}
+                    aria-hidden={index !== activeIndex}
+                    className="w-full shrink-0"
+                  >
+                    {/* 표지판이 있는 지점과 없는 지점(개찰구·편의점)은 카드가 다르다. */}
+                    {guideStep.sign ? (
+                      <SignBoardCard sign={guideStep.sign} />
+                    ) : (
+                      <ArrivalPointCard
+                        arriveType={guideStep.arriveType}
+                        arriveCategory={guideStep.arriveCategory}
+                        arrivedFor={guideStep.arrivedFor}
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
           </section>
 
           <GuideInstructionCard instruction={step.instruction} />
