@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
 import { useCurrentNodeStore } from '@/shared/lib/store/useCurrentNodeStore'
+import { useGuideStepStore } from '@/shared/lib/store/useGuideStepStore'
 import { useRoutePreferenceStore } from '@/shared/lib/store/useRoutePreferenceStore'
 import {
   resolveStationNodes,
@@ -94,6 +95,45 @@ export default function RouteGuidePage() {
     setActiveIndex((index) => (index < steps.length ? index : 0))
   }, [steps.length])
 
+  /*
+    화상 상담에 다녀온 뒤 보고 있던 단계로 되돌린다.
+
+    도움 요청 → 화상 상담을 거쳐 오면 이 페이지가 다시 마운트되고 activeIndex 가
+    0 으로 시작한다. 스토어에 남겨 둔 마지막 단계를 그때 되살린다.
+
+    ⚠️ 목표는 **첫 렌더에 한 번만** 읽어야 한다. 아래 저장 이펙트가 마운트 직후
+       0 번 단계로 스토어를 덮어쓰므로, 스토어를 구독해서 읽으면 복원 대상이
+       이미 사라진 뒤다. useState 의 지연 초기화로 렌더 전에 붙잡아 둔다.
+  */
+  const [restoreTarget] = useState(() => {
+    const { stepIndex, stepNodeId } = useGuideStepStore.getState()
+    return { stepIndex, stepNodeId }
+  })
+  const hasRestoredRef = useRef(false)
+
+  /*
+    복원은 "마운트 시점"이 아니라 "단계가 도착한 시점"에 한다 — 상담이 길어지면
+    React Query 캐시(gcTime 기본 5분)가 비워져 돌아왔을 때 steps 가 아직 없다.
+    한 번 시도하면 다시 하지 않는다. 사용자가 복원된 뒤 [이전]으로 되돌아갔는데
+    refetch 가 다시 앞으로 끌어당기면 안 되기 때문이다.
+  */
+  useEffect(() => {
+    if (hasRestoredRef.current) return
+    if (steps.length === 0) return
+
+    hasRestoredRef.current = true
+
+    const { stepIndex, stepNodeId } = restoreTarget
+    if (stepIndex === null || stepIndex <= 0) return
+
+    // 경로가 새로 계산돼 그 자리에 다른 지점이 있으면 복원하지 않는다.
+    // noUncheckedIndexedAccess 가 꺼져 있어 타입이 non-null 로 좁혀지므로 직접 명시한다.
+    const saved: GuideStep | undefined = steps[stepIndex]
+    if (!saved || saved.from !== stepNodeId) return
+
+    setActiveIndex(stepIndex)
+  }, [steps, restoreTarget])
+
   // noUncheckedIndexedAccess가 꺼져 있어 타입이 non-null로 좁혀지므로 직접 명시한다.
   const step: GuideStep | undefined = steps[activeIndex]
   const isLastStep = steps.length > 0 && activeIndex === steps.length - 1
@@ -101,9 +141,8 @@ export default function RouteGuidePage() {
   /*
     보고 있는 단계의 from = 사용자의 현재 위치 노드. (8/5 명세 추가)
 
-    이 화면은 들어오면 무조건 첫 번째 단계를 띄우므로 처음에는 첫 단계의
-    from 이 담기고, [이전]·[다음] 으로 보는 이미지가 바뀌면 그 단계의 from 으로
-    갱신된다. 도움 요청 화면으로 넘어간 뒤 상담을 요청하면 이 값이
+    [이전]·[다음] 으로 보는 이미지가 바뀌면 그 단계의 from 으로 갱신된다.
+    (상담에 다녀와 단계가 복원되면 복원된 단계의 from 으로 다시 맞춰진다) 도움 요청 화면으로 넘어간 뒤 상담을 요청하면 이 값이
     `POST /consultations` 의 currentNodeId 로 실린다 — 역무원이 지도에서
     사용자 위치를 볼 때 쓴다(useConsultationRequest 참고).
   */
@@ -113,6 +152,16 @@ export default function RouteGuidePage() {
   useEffect(() => {
     if (step?.from) setCurrentNodeId(step.from)
   }, [step?.from, setCurrentNodeId])
+
+  /*
+    보고 있는 단계를 스토어에 남긴다. 상담에 다녀온 뒤 위 복원 이펙트가 읽는다.
+    인덱스와 함께 그 단계의 from 도 저장해 둔다 — 경로가 다시 계산됐을 때
+    같은 번호가 다른 지점을 가리키는 것을 복원 직전에 걸러 내기 위해서다.
+  */
+  const setGuideStep = useGuideStepStore((state) => state.setGuideStep)
+  useEffect(() => {
+    if (step?.from) setGuideStep(activeIndex, step.from)
+  }, [activeIndex, step?.from, setGuideStep])
 
   const goPrevStep = () => {
     setActiveIndex((index) => Math.max(index - 1, 0))
@@ -133,7 +182,16 @@ export default function RouteGuidePage() {
    * 카메라 화면은 replace로 띄운다. push하면 촬영 후 replace로 돌아올 때
    * 히스토리에 /guide가 두 번 쌓여 뒤로가기가 같은 화면에 걸린다.
    */
+  const clearGuideStep = useGuideStepStore((state) => state.clearGuideStep)
+
   const rescanRoute = () => {
+    /*
+      재탐색은 "지금 내가 어디인지 다시 잡는다"는 뜻이라, 보고 있던 단계를 버린다.
+      새로 계산된 경로의 첫 단계가 곧 새 현재 위치다. (남겨 두면 대조에 걸려
+      복원되지 않기는 하지만, 우연히 같은 노드가 같은 자리에 오면 엉뚱한
+      단계로 튈 수 있다)
+    */
+    clearGuideStep()
     showToast(t('routeGuide.rescanning'))
     void navigate('/scan', {
       state: { returnTo: ROUTE_GUIDE_PATH },
