@@ -375,6 +375,27 @@
         "current": "Current leg · direction",
         "upcoming": "Next stop · route ahead",
         "passed": "Covered so far"
+      },
+      "mapAlt": "Station floor plan and guided route",
+      "label": {
+        "shop": "Shops",
+        "smokingArea": "Smoking Area",
+        "lotteDepartmentStore": "Lotte Department Store",
+        "departmentStore": "Department Store",
+        "center": "Central",
+        "parking": "Parking",
+        "meetingRoom": "Meeting Room",
+        "policeStation": "Police",
+        "restaurant": "Restaurant",
+        "nursingRoom": "Nursing Room",
+        "daegyeongLineGumi": "Daegyeong Line (for Gumi)",
+        "daegyeongLineGyeongsan": "Daegyeong Line (for Gyeongsan)",
+        "platform1": "Platform 1) for Seoul / Daejeon / Yeongju / Gimcheon",
+        "platform6": "Platform 6) for Busan / Jinju / Bujeon / Sinhaeundae",
+        "daeguStationExit1": "Daegu Stn. Exit 1",
+        "daeguStationExit2": "Daegu Stn. Exit 2",
+        "daeguStationExit3": "Daegu Stn. Exit 3",
+        "daeguStationExit4": "Daegu Stn. Exit 4"
       }
     },
     "help": "Get help",
