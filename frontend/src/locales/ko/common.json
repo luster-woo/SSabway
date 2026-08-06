@@ -496,6 +496,9 @@
       "description": "주소가 잘못되었거나 삭제된 화면이에요."
     }
   },
+  "station": {
+    "daegu": "대구역"
+  },
   "trip": {
     "originEmpty": "출발지 선택",
     "destinationEmpty": "도착지 선택"
