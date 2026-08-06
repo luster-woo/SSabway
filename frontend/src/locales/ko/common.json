@@ -290,6 +290,7 @@
     "origin": "출발",
     "destination": "도착",
     "change": "변경",
+    "rescan": "재촬영",
     "detail": {
       "gps": "현재 위치 기준",
       "manual": "지도에서 선택",
