@@ -333,10 +333,8 @@ export default function RouteGuidePage() {
       ) : null}
 
       {step && data ? (
-        // 배치: 지시문 → 지점 → 이전/다음 → 위치 보기 → (여백) 도움 요청
+        // 배치: 지점(표지판·사진) → 지시문 → 이전/다음 → 위치 보기 → (여백) 도움 요청
         <div className="flex flex-1 flex-col gap-3.5 pt-2 pb-[calc(env(safe-area-inset-bottom,0px)+0.75rem)]">
-          <GuideInstructionCard instruction={step.instruction} />
-
           <section className="flex flex-col gap-2">
             <SectionLabel>
               {step.sign ? t('routeGuide.nextSign') : t('routeGuide.nextPoint')}
@@ -353,6 +351,8 @@ export default function RouteGuidePage() {
               />
             )}
           </section>
+
+          <GuideInstructionCard instruction={step.instruction} />
 
           <StepNavigator
             activeIndex={activeIndex}
