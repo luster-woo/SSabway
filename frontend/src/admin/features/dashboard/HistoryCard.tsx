@@ -38,7 +38,7 @@ function formatPeriod(startTime: string, endTime: string): string {
   const from = `${pad(start.getHours())}:${pad(start.getMinutes())}`
   const to = `${pad(end.getHours())}:${pad(end.getMinutes())}`
 
-  return `${date} · ${from} ~ ${to}`
+  return `${date}  ${from} ~ ${to}`
 }
 
 /** 민원 기록 목록의 한 항목. */
@@ -63,7 +63,7 @@ export function HistoryCard({
           {userEmail}
         </p>
         <p className="text-ink-muted mt-2 text-[13px]">
-          AI 요약 · {summary ?? '요약 없음'}
+          AI 요약  {summary ?? '요약 없음'}
         </p>
       </div>
 

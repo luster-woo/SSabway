@@ -270,7 +270,9 @@
       "needDestination": "No destination yet\nPick one on the map",
       "pickOnMap": "Pick on the map",
       "failedNetwork": "Could not reach the route server\nCheck your network and the server status",
-      "failedNoRoute": "No subway route for this trip\nTry a different start or destination",
+      "failedNoRoute": "Only subway-only routes can be searched.\nPlease reselect your destination.",
+      "failedTooClose": "Destinations within 700m can't be searched.\nPlease reselect your destination.",
+      "reselectEndpoints": "Reselect destination",
       "failedOdsay": "Could not load route data\nPlease try again in a moment",
       "failedUnexpected": "The route server could not handle the request (HTTP {{status}})\nPlease try again shortly"
     }
@@ -436,7 +438,7 @@
     "recordNotice": "The call audio may be recorded",
     "backToGuide": "Back to route guide",
     "rejected": {
-      "blocked": "Video calls are restricted for this account at this station.\nPlease ask a staff member for details.",
+      "blocked": "Video consultation is unavailable for this account. \nFor more information, please contact a station staff member.",
       "duplicated": "You already have a consultation request in progress.\nPlease try again in a moment.",
       "noStaff": "No staff member is available at this station right now.\nPlease try again in a moment.",
       "failed": "We couldn't request a consultation.\nPlease try again in a moment."

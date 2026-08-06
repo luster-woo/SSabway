@@ -50,9 +50,6 @@ export default function DestinationPage() {
   const destination = useDestinationStore((state) => state.destination)
   const setDestination = useDestinationStore((state) => state.setDestination)
   const originStation = useOriginStationStore((state) => state.originStation)
-  const setOriginStation = useOriginStationStore(
-    (state) => state.setOriginStation,
-  )
 
   const { results, isSearching, hasSearched, errorType } =
     usePlaceSearch(submittedQuery)
@@ -118,38 +115,17 @@ export default function DestinationPage() {
     setSubmittedQuery('')
   }
 
-  /*
-    같은 지점인지 좌표로 판정한다. placeId 는 검색 소스가 달라지면 바뀌지만
-    (GPS 로 찾은 인근역에는 아예 없다) 좌표는 어느 경로로 들어와도 같다.
-  */
-  const isSamePoint = (
-    a: { latitude: number; longitude: number } | null,
-    b: { latitude: number; longitude: number } | null,
-  ) => !!a && !!b && a.latitude === b.latitude && a.longitude === b.longitude
-
-  const applyOrigin = () => {
-    if (!selected) return
-    setOriginStation(
-      {
-        name: selected.name,
-        latitude: selected.latitude,
-        longitude: selected.longitude,
-      },
-      ORIGIN_SOURCE.MANUAL,
-    )
-    showToast(t('destination.originApplied', { name: selected.name }))
-  }
-
-  const applyDestination = () => {
+  /**
+   * 목적지를 확정하고 곧바로 경로 선택 화면으로 넘어간다.
+   *
+   * 출발지는 표지판 인식으로 잡힌 현재 역을 그대로 쓰므로, 이 화면에서 사용자가
+   * 정하는 것은 목적지 하나뿐이다. 다른 목적지로 바꾸려면 위 목록에서 다른
+   * 후보를 고르거나 검색을 다시 하면 된다.
+   */
+  const confirmDestination = () => {
     if (!selected) return
     setDestination(selected)
     showToast(t('destination.destinationApplied', { name: selected.name }))
-  }
-
-  const canProceed = !!originStation && !!destination
-
-  const confirmTrip = () => {
-    if (!canProceed) return
     void navigate('/route')
   }
 
@@ -252,13 +228,7 @@ export default function DestinationPage() {
         <div className="absolute inset-x-0 bottom-0 z-10">
           <SelectedPlaceCard
             place={selected}
-            isOrigin={isSamePoint(selected, originStation)}
-            isDestination={isSamePoint(selected, destination)}
-            canProceed={canProceed}
-            onSetOrigin={applyOrigin}
-            onSetDestination={applyDestination}
-            onConfirm={confirmTrip}
-            onReset={resetSearch}
+            onConfirm={confirmDestination}
           />
         </div>
       ) : null}

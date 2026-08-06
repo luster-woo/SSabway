@@ -25,6 +25,29 @@ import { useRoutePaths } from '@/user/features/route-select/useRoutePaths'
  * 카드를 탭하면 선택이 바뀌고, 카드 안의 버튼을 누르면 역 내 안내로 넘어간다.
  * 첫 카드(가장 빠른 경로)가 기본 선택이다.
  */
+/**
+ * 두 좌표 사이 직선 거리(m). Haversine.
+ *
+ * ODsay 는 출발지·도착지가 700m 이내면 "걸어갈 거리"로 보고 지하철 경로를 주지
+ * 않는다. 서버는 이 경우도 "경로 없음"과 같은 코드로 합쳐 주므로, 실패 원인을
+ * 문구로 가르기 위해 프론트에서 좌표로 직접 거리를 잰다.
+ */
+function distanceMeters(
+  a: { latitude: number; longitude: number },
+  b: { latitude: number; longitude: number },
+): number {
+  const R = 6_371_000
+  const toRad = (deg: number) => (deg * Math.PI) / 180
+  const dLat = toRad(b.latitude - a.latitude)
+  const dLng = toRad(b.longitude - a.longitude)
+  const h =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(a.latitude)) *
+      Math.cos(toRad(b.latitude)) *
+      Math.sin(dLng / 2) ** 2
+  return 2 * R * Math.asin(Math.sqrt(h))
+}
+
 export default function RoutePage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -95,8 +118,23 @@ export default function RoutePage() {
     const status = error.response.status
     const code = (error.response.data as ApiErrorBody | undefined)?.code
 
-    if (code === 'SUBWAY_ROUTE_NOT_FOUND')
-      return { key: 'route.select.failedNoRoute' }
+    if (code === 'SUBWAY_ROUTE_NOT_FOUND') {
+      /*
+        같은 코드지만 원인이 둘이다.
+          - 출발지·도착지가 700m 이내 → ODsay 가 지하철 경로를 아예 안 준다.
+          - 그 밖 → 지하철만으로 이어지는 경로가 없다.
+        서버가 하나로 합쳐 주므로 좌표 거리로 프론트에서 나눈다.
+      */
+      const tooClose =
+        !!originStation &&
+        !!destination &&
+        distanceMeters(originStation, destination) <= 700
+      return {
+        key: tooClose
+          ? 'route.select.failedTooClose'
+          : 'route.select.failedNoRoute',
+      }
+    }
     if (code === 'EXTERNAL_API_ERROR')
       return { key: 'route.select.failedOdsay' }
 
@@ -117,7 +155,7 @@ export default function RoutePage() {
       })
     }
     return { key: 'route.select.failedUnexpected', params: { status } }
-  }, [error])
+  }, [error, originStation, destination])
   const paths = data ?? []
   // 의존성은 data로 둔다. paths는 매 렌더 새 배열이라 메모이제이션이 무효화된다.
   const badges = useMemo(() => toRouteBadges(data ?? []), [data])
@@ -155,28 +193,29 @@ export default function RoutePage() {
   return (
     <MobileScreen
       header={
-        // 뒤로가기와 제목은 한 줄, 부제는 제목 왼쪽 끝에 맞춰 아래로 붙는다.
-        <div className="flex items-start gap-1.5">
-          <button
-            type="button"
-            aria-label={t('route.select.back')}
-            onClick={() => void navigate(-1)}
-            className="text-ink mt-0.5 -ml-1.5 flex size-8 shrink-0 items-center justify-center rounded-full"
-          >
-            <ChevronLeftIcon className="size-5" strokeWidth={2} />
-          </button>
+        // 뒤로가기·제목은 한 줄, 구간(출발→도착) 표시는 그 아래 전체 폭에서 가운데.
+        // (예전엔 제목 옆 컬럼 안에 있어 뒤로가기 버튼만큼 오른쪽으로 치우쳐 보였다)
+        <div className="flex flex-col gap-1.5">
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              aria-label={t('route.select.back')}
+              onClick={() => void navigate(-1)}
+              className="text-ink -ml-1.5 flex size-8 shrink-0 items-center justify-center rounded-full"
+            >
+              <ChevronLeftIcon className="size-5" strokeWidth={2} />
+            </button>
 
-          <div className="min-w-0 flex-1">
-            <h1 className="text-ink text-[clamp(23px,6.6vw,27px)] leading-tight font-extrabold">
+            <h1 className="text-ink min-w-0 flex-1 text-[clamp(23px,6.6vw,27px)] leading-tight font-extrabold">
               {t('route.select.title')}
             </h1>
-            {/* 지도 화면과 같은 컴포넌트라 어느 구간을 보고 있는지 표기가 흔들리지 않는다. */}
-            <TripEndpointBar
-              className="mt-1.5"
-              originName={originName}
-              destinationName={destinationName}
-            />
           </div>
+
+          {/* 지도 화면과 같은 컴포넌트라 어느 구간을 보고 있는지 표기가 흔들리지 않는다. */}
+          <TripEndpointBar
+            originName={originName}
+            destinationName={destinationName}
+          />
         </div>
       }
       footer={
@@ -226,9 +265,21 @@ export default function RoutePage() {
           <p className="text-ink-muted text-[13.5px] whitespace-pre-line">
             {t(failure.key, failure.params)}
           </p>
-          <Button variant="secondary" onClick={() => void refetch()}>
-            {t('common.retry')}
-          </Button>
+          {/*
+            "이 구간에 경로 없음"은 같은 출발지·도착지로 다시 조회해도 결과가
+            같다. 재시도 대신 이전(목적지 선택) 화면으로 돌려보내 다시 고르게
+            한다. 그 밖의 실패(네트워크·서버 오류)는 재시도가 의미 있어 그대로 둔다.
+          */}
+          {failure.key === 'route.select.failedNoRoute' ||
+          failure.key === 'route.select.failedTooClose' ? (
+            <Button variant="secondary" onClick={() => void navigate(-1)}>
+              {t('route.select.reselectEndpoints')}
+            </Button>
+          ) : (
+            <Button variant="secondary" onClick={() => void refetch()}>
+              {t('common.retry')}
+            </Button>
+          )}
         </div>
       ) : null}
 
