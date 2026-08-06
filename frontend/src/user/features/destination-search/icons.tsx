@@ -11,6 +11,15 @@ const BASE: IconProps = {
   strokeLinejoin: 'round',
 }
 
+/** 뒤로가기. 문자 '‹' 는 베이스라인 때문에 중앙이 어긋나 SVG 로 그린다. */
+export function ChevronLeftIcon(props: IconProps) {
+  return (
+    <svg {...BASE} {...props}>
+      <path d="M15 5l-7 7 7 7" />
+    </svg>
+  )
+}
+
 export function SearchIcon(props: IconProps) {
   return (
     <svg {...BASE} {...props}>
