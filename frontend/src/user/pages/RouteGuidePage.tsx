@@ -201,7 +201,11 @@ export default function RouteGuidePage() {
               })}
             </p>
 
-            <div className="ml-auto">
+            {/*
+              mr-12 는 사용법 안내 위젯(TutorialFab) 자리다. 그 위젯이 우측 상단에
+              고정으로 뜨는데, 재탐색이 오른쪽 끝에 붙어 있으면 겹친다.
+            */}
+            <div className="mr-12 ml-auto">
               <RescanButton onClick={rescanRoute} />
             </div>
           </div>
