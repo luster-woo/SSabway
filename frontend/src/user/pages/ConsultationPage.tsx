@@ -17,6 +17,7 @@ import { CameraStage } from '@/user/features/consultation/CameraStage'
 import { ConnectedBadge } from '@/user/features/consultation/ConnectedBadge'
 import { toCallMediaErrorKey } from '@/user/features/consultation/callMediaErrorKey'
 import { openviduApi } from '@/user/features/consultation/openviduApi'
+import { peopleAheadInQueue } from '@/user/features/consultation/queuePosition'
 import {
   CALL_MEDIA_STATUS,
   useCallMedia,
@@ -194,12 +195,15 @@ export default function ConsultationPage() {
       return t('consultation.video.reconnecting')
     }
     if (call.isWaitingMatch) {
-      // 대기 순번은 상태 API 가 붙어야 값이 들어온다. 없으면 문구만 보여준다.
-      return call.queuePosition === null
+      /*
+        대기 순번은 상태 API 가 붙어야 값이 들어온다. 없으면 문구만 보여준다.
+        값이 있어도 내 앞에 아무도 없으면(맨 앞) 숫자를 빼고 같은 문구를 쓴다 —
+        "앞에 0명"은 안내가 아니다.
+      */
+      const ahead = peopleAheadInQueue(call.queuePosition)
+      return ahead === null || ahead === 0
         ? t('consultation.video.waitingStaff')
-        : t('consultation.video.queuePosition', {
-            position: call.queuePosition,
-          })
+        : t('consultation.video.queuePosition', { position: ahead })
     }
     if (call.status === OV_STATUS.CONNECTING) {
       return t('consultation.video.connecting')
