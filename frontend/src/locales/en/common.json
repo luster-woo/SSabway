@@ -376,8 +376,6 @@
     "empty": "No guide steps were found\nPlease photograph a sign again",
     "nextPoint": "Next point",
     "arriveAt": "Arriving at",
-    "totalDistance": "{{meters}}m total",
-    "viaCount": "{{count}} stop(s)",
     "stepFallback": "Follow the signs ahead",
     "needAnswers": "We do not have your route details yet\nAnswer a few questions and we will guide you",
     "goAnswer": "Answer questions",

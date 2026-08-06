@@ -376,8 +376,6 @@
     "empty": "案内するステップが見つかりませんでした\n案内標識をもう一度撮影してください",
     "nextPoint": "次の地点",
     "arriveAt": "到着地点",
-    "totalDistance": "合計{{meters}}m",
-    "viaCount": "{{count}}か所経由",
     "stepFallback": "案内表示に従って進んでください",
     "needAnswers": "経路に必要な情報がまだありません\n質問に答えると経路をご案内します",
     "goAnswer": "質問に答える",
