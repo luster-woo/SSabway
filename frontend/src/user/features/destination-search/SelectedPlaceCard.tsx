@@ -6,37 +6,21 @@ import { PinIcon } from '@/user/features/destination-search/icons'
 
 export interface SelectedPlaceCardProps {
   place: Place
-  /** 이 장소가 이미 출발지로 설정돼 있는지 */
-  isOrigin: boolean
-  /** 이 장소가 이미 도착지로 설정돼 있는지 */
-  isDestination: boolean
-  /** 출발지·도착지가 모두 정해졌는지. 다음 단계로 갈 수 있는 조건이다. */
-  canProceed: boolean
-  onSetOrigin: () => void
-  onSetDestination: () => void
+  /** 이 장소를 목적지로 확정하고 경로 선택 화면으로 넘어간다. */
   onConfirm: () => void
-  onReset: () => void
 }
 
 /**
  * 지도에서 장소를 고르면 하단에 올라오는 카드.
  *
- * 한 장소를 출발지로도 도착지로도 지정할 수 있어 버튼을 두 개 둔다 —
- * "구미역"을 골랐을 때 그것이 출발인지 도착인지는 사용자만 안다.
- * 이미 지정된 쪽 버튼은 눌린 상태로 보여 지금 무엇이 정해졌는지 알려준다.
- *
- * [다음]은 두 지점이 모두 정해져야 열린다. 하나만 정하고 넘어가면 경로 조회가
- * 무엇을 기준으로 계산해야 할지 알 수 없다.
+ * 이 화면에서 정하는 것은 목적지 하나뿐이다 — 출발지는 표지판 인식으로 잡힌
+ * 현재 역을 그대로 쓴다. 장소를 고른 뒤 [도착지로 설정]을 누르면 그 즉시
+ * 경로 선택 화면으로 넘어간다. 다른 목적지로 바꾸려면 위 목록에서 다른 후보를
+ * 고르거나 검색을 다시 하면 된다.
  */
 export function SelectedPlaceCard({
   place,
-  isOrigin,
-  isDestination,
-  canProceed,
-  onSetOrigin,
-  onSetDestination,
   onConfirm,
-  onReset,
 }: SelectedPlaceCardProps) {
   const { t } = useTranslation()
 
@@ -61,46 +45,11 @@ export function SelectedPlaceCard({
             </p>
           ) : null}
         </div>
-
-        <button
-          type="button"
-          onClick={onReset}
-          className="text-ink-muted shrink-0 text-[12.5px] underline underline-offset-2"
-        >
-          {t('destination.change')}
-        </button>
       </div>
 
-      {/* 이 장소를 출발/도착 중 무엇으로 쓸지 고른다. 둘 다 지정해도 된다. */}
-      <div className="mt-3 grid grid-cols-2 gap-2">
-        <Button
-          size="lg"
-          variant={isOrigin ? 'primary' : 'secondary'}
-          onClick={onSetOrigin}
-          aria-pressed={isOrigin}
-        >
-          {isOrigin ? t('destination.originSet') : t('destination.setOrigin')}
-        </Button>
-        <Button
-          size="lg"
-          variant={isDestination ? 'primary' : 'secondary'}
-          onClick={onSetDestination}
-          aria-pressed={isDestination}
-        >
-          {isDestination
-            ? t('destination.destinationSet')
-            : t('destination.setDestination')}
-        </Button>
-      </div>
-
-      <Button
-        size="lg"
-        fullWidth
-        className="mt-2"
-        disabled={!canProceed}
-        onClick={onConfirm}
-      >
-        {canProceed ? t('destination.next') : t('destination.needBoth')}
+      {/* 목적지만 정하면 바로 다음 화면으로 넘어간다. */}
+      <Button size="lg" fullWidth className="mt-3" onClick={onConfirm}>
+        {t('destination.setDestination')}
       </Button>
     </section>
   )
