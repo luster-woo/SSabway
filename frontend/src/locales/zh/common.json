@@ -290,6 +290,7 @@
     "origin": "出发",
     "destination": "到达",
     "change": "更改",
+    "rescan": "重拍",
     "detail": {
       "gps": "基于当前位置",
       "manual": "在地图上选择",

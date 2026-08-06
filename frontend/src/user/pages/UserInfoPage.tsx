@@ -116,6 +116,7 @@ export default function UserInfoPage() {
               activeIndex={preference.activeIndex}
               stepCount={preference.stepCount}
               canGoBack={preference.canGoBack}
+              recalledAnswers={preference.recalledAnswers}
               onSelect={preference.select}
               onBack={preference.goBack}
               onReset={preference.reset}
