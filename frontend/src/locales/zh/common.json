@@ -270,7 +270,7 @@
       "started": "开始为您导航至{{station}}",
       "durationMin": "{{m}}分钟",
       "durationHour": "{{h}}小时{{m}}分钟",
-      "fare": "{{amount}}韩元",
+      "fare": "{{amount}}₩",
       "needOrigin": "尚未设置出发地\n请在地图上选择",
       "needDestination": "尚未设置目的地\n请在地图上选择",
       "pickOnMap": "在地图上选择",

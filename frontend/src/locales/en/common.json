@@ -270,7 +270,7 @@
       "started": "Starting the guide to {{station}}",
       "durationMin": "{{m}} min",
       "durationHour": "{{h}} hr {{m}} min",
-      "fare": "₩{{amount}}",
+      "fare": "{{amount}}₩",
       "needOrigin": "No starting point yet\nPick one on the map",
       "needDestination": "No destination yet\nPick one on the map",
       "pickOnMap": "Pick on the map",
