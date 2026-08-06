@@ -376,8 +376,6 @@
     "empty": "未找到可导航的步骤\n请重新拍摄指示牌",
     "nextPoint": "下一个地点",
     "arriveAt": "到达地点",
-    "totalDistance": "共{{meters}}米",
-    "viaCount": "经停{{count}}处",
     "stepFallback": "请按照指示牌前行",
     "needAnswers": "尚未获取路线所需信息\n回答几个问题后即可为您指路",
     "goAnswer": "回答问题",

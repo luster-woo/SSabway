@@ -22,7 +22,6 @@ import { SignBoardCard } from '@/user/features/route-guide/SignBoardCard'
 import { StationLocationButton } from '@/user/features/route-guide/StationLocationButton'
 import { StepNavigator } from '@/user/features/route-guide/StepNavigator'
 import { StepProgressBar } from '@/user/features/route-guide/StepProgressBar'
-import { WaypointSummary } from '@/user/features/route-guide/WaypointSummary'
 import { ChevronLeftIcon } from '@/user/features/route-guide/icons'
 import { buildNaviRequest } from '@/user/features/route-guide/lib/buildNaviRequest'
 import {
@@ -276,13 +275,8 @@ export default function RouteGuidePage() {
       ) : null}
 
       {step && data ? (
-        // 배치: 요약 → 지시문 → 지점 → 이전/다음 → 위치 보기 → (여백) 도움 요청
-        <div className="flex flex-1 flex-col gap-5 pt-4 pb-[calc(env(safe-area-inset-bottom,0px)+1rem)]">
-          <WaypointSummary
-            totalDistanceM={data.totalDistanceM}
-            waypoints={data.waypoints}
-          />
-
+        // 배치: 지시문 → 지점 → 이전/다음 → 위치 보기 → (여백) 도움 요청
+        <div className="flex flex-1 flex-col gap-3.5 pt-2 pb-[calc(env(safe-area-inset-bottom,0px)+0.75rem)]">
           <GuideInstructionCard instruction={step.instruction} />
 
           <section className="flex flex-col gap-2">
@@ -318,7 +312,7 @@ export default function RouteGuidePage() {
           ) : null}
 
           {/* 도움 요청은 남는 공간 아래쪽 끝, 엄지가 닿는 오른쪽에 띄운다. */}
-          <div className="mt-auto flex justify-end pt-2">
+          <div className="mt-auto flex justify-end pt-1">
             <HelpRequestButton onClick={requestHelp} />
           </div>
         </div>
