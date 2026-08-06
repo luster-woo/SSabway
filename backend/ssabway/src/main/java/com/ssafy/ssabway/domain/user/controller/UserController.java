@@ -2,10 +2,7 @@ package com.ssafy.ssabway.domain.user.controller;
 
 import com.ssafy.ssabway.domain.auth.util.RefreshTokenCookieProvider;
 import com.ssafy.ssabway.domain.user.dto.request.*;
-import com.ssafy.ssabway.domain.user.dto.response.EmailDuplicateResponse;
-import com.ssafy.ssabway.domain.user.dto.response.EmailVerificationSendResponse;
-import com.ssafy.ssabway.domain.user.dto.response.LoginResponse;
-import com.ssafy.ssabway.domain.user.dto.response.LoginResult;
+import com.ssafy.ssabway.domain.user.dto.response.*;
 import com.ssafy.ssabway.domain.user.service.EmailVerificationService;
 import com.ssafy.ssabway.domain.user.service.UserService;
 import com.ssafy.ssabway.global.common.ApiResponse;
@@ -114,5 +111,12 @@ public class UserController {
         userService.updateLanguage(userId, request);
 
         return ResponseEntity.ok(ApiResponse.ok("언어 설정이 완료되었습니다."));
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<ApiResponse<UserMeResponse>> getMe(
+            @AuthenticationPrincipal Long userId) {
+
+        return ResponseEntity.ok(ApiResponse.ok("조회 성공",userService.getMe(userId)));
     }
 }
