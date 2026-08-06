@@ -24,6 +24,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Set;
 
 @Service
@@ -91,13 +93,39 @@ public class ConsultationService {
                 recordUrl == null ? null : RECORD_URL_DURATION.toSeconds());
     }
 
-    public PageResponse<HistoryResponse> getHistory(Long staffId, int page) {
+    public PageResponse<HistoryResponse> getHistory(Long staffId, int page,
+                                                    String email, LocalDate from, LocalDate to) {
+
+        // 각 값은 유효한 날짜지만 둘의 관계가 잘못된 경우라 @Valid로는 잡을 수 없다
+        if (from != null && to != null && from.isAfter(to)) {
+            throw new BusinessException(ErrorCode.INVALID_DATE_RANGE);
+        }
+
         Pageable pageable = PageRequest.of(page - 1, PAGE_SIZE);
 
         return PageResponse.from(
                 consultationRepository.findHistoryByStaffIdAndStatus(
-                        staffId, ConsultationStatus.ENDED, pageable)
-        );
+                        staffId, ConsultationStatus.ENDED,
+                        normalize(email), atStartOfDay(from), atStartOfNextDay(to),
+                        pageable));
+    }
+
+    // 이메일은 가입 시 소문자로 저장되므로 검색도 맞춰야 한다.
+    // 빈 문자열이 오면 "빈 이메일과 일치하는 것"을 찾게 되므로 null로 바꿔 조건에서 제외한다
+    private String normalize(String email) {
+        if (email == null || email.isBlank()) return null;
+
+        return email.trim().toLowerCase();
+    }
+
+    private LocalDateTime atStartOfDay(LocalDate date) {
+        return date == null ? null : date.atStartOfDay();
+    }
+
+    // to가 가리키는 날 전체를 포함하려면 다음 날 00:00 미만으로 비교해야 한다.
+    // to.atStartOfDay()로 넘기면 그날 상담이 통째로 빠진다
+    private LocalDateTime atStartOfNextDay(LocalDate date) {
+        return date == null ? null : date.plusDays(1).atStartOfDay();
     }
 
 
