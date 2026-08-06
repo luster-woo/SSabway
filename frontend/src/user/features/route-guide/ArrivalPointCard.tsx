@@ -64,7 +64,7 @@ export function ArrivalPointCard({
       : TYPE_LABEL_KEY[arriveType]
 
   return (
-    <div className="border-line bg-surface-muted flex h-[clamp(132px,40vw,150px)] flex-col items-center justify-center gap-2 rounded-xl border px-5 text-center">
+    <div className="border-line bg-surface-muted flex h-[clamp(168px,52vw,202px)] flex-col items-center justify-center gap-2 rounded-xl border px-5 text-center">
       <p className="text-ink-muted text-[11.5px] font-semibold tracking-wide uppercase">
         {t('routeGuide.arriveAt')}
       </p>
