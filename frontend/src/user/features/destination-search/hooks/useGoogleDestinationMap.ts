@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, type RefObject } from 'react'
 
 import { IS_DEV } from '@/shared/lib/env'
 import type { Place } from '@/shared/types/place'
+import { findNearestPlace } from '@/user/features/destination-search/lib/searchGooglePlaces'
 import {
   buildDestinationMarkerIcon,
   buildMyLocationIcon,
@@ -42,6 +43,11 @@ export interface UseDestinationMapOptions {
   destination: MapPoint | null
   /** 사용자의 현재 위치(표지판으로 인식한 역). null이면 내 위치 마커를 감춘다. */
   myLocation: { latitude: number; longitude: number } | null
+  /**
+   * 지도를 탭했을 때 그 지점을 후보로 넘긴다(검색 결과를 고른 것과 같은 흐름).
+   * 없으면 지도 탭은 아무 일도 하지 않는다.
+   */
+  onPickPoint?: (place: Place) => void
 }
 
 export interface UseDestinationMapResult {
@@ -65,6 +71,7 @@ export function useGoogleDestinationMap(
     origin,
     destination,
     myLocation,
+    onPickPoint,
   }: UseDestinationMapOptions,
 ): UseDestinationMapResult {
   const mapRef = useRef<google.maps.Map | null>(null)
@@ -74,6 +81,11 @@ export function useGoogleDestinationMap(
   const myMarkerRef = useRef<google.maps.Marker | null>(null)
   /** 첫 렌더에서 한 번만 내 위치로 맞추기 위한 플래그. */
   const didCenterRef = useRef(false)
+  /* 지도 생성은 한 번뿐이라, 최신 onPickPoint 를 ref 로 들고 리스너에서 읽는다. */
+  const onPickRef = useRef(onPickPoint)
+  useEffect(() => {
+    onPickRef.current = onPickPoint
+  }, [onPickPoint])
 
   useEffect(() => {
     const container = containerRef.current
@@ -96,6 +108,37 @@ export function useGoogleDestinationMap(
       gestureHandling: 'greedy',
     })
 
+    /*
+      지도를 탭하면 그 좌표를 후보로 잡는다 — 검색 결과를 고른 것과 같은 흐름이라
+      하단 카드가 올라오고, [도착지로 설정]으로 그대로 확정할 수 있다.
+      검색과 같은 Places API 로 가장 가까운 건물/장소명을 붙이고, 근처에 장소가
+      없으면 좌표 문자열로 대체한다.
+    */
+    const clickListener = mapRef.current.addListener(
+      'click',
+      (event: google.maps.MapMouseEvent) => {
+        const latLng = event.latLng
+        if (!latLng || !onPickRef.current) return
+
+        const latitude = latLng.lat()
+        const longitude = latLng.lng()
+
+        void findNearestPlace(latitude, longitude).then((place) => {
+          const pick = onPickRef.current
+          if (!pick) return
+          pick(
+            place ?? {
+              placeId: `tap:${String(latitude)},${String(longitude)}`,
+              name: `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`,
+              address: '',
+              latitude,
+              longitude,
+            },
+          )
+        })
+      },
+    )
+
     const markerRefs = [
       selectedMarkerRef,
       originMarkerRef,
@@ -104,6 +147,7 @@ export function useGoogleDestinationMap(
     ]
 
     return () => {
+      google.maps.event.removeListener(clickListener)
       for (const ref of markerRefs) {
         ref.current?.setMap(null)
         ref.current = null
