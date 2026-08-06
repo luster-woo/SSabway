@@ -56,11 +56,6 @@ export function ConsultationInfoPanel({
           <InfoRow label="목적지" value={detail.finalPoint} />
           <InfoRow label="언어" value={toLanguageName(detail.langCode)} />
         </div>
-
-        <div className="text-ink-muted mt-6 flex flex-col gap-1.5 text-[12.5px]">
-          <p>· 통화 음성이 녹음되고 있어요</p>
-          <p>· 제3자 얼굴은 자동 모자이크 처리돼요</p>
-        </div>
       </div>
 
       <div className="border-line shrink-0 border-t px-7 py-5">

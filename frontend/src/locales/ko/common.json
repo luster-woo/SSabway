@@ -214,7 +214,7 @@
     }
   },
   "destination": {
-    "placeholder": "어디로 갈까요? (역 · 장소 · 주소)",
+    "placeholder": "어디로 갈까요?",
     "search": "검색",
     "clear": "입력 지우기",
     "back": "뒤로가기",
@@ -457,6 +457,7 @@
     "video": {
       "staffConnected": "역무원 연결됨",
       "faceBlurOn": "후면 카메라 · 타인 얼굴 모자이크 ON",
+      "recording": "녹음 중",
       "mic": "마이크",
       "camera": "카메라",
       "endShort": "종료",
