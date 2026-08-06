@@ -29,6 +29,15 @@ const users = {
    */
   language: '/users/language',
   exists: (email: string) => `/users/exists?email=${encodeURIComponent(email)}`,
+  /**
+   * 유저 개인 정보 조회 (GET, 인증 필요). 응답 data { email, provider, language }
+   *
+   * 회원 탈퇴 흐름 전용이다. `provider` 로 "비밀번호를 물어볼지"가 갈리고
+   * (구글 가입자는 비밀번호 자체가 없다), `email` 로 "어느 계정을 지우는지"를
+   * 확인 모달에 보여준다. 프론트 어디에도 이메일을 보관하지 않으므로 이 응답이
+   * 유일한 출처다. — WithdrawDialog 참고
+   */
+  me: '/users/me',
 } as const
 
 /** 경로 안내 */

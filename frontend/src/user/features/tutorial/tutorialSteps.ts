@@ -27,8 +27,8 @@ export interface TutorialStep {
  * 합집합으로 잘라내므로, 같은 페이지는 언어가 바뀌어도 같은 비율이다.
  */
 export const TUTORIAL_STEPS: readonly TutorialStep[] = [
-  { id: 'photoGuide', file: 'photo-guide', width: 640, height: 330 },
   { id: 'signs', file: 'signs', width: 640, height: 262 },
+  { id: 'photoGuide', file: 'photo-guide', width: 640, height: 330 },
   { id: 'videoCall', file: 'video-call', width: 640, height: 474 },
 ]
 
