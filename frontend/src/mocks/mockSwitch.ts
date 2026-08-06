@@ -25,6 +25,7 @@ const SWITCH = {
   'POST /users/email/requests': true,
   'POST /users/email/verification': true,
   'POST /users': true,
+  'GET /users/me': true, // 유저 개인 정보 조회 (회원 탈퇴 흐름 전용)
   'PATCH /users': true, // 회원 탈퇴 (Soft Delete)
   'PATCH /users/language': true,
 

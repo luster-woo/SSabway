@@ -12,6 +12,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -71,18 +72,24 @@ public interface ConsultationRepository extends JpaRepository<Consultation, Long
      */
     @Query("""
             SELECT new com.ssafy.ssabway.domain.consultation.dto.response.HistoryResponse(
-                       c.id, u.email, c.summary, c.startedAt, c.endedAt,
-                       CASE WHEN b.id IS NOT NULL THEN true ELSE false END)
-            FROM Consultation c
-            JOIN User u ON u.id = c.requesterUserId
-            LEFT JOIN Blacklist b ON b.userId = c.requesterUserId
-                                 AND b.staffId = c.staffId
-                                 AND b.releasedAt IS NULL
-            WHERE c.staffId = :staffId AND c.status = :status
-            ORDER BY c.startedAt DESC
+                                   c.id, u.email, c.summary, c.startedAt, c.endedAt,
+                                   CASE WHEN b.id IS NOT NULL THEN true ELSE false END)
+                        FROM Consultation c
+                        JOIN User u ON u.id = c.requesterUserId
+                        LEFT JOIN Blacklist b ON b.userId = c.requesterUserId
+                                             AND b.staffId = c.staffId
+                                             AND b.releasedAt IS NULL
+                        WHERE c.staffId = :staffId AND c.status = :status
+                          AND (:email IS NULL OR u.email = :email)
+                          AND (:from IS NULL OR c.startedAt >= :from)
+                          AND (:to IS NULL OR c.startedAt < :to)
+                        ORDER BY c.startedAt DESC
             """)
     Page<HistoryResponse> findHistoryByStaffIdAndStatus(@Param("staffId") Long staffId,
                                                         @Param("status") ConsultationStatus status,
+                                                        @Param("email") String email,
+                                                        @Param("from") LocalDateTime from,
+                                                        @Param("to") LocalDateTime to,
                                                         Pageable pageable);
 
     // 사용자가 대기·매칭·상담 중인 요청을 이미 가지고 있는지 확인

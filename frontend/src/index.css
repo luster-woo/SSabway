@@ -125,4 +125,29 @@
   textarea {
     font-size: 16px;
   }
+
+  /*
+   * 스크롤바 — 앱 전체를 회색으로 통일한다.
+   * Firefox 는 scrollbar-color, WebKit(크롬·사파리)은 ::-webkit-scrollbar 계열을 쓴다.
+   * 트랙은 투명하게 두고 손잡이(thumb)만 회색으로 보인다.
+   */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-ink-faint) transparent;
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--color-ink-faint);
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-ink-muted);
+  }
 }

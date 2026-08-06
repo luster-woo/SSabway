@@ -9,12 +9,15 @@ export interface GuideEndpointCardProps {
   info: GuideInfo
   /** 출발지 '변경' — 표지판 촬영 화면으로 보낸다. */
   onChangeOrigin: () => void
+  /** 도착지 '변경' — 목적지 설정(지도) 화면으로 보낸다. */
+  onChangeDestination: () => void
 }
 
 /** 출발지 → 도착지를 한 장에 묶어 보여주는 카드 */
 export function GuideEndpointCard({
   info,
   onChangeOrigin,
+  onChangeDestination,
 }: GuideEndpointCardProps) {
   const { t } = useTranslation()
 
@@ -36,6 +39,8 @@ export function GuideEndpointCard({
         kind={t('userInfo.destination')}
         endpoint={info.destination}
         icon={<FlagIcon className="size-[18px]" />}
+        onChange={onChangeDestination}
+        changeLabel={t('userInfo.change')}
         className="px-4 pt-3 pb-4"
       />
     </Card>

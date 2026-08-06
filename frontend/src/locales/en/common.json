@@ -16,6 +16,9 @@
     "withdraw": {
       "title": "Delete account",
       "description": "Enter your current password to delete your account.",
+      "accountNotice": "You are deleting the account {{email}}",
+      "confirmDescription": "Your account and travel history will be deleted permanently. This cannot be undone.",
+      "loadingAccount": "Checking your account",
       "password": "Current password",
       "passwordPlaceholder": "Enter password",
       "cancel": "Cancel",
@@ -25,7 +28,9 @@
       "confirm": "OK",
       "error": {
         "wrongPassword": "Incorrect password. Please try again",
-        "failed": "Couldn't delete your account · Please try again later"
+        "failed": "Couldn't delete your account · Please try again later",
+        "sessionExpired": "Your session has expired · Please sign in again",
+        "loadFailed": "Couldn't load your account details · Please try again in a moment"
       }
     },
     "login": {
@@ -209,7 +214,7 @@
     }
   },
   "destination": {
-    "placeholder": "Where to? (station · place · address)",
+    "placeholder": "Where to?",
     "search": "Search",
     "clear": "Clear input",
     "back": "Back",
@@ -452,6 +457,7 @@
     "video": {
       "staffConnected": "Staff connected",
       "faceBlurOn": "Rear camera · Face blur ON",
+      "recording": "Recording",
       "mic": "Mic",
       "camera": "Camera",
       "endShort": "End",
