@@ -214,7 +214,7 @@
     }
   },
   "destination": {
-    "placeholder": "Where to? (station · place · address)",
+    "placeholder": "Where to?",
     "search": "Search",
     "clear": "Clear input",
     "back": "Back",
@@ -457,6 +457,7 @@
     "video": {
       "staffConnected": "Staff connected",
       "faceBlurOn": "Rear camera · Face blur ON",
+      "recording": "Recording",
       "mic": "Mic",
       "camera": "Camera",
       "endShort": "End",

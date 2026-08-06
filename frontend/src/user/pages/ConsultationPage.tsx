@@ -405,7 +405,8 @@ export default function ConsultationPage() {
         <header className="flex shrink-0 flex-col items-center gap-2 pt-[calc(env(safe-area-inset-top,0px)+1rem)]">
           <ConnectedBadge isConnected={isStaffConnected} />
           <p className="rounded-full bg-black/45 px-4 py-2 text-[12.5px] text-white/85">
-            {t('consultation.video.faceBlurOn')}
+            {t('consultation.video.faceBlurOn')} ·{' '}
+            {t('consultation.video.recording')}
           </p>
 
           {callNotice ? (
