@@ -3,6 +3,7 @@ import { isAxiosError } from 'axios'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
+import { localizeStationName } from '@/shared/lib/stationCoords'
 import { useDestinationStore } from '@/shared/lib/store/useDestinationStore'
 import { useOriginStationStore } from '@/shared/lib/store/useOriginStationStore'
 import { useSelectedRouteStore } from '@/shared/lib/store/useSelectedRouteStore'
@@ -47,7 +48,11 @@ export default function RoutePage() {
   )
   const setFinalPoint = useStationNodeStore((state) => state.setFinalPoint)
 
-  const originName = originStation?.name ?? null
+  /*
+    표지판 인식이 준 역 이름은 한국어 원문이라(스토어는 그 원문을 들고 있다)
+    표시할 때만 사용자 언어 표기로 바꾼다. 지도에서 직접 고른 장소는 원문 그대로.
+  */
+  const originName = localizeStationName(originStation?.name, t)
   const destinationName = destination?.name ?? null
 
   /** 두 지점이 다 정해져야 조회할 수 있다. */

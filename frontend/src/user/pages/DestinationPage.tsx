@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
 import { cn } from '@/shared/lib/cn'
+import { localizeStationName } from '@/shared/lib/stationCoords'
 import { useDestinationStore } from '@/shared/lib/store/useDestinationStore'
 import {
   ORIGIN_SOURCE,
@@ -78,10 +79,32 @@ export default function DestinationPage() {
     [originStation, originSource],
   )
 
+  /*
+    화면에 보일 출발지 이름.
+
+    표지판 인식이 주는 역 이름은 언어와 무관하게 한국어("대구역")다. 스토어에는
+    그 원문을 그대로 두고(좌표 조회·BE 대조가 이 이름을 키로 쓴다) 표시할 때만
+    사용자 언어 표기로 바꾼다. 지도에서 직접 고른 장소는 이미 사용자 언어라
+    localizeStationName 이 원문을 그대로 돌려준다.
+  */
+  const originLabel = localizeStationName(originStation?.name, t)
+
+  /*
+    지도 출발지 마커에도 같은 이름을 쓴다. 마커 title 은 값이 바뀔 때만 갱신하면
+    되므로, 새 객체 리터럴로 매 렌더 이펙트를 깨우지 않도록 메모한다.
+  */
+  const originPoint = useMemo(
+    () =>
+      originStation
+        ? { ...originStation, name: originLabel ?? originStation.name }
+        : null,
+    [originStation, originLabel],
+  )
+
   const { recenterToMyLocation } = useGoogleDestinationMap(mapContainerRef, {
     isReady: status === SDK_STATUS.READY,
     selected,
-    origin: originStation,
+    origin: originPoint,
     destination,
     myLocation,
   })
@@ -197,7 +220,7 @@ export default function DestinationPage() {
         <div className="pointer-events-auto">
           <TripEndpointBar
             className="border-line bg-surface/95 rounded-2xl border px-3.5 py-2 shadow-sm backdrop-blur"
-            originName={originStation?.name ?? null}
+            originName={originLabel}
             destinationName={destination?.name ?? null}
           />
         </div>

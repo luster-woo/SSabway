@@ -496,6 +496,9 @@
       "description": "网址有误或页面已被删除。"
     }
   },
+  "station": {
+    "daegu": "大邱站"
+  },
   "trip": {
     "originEmpty": "选择出发地",
     "destinationEmpty": "选择目的地"
