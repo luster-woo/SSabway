@@ -43,6 +43,26 @@ declare namespace google.maps {
     setZoom(zoom: number): void
     panTo(latlng: LatLng | LatLngLiteral): void
     getZoom(): number | undefined
+    /** 이벤트 리스너 등록. 반환값의 remove() 또는 event.removeListener 로 해제한다. */
+    addListener(
+      eventName: string,
+      handler: (event: MapMouseEvent) => void,
+    ): MapsEventListener
+  }
+
+  /** addListener 가 돌려주는 해제 핸들. */
+  interface MapsEventListener {
+    remove(): void
+  }
+
+  /** 지도 클릭 등 포인터 이벤트. 지도 밖(컨트롤 위) 클릭이면 latLng 이 null 이다. */
+  interface MapMouseEvent {
+    latLng: LatLng | null
+  }
+
+  /** 이벤트 유틸. 리스너 해제에 쓴다. */
+  namespace event {
+    function removeListener(listener: MapsEventListener): void
   }
 
   interface Icon {
