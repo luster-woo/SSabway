@@ -23,6 +23,7 @@ import {
   type SignPrediction,
 } from '@/user/features/sign-capture/lib/predictSign'
 import { toOriginStation } from '@/shared/lib/stationCoords'
+import { resetTripSelection } from '@/shared/lib/store/resetTrip'
 import {
   ORIGIN_SOURCE,
   useOriginStationStore,
@@ -65,6 +66,13 @@ interface SignCaptureState {
  *
  * 안내 정보 확인 화면에서 '변경'으로 들어오면 state.returnTo가 실려 온다.
  * 이 경우 인식이 끝난 뒤 목적지 설정이 아니라 원래 화면으로 되돌아간다.
+ *
+ * returnTo 유무가 "무엇을 하러 왔는가"를 가른다.
+ *   없음 — 시작 화면·도착 화면에서 들어온 **새 여정**. 목적지 설정 화면에서
+ *          뒤로가기로 되돌아온 경우도 여기다(히스토리 항목이 그대로라 state 가
+ *          없다). 인식에 성공하면 이전 여정의 목적지·경로를 비운다.
+ *   있음 — 안내 정보의 [변경], 상세 경로 안내의 [재탐색]. **출발지만** 다시
+ *          잡는 동작이라 목적지는 건드리지 않고 원래 화면으로 돌아간다.
  */
 export default function SignCapturePage() {
   const { t } = useTranslation()
@@ -180,6 +188,18 @@ export default function SignCapturePage() {
       setIsLowConfidence(true)
       return
     }
+
+    /*
+      새 여정이면 이전 여정의 선택을 먼저 비운다.
+
+      BE 는 어디를 찍든 출발지로 "대구역"을 돌려주므로 출발지는 항상 새로
+      덮이지만, 목적지·선택 경로는 sessionStorage 에 남아 있어 그대로 되살아난다.
+      그러면 지도 화면이 "대구역 → 지난번 목적지"를 이미 정해진 구간처럼 보여준다.
+
+      returnTo 가 있는 경우(안내 정보의 [변경], 상세 경로 안내의 [재탐색])는
+      출발지만 다시 잡는 흐름이라 목적지를 유지한다.
+    */
+    if (returnTo === null) resetTripSelection()
 
     setStartPoint(prediction.signageId)
 

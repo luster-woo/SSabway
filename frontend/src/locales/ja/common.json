@@ -496,6 +496,9 @@
       "description": "アドレスが間違っているか、削除された画面です。"
     }
   },
+  "station": {
+    "daegu": "大邱駅"
+  },
   "trip": {
     "originEmpty": "出発地を選択",
     "destinationEmpty": "目的地を選択"

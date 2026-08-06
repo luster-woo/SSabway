@@ -496,6 +496,9 @@
       "description": "The address is wrong or the page was removed."
     }
   },
+  "station": {
+    "daegu": "Daegu Station"
+  },
   "trip": {
     "originEmpty": "Set start",
     "destinationEmpty": "Set destination"
