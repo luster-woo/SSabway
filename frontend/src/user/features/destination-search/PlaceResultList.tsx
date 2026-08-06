@@ -52,7 +52,7 @@ export function PlaceResultList({
   if (results.length === 0) return null
 
   return (
-    <ul className="border-line bg-surface divide-line max-h-[38dvh] divide-y overflow-y-auto overscroll-contain rounded-2xl border shadow-[0_6px_20px_rgba(15,23,42,0.12)]">
+    <ul className="border-line bg-surface divide-line max-h-[122px] divide-y overflow-y-auto overscroll-contain rounded-2xl border shadow-[0_6px_20px_rgba(15,23,42,0.12)]">
       {results.map((place) => {
         const isSelected = place.placeId === selectedPlaceId
 
