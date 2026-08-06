@@ -1,3 +1,4 @@
+import type { HistoryQueryParams } from '@/shared/api/endpoints'
 import type { NavRouteRequest } from '@/shared/types/navigation'
 import type { ConsultationStatus, RoutePathParams } from '@/shared/types'
 
@@ -49,9 +50,14 @@ export const queryKeys = {
     /** 역무원 대기 목록 (3초 폴링) */
     waiting: (page: number) =>
       [...queryKeys.consultation.all, 'waiting', page] as const,
-    /** 민원 기록 */
-    history: (page: number) =>
-      [...queryKeys.consultation.all, 'history', page] as const,
+    /**
+     * 민원 기록. 페이지뿐 아니라 검색 조건(이메일·기간)까지 키에 넣는다 —
+     * 조건이 다르면 다른 목록이라 캐시가 갈려야 하고, 조건을 되돌렸을 때
+     * 이전 결과를 그대로 다시 쓸 수 있다. React Query 는 객체 키를 속성 순서와
+     * 무관하게 안정적으로 직렬화하므로 객체를 그대로 넣어도 된다.
+     */
+    history: (params: HistoryQueryParams) =>
+      [...queryKeys.consultation.all, 'history', params] as const,
     byStatus: (status: ConsultationStatus) =>
       [...queryKeys.consultation.all, 'status', status] as const,
   },

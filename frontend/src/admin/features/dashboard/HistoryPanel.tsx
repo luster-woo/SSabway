@@ -10,6 +10,12 @@ import {
 import { useBlacklist } from '@/admin/features/blacklist/useBlacklist'
 import { ConsultationRecordModal } from '@/admin/features/dashboard/ConsultationRecordModal'
 import { HistoryCard } from '@/admin/features/dashboard/HistoryCard'
+import { HistorySearchBar } from '@/admin/features/dashboard/HistorySearchBar'
+import {
+  EMPTY_HISTORY_FILTER,
+  isFiltered as hasFilter,
+  type HistoryFilter,
+} from '@/admin/features/dashboard/historyFilter'
 import {
   useConsultationHistory,
   type ConsultationHistory,
@@ -39,10 +45,41 @@ interface RecordTarget {
   recordUrl: string | null
 }
 
+export interface HistoryPanelProps {
+  /**
+   * 블랙리스트 명단 모달 열림 여부.
+   *
+   * 여는 버튼은 관리자 헤더(AdminMainPage)에 있고 모달 본체와 등록·해제 로직은
+   * 여기에 있어서, 열림 상태만 위로 올려 두 곳이 공유한다. 사유 수정 모달을
+   * 띄우는 동안 명단을 잠시 닫았다가 되돌리는 흐름도 이 setter 로 처리한다.
+   */
+  isRosterOpen: boolean
+  onRosterOpenChange: (isOpen: boolean) => void
+}
+
 /** 우측 패널 — 민원 기록 (FR-STAFF-001, FR-STAFF-002) */
-export function HistoryPanel() {
+export function HistoryPanel({
+  isRosterOpen,
+  onRosterOpenChange,
+}: HistoryPanelProps) {
   const [page, setPage] = useState(1)
-  const { data, isPending, isError, isFetching } = useConsultationHistory(page)
+  /*
+    화면에 "적용된" 검색 조건. 입력 중인 값은 HistorySearchBar 가 들고 있고,
+    [검색] 을 눌러야 여기로 넘어온다. 조건이 바뀌면 이전 조건의 페이지 번호는
+    의미가 없으므로 항상 1 페이지부터 다시 본다.
+  */
+  const [filter, setFilter] = useState<HistoryFilter>(EMPTY_HISTORY_FILTER)
+  const isSearching = hasFilter(filter)
+
+  const { data, isPending, isError, isFetching } = useConsultationHistory({
+    page,
+    ...filter,
+  })
+
+  const search = (next: HistoryFilter) => {
+    setPage(1)
+    setFilter(next)
+  }
 
   /*
     마지막 페이지의 항목이 줄어(예: 블랙리스트 처리 후 재조회) 현재 페이지가
@@ -66,7 +103,6 @@ export function HistoryPanel() {
 
   const { loadRecord, pendingId } = useConsultationRecord()
 
-  const [isRosterOpen, setIsRosterOpen] = useState(false)
   const [reasonTarget, setReasonTarget] = useState<ReasonTarget | null>(null)
   const [recordTarget, setRecordTarget] = useState<RecordTarget | null>(null)
 
@@ -103,7 +139,7 @@ export function HistoryPanel() {
     reason: string,
     fromRoster: boolean,
   ) => {
-    setIsRosterOpen(false)
+    onRosterOpenChange(false)
     setReasonTarget({
       userEmail,
       isEditMode: true,
@@ -114,7 +150,7 @@ export function HistoryPanel() {
 
   const closeReasonModal = () => {
     // 명단에서 열었으면 닫을 때 명단으로 되돌린다.
-    if (reasonTarget?.fromRoster) setIsRosterOpen(true)
+    if (reasonTarget?.fromRoster) onRosterOpenChange(true)
     setReasonTarget(null)
   }
 
@@ -127,7 +163,7 @@ export function HistoryPanel() {
       : await registerBlacklist(userEmail, reason)
 
     setReasonTarget(null)
-    if (fromRoster) setIsRosterOpen(true)
+    if (fromRoster) onRosterOpenChange(true)
 
     if (!isDone) {
       showToast(
@@ -157,14 +193,11 @@ export function HistoryPanel() {
       <Panel
         title="민원 기록"
         titleRight={
-          <AdminButton
-            variant="dangerOutline"
-            size="sm"
-            className="rounded-full"
-            onClick={() => setIsRosterOpen(true)}
-          >
-            블랙리스트 명단
-          </AdminButton>
+          <HistorySearchBar
+            onSearch={search}
+            isFiltered={isSearching}
+            isFetching={isFetching}
+          />
         }
       >
         {isPending ? (
@@ -179,9 +212,21 @@ export function HistoryPanel() {
           </p>
         ) : null}
 
+        {/* 검색 중일 때만 건수를 보여 준다. 조건 없이 전체를 볼 때는 소음이다. */}
+        {data && isSearching ? (
+          <p
+            aria-live="polite"
+            className="text-ink-muted mb-3 text-[12.5px] font-bold"
+          >
+            검색 결과 {data.page.totalElements}건
+          </p>
+        ) : null}
+
         {data && data.content.length === 0 ? (
           <p className="text-ink-muted py-10 text-center text-[13px]">
-            민원 기록이 없습니다.
+            {isSearching
+              ? '조건에 맞는 민원 기록이 없습니다.'
+              : '민원 기록이 없습니다.'}
           </p>
         ) : null}
 
@@ -237,7 +282,7 @@ export function HistoryPanel() {
             openEditModal(userEmail, reason, true)
           }
           onRelease={(userEmail) => void submitRelease(userEmail)}
-          onClose={() => setIsRosterOpen(false)}
+          onClose={() => onRosterOpenChange(false)}
         />
       ) : null}
 
