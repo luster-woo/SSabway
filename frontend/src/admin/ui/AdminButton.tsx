@@ -10,6 +10,14 @@ export type AdminButtonVariant =
   | 'info'
   /** 다크 헤더 위에 올리는 버튼 */
   | 'onDark'
+  /**
+   * 다크 헤더 위에서 눈에 띄어야 하는 버튼.
+   *
+   * onDark 는 투명 배경 + 흰 테두리라 헤더에 여러 개가 놓이면 전부 같은 무게로
+   * 보여 아무것도 눈에 들어오지 않는다. 이쪽은 표지판 노랑(sign-exit)으로
+   * 채워 남색 배경과 정면으로 대비시킨다. 헤더에 하나만 쓴다.
+   */
+  | 'onDarkAccent'
 
 export type AdminButtonSize = 'sm' | 'md' | 'lg'
 
@@ -28,6 +36,7 @@ const VARIANT: Record<AdminButtonVariant, string> = {
   dangerOutline: 'bg-surface text-danger border border-danger',
   info: 'bg-brand-soft text-brand-dark border border-brand',
   onDark: 'bg-transparent text-white border border-white/40',
+  onDarkAccent: 'bg-sign-exit text-ink border border-sign-exit shadow-sm',
 }
 
 const SIZE: Record<AdminButtonSize, string> = {

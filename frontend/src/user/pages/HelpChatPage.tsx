@@ -7,6 +7,7 @@ import { useAuthStore } from '@/shared/lib/store/useAuthStore'
 import { useHelpChatStore } from '@/shared/lib/store/useHelpChatStore'
 import { MobileViewport, useToast } from '@/shared/ui'
 import type { LoginFromState } from '@/user/features/auth/loginFrom'
+import { peopleAheadInQueue } from '@/user/features/consultation/queuePosition'
 import { useConsultationRequest } from '@/user/features/consultation/useConsultationRequest'
 import { useConsultationWaiting } from '@/user/features/consultation/useConsultationWaiting'
 import { BotBubble } from '@/user/features/help-chat/BotBubble'
@@ -69,6 +70,8 @@ export default function HelpChatPage() {
   const isWaiting = isPending || consultationId !== null
 
   const waiting = useConsultationWaiting(consultationId)
+  /* 서버 순번은 자기 자신을 포함한다 — 화면에는 내 앞 인원만 보여준다. */
+  const waitingAhead = peopleAheadInQueue(waiting.queuePosition)
 
   // 매칭되면 화상 화면으로. 토큰은 그 화면이 카메라 권한을 얻은 뒤 따로 받는다.
   useEffect(() => {
@@ -177,11 +180,13 @@ export default function HelpChatPage() {
                       aria-hidden
                       className="border-line border-t-brand size-5 animate-spin rounded-full border-[3px]"
                     />
-                    {waiting.queuePosition !== null
-                      ? t('consultation.queuePosition', {
-                          position: waiting.queuePosition,
-                        })
-                      : t('consultation.connecting')}
+                    {waitingAhead === null
+                      ? t('consultation.connecting')
+                      : waitingAhead === 0
+                        ? t('consultation.waitingStaff')
+                        : t('consultation.queuePosition', {
+                            position: waitingAhead,
+                          })}
                   </div>
                   <button
                     type="button"
