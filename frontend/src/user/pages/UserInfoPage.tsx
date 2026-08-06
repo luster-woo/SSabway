@@ -36,6 +36,11 @@ export default function UserInfoPage() {
     void navigate('/scan', { state: { returnTo: USER_INFO_PATH } })
   }
 
+  /** 목적지 설정(지도) 화면으로 보내 도착지를 다시 고른다. */
+  const changeDestination = () => {
+    void navigate('/destination')
+  }
+
   const startGuide = () => {
     if (!preference.plan) {
       showToast(t('userInfo.needAnswers'))
@@ -98,7 +103,11 @@ export default function UserInfoPage() {
 
       {info ? (
         <div className="flex flex-col gap-5 pt-4 pb-2">
-          <GuideEndpointCard info={info} onChangeOrigin={changeOrigin} />
+          <GuideEndpointCard
+            info={info}
+            onChangeOrigin={changeOrigin}
+            onChangeDestination={changeDestination}
+          />
 
           <section className="flex flex-col gap-2">
             <SectionLabel>{t('userInfo.preference.label')}</SectionLabel>

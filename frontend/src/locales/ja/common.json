@@ -214,7 +214,7 @@
     }
   },
   "destination": {
-    "placeholder": "どこへ行きますか？（駅・スポット・住所）",
+    "placeholder": "どこへ行きますか？",
     "search": "検索",
     "clear": "入力を消す",
     "back": "戻る",
@@ -457,6 +457,7 @@
     "video": {
       "staffConnected": "スタッフ接続中",
       "faceBlurOn": "背面カメラ・顔モザイクON",
+      "recording": "録音中",
       "mic": "マイク",
       "camera": "カメラ",
       "endShort": "終了",

@@ -214,7 +214,7 @@
     }
   },
   "destination": {
-    "placeholder": "要去哪里？（车站 · 地点 · 地址）",
+    "placeholder": "要去哪里？",
     "search": "搜索",
     "clear": "清除输入",
     "back": "返回",
@@ -457,6 +457,7 @@
     "video": {
       "staffConnected": "已连接工作人员",
       "faceBlurOn": "后置摄像头 · 面部马赛克开启",
+      "recording": "录音中",
       "mic": "麦克风",
       "camera": "摄像头",
       "endShort": "结束",
