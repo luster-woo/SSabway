@@ -36,3 +36,21 @@ export function UserIcon(props: IconProps) {
     </svg>
   )
 }
+
+export function CalendarIcon(props: IconProps) {
+  return (
+    <svg {...BASE} strokeWidth={1.9} {...props}>
+      <rect x="3" y="5" width="18" height="16" rx="3" />
+      <path d="M3 10h18M8 3v4M16 3v4" />
+    </svg>
+  )
+}
+
+export function SearchIcon(props: IconProps) {
+  return (
+    <svg {...BASE} strokeWidth={2} {...props}>
+      <circle cx="11" cy="11" r="6.4" />
+      <path d="m20 20-4.4-4.4" />
+    </svg>
+  )
+}

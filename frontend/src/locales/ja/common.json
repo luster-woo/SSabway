@@ -16,6 +16,9 @@
     "withdraw": {
       "title": "退会",
       "description": "退会するには現在のパスワードを入力してください。",
+      "accountNotice": "{{email}} のアカウントを退会します",
+      "confirmDescription": "退会するとアカウントと利用履歴が削除され、元に戻せません。",
+      "loadingAccount": "アカウント情報を確認しています",
       "password": "現在のパスワード",
       "passwordPlaceholder": "パスワードを入力",
       "cancel": "キャンセル",
@@ -25,7 +28,9 @@
       "confirm": "OK",
       "error": {
         "wrongPassword": "パスワードが正しくありません。もう一度入力してください",
-        "failed": "退会に失敗しました · しばらくしてからお試しください"
+        "failed": "退会に失敗しました · しばらくしてからお試しください",
+        "sessionExpired": "ログインの有効期限が切れました · もう一度ログインしてください",
+        "loadFailed": "アカウント情報を読み込めませんでした · しばらくしてからもう一度お試しください"
       }
     },
     "login": {
@@ -209,7 +214,7 @@
     }
   },
   "destination": {
-    "placeholder": "どこへ行きますか？（駅・スポット・住所）",
+    "placeholder": "どこへ行きますか？",
     "search": "検索",
     "clear": "入力を消す",
     "back": "戻る",
@@ -452,6 +457,7 @@
     "video": {
       "staffConnected": "スタッフ接続中",
       "faceBlurOn": "背面カメラ・顔モザイクON",
+      "recording": "録音中",
       "mic": "マイク",
       "camera": "カメラ",
       "endShort": "終了",

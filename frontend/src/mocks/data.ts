@@ -82,6 +82,15 @@ export const STAFF_ACCOUNT = {
 export const USER_LANGUAGE = 'EN'
 
 /**
+ * 목 사용자의 가입 경로. BE Provider enum 과 같은 값이다.
+ *
+ * 'GOOGLE' 로 바꾸면 구글 탈퇴 흐름(비밀번호를 묻지 않고 확인만)을 그대로
+ * 확인할 수 있다. GET /users/me 와 PATCH /users 두 핸들러가 이 값을 함께 본다 —
+ * 실제 BE 도 같은 값 하나로 두 동작이 갈리므로 목도 어긋나지 않게 묶어 둔다.
+ */
+export const USER_PROVIDER: 'LOCAL' | 'GOOGLE' = 'LOCAL'
+
+/**
  * 리프레시 토큰 쿠키.
  *
  * 실제 서버는 HttpOnly 로 내려주므로 자바스크립트가 읽을 수 없지만,
