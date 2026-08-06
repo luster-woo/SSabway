@@ -471,6 +471,7 @@
   "consultation": {
     "request": "请求帮助",
     "connecting": "正在连接站务人员...",
+    "waitingStaff": "正在等待工作人员…",
     "queuePosition": "您前面还有{{position}}人",
     "unavailable": "目前没有可接待的站务人员",
     "micOnly": "站务人员将通过语音为您提供帮助，其摄像头已关闭。",
@@ -491,7 +492,7 @@
       "alreadyEnded": "该咨询已结束",
       "canceled": "咨询申请已被取消",
       "waitingStaff": "正在等待工作人员…",
-      "queuePosition": "您的排队号码为 {{position}} 号",
+      "queuePosition": "您前面还有{{position}}人",
       "noConsultationId": "未找到咨询信息，请从帮助页面重新开始。",
       "connecting": "正在连接…",
       "reconnecting": "网络不稳定，正在重新连接…",
