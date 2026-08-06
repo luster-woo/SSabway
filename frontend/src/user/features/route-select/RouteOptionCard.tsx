@@ -112,7 +112,12 @@ export function RouteOptionCard({
             t('route.select.transferCount', { n: path.transferCount })}
       </p>
 
-      <RouteTimeline stations={stations} active={selected} className="mt-4" />
+      <RouteTimeline
+        stations={stations}
+        lanes={path.segments.map((segment) => segment.lane)}
+        active={selected}
+        className="mt-4"
+      />
 
       <Button
         size="lg"

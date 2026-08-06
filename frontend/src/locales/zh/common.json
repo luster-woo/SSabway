@@ -275,7 +275,9 @@
       "needDestination": "尚未设置目的地\n请在地图上选择",
       "pickOnMap": "在地图上选择",
       "failedNetwork": "无法连接到路线服务器\n请检查网络和服务器状态",
-      "failedNoRoute": "未找到该区间的地铁路线\n请重新选择出发地或目的地",
+      "failedNoRoute": "仅支持搜索完全使用地铁的路线。\n请重新选择目的地。",
+      "failedTooClose": "无法搜索700米以内的目的地。\n请重新选择目的地。",
+      "reselectEndpoints": "重新选择目的地",
       "failedOdsay": "无法获取路线信息\n请稍后重试",
       "failedUnexpected": "路线服务器无法处理该请求 (HTTP {{status}})\n请稍后重试"
     }
@@ -439,7 +441,7 @@
     "recordNotice": "通话语音可能会被录音",
     "backToGuide": "返回路线导航",
     "rejected": {
-      "blocked": "该账户在本站的视频咨询已被限制。\n详情请咨询站务员。",
+      "blocked": "该账户无法使用视频咨询服务。\n详情请咨询车站工作人员。",
       "duplicated": "您已有正在进行的咨询请求。\n请稍后再试。",
       "noStaff": "本站当前没有可接通的站务员。\n请稍后再试。",
       "failed": "无法发起咨询。\n请稍后再试。"

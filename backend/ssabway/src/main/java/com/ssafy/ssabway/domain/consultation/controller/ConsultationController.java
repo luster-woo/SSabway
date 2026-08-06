@@ -6,9 +6,12 @@ import com.ssafy.ssabway.global.common.ApiResponse;
 import com.ssafy.ssabway.global.common.PageResponse;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/api/v1/staffs")
@@ -66,10 +69,14 @@ public class ConsultationController {
     @GetMapping("/history")
     public ResponseEntity<ApiResponse<PageResponse<HistoryResponse>>> getHistory(
             @AuthenticationPrincipal Long staffId,
-            @RequestParam(defaultValue = "1") @Min(1) int page) {
+            @RequestParam(defaultValue = "1") @Min(1) int page,
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
 
         return ResponseEntity.ok(
-                ApiResponse.ok("조회에 성공하였습니다.", consultationService.getHistory(staffId, page)));
+                ApiResponse.ok("조회에 성공하였습니다.",
+                        consultationService.getHistory(staffId, page, email, from, to)));
     }
 
     @PostMapping("/consultations/{consultationId}/accept")
