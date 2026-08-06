@@ -31,7 +31,7 @@
     "login": {
       "title": "登录",
       "subtitle": "请使用邮箱和密码登录。",
-      "orEmail": "或使用邮箱",
+      "orGoogle": "或使用 Google",
       "email": "邮箱",
       "emailPlaceholder": "you@example.com",
       "password": "密码",

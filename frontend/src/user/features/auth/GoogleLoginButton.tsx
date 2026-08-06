@@ -6,8 +6,19 @@ import { loadGoogleIdentity } from '@/shared/lib/googleIdentity'
 import { useLanguage } from '@/shared/lib/useLanguage'
 import { FieldError } from '@/user/features/auth/FieldError'
 
-/** 버튼 폭. GIS 가 허용하는 최대값은 400 이다. */
-const BUTTON_WIDTH = 320
+/**
+ * GIS 가 허용하는 버튼 폭의 범위.
+ *
+ * 폭은 담기는 자리의 실측값을 그대로 넘긴다 — 고정값(예전의 320)을 쓰면
+ * 입력창·CTA 는 화면 폭을 꽉 채우는데 이 버튼만 좁게 가운데 떠서 좌우 끝이
+ * 어긋난다. 특히 구글 세션이 있는 사용자에게는 아바타·계정명·이메일이 든
+ * 개인화 버튼이 나와 그 어긋남이 더 눈에 띈다.
+ *
+ * 폰 규격(MobileViewport 최대 430px)에서 실측값은 288~398px 사이라 이 범위에
+ * 자연히 들어오지만, 레이아웃이 바뀌어도 GIS 가 값을 무시하지 않도록 가둔다.
+ */
+const MIN_BUTTON_WIDTH = 200
+const MAX_BUTTON_WIDTH = 400
 
 export interface GoogleLoginButtonProps {
   /** ID Token 을 받았을 때. 서버 전달은 호출한 쪽이 한다. */
@@ -24,6 +35,16 @@ export interface GoogleLoginButtonProps {
  * 구글이 iframe 으로 직접 그린다. GIS 는 "커스텀 디자인 + ID Token" 조합을
  * 지원하지 않고 명세가 idToken 을 요구하므로 구글 기본 버튼을 쓴다.
  * 그래서 CSS 로 모양을 바꿀 수 없고 renderButton 옵션으로만 조절한다.
+ *
+ * ⚠️ 옵션에 있는 것은 폭·모양·테마·문구뿐이다. **높이(large=40px)와 모서리
+ *    반경은 바꿀 수 없어** 우리 입력창·CTA(48~56px, rounded-2xl)와 정확히
+ *    같아질 수 없다. 맞출 수 있는 것은 폭 하나뿐이라 그것만 실측해 맞춘다.
+ *    완전히 통일하려면 oauth2 code 플로우로 바꾸고 버튼을 직접 그려야 하는데,
+ *    그러면 서버가 idToken 대신 code 를 받아야 한다(BE 명세 변경).
+ *
+ * 구글 세션이 있는 사용자에게는 아바타·계정명·이메일이 든 **개인화 버튼**이
+ * 대신 나온다. 이건 GIS 가 알아서 정하는 것이라 끌 수 없고, text 옵션
+ * ('continue_with')도 그때는 무시된다.
  *
  * 팝업 방식이라 페이지가 이탈하지 않는다. 전체 리다이렉트 방식은 PWA 에서
  * 앱이 재부팅되고 외부 브라우저로 나가버려 쓰지 않는다.
@@ -48,9 +69,38 @@ export function GoogleLoginButton({
   const onCredentialRef = useRef(onCredential)
   onCredentialRef.current = onCredential
 
+  /**
+   * 버튼을 담을 자리의 실측 폭. 0 이면 아직 재기 전이라 그리지 않는다.
+   *
+   * 컨테이너는 부모 폭을 그대로 받는 블록이고 iframe 은 그 안에 들어가므로
+   * 자기 자신을 재도 되먹임이 생기지 않는다.
+   */
+  const [containerWidth, setContainerWidth] = useState(0)
+
+  useEffect(() => {
+    const container = containerRef.current
+    if (!container) return
+
+    const measure = () => {
+      const next = Math.round(container.getBoundingClientRect().width)
+      // 같은 값이면 상태를 건드리지 않는다 — 아래 이펙트가 버튼을 다시 그려
+      // 깜빡인다. 회전·창 크기 변경처럼 실제로 폭이 달라질 때만 다시 그린다.
+      setContainerWidth((prev) => (prev === next ? prev : next))
+    }
+
+    const observer = new ResizeObserver(measure)
+    observer.observe(container)
+    measure()
+
+    return () => {
+      observer.disconnect()
+    }
+  }, [])
+
   useEffect(() => {
     let isCancelled = false
     const container = containerRef.current
+    if (containerWidth === 0) return
 
     loadGoogleIdentity()
       .then(() => {
@@ -71,7 +121,10 @@ export function GoogleLoginButton({
           size: 'large',
           text: 'continue_with',
           shape: 'pill',
-          width: BUTTON_WIDTH,
+          width: Math.min(
+            Math.max(containerWidth, MIN_BUTTON_WIDTH),
+            MAX_BUTTON_WIDTH,
+          ),
           locale: language,
         })
       })
@@ -84,8 +137,9 @@ export function GoogleLoginButton({
       // 언마운트 시 iframe 을 걷어낸다. 남겨두면 다시 들어올 때 두 개가 된다.
       if (container) container.innerHTML = ''
     }
-    // language 가 바뀌면 버튼 문구도 바뀌어야 하므로 다시 그린다.
-  }, [language])
+    // language 가 바뀌면 문구가, containerWidth 가 바뀌면 폭이 달라지므로
+    // 두 경우 모두 버튼을 다시 그린다.
+  }, [containerWidth, language])
 
   /**
    * 스크립트 로드 실패(오프라인 등)이거나 클라이언트 ID 가 비어 있으면
