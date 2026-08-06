@@ -1,7 +1,11 @@
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { PREFERENCE_STEP, type PreferenceStep } from '@/shared/types/guide'
+import {
+  PREFERENCE_STEP,
+  type PreferenceStep,
+  type RoutePreference,
+} from '@/shared/types/guide'
 import { Card, SelectableTile } from '@/shared/ui'
 import { PlanResultView } from '@/user/features/user-info/PlanResultView'
 import { StepDots } from '@/user/features/user-info/StepDots'
@@ -38,6 +42,8 @@ export interface RoutePreferenceCardProps {
   activeIndex: number
   stepCount: number
   canGoBack: boolean
+  /** 질문별로 마지막에 고른 답. 되돌아왔을 때 그 선택지를 하이라이트한다. */
+  recalledAnswers: RoutePreference
   onSelect: (choice: PreferenceChoice) => void
   onBack: () => void
   onReset: () => void
@@ -54,11 +60,19 @@ export function RoutePreferenceCard({
   activeIndex,
   stepCount,
   canGoBack,
+  recalledAnswers,
   onSelect,
   onBack,
   onReset,
 }: RoutePreferenceCardProps) {
   const { t } = useTranslation()
+
+  /** 이 선택지가 이전에 고른 답인지. patch 의 필드 값이 기억한 답과 같으면 참. */
+  const isRecalled = (choice: PreferenceChoice) =>
+    Object.entries(choice.patch).every(
+      ([field, value]) =>
+        recalledAnswers[field as keyof RoutePreference] === value,
+    )
 
   return (
     <Card className="flex min-h-[268px] flex-col gap-4 py-4">
@@ -120,7 +134,7 @@ export function RoutePreferenceCard({
             {getQuestion(node).choices.map((choice) => (
               <SelectableTile
                 key={choice.labelKey}
-                selected={false}
+                selected={isRecalled(choice)}
                 showCheck={false}
                 label={t(choice.labelKey)}
                 onClick={() => onSelect(choice)}

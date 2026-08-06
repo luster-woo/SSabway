@@ -290,6 +290,7 @@
     "origin": "From",
     "destination": "To",
     "change": "Change",
+    "rescan": "Retake",
     "detail": {
       "gps": "Based on your location",
       "manual": "Picked on the map",
