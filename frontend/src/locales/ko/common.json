@@ -471,6 +471,7 @@
   "consultation": {
     "request": "도움 요청하기",
     "connecting": "역무원과 연결 중이에요...",
+    "waitingStaff": "역무원을 기다리는 중이에요…",
     "queuePosition": "앞에 {{position}}명 대기 중이에요",
     "unavailable": "지금은 연결 가능한 역무원이 없어요",
     "micOnly": "역무원이 음성으로 안내해요. 카메라는 꺼져 있어요.",
@@ -491,7 +492,7 @@
       "alreadyEnded": "이미 종료된 상담입니다",
       "canceled": "상담 요청이 취소되었습니다",
       "waitingStaff": "역무원을 기다리는 중입니다…",
-      "queuePosition": "대기 순번 {{position}}번입니다",
+      "queuePosition": "앞에 {{position}}명 대기 중입니다",
       "noConsultationId": "상담 정보를 찾을 수 없어요. 도움 요청부터 다시 시작해 주세요.",
       "connecting": "연결하는 중입니다…",
       "reconnecting": "네트워크가 불안정합니다. 다시 연결하는 중입니다…",

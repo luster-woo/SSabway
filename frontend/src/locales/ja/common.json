@@ -471,6 +471,7 @@
   "consultation": {
     "request": "ヘルプを依頼する",
     "connecting": "駅員に接続しています...",
+    "waitingStaff": "スタッフを待っています…",
     "queuePosition": "あなたの前に{{position}}人待っています",
     "unavailable": "現在対応できる駅員がいません",
     "micOnly": "駅員が音声で案内します。カメラはオフです。",
@@ -491,7 +492,7 @@
       "alreadyEnded": "この相談はすでに終了しています",
       "canceled": "相談のリクエストがキャンセルされました",
       "waitingStaff": "スタッフを待っています…",
-      "queuePosition": "待ち順は {{position}} 番目です",
+      "queuePosition": "あなたの前に{{position}}人待っています",
       "noConsultationId": "相談情報が見つかりません。ヘルプからやり直してください。",
       "connecting": "接続しています…",
       "reconnecting": "ネットワークが不安定です。再接続しています…",

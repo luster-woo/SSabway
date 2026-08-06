@@ -471,6 +471,7 @@
   "consultation": {
     "request": "Ask for help",
     "connecting": "Connecting to staff...",
+    "waitingStaff": "Waiting for a staff member…",
     "queuePosition": "{{position}} people ahead of you",
     "unavailable": "No staff available right now",
     "micOnly": "Staff will speak to you. Their camera is off.",
@@ -491,7 +492,7 @@
       "alreadyEnded": "This consultation has already ended",
       "canceled": "The consultation request was canceled",
       "waitingStaff": "Waiting for a staff member…",
-      "queuePosition": "You are number {{position}} in the queue",
+      "queuePosition": "{{position}} people ahead of you",
       "noConsultationId": "We couldn't find your request. Please start from Help again.",
       "connecting": "Connecting…",
       "reconnecting": "Your network is unstable. Reconnecting…",
