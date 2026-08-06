@@ -24,17 +24,27 @@ interface VideoStageProps {
    * 상담 정보 로딩 전(null)에는 자막을 켜지 않는다.
    */
   userLang: LangCode | null
+  /**
+   * 사용자 화면의 가로 ÷ 세로. 사용자 브라우저가 재서 시그널로 보내 준 값이다.
+   * 아직 못 받았으면 null — 아래 기본값으로 떨어진다.
+   */
+  userScreenAspect: number | null
 }
 
 /**
- * 사용자 화면의 가로 : 세로.
+ * 사용자 화면 비율을 아직 못 받았을 때 쓸 기본값.
  *
- * 사용자 앱(MobileViewport)은 `max-w-[430px] × 100dvh` 세로 컬럼이라, 사용자가
- * 실제로 들여다보는 화면이 이 비율이다. 역무원 화면도 같은 비율의 세로 틀에
- * 담아야 "지금 화면 오른쪽에 보이는 표지판" 같은 대화가 어긋나지 않는다.
- * (932 = 흔한 폰의 dvh)
+ * ⚠️ 이 값이 맞는 기기는 사실상 없다. 실제 값이 도착하기 전 몇 프레임과,
+ *    시그널이 실패한 경우를 덮는 임시값일 뿐이다. 통화 중에는 사용자
+ *    브라우저가 잰 실제 비율(userScreenAspect)이 이 값을 대체한다.
+ *
+ *    상수로 둘 수 없는 이유: 기기마다 화면 비율이 다르고(0.46~0.56 대가 흔하다),
+ *    모바일 주소창이 오르내릴 때마다 100dvh 가 변하며, 가로로 눕히면 뒤집힌다.
+ *    고정값을 쓰던 동안 역무원 화면은 사용자보다 양옆이 더 잘려 보였다.
+ *
+ * 430 × 932 — 흔한 폰 한 대의 CSS 픽셀 크기.
  */
-const USER_SCREEN_ASPECT_RATIO = '430 / 932'
+const FALLBACK_USER_SCREEN_ASPECT = 430 / 932
 
 /** 영상이 아직 없을 때 그 자리에 띄울 안내 문구. */
 function toPlaceholder(
@@ -66,11 +76,15 @@ function toPlaceholder(
  * 사용자 브라우저가 발행한 스트림 하나만 받는다.
  * 역무원은 영상을 발행하지 않으므로 자기 화면 미리보기가 없다.
  *
- * 영상 크기: 감싸는 박스(이 section)의 **세로를 가득** 채우고 가로는
- * USER_SCREEN_ASPECT_RATIO 로 정해진다. 양옆에 남는 공간은 배경으로 둔다.
+ * 영상 크기: 감싸는 박스(이 section)의 **세로를 가득** 채우고 가로는 사용자
+ * 화면 비율로 정해진다. 양옆에 남는 공간은 배경으로 둔다.
  * `<video>` 를 영역에 그대로 늘리면(w-full h-full) 노트북에서는 가로가 넓은
  * 만큼 영상만 지나치게 커지고, 사용자 폰과 화각도 달라진다.
  * 연결 전 안내 문구는 지금처럼 영역 전체를 쓴다 — 잘릴 영상이 없다.
+ *
+ * 사용자가 기기를 눕히면 비율이 1을 넘어 가로가 먼저 max-w-full 에 걸리고
+ * 세로가 남는다. "세로를 가득" 규칙과 어긋나 보이지만 그게 맞다 — 이 화면의
+ * 목적은 틀을 채우는 것이 아니라 사용자와 같은 화각을 보여주는 것이다.
  *
  * 사용자 발화는 실시간 번역 자막(useLiveCaption)으로 한국어 자막이 뜬다.
  * 역무원 화면은 한국어 고정이라 targetLang 도 'ko' 고정이다.
@@ -85,6 +99,7 @@ export function VideoStage({
   isRestoreFailed,
   isRecording,
   userLang,
+  userScreenAspect,
 }: VideoStageProps) {
   /*
     자막용 원격 오디오.
@@ -122,7 +137,9 @@ export function VideoStage({
         */
         <div
           className="relative h-full max-w-full overflow-hidden"
-          style={{ aspectRatio: USER_SCREEN_ASPECT_RATIO }}
+          style={{
+            aspectRatio: userScreenAspect ?? FALLBACK_USER_SCREEN_ASPECT,
+          }}
         >
           <OpenViduVideo
             streamManager={userStream}
