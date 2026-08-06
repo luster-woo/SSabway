@@ -9,6 +9,33 @@ export type Language = (typeof SUPPORTED_LANGUAGES)[number]
  */
 export const DEFAULT_LANGUAGE: Language = 'en'
 
+/**
+ * 가입 경로. BE `Provider` enum 과 값이 1:1 이다.
+ *   LOCAL  이메일/비밀번호 가입 (password_hash 존재)
+ *   GOOGLE 구글 소셜 가입 (password_hash = NULL)
+ */
+export const PROVIDER = {
+  LOCAL: 'LOCAL',
+  GOOGLE: 'GOOGLE',
+} as const
+
+export type Provider = (typeof PROVIDER)[keyof typeof PROVIDER]
+
+/**
+ * `GET /users/me` 응답의 data.
+ *
+ * 회원 탈퇴 흐름에서만 쓴다. 서버는 언어 코드를 대문자로 준다("EN") —
+ * 앱 내부의 `Language`(소문자)와 표기가 다르다.
+ *
+ * `language` 는 지금 화면에서 쓰지 않는다. 응답에 실려 오므로 형태만 적어 둔다
+ * (새로고침 시 서버 언어 설정을 복구하는 데 쓸 수 있으나 별도 논의 사항이다).
+ */
+export interface UserMe {
+  email: string
+  provider: Provider
+  language: Uppercase<Language>
+}
+
 export interface User {
   userId: number
   email: string

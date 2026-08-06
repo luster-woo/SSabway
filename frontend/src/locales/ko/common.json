@@ -16,6 +16,9 @@
     "withdraw": {
       "title": "회원탈퇴",
       "description": "탈퇴하시려면 현재 비밀번호를 입력해 주세요.",
+      "accountNotice": "{{email}} 계정을 탈퇴합니다",
+      "confirmDescription": "탈퇴하면 계정과 이용 기록이 삭제되며 되돌릴 수 없습니다.",
+      "loadingAccount": "계정 정보를 확인하는 중",
       "password": "현재 비밀번호",
       "passwordPlaceholder": "비밀번호 입력",
       "cancel": "취소",
@@ -25,7 +28,9 @@
       "confirm": "확인",
       "error": {
         "wrongPassword": "비밀번호가 틀렸습니다. 다시 입력해 주세요",
-        "failed": "탈퇴에 실패했어요 · 잠시 후 다시 시도해 주세요"
+        "failed": "탈퇴에 실패했어요 · 잠시 후 다시 시도해 주세요",
+        "sessionExpired": "로그인이 만료되었어요 · 다시 로그인해 주세요",
+        "loadFailed": "계정 정보를 불러오지 못했어요 · 잠시 후 다시 시도해 주세요"
       }
     },
     "login": {

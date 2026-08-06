@@ -7,10 +7,18 @@ import { disableGoogleAutoSelect } from '@/shared/lib/googleIdentity'
 import { useAuthStore } from '@/shared/lib/store/useAuthStore'
 
 const WRONG_PASSWORD_KEY = 'auth.withdraw.error.wrongPassword'
+const SESSION_EXPIRED_KEY = 'auth.withdraw.error.sessionExpired'
 const FALLBACK_ERROR_KEY = 'auth.withdraw.error.failed'
 
 /**
  * 탈퇴 요청 한 번. (명세: PATCH /users, body { password }, Authorization 필수)
+ *
+ * `password` 가 null 인 경우 = 구글 가입자다. BE `UserService.withdraw` 는
+ * `provider == LOCAL` 일 때만 비밀번호를 대조하므로 null 을 그대로 보낸다.
+ *
+ * ⚠️ BE `WithdrawRequest.password` 에 `@NotBlank` 가 붙으면 이 요청이 400 이 된다.
+ *    현재는 붙어 있지 않다(import 만 남아 있고 미사용). 검증을 손볼 일이 생기면
+ *    "password 는 LOCAL 에서만 필수" 라는 조건을 유지해야 한다.
  *
  * userApi 를 쓰지 않는 이유: 이 API 의 401 은 "토큰 인증 실패"와
  * "비밀번호 불일치"를 구분하지 않는다. userApi 인터셉터는 401 을 보면
@@ -19,7 +27,10 @@ const FALLBACK_ERROR_KEY = 'auth.withdraw.error.failed'
  * 그래서 인터셉터 없는 publicApi 에 토큰을 직접 실어 보내고,
  * 재발급·재시도·판정을 아래 requestWithdraw 가 직접 관리한다.
  */
-async function attemptWithdraw(password: string, token: string): Promise<void> {
+async function attemptWithdraw(
+  password: string | null,
+  token: string,
+): Promise<void> {
   await publicApi.patch(
     endpoints.users.withdraw,
     { password },
@@ -32,11 +43,11 @@ async function attemptWithdraw(password: string, token: string): Promise<void> {
  *
  *   1차 401 → 토큰 재발급(성공) → 2차 시도
  *     - 2차 성공  → 1차 401 은 토큰 만료였다 (비밀번호는 맞았음)
- *     - 2차 401   → 비밀번호 불일치로 판정
+ *     - 2차 401   → 비밀번호를 보낸 경우라면 불일치로 판정
  *   재발급 자체가 실패하면 세션이 끝난 것이므로 그대로 던진다.
  *     (에러의 요청 경로가 withdraw 가 아니라서 비밀번호 문구로 오인되지 않는다)
  */
-async function requestWithdraw(password: string): Promise<void> {
+async function requestWithdraw(password: string | null): Promise<void> {
   const token = useAuthStore.getState().accessToken.user ?? ''
 
   try {
@@ -49,19 +60,31 @@ async function requestWithdraw(password: string): Promise<void> {
   }
 }
 
-/** 에러를 i18n 키로 바꾼다. withdraw 요청의 401 만 비밀번호 불일치다. */
-function toWithdrawErrorKey(error: unknown): string {
-  const isWrongPassword =
+/**
+ * 에러를 i18n 키로 바꾼다.
+ *
+ * withdraw 요청의 401 은 두 가지 뜻이 겹쳐 있다(BE 가 PASSWORD_MISMATCH 와
+ * 토큰 인증 실패에 같은 401 을 쓴다). 그래서 **비밀번호를 보낸 경우에만**
+ * 불일치로 판정한다 — 구글 가입자는 비밀번호를 입력한 적조차 없으므로
+ * "비밀번호가 틀렸습니다" 를 띄우면 안 되고, 그 401 은 세션 문제다.
+ */
+function toWithdrawErrorKey(error: unknown, hasPassword: boolean): string {
+  const isWithdrawUnauthorized =
     isAxiosError(error) &&
     error.response?.status === 401 &&
     error.config?.url === endpoints.users.withdraw
 
-  return isWrongPassword ? WRONG_PASSWORD_KEY : FALLBACK_ERROR_KEY
+  if (!isWithdrawUnauthorized) return FALLBACK_ERROR_KEY
+
+  return hasPassword ? WRONG_PASSWORD_KEY : SESSION_EXPIRED_KEY
 }
 
 export interface UseWithdrawResult {
-  /** 성공 여부를 반환한다. 성공 시 로컬 토큰까지 지운다. */
-  withdraw: (password: string) => Promise<boolean>
+  /**
+   * 성공 여부를 반환한다. 성공 시 로컬 토큰까지 지운다.
+   * 구글 가입자는 확인할 비밀번호가 없으므로 null 을 넘긴다.
+   */
+  withdraw: (password: string | null) => Promise<boolean>
   isPending: boolean
   /** 실패 문구의 i18n 키. 없으면 null */
   errorKey: string | null
@@ -79,7 +102,7 @@ export function useWithdraw(): UseWithdrawResult {
   const [errorKey, setErrorKey] = useState<string | null>(null)
 
   const withdraw = useCallback(
-    async (password: string) => {
+    async (password: string | null) => {
       setIsPending(true)
       setErrorKey(null)
 
@@ -90,7 +113,7 @@ export function useWithdraw(): UseWithdrawResult {
         disableGoogleAutoSelect()
         return true
       } catch (error) {
-        setErrorKey(toWithdrawErrorKey(error))
+        setErrorKey(toWithdrawErrorKey(error, password !== null))
         return false
       } finally {
         setIsPending(false)

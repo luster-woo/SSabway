@@ -59,7 +59,13 @@ export default function StartPage() {
   const isLoggedIn = authStatus === 'authenticated'
   const isAuthPending = authStatus === 'idle'
 
-  /** 회원 탈퇴 다이얼로그. 비밀번호 확인이 필요해 토스트가 아니라 모달로 처리한다. */
+  /*
+    회원 탈퇴 흐름. 이 페이지는 열고 닫기만 관리한다.
+
+    다이얼로그가 열리면서 스스로 GET /users/me 를 불러 이메일·가입 경로를 받고,
+    그 값으로 확인 → (일반 로그인이면) 비밀번호 → 완료 단계를 진행한다.
+    조회가 끝나기 전에는 모달을 띄우지 않으므로 잠시 스피너만 보인다.
+  */
   const [isWithdrawOpen, setIsWithdrawOpen] = useState(false)
 
   /**

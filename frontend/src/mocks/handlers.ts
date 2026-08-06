@@ -38,6 +38,7 @@ import {
   TAKEN_EMAILS,
   USER_ACCOUNT,
   USER_LANGUAGE,
+  USER_PROVIDER,
   VALID_CODE,
   VERIFICATION_EXPIRED_EMAIL,
   errorBody,
@@ -255,20 +256,46 @@ const mockHandlers: HttpHandler[] = [
     return HttpResponse.json(okBodyWithoutData('비밀번호가 변경되었습니다.'))
   }),
 
+  // 유저 개인 정보 조회 (BE 개발완료)
+  //
+  // 회원 탈퇴 흐름 전용이다. provider 로 "비밀번호를 물어볼지"가 갈리고,
+  // email 로 "어느 계정을 지우는지"를 확인 모달에 보여준다.
+  // 지연을 두는 이유: 조회 중 스피너가 실제로 보이는지 확인하기 위해서다.
+  http.get(`${BASE}/users/me`, async ({ request }) => {
+    if (!request.headers.get('Authorization')) {
+      return HttpResponse.json(errorBody('인증이 필요합니다.'), { status: 401 })
+    }
+
+    await delay(300)
+
+    return HttpResponse.json(
+      okBody('조회 성공', {
+        email: USER_ACCOUNT.email,
+        provider: USER_PROVIDER,
+        language: USER_LANGUAGE,
+      }),
+    )
+  }),
+
   // 회원 탈퇴 (Soft Delete)
   //
   // 명세: PATCH /users, body { password }, Authorization 필수. (백엔드 개발완료)
   // 명세의 상태코드는 200/401 뿐이라 "토큰 인증 실패"와 "비밀번호 불일치"가
   // 둘 다 401 이다. useWithdraw 는 401 을 받으면 토큰을 재발급해 한 번
-  // 재시도하고, 그래도 401 이면 비밀번호 불일치로 판정한다.
+  // 재시도하고, 그래도 401 이면(비밀번호를 보낸 경우에 한해) 불일치로 판정한다.
   http.patch(`${BASE}/users`, async ({ request }) => {
     if (!request.headers.get('Authorization')) {
       return HttpResponse.json(errorBody('인증이 필요합니다.'), { status: 401 })
     }
 
-    const { password } = (await request.json()) as { password?: string }
+    const { password } = (await request.json()) as { password?: string | null }
 
-    if (password !== USER_ACCOUNT.password) {
+    /*
+      BE UserService.withdraw 와 같은 규칙이다 — 소셜 가입자는 password_hash 가
+      NULL 이라 대조할 수단이 없어서 provider == LOCAL 일 때만 검사한다.
+      목이 이 분기를 빠뜨리면 구글 흐름이 목에서만 401 로 막힌다.
+    */
+    if (USER_PROVIDER === 'LOCAL' && password !== USER_ACCOUNT.password) {
       return HttpResponse.json(errorBody('비밀번호가 일치하지 않습니다.'), {
         status: 401,
       })
