@@ -7,6 +7,27 @@ import {
   useStationNodeStore,
 } from '@/shared/lib/store/useStationNodeStore'
 import { openviduApi } from '@/user/features/consultation/openviduApi'
+import {
+  toErrorKey,
+  type ErrorKeyTable,
+} from '@/user/features/auth/lib/mockHttpError'
+
+/**
+ * 상담 요청 실패를 사유별 문구로 가른다. code 를 먼저 본다 — 상태코드 하나에
+ * 여러 원인이 겹치기 때문이다.
+ *   CONSULTATION_BLOCKED    403 블랙리스트 — 이 역 상담 이용 제한
+ *   CONSULTATION_DUPLICATED 409 이미 진행 중인 요청이 있음
+ *   STAFF_NOT_FOUND         404 출발역 담당 역무원 없음
+ * 그 밖의 실패는 fallback(일반 실패 문구)로 둔다.
+ */
+const REJECT_ERROR_KEY: ErrorKeyTable = {
+  byCode: {
+    CONSULTATION_BLOCKED: 'helpChat.rejected.blocked',
+    CONSULTATION_DUPLICATED: 'helpChat.rejected.duplicated',
+    STAFF_NOT_FOUND: 'helpChat.rejected.noStaff',
+  },
+}
+const REJECT_FALLBACK_KEY = 'helpChat.rejected.failed'
 
 export interface UseConsultationRequestResult {
   /**
@@ -22,6 +43,8 @@ export interface UseConsultationRequestResult {
   isPending: boolean
   /** 403 BLACKLISTED 등으로 요청이 거절됐다 */
   isRejected: boolean
+  /** 요청이 거절/실패했을 때 보여줄 문구의 i18n 키. 없으면 null */
+  rejectedKey: string | null
   /**
    * 출발역 정보를 몰라서 요청을 보낼 수조차 없다.
    *
@@ -67,6 +90,7 @@ export interface UseConsultationRequestResult {
 export function useConsultationRequest(): UseConsultationRequestResult {
   const [isPending, setIsPending] = useState(false)
   const [isRejected, setIsRejected] = useState(false)
+  const [rejectedKey, setRejectedKey] = useState<string | null>(null)
 
   const selectedRoute = useSelectedRouteStore((state) => state.selectedRoute)
 
@@ -106,6 +130,7 @@ export function useConsultationRequest(): UseConsultationRequestResult {
 
     setIsPending(true)
     setIsRejected(false)
+    setRejectedKey(null)
 
     try {
       // 서버가 trim 후 정확 비교하므로 이쪽에서도 미리 다듬어 보낸다.
@@ -116,8 +141,9 @@ export function useConsultationRequest(): UseConsultationRequestResult {
         currentNodeId,
       })
       return created.consultationId
-    } catch {
+    } catch (error) {
       setIsRejected(true)
+      setRejectedKey(toErrorKey(error, REJECT_ERROR_KEY, REJECT_FALLBACK_KEY))
       return null
     } finally {
       setIsPending(false)
@@ -141,6 +167,7 @@ export function useConsultationRequest(): UseConsultationRequestResult {
     cancelConsultation,
     isPending,
     isRejected,
+    rejectedKey,
     isRouteMissing,
   }
 }

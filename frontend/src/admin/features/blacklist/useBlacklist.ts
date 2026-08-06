@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import {
   keepPreviousData,
   useQuery,
@@ -14,6 +14,10 @@ import { adminApi } from '@/shared/api/client'
 import { endpoints } from '@/shared/api/endpoints'
 import type { ApiResponse } from '@/shared/types/api'
 import type { PagedContent } from '@/admin/lib/paging'
+import {
+  toAdminErrorMessage,
+  type AdminErrorTable,
+} from '@/admin/lib/errorMessage'
 
 /**
  * GET /staffs/blacklist 의 content 한 건. 백엔드 BlacklistResponse 필드를 그대로 따른다.
@@ -28,6 +32,20 @@ export interface BlacklistEntry {
 
 /** 백엔드는 페이지를 1부터 센다(@Min(1)). 페이지당 5건은 서버가 정한다. */
 export const BLACKLIST_FIRST_PAGE = 1
+
+/**
+ * 블랙리스트 등록·해제 실패를 사유별 문구로 가른다.
+ *   BLACKLIST_DUPLICATED 409 이미 등록된 사용자(등록 시)
+ *   BLACKLIST_NOT_FOUND  404 등록되지 않은 사용자(사유 수정·해제 시)
+ */
+const BLACKLIST_ERROR: AdminErrorTable = {
+  byCode: {
+    BLACKLIST_DUPLICATED: '이미 블랙리스트에 등록된 사용자입니다.',
+    BLACKLIST_NOT_FOUND: '블랙리스트에 등록되지 않은 사용자입니다.',
+  },
+}
+const BLACKLIST_FALLBACK = '요청을 처리하지 못했습니다. 잠시 후 다시 시도해 주세요.'
+
 
 async function fetchBlacklist(
   page: number,
@@ -90,6 +108,12 @@ export interface UseBlacklistResult {
   releaseBlacklist: (userEmail: string) => Promise<boolean>
   /** 요청 중인 사용자 이메일. 해당 항목만 버튼을 비활성화하는 데 쓴다. */
   pendingEmail: string | null
+  /**
+   * 직전 실패의 사유 문구. 성공 직후엔 null 이다.
+   * 액션이 false 를 준 직후(같은 tick)에 읽어 토스트로 띄운다 — 그래서
+   * 렌더 상태가 아니라 ref 다(값을 바로 읽어야 하고 리렌더는 필요 없다).
+   */
+  lastFailureMessage: () => string | null
 }
 
 /**
@@ -101,15 +125,22 @@ export interface UseBlacklistResult {
 export function useBlacklist(): UseBlacklistResult {
   const queryClient = useQueryClient()
   const [pendingEmail, setPendingEmail] = useState<string | null>(null)
+  const failureRef = useRef<string | null>(null)
 
   const run = useCallback(
     async (userEmail: string, action: () => Promise<void>) => {
       setPendingEmail(userEmail)
+      failureRef.current = null
 
       try {
         await action()
         return true
-      } catch {
+      } catch (error) {
+        failureRef.current = toAdminErrorMessage(
+          error,
+          BLACKLIST_ERROR,
+          BLACKLIST_FALLBACK,
+        )
         return false
       } finally {
         setPendingEmail(null)
@@ -146,5 +177,6 @@ export function useBlacklist(): UseBlacklistResult {
     updateBlacklistReason,
     releaseBlacklist,
     pendingEmail,
+    lastFailureMessage: () => failureRef.current,
   }
 }

@@ -131,6 +131,13 @@ function distanceBetween(
  * viewBox 는 정사각형이고 preserveAspectRatio 기본값(meet)이라, 도면은
  * 컨테이너의 짧은 변에 맞춰 가운데 정렬된다. 따라서 짧은 변 길이와
  * 레터박스 여백만 알면 배율과 무관하게 비율을 구할 수 있다.
+ *
+ * ⚠️ 결과를 0~1 로 가둔다. 컨테이너는 세로로 긴 직사각형이라 도면 위아래에
+ *    레터박스가 남는데(폰 기준 174px 씩), 그 여백을 가리킨 좌표는 비율이
+ *    1 을 넘는다. 그대로 zoomViewportAt 에 넘기면 도면 밖을 기준점으로 삼아
+ *    확대하면서 중심이 도면 끝으로 끌려간다 — 실제로 ± 버튼(레터박스 위에
+ *    있다)을 빠르게 두 번 누르면 화면이 아래로 튀었다. 가장자리를 가리킨
+ *    것으로 취급하는 편이 맞다.
  */
 function toAnchorFraction(
   container: HTMLElement,
@@ -142,8 +149,8 @@ function toAnchorFraction(
   const side = Math.max(Math.min(width, height), 1)
 
   return {
-    fx: (pxX - (width - side) / 2) / side,
-    fy: (pxY - (height - side) / 2) / side,
+    fx: clamp((pxX - (width - side) / 2) / side, 0, 1),
+    fy: clamp((pxY - (height - side) / 2) / side, 0, 1),
   }
 }
 
@@ -414,6 +421,19 @@ export function StationMapOverlay({
 
   /** 더블클릭·더블탭 — 그 지점을 고정한 채 한 단계 확대 */
   const handleDoubleClick = (event: ReactMouseEvent<HTMLDivElement>) => {
+    /*
+      ± · 복귀 버튼 위에서의 더블클릭은 무시한다. (handlePointerDown 과 같은 가드)
+
+      dblclick 은 버튼에서 이 컨테이너로 버블링된다. 그래서 ± 를 빠르게 두 번
+      누르면 `click` 2번에 `dblclick` 1번이 더 실행됐다 —
+        + 두 번  → 0.8 × 0.8 × 0.625 = 2단이 아니라 3.5단 확대
+        − 두 번  → 1.25 × 1.25 × 0.625 = 0.977, 축소가 상쇄돼 제자리
+      "버튼이 일정한 비율로 확대·축소되지 않는다"의 원인이었다.
+    */
+    if (event.target instanceof Element && event.target.closest('button')) {
+      return
+    }
+
     const container = containerRef.current
     if (!container) return
 
@@ -453,8 +473,12 @@ export function StationMapOverlay({
       className="fixed inset-0 z-50 bg-black/45"
     >
       <div className="bg-surface mx-auto flex h-full w-full max-w-[520px] flex-col">
-        {/* 헤더 */}
-        <div className="pt-safe px-4">
+        {/*
+          헤더. 구분선은 기본 선 색(--color-line, slate-200)보다 한 단계 진한
+          slate-300 — 지도(밝은 회색 도면)와 맞닿아 있어 연한 선은 묻힌다.
+          아래 범례의 구분선과 같은 색이어야 위아래 경계가 짝을 이룬다.
+        */}
+        <div className="pt-safe border-b border-[#cbd5e1] px-4">
           <div className="flex items-center justify-between py-3">
             <h2 className="text-ink text-[16px] font-bold">
               {t('routeGuide.stationMap.title')}
@@ -560,9 +584,9 @@ export function StationMapOverlay({
           </div>
         )}
 
-        {/* 범례 — 지도가 없으면 설명할 것도 없다 */}
+        {/* 범례 — 지도가 없으면 설명할 것도 없다. 구분선 색은 헤더 주석 참고 */}
         {status ? null : (
-          <div className="pb-safe border-line border-t px-4">
+          <div className="pb-safe border-t border-[#cbd5e1] px-4">
             <ul className="flex flex-wrap items-center gap-x-3.5 gap-y-1.5 py-3">
               {legendItems.map((item) => (
                 <li

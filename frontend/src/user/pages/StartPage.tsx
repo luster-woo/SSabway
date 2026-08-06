@@ -21,6 +21,8 @@ import { InstallPromptSheet } from '@/user/features/install/InstallPromptSheet'
 import { useInstallPrompt } from '@/user/features/install/useInstallPrompt'
 import { LandingSplash } from '@/user/features/start/LandingSplash'
 import { LanguageSelector } from '@/user/features/start/LanguageSelector'
+import { TutorialGuideBanner } from '@/user/features/start/TutorialGuideBanner'
+import { TutorialModal } from '@/user/features/tutorial/TutorialModal'
 import { useLandingSplash } from '@/user/features/start/useLandingSplash'
 import { useSyncLanguageOnLeave } from '@/user/features/start/useSyncLanguageOnLeave'
 
@@ -59,6 +61,12 @@ export default function StartPage() {
 
   /** 회원 탈퇴 다이얼로그. 비밀번호 확인이 필요해 토스트가 아니라 모달로 처리한다. */
   const [isWithdrawOpen, setIsWithdrawOpen] = useState(false)
+
+  /**
+   * 사용법 안내 모달. 열 때마다 새로 마운트해 1페이지부터 보게 한다.
+   * (GIF 도 그때 처음 내려온다 — 안 여는 사용자는 받지 않는다)
+   */
+  const [isTutorialOpen, setIsTutorialOpen] = useState(false)
 
   const selectLanguage = (next: Language) => {
     changeLanguage(next)
@@ -157,10 +165,26 @@ export default function StartPage() {
           </div>
         </section>
 
+        {/*
+          사용법 안내 — 언어 선택 바로 아래에 붙인다.
+
+          위치 권한 카드가 사라지면서(GPS 제거) 이 아래가 통째로 비었다. 남는
+          공간 가운데(`my-auto`)에 띄우면 기기 높이에 따라 배너가 허공에 떠
+          보이고 언어 선택과의 관계도 흐려진다. 언어를 고른 직후 시선이 그대로
+          내려오는 자리에 두고, 남는 높이는 아래(「안내 시작」 위)에 모은다.
+        */}
+        <section className="mt-[clamp(16px,3vh,26px)]">
+          <TutorialGuideBanner onOpen={() => setIsTutorialOpen(true)} />
+        </section>
+
         {isWithdrawOpen ? (
           <WithdrawDialog onClose={() => setIsWithdrawOpen(false)} />
         ) : null}
       </MobileScreen>
+
+      {isTutorialOpen ? (
+        <TutorialModal onClose={() => setIsTutorialOpen(false)} />
+      ) : null}
 
       {installPrompt.phase === 'hidden' ? null : (
         <InstallPromptSheet

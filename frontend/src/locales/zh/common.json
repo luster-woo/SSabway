@@ -160,6 +160,19 @@
       "unavailable": "无法获取位置 · 可通过拍摄指示牌继续",
       "nearStation": "最近车站: {{station}}",
       "switchToAllow": "改为同意"
+    },
+    "tutorial": {
+      "eyebrow": "第一次使用吗？",
+      "bannerTitle": "查看 1 分钟使用说明",
+      "title": "使用说明",
+      "prev": "上一页",
+      "next": "下一页",
+      "goToStep": "查看第 {{current}} 张说明（共 {{total}} 张）",
+      "steps": {
+        "signs": "如何通过车站标志牌为您指引所在位置",
+        "photoGuide": "标志牌的正确拍摄方法与错误示例",
+        "videoCall": "找不到路时如何与站务员进行视频通话"
+      }
     }
   },
   "signCapture": {
@@ -187,6 +200,12 @@
       "inUse": "其他应用正在使用摄像头\n请关闭后重试",
       "unknown": "无法启动摄像头",
       "upload": "改为上传照片"
+    },
+    "predictFail": {
+      "notDetected": "未能在照片中识别到标识。\n请重新拍摄，使标识清晰可见。",
+      "tooLarge": "照片太大。\n请重新拍摄更小的照片（15MB 以下）。",
+      "invalidImage": "无法读取照片。\n请重新拍摄。",
+      "serverError": "标识识别服务暂时出现问题。\n请稍后重新拍摄。"
     }
   },
   "destination": {
@@ -415,7 +434,13 @@
     "ready": "已准备就绪。\n请点击下方按钮开始连接。",
     "connect": "视频通话",
     "recordNotice": "通话语音可能会被录音",
-    "backToGuide": "返回路线导航"
+    "backToGuide": "返回路线导航",
+    "rejected": {
+      "blocked": "该账户在本站的视频咨询已被限制。\n详情请咨询站务员。",
+      "duplicated": "您已有正在进行的咨询请求。\n请稍后再试。",
+      "noStaff": "本站当前没有可接通的站务员。\n请稍后再试。",
+      "failed": "无法发起咨询。\n请稍后再试。"
+    }
   },
   "consultation": {
     "request": "请求帮助",
