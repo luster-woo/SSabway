@@ -1,19 +1,31 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, type RefObject } from 'react'
 import { useTranslation } from 'react-i18next'
 
 export interface CameraStageProps {
   stream: MediaStream | null
   isCameraOn: boolean
+  /**
+   * 영상이 실제로 잘리는 박스를 밖에서 재기 위한 참조.
+   *
+   * 아래 `<video>` 는 이 박스를 `object-cover` 로 채우므로, 잘려 나가는 범위는
+   * 이 박스의 가로:세로 비율 하나로 정해진다. 역무원 화면이 같은 화각을
+   * 보여주려면 그 비율을 알아야 한다 — usePublishViewportAspect 가 이 참조를
+   * 받아 재서 보낸다.
+   *
+   * `<video>` 가 아니라 감싸는 div 에 단다. video 는 스트림이 생긴 뒤에야
+   * 렌더되므로 권한 대기 구간에서 참조가 비어 버린다.
+   */
+  boxRef?: RefObject<HTMLDivElement | null>
 }
 
 /**
  * 후면 카메라 화면.
  *
- * 실제 카메라 스트림을 그대로 보여준다. 모자이크는 아직 붙이지 않았다.
- * TODO: 얼굴 검출 결과를 받아 canvas 에 모자이크를 그린 뒤 그 스트림을 publish 한다.
- *       그때 이 video 는 canvas 의 원본 소스로만 쓰이고 화면에는 canvas 를 띄운다.
+ * 여기 보이는 것은 **원본**이다. 모자이크(useFaceMosaic)는 역무원에게 전송되는
+ * 스트림에만 적용한다 — 팀 결정 8/4. 발행은 mosaic.stream 이라 원본 영상이
+ * 기기 밖으로 나가지는 않는다. 자세한 배선은 ConsultationPage 주석 참고.
  */
-export function CameraStage({ stream, isCameraOn }: CameraStageProps) {
+export function CameraStage({ stream, isCameraOn, boxRef }: CameraStageProps) {
   const { t } = useTranslation()
   const videoRef = useRef<HTMLVideoElement>(null)
 
@@ -28,7 +40,7 @@ export function CameraStage({ stream, isCameraOn }: CameraStageProps) {
   }, [stream])
 
   return (
-    <div className="absolute inset-0 bg-[#3B434C]">
+    <div ref={boxRef} className="absolute inset-0 bg-[#3B434C]">
       {stream ? (
         /* eslint-disable-next-line jsx-a11y/media-has-caption -- 실시간 카메라라 자막 트랙이 없다 */
         <video

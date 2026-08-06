@@ -54,6 +54,17 @@ export interface UseOpenViduSessionResult {
   status: OpenViduStatus
   /** 사용자에게 보여줄 오류 문구가 아니라 로그용 원인 */
   error: Error | null
+  /**
+   * 접속이 끝난 세션. 끊겨 있으면 null.
+   *
+   * 연결·발행·구독은 이 훅이 이미 끝내 두므로, 호출부가 이걸 쓸 일은
+   * 그 밖의 세션 기능(시그널 등)뿐이다 — 예: useViewportAspect 가 사용자
+   * 화면 비율을 역무원 쪽으로 보낸다.
+   *
+   * ref 가 아니라 state 로 내보낸다. 값이 생기는 순간 호출부의 effect 가
+   * 깨어나야 리스너를 붙일 수 있는데, ref 변경은 렌더를 일으키지 않는다.
+   */
+  session: Session | null
   publisher: Publisher | null
   subscribers: StreamManager[]
   /** 1:1 통화라 화면은 보통 이것만 쓴다 */
@@ -78,6 +89,7 @@ export function useOpenViduSession(
 
   const [status, setStatus] = useState<OpenViduStatus>(OV_STATUS.IDLE)
   const [error, setError] = useState<Error | null>(null)
+  const [session, setSession] = useState<Session | null>(null)
   const [publisher, setPublisher] = useState<Publisher | null>(null)
   const [subscribers, setSubscribers] = useState<StreamManager[]>([])
 
@@ -95,6 +107,7 @@ export function useOpenViduSession(
   const leave = useCallback(() => {
     sessionRef.current?.disconnect()
     sessionRef.current = null
+    setSession(null)
     setPublisher(null)
     setSubscribers([])
     setStatus(OV_STATUS.DISCONNECTED)
@@ -121,7 +134,10 @@ export function useOpenViduSession(
     sessionRef.current = session
 
     session.on('streamCreated', (event) => {
-      const subscriber = session.subscribe((event as StreamEvent).stream, undefined)
+      const subscriber = session.subscribe(
+        (event as StreamEvent).stream,
+        undefined,
+      )
       if (!isCurrent) return
       setSubscribers((prev) => [...prev, subscriber])
     })
@@ -147,6 +163,7 @@ export function useOpenViduSession(
     session.on('sessionDisconnected', () => {
       if (!isCurrent) return
       sessionRef.current = null
+      setSession(null)
       setPublisher(null)
       setSubscribers([])
       setStatus(OV_STATUS.DISCONNECTED)
@@ -163,8 +180,14 @@ export function useOpenViduSession(
         const config = publishRef.current
         if (config) {
           const created = await ov.initPublisherAsync(undefined, {
-            audioSource: toSource(config.stream?.getAudioTracks()[0], config.audio),
-            videoSource: toSource(config.stream?.getVideoTracks()[0], config.video),
+            audioSource: toSource(
+              config.stream?.getAudioTracks()[0],
+              config.audio,
+            ),
+            videoSource: toSource(
+              config.stream?.getVideoTracks()[0],
+              config.video,
+            ),
             publishAudio: config.audio,
             publishVideo: config.video,
             mirror: false,
@@ -176,6 +199,7 @@ export function useOpenViduSession(
           setPublisher(created)
         }
 
+        setSession(session)
         setStatus(OV_STATUS.CONNECTED)
       } catch (caught) {
         if (!isCurrent) return
@@ -190,6 +214,7 @@ export function useOpenViduSession(
       isCurrent = false
       session.disconnect()
       sessionRef.current = null
+      setSession(null)
       setPublisher(null)
       setSubscribers([])
     }
@@ -198,6 +223,7 @@ export function useOpenViduSession(
   return {
     status,
     error,
+    session,
     publisher,
     subscribers,
     remoteStream: subscribers[0] ?? null,
