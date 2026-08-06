@@ -105,7 +105,7 @@ export function RouteOptionCard({
 
       <p className="text-ink-muted mt-1 text-[12.5px]">
         {toLaneSummary(path)}
-        {' · '}
+        {' / '}
         {path.transferCount === 0
           ? t('route.select.noTransfer')
           : /* count 키는 i18next 복수형 규칙을 타므로 n으로 넘긴다 */
