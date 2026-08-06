@@ -237,7 +237,6 @@
     "originSet": "已设为出发地",
     "destinationSet": "已设为目的地",
     "originApplied": "已将{{name}}设为出发地",
-    "destinationApplied": "已将{{name}}设为目的地",
     "needBoth": "请同时选择出发地和目的地",
     "recenter": "移动到当前位置"
   },
@@ -465,7 +464,7 @@
     "recordNotice": "通话语音可能会被录音",
     "backToGuide": "返回路线导航",
     "rejected": {
-      "blocked": "该账户无法使用视频咨询服务。\n详情请咨询车站工作人员。",
+      "blocked": "本站目前无法使用视频咨询服务。\n请直接前往车站服务室。",
       "duplicated": "您已有正在进行的咨询请求。\n请稍后再试。",
       "noStaff": "本站当前没有可接通的站务员。\n请稍后再试。",
       "failed": "无法发起咨询。\n请稍后再试。"
