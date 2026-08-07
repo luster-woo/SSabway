@@ -405,6 +405,7 @@ export default function RouteGuidePage() {
                         arriveType={guideStep.arriveType}
                         arriveCategory={guideStep.arriveCategory}
                         arrivedFor={guideStep.arrivedFor}
+                        imageUrl={guideStep.facilityImageUrl}
                       />
                     )}
                   </div>
