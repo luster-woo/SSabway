@@ -429,6 +429,10 @@
     "failedUnknownPoint": "Could not identify your starting point\nScan the sign again",
     "failedNeedAnswers": "Some route details are missing\nPlease answer the questions again",
     "failedNotReady": "Guide data is still loading\nPlease try again shortly",
+    "elevator": {
+      "down": "Going down",
+      "up": "Going up"
+    },
     "point": {
       "signage": "Sign",
       "elevator": "Elevator",

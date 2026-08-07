@@ -143,6 +143,46 @@
     }
   }
 
+  /*
+   * 엘리베이터 카드(ElevatorRideCard).
+   *
+   * 카는 화면 가운데에 고정하고 **승강로 쪽을 움직인다** — 카가 상자 안을
+   * 오르내리면 한 바퀴 돌 때마다 반대편 끝에서 다시 나타나 순간이동처럼 보인다.
+   * 카를 따라가는 시점으로 두면 층 표시만 흘러가고, 카는 얌전히 떠 있다.
+   *
+   * 층 표시 간격(20px)과 이동량이 정확히 같아야 이어 붙는 자리가 티나지 않는다.
+   * 올라갈 때는 같은 keyframes 를 reverse 로 돌린다.
+   *
+   * 꺾쇠도 같은 주기를 돌아야 둘이 따로 노는 것처럼 보이지 않는다.
+   */
+  --animate-elevator-shaft: elevator-shaft 1.2s linear infinite;
+  --animate-elevator-chevron: elevator-chevron 1.2s linear infinite;
+
+  /* 내려갈 때 — 카가 내려가므로 승강로는 위로 흐른다 */
+  @keyframes elevator-shaft {
+    from {
+      transform: translateY(0);
+    }
+    to {
+      transform: translateY(-20px);
+    }
+  }
+
+  /*
+   * 진행 방향을 짚어 주는 꺾쇠 셋. 셋이 같은 주기를 돌면서 딜레이만 어긋나
+   * 흐르는 것처럼 이어진다. 30% 에서 가장 밝고 곧 잦아들어, 다음 꺾쇠가
+   * 밝아질 때 앞의 것이 아직 조금 남아 있다.
+   */
+  @keyframes elevator-chevron {
+    0%,
+    100% {
+      opacity: 0.18;
+    }
+    30% {
+      opacity: 1;
+    }
+  }
+
   --font-sans:
     'Pretendard', system-ui, -apple-system, 'Segoe UI', Roboto,
     'Helvetica Neue', 'Noto Sans KR', 'Noto Sans', sans-serif;

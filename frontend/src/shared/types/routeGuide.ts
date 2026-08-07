@@ -31,6 +31,20 @@ export const SIGN_DIRECTION = {
 
 export type SignDirection = (typeof SIGN_DIRECTION)[keyof typeof SIGN_DIRECTION]
 
+/**
+ * 엘리베이터 구간이 향하는 층. 카드의 애니메이션 방향을 이 값이 정한다.
+ *
+ * SignDirection 의 UP·DOWN 과 값이 겹치지만 뜻이 다르다 — 저쪽은 표지판이
+ * 가리키는 방향(화살표 회전)이고, 이쪽은 엘리베이터가 실제로 가는 쪽이다.
+ */
+export const ELEVATOR_DIRECTION = {
+  UP: 'UP',
+  DOWN: 'DOWN',
+} as const
+
+export type ElevatorDirection =
+  (typeof ELEVATOR_DIRECTION)[keyof typeof ELEVATOR_DIRECTION]
+
 /** 표지판 오른쪽에 붙는 노선 뱃지 */
 export interface SignLineBadge {
   /** 노선 번호·기호 ("4") */
@@ -104,6 +118,13 @@ export interface GuideStep {
    * sign.photoUrl 을 쓰므로 여기 중복해 넣지 않는다.
    */
   facilityImageUrl: string | null
+  /**
+   * 엘리베이터를 **타고 가는** 구간(양 끝이 다 엘리베이터)이 향하는 쪽.
+   *
+   * 이 값이 있는 단계만 ElevatorRideCard 로 그린다. 엘리베이터 앞까지 걸어가는
+   * 구간은 null 이고, 실사 사진이 있는 시설 카드가 맡는다.
+   */
+  elevatorDirection: ElevatorDirection | null
 
   /*
     아래는 BE 응답 원본 그대로다. 화면이 "무엇에 도착하는 구간인가"로 분기해야
