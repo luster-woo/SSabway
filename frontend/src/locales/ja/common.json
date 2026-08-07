@@ -438,11 +438,13 @@
   },
   "arrival": {
     "back": "戻る",
-    "title": "目的地に到着しました！",
+    "title": "案内が完了しました!",
     "finalDestination": "最終目的地 {{name}}",
     "duration": "所要時間",
     "origin": "出発地",
-    "destination": "到着地",
+    "destination": "目的地",
+    "alightStation": "降車駅",
+    "transferHint": "{{station}}で降りたら、案内標識をもう一度撮影してください。\n続けてご案内します。",
     "noSummary": "今回の移動情報が見つかりませんでした\n目的地をもう一度選んでください",
     "newDestination": "新しい目的地の案内を受ける"
   },
