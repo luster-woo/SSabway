@@ -970,4 +970,12 @@ export const DAEGU_EDGES: Record<string, DaeguEdge | undefined> = {
       { x: 2503.8, y: 1923.8 },
     ],
   },
+  E106: {
+    from: 'S3_05',
+    to: 'S3_06',
+    geometry: [
+      { x: 2683.8, y: 1903.8 },
+      { x: 2503.8, y: 1923.8 },
+    ],
+  },
 }
