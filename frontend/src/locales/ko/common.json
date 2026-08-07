@@ -292,6 +292,7 @@
     "back": "뒤로가기",
     "change": "변경",
     "rescan": "재촬영",
+    "originLocation": "출발 위치를 역 지도에서 보기",
     "needRoute": "먼저 경로를 선택해 주세요\n출발역과 도착역이 정해지면 안내를 시작할 수 있어요",
     "pickRoute": "경로 선택하기",
     "start": "경로 안내 시작",
@@ -376,6 +377,7 @@
         "passed": "지나온 경로"
       },
       "mapAlt": "역 내 도면과 안내 경로",
+      "myLocationLabel": "현재 위치",
       "facility": {
         "_heading": "시설 안내",
         "stairs": "계단·에스컬레이터",

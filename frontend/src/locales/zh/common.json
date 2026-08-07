@@ -292,6 +292,7 @@
     "back": "返回",
     "change": "更改",
     "rescan": "重拍",
+    "originLocation": "在车站地图上查看出发位置",
     "needRoute": "请先选择路线\n确定出发站和到达站后即可开始导航",
     "pickRoute": "选择路线",
     "start": "开始路线导航",
@@ -376,6 +377,7 @@
         "passed": "已走过的路线"
       },
       "mapAlt": "车站平面图与导览路线",
+      "myLocationLabel": "当前位置",
       "facility": {
         "_heading": "设施指南",
         "stairs": "楼梯·扶梯",
