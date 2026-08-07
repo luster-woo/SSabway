@@ -292,6 +292,7 @@
     "back": "戻る",
     "change": "変更",
     "rescan": "再撮影",
+    "originLocation": "出発位置を駅マップで見る",
     "needRoute": "まず経路を選んでください\n出発駅と到着駅が決まると案内を開始できます",
     "pickRoute": "経路を選ぶ",
     "start": "ルート案内を開始",
@@ -376,6 +377,7 @@
         "passed": "通ってきた経路"
       },
       "mapAlt": "駅構内図と案内ルート",
+      "myLocationLabel": "現在地",
       "facility": {
         "_heading": "施設案内",
         "stairs": "階段・エスカレーター",

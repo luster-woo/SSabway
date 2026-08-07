@@ -53,6 +53,96 @@
     }
   }
 
+  /*
+   * "여기를 눌러 보세요" 유도. 세 동작이 **조금씩 겹쳐** 흐르듯 이어진다.
+   *
+   *    8~26%  커서가 버튼 쪽으로 천천히 들어온다
+   *   19%     아직 다 닿기 전에 마커가 먼저 반응해 솟기 시작한다
+   *   29%     마커 정점 (커서는 닿아서 머무는 중)
+   *   36%     마커가 내려오는 사이에 커서가 물러나기 시작한다
+   *   42%     마커 착지
+   *   56~100% 쉬는 구간. 쉼 없이 움직이면 시선을 계속 붙들어 둔다.
+   *
+   * 동작을 칼같이 끊어 이어 붙이면 순서는 또렷하지만 뚝뚝 끊겨 보인다.
+   * 앞뒤를 조금 물리면 하나의 흐름으로 읽힌다.
+   *
+   * 셋이 **같은 3초 주기**를 공유해야 이 맞물림이 유지된다.
+   */
+  /*
+   * 전체 곡선을 linear 로 두고 **구간마다 가속·감속을 따로 준다**.
+   * 하나의 ease-in-out 으로 묶으면 구간 경계마다 멈췄다 다시 출발하는 것처럼
+   * 딱딱 끊겨 보인다 — 다가올 때는 감속, 뛰어오를 때는 감속, 내려올 때는
+   * 가속(중력)처럼 서로 다른 곡선이 필요하다.
+   */
+  --animate-marker-bob: marker-bob 3s linear infinite;
+  --animate-cursor-poke: cursor-poke 3s linear infinite;
+  --animate-hover-pulse: hover-pulse 3s linear infinite;
+
+  /*
+   * 커서가 닿기 전에 미리 솟기 시작해(19.5% ≒ 0.6초), 커서가 빠지는
+   * 사이(42%)에 착지한다.
+   */
+  @keyframes marker-bob {
+    0%,
+    19.5% {
+      transform: translateY(0);
+      /* 솟을 때 — 힘차게 나갔다 정점에서 부드럽게 멎는다 */
+      animation-timing-function: cubic-bezier(0.15, 0.7, 0.3, 1);
+    }
+    29% {
+      transform: translateY(-3px);
+      /* 내려올 때 — 중력처럼 점점 빨라진다 */
+      animation-timing-function: cubic-bezier(0.55, 0, 0.85, 0.45);
+    }
+    42%,
+    100% {
+      transform: translateY(0);
+    }
+  }
+
+  /* 천천히 다가와(8~26%) 잠깐 머물다, 마커가 내려오는 사이(36%)에 빠진다. */
+  @keyframes cursor-poke {
+    0%,
+    8% {
+      transform: translate(0, 0);
+      /* 다가올 때 — 끝에서 스르르 멎도록 감속 */
+      animation-timing-function: cubic-bezier(0.22, 0.61, 0.36, 1);
+    }
+    26%,
+    36% {
+      transform: translate(-5.8px, -7.2px);
+      /* 물러날 때 — 부드럽게 출발해 부드럽게 멎는다 */
+      animation-timing-function: cubic-bezier(0.4, 0, 0.35, 1);
+    }
+    56%,
+    100% {
+      transform: translate(0, 0);
+    }
+  }
+
+  /*
+   * 호버 하이라이트. **cursor-poke 와 시점·곡선을 그대로 맞춘다** —
+   * 커서가 다가오는 만큼 밝아지고 물러나는 만큼 어두워져야 "커서 때문에
+   * 켜졌다"로 읽힌다. 따로 스케줄을 주면 커서가 아직 오지도 않았는데
+   * 버튼이 먼저 반응하는 것처럼 보인다.
+   */
+  @keyframes hover-pulse {
+    0%,
+    8% {
+      opacity: 0;
+      animation-timing-function: cubic-bezier(0.22, 0.61, 0.36, 1);
+    }
+    26%,
+    36% {
+      opacity: 1;
+      animation-timing-function: cubic-bezier(0.4, 0, 0.35, 1);
+    }
+    56%,
+    100% {
+      opacity: 0;
+    }
+  }
+
   --font-sans:
     'Pretendard', system-ui, -apple-system, 'Segoe UI', Roboto,
     'Helvetica Neue', 'Noto Sans KR', 'Noto Sans', sans-serif;
@@ -65,6 +155,28 @@
     var(--color-brand-dark),
     var(--color-brand)
   );
+}
+
+/*
+ * 눌러 보고 싶게 만드는 작은 원형 버튼의 입체 표현.
+ *
+ * **배경색은 넣지 않는다** — 옆줄(도착지)의 아이콘 배경과 같은 색을 써야
+ * 두 줄이 한 벌로 보이므로, 색은 쓰는 쪽에서 bg-brand-soft 로 정한다.
+ * 여기서는 그림자만 얹는다: 안쪽 윗면 하이라이트 + 아랫면 음영 + 바깥 그림자로
+ * 같은 색이어도 "떠 있는 물체"로 읽힌다. 누르는 순간은 active 쪽에서 그림자를
+ * 줄이고 1px 내려앉혀 실제로 눌린 것처럼 보이게 한다.
+ */
+@utility raised-brand {
+  box-shadow:
+    0 2px 5px rgba(2, 69, 122, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -1px 0 rgba(2, 69, 122, 0.08);
+}
+
+@utility raised-brand-pressed {
+  box-shadow:
+    0 1px 2px rgba(2, 69, 122, 0.22),
+    inset 0 1px 2px rgba(2, 69, 122, 0.15);
 }
 
 /*

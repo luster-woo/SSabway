@@ -63,6 +63,14 @@ export interface StationRouteMapProps {
    */
   markerScale?: number
   /**
+   * 내 위치 점 옆에 '현재 위치' 글자를 붙인다.
+   *
+   * 범례 없이 지도만 보여주는 화면(안내 정보 확인)이 쓴다 — 파란 점이 무엇인지
+   * 화면 안에서 바로 읽히게 한다. 경로를 그리는 화면은 범례가 그 역할을 하므로
+   * 넘기지 않는다.
+   */
+  showMyLocationLabel?: boolean
+  /**
    * 도면에 적힌 장소 명칭을 이 언어로 고정한다. 없으면 앱의 현재 언어를 따른다.
    *
    * 관리자 화면(사용자 위치 보기)은 한국어 고정이다 — 역무원이 실제 역 안내판·
@@ -97,6 +105,7 @@ export function StationRouteMap({
   steps,
   currentIndex,
   markerScale = 1,
+  showMyLocationLabel = false,
   lang,
 }: StationRouteMapProps) {
   // lng 를 주면 그 언어로 고정되고, undefined 면 현재 언어를 따른다.
@@ -190,6 +199,10 @@ export function StationRouteMap({
         .rt-dot { fill: ${MY_LOCATION_COLOR}; stroke: #fff; stroke-width: ${String(MY_LOCATION_BORDER)};
           filter: drop-shadow(0 3px 4px rgba(15, 23, 42, .32)); }
         .rt-next { fill: #fff; stroke: ${ROUTE_COLOR.upcoming}; stroke-width: ${String(NEXT_BORDER)}; }
+        /* 흰 테두리(paint-order)로 도면 선 위에서도 글자가 끊기지 않게 한다 */
+        .rt-here { fill: ${MY_LOCATION_COLOR}; font-size: 46px; font-weight: 800;
+          dominant-baseline: middle; paint-order: stroke; stroke: #fff; stroke-width: 12;
+          stroke-linejoin: round; }
         .rt-arrow { fill: none; stroke: #fff; stroke-width: ${String(DIRECTION_ARROW_WIDTH)};
           stroke-linecap: round; stroke-linejoin: round; opacity: .6; }
 
@@ -278,6 +291,11 @@ export function StationRouteMap({
           <circle className="rt-halo" r={MY_LOCATION_HALO_RADIUS} />
           <circle className="rt-pulse" />
           <circle className="rt-dot" r={MY_LOCATION_RADIUS} />
+          {showMyLocationLabel ? (
+            <text className="rt-here" x={MY_LOCATION_RADIUS + 26} y={2}>
+              {t('routeGuide.stationMap.myLocationLabel')}
+            </text>
+          ) : null}
         </g>
       ) : null}
     </svg>
