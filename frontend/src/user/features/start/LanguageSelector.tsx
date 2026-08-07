@@ -27,6 +27,7 @@ export function LanguageSelector({
           lang={option.code}
           selected={option.code === value}
           label={option.label}
+          centered
           onClick={() => onChange(option.code)}
         />
       ))}

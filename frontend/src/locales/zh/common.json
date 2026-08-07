@@ -460,7 +460,7 @@
     "alightStation": "下车站",
     "transferHint": "在{{station}}下车后，请再次拍摄指示牌。\n我们将继续为您引导。",
     "noSummary": "未找到本次出行信息\n请重新选择目的地",
-    "newDestination": "导航到新目的地"
+    "goMain": "返回首页"
   },
   "helpChat": {
     "back": "返回",
