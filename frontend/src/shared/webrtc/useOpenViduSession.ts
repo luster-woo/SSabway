@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   OpenVidu,
+  OpenViduError,
+  OpenViduErrorName,
   type Publisher,
   type Session,
   type StreamEvent,
@@ -31,6 +33,61 @@ export const OV_STATUS = {
 
 export type OpenViduStatus = (typeof OV_STATUS)[keyof typeof OV_STATUS]
 
+/**
+ * FAILED 의 원인. 화면이 분기해야 하는 경우만 구분한다.
+ *
+ * 마이크·카메라 문제와 그 밖의 실패(접속 실패·네트워크 등)를 가르는 것이
+ * 목적이다 — 장치 문제는 상담을 취소해야 하지만 나머지는 재시도할 여지가 있다.
+ */
+export const OV_FAILURE = {
+  /** 권한 팝업에서 거부했거나, 브라우저에 "차단"이 저장돼 있다 */
+  DEVICE_DENIED: 'DEVICE_DENIED',
+  /** 장치가 없거나 다른 앱이 점유 중이다 */
+  DEVICE_UNAVAILABLE: 'DEVICE_UNAVAILABLE',
+  /** 그 밖의 실패 — 접속 실패, 네트워크, 서버 오류 */
+  OTHER: 'OTHER',
+} as const
+
+export type OpenViduFailure = (typeof OV_FAILURE)[keyof typeof OV_FAILURE]
+
+/**
+ * 실패 원인 분류.
+ *
+ * ⚠️ openvidu-browser 의 `OpenViduError` 는 **Error 를 상속하지 않는다**
+ *    (`OpenViduInternal/Enums/OpenViduError.d.ts` 의 독립 class 선언).
+ *    그래서 `instanceof Error` 로 거르면 원인이 통째로 사라진다 — 이 훅은
+ *    그동안 마이크 거부를 `new Error(String(caught))`, 즉
+ *    "[object Object]" 로 뭉개고 있었다.
+ */
+function classifyFailure(caught: unknown): OpenViduFailure {
+  if (!(caught instanceof OpenViduError)) return OV_FAILURE.OTHER
+
+  switch (caught.name) {
+    case OpenViduErrorName.DEVICE_ACCESS_DENIED:
+      return OV_FAILURE.DEVICE_DENIED
+    case OpenViduErrorName.DEVICE_ALREADY_IN_USE:
+    case OpenViduErrorName.INPUT_AUDIO_DEVICE_NOT_FOUND:
+    case OpenViduErrorName.INPUT_VIDEO_DEVICE_NOT_FOUND:
+    case OpenViduErrorName.INPUT_AUDIO_DEVICE_GENERIC_ERROR:
+      return OV_FAILURE.DEVICE_UNAVAILABLE
+    default:
+      return OV_FAILURE.OTHER
+  }
+}
+
+/** 로그용 Error. OpenViduError 는 Error 가 아니라 내용을 옮겨 담는다. */
+function toError(caught: unknown): Error {
+  if (caught instanceof Error) return caught
+
+  if (caught instanceof OpenViduError) {
+    const error = new Error(caught.message)
+    error.name = caught.name
+    return error
+  }
+
+  return new Error(String(caught))
+}
+
 export interface PublishConfig {
   /**
    * 직접 만든 스트림. 넘기지 않으면 OpenVidu 가 기본 장치를 연다.
@@ -54,6 +111,8 @@ export interface UseOpenViduSessionResult {
   status: OpenViduStatus
   /** 사용자에게 보여줄 오류 문구가 아니라 로그용 원인 */
   error: Error | null
+  /** FAILED 의 원인. 그 밖의 상태에서는 null */
+  failure: OpenViduFailure | null
   /**
    * 접속이 끝난 세션. 끊겨 있으면 null.
    *
@@ -89,6 +148,7 @@ export function useOpenViduSession(
 
   const [status, setStatus] = useState<OpenViduStatus>(OV_STATUS.IDLE)
   const [error, setError] = useState<Error | null>(null)
+  const [failure, setFailure] = useState<OpenViduFailure | null>(null)
   const [session, setSession] = useState<Session | null>(null)
   const [publisher, setPublisher] = useState<Publisher | null>(null)
   const [subscribers, setSubscribers] = useState<StreamManager[]>([])
@@ -110,11 +170,13 @@ export function useOpenViduSession(
     setSession(null)
     setPublisher(null)
     setSubscribers([])
+    setFailure(null)
     setStatus(OV_STATUS.DISCONNECTED)
   }, [])
 
   useEffect(() => {
     if (!token) {
+      setFailure(null)
       setStatus(OV_STATUS.IDLE)
       return
     }
@@ -172,6 +234,7 @@ export function useOpenViduSession(
     async function connect() {
       setStatus(OV_STATUS.CONNECTING)
       setError(null)
+      setFailure(null)
 
       try {
         await session.connect(connectToken)
@@ -203,7 +266,8 @@ export function useOpenViduSession(
         setStatus(OV_STATUS.CONNECTED)
       } catch (caught) {
         if (!isCurrent) return
-        setError(caught instanceof Error ? caught : new Error(String(caught)))
+        setError(toError(caught))
+        setFailure(classifyFailure(caught))
         setStatus(OV_STATUS.FAILED)
       }
     }
@@ -223,6 +287,7 @@ export function useOpenViduSession(
   return {
     status,
     error,
+    failure,
     session,
     publisher,
     subscribers,
