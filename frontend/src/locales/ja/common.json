@@ -268,7 +268,6 @@
       "failed": "ルートを取得できませんでした\nしばらくしてからもう一度お試しください",
       "empty": "利用できるルートが見つかりませんでした\n目的地を選び直してください",
       "changeDestination": "目的地を選び直す",
-      "started": "{{station}}まで案内を開始します",
       "durationMin": "{{m}}分",
       "durationHour": "{{h}}時間{{m}}分",
       "fare": "{{amount}}₩",
@@ -286,22 +285,15 @@
   "userInfo": {
     "title": "案内情報の確認",
     "back": "戻る",
-    "origin": "出発",
-    "destination": "到着",
     "change": "変更",
     "rescan": "再撮影",
-    "detail": {
-      "gps": "現在地を基準",
-      "manual": "地図で選択",
-      "finalDestination": "最終目的地 {{name}}"
-    },
     "needRoute": "まず経路を選んでください\n出発駅と到着駅が決まると案内を開始できます",
     "pickRoute": "経路を選ぶ",
     "start": "ルート案内を開始",
     "needAnswers": "すべての質問にお答えください",
     "started": "選択した条件で案内を開始します",
     "preference": {
-      "label": "ルートに必要な情報",
+      "label": "ルートのカスタム設定",
       "back": "前の質問",
       "reset": "選び直す",
       "progress": "質問 {{current}} / {{total}}",
@@ -400,7 +392,7 @@
         "daeguStationExit4": "大邱駅 4番出口"
       }
     },
-    "help": "ヘルプ",
+    "help": "ビデオ相談",
     "loading": "ルート案内を読み込んでいます…",
     "failed": "ルート案内を読み込めませんでした\nしばらくしてからもう一度お試しください",
     "empty": "案内するステップが見つかりませんでした\n案内標識をもう一度撮影してください",
@@ -461,7 +453,7 @@
     "routeRequired": "先にルート案内を開始してください。\n出発地と目的地がわからないと接続できません。",
     "ready": "接続の準備ができました。\n下のボタンで接続を開始してください。",
     "connect": "ビデオ通話",
-    "recordNotice": "通話音声が録音されることがあります",
+    "recordNotice": "係員保護のため通話内容は録音されます",
     "backToGuide": "ルート案内に戻る",
     "rejected": {
       "blocked": "この駅ではビデオ相談を利用できません。\n駅事務室に直接お越しください。",

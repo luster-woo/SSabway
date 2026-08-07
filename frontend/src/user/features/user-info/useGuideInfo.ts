@@ -1,12 +1,10 @@
 import { useMemo } from 'react'
-import { useTranslation } from 'react-i18next'
 
-import { useDestinationStore } from '@/shared/lib/store/useDestinationStore'
-import {
-  ORIGIN_SOURCE,
-  useOriginStationStore,
-} from '@/shared/lib/store/useOriginStationStore'
 import { useSelectedRouteStore } from '@/shared/lib/store/useSelectedRouteStore'
+import {
+  resolveStationNodes,
+  useStationNodeStore,
+} from '@/shared/lib/store/useStationNodeStore'
 import type { GuideInfo } from '@/shared/types/guide'
 
 export interface UseGuideInfoResult {
@@ -24,40 +22,33 @@ export interface UseGuideInfoResult {
  * 하는 것이 바로 "그 경로로 가겠는가"이므로, 다른 출처의 값을 보여주면 사용자가
  * 방금 고른 것과 어긋난다.
  *
- * 보조 설명(detail)은 두 지점에서 뜻이 다르다.
- *   출발 — 어떻게 잡았는지(표지판 인식 / 지도에서 직접 선택)
- *   도착 — 사용자가 고른 최종 목적지. 도착역과 이름이 같으면(역 자체를 목적지로
- *          골랐을 때) 중복이라 "지도에서 선택"으로 대체한다.
+ * 두 값 모두 **같은 역 안**의 지점이다 — 역 단위로 끊어 안내하는 방향이라,
+ * 이 화면이 확인시키는 것은 "지금 이 역 안에서 어디부터 어디까지 가는가"다.
+ *   출발 — 표지판으로 인식한 노드
+ *   도착 — 그 역에서 향할 노드(탄 노선의 개찰구)
+ *
+ * 노드는 인식 결과가 없으면 파일럿 기본값으로 메운다(resolveStationNodes) —
+ * 실제 안내 요청(/routes/navi)이 쓰는 값과 같아야 화면과 안내가 어긋나지 않는다.
+ *
+ * 노드 코드는 원문 그대로 보여준다. 사람이 읽을 이름으로 옮기는 매핑은 나중에
+ * 붙일 예정이라, 지금은 그 자리에 코드가 그대로 들어간다.
  */
 export function useGuideInfo(): UseGuideInfoResult {
-  const { t } = useTranslation()
-
   const selectedRoute = useSelectedRouteStore((state) => state.selectedRoute)
-  const originSource = useOriginStationStore((state) => state.originSource)
-  const destination = useDestinationStore((state) => state.destination)
+  const startPoint = useStationNodeStore((state) => state.startPoint)
+  const finalPoint = useStationNodeStore((state) => state.finalPoint)
 
   const info = useMemo<GuideInfo | null>(() => {
     if (!selectedRoute) return null
 
-    const originDetail =
-      originSource === ORIGIN_SOURCE.MANUAL
-        ? t('userInfo.detail.manual')
-        : t('userInfo.detail.gps')
-
-    const finalName = destination?.name ?? null
-    const destinationDetail =
-      finalName && finalName !== selectedRoute.arrivalStation
-        ? t('userInfo.detail.finalDestination', { name: finalName })
-        : t('userInfo.detail.manual')
+    const nodes = resolveStationNodes({ startPoint, finalPoint })
+    const station = selectedRoute.departureStation
 
     return {
-      origin: { name: selectedRoute.departureStation, detail: originDetail },
-      destination: {
-        name: selectedRoute.arrivalStation,
-        detail: destinationDetail,
-      },
+      origin: `${station} ${nodes.startPoint}`,
+      destination: `${station} ${nodes.finalPoint}`,
     }
-  }, [selectedRoute, originSource, destination, t])
+  }, [selectedRoute, startPoint, finalPoint])
 
   return { info, isRouteMissing: info === null }
 }

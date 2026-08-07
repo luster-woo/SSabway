@@ -37,14 +37,14 @@ export function RouteNoticePopup({
       )}
     >
       {destinationName && stationName ? (
-        <div className="bg-ink/70 max-w-[360px] rounded-2xl px-5 py-3.5 text-center shadow-lg backdrop-blur-sm">
+        <div className="bg-ink/45 max-w-[360px] rounded-2xl px-5 py-3.5 text-center shadow-lg backdrop-blur-sm">
           <p className="text-[13.5px] leading-relaxed whitespace-pre-line text-white">
             {t('route.select.pathIntro', {
               destination: destinationName,
               station: stationName,
             })}
           </p>
-          <p className="mt-1 text-[12px] leading-relaxed text-white/80">
+          <p className="mt-1 text-[12px] leading-relaxed text-white/90">
             {t('route.select.walkNotice')}
           </p>
         </div>

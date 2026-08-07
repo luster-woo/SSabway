@@ -16,7 +16,7 @@ export function CaptureControls({ disabled, onCapture }: CaptureControlsProps) {
   const { t } = useTranslation()
 
   return (
-    <div className="flex flex-col items-center gap-1.5">
+    <div className="flex justify-center">
       <button
         type="button"
         onClick={onCapture}
@@ -26,9 +26,6 @@ export function CaptureControls({ disabled, onCapture }: CaptureControlsProps) {
       >
         <span className="block size-14 rounded-full bg-white active:scale-90" />
       </button>
-      <span className="text-[11px] text-[#aebac4]">
-        {t('signCapture.shoot')}
-      </span>
     </div>
   )
 }

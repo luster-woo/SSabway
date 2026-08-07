@@ -268,7 +268,6 @@
       "failed": "경로를 불러오지 못했어요\n잠시 후 다시 시도해 주세요",
       "empty": "이용할 수 있는 경로를 찾지 못했어요\n목적지를 다시 선택해 주세요",
       "changeDestination": "목적지 다시 선택",
-      "started": "{{station}}까지 안내를 시작해요",
       "durationMin": "{{m}}분",
       "durationHour": "{{h}}시간 {{m}}분",
       "fare": "{{amount}}₩",
@@ -286,22 +285,15 @@
   "userInfo": {
     "title": "안내 정보 확인",
     "back": "뒤로가기",
-    "origin": "출발",
-    "destination": "도착",
     "change": "변경",
     "rescan": "재촬영",
-    "detail": {
-      "gps": "현재 위치 기준",
-      "manual": "지도에서 선택",
-      "finalDestination": "최종 목적지 {{name}}"
-    },
     "needRoute": "먼저 경로를 선택해 주세요\n출발역과 도착역이 정해지면 안내를 시작할 수 있어요",
     "pickRoute": "경로 선택하기",
     "start": "경로 안내 시작",
     "needAnswers": "질문에 모두 답해 주세요",
     "started": "선택하신 조건으로 안내를 시작해요",
     "preference": {
-      "label": "경로에 필요한 정보",
+      "label": "맞춤 경로 설정",
       "back": "이전 질문",
       "reset": "다시 선택하기",
       "progress": "질문 {{current}} / {{total}}",
@@ -400,7 +392,7 @@
         "daeguStationExit4": "대구역 4번 출구"
       }
     },
-    "help": "도움 요청",
+    "help": "화상 상담",
     "loading": "경로 안내를 불러오는 중이에요…",
     "failed": "경로 안내를 불러오지 못했어요\n잠시 후 다시 시도해 주세요",
     "empty": "안내할 단계를 찾지 못했어요\n표지판을 다시 촬영해 주세요",
@@ -461,7 +453,7 @@
     "routeRequired": "먼저 경로 안내를 시작해 주세요.\n출발지와 목적지를 알아야 연결할 수 있어요.",
     "ready": "연결 준비가 끝났어요.\n아래 버튼으로 연결을 시작하세요.",
     "connect": "화상 연결",
-    "recordNotice": "통화 음성이 녹음될 수 있어요",
+    "recordNotice": "상담원 보호를 위해 통화 내역은 녹음됩니다",
     "backToGuide": "경로 다시 안내",
     "rejected": {
       "blocked": "현재 역에서는 화상 상담이 불가능합니다.\n역무실을 직접 방문해 주세요.",

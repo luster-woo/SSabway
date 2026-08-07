@@ -168,12 +168,12 @@ export default function RoutePage() {
 
   const [selectedIndex, setSelectedIndex] = useState(0)
 
-  /* 경로가 로드되면 안내 팝업을 5초간 띄운다. 재조회로 data 가 바뀌면 다시 뜬다. */
+  /* 경로가 로드되면 안내 팝업을 6초간 띄운다. 재조회로 data 가 바뀌면 다시 뜬다. */
   const [showNotice, setShowNotice] = useState(false)
   useEffect(() => {
     if (!data || data.length === 0) return
     setShowNotice(true)
-    const timer = window.setTimeout(() => setShowNotice(false), 5000)
+    const timer = window.setTimeout(() => setShowNotice(false), 6000)
     return () => window.clearTimeout(timer)
   }, [data])
 
@@ -201,7 +201,6 @@ export default function RoutePage() {
       장소명("경북대 북문")이 아니라 도착역("수성알파시티")이어야 한다.
     */
     setSelectedRoute(path)
-    showToast(t('route.select.started', { station: path.lastEndStation }))
     void navigate('/user-info')
   }
 
