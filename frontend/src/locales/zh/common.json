@@ -4,7 +4,7 @@
     "tagline": "面向外国游客的地铁向导"
   },
   "language": {
-    "select": "Language · 语言",
+    "select": "语言选择",
     "changed": "已切换语言"
   },
   "auth": {
@@ -238,6 +238,10 @@
     "destinationSet": "已设为目的地",
     "originApplied": "已将{{name}}设为出发地",
     "needBoth": "请同时选择出发地和目的地",
+    "marker": {
+      "origin": "出发地",
+      "destination": "目的地"
+    },
     "recenter": "移动到当前位置"
   },
   "location": {
