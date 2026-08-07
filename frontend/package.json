@@ -10,7 +10,9 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "preview": "vite preview",
-    "generate-pwa-assets": "pwa-assets-generator"
+    "generate-pwa-assets": "pwa-assets-generator",
+    "landmarks": "node scripts/generate-point-landmarks.mjs",
+    "landmarks:check": "node scripts/generate-point-landmarks.mjs --check"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.101.4",
