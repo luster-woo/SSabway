@@ -238,6 +238,10 @@
     "destinationSet": "도착지로 설정됨",
     "originApplied": "{{name}}을(를) 출발지로 설정했어요",
     "needBoth": "출발지와 도착지를 모두 선택해 주세요",
+    "marker": {
+      "origin": "출발지",
+      "destination": "목적지"
+    },
     "recenter": "현재 위치로 이동"
   },
   "location": {
