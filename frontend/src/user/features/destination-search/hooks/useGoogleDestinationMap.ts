@@ -4,6 +4,7 @@ import { IS_DEV } from '@/shared/lib/env'
 import type { Place } from '@/shared/types/place'
 import { findNearestPlace } from '@/user/features/destination-search/lib/searchGooglePlaces'
 import {
+  buildCandidateMarkerIcon,
   buildDestinationMarkerIcon,
   buildMyLocationIcon,
   buildOriginMarkerIcon,
@@ -25,11 +26,27 @@ const FOCUS_ZOOM = 17
 /** 내 위치로 맞출 때의 줌. */
 const MY_LOCATION_ZOOM = 16
 
+/**
+ * 두 지점을 "같은 자리"로 볼 오차(도 단위, 약 0.1m).
+ *
+ * 확정된 목적지는 sessionStorage 를 왕복하며 JSON 으로 굽혔다 펴진다. 값이
+ * 바뀌지는 않지만, 좌표가 다른 경로(검색 결과 vs 저장본)로 들어와도 같은
+ * 지점으로 인정하려면 정확히 일치를 요구하지 않는 편이 안전하다.
+ */
+const SAME_POINT_EPSILON = 1e-6
+
 /** 지도에 찍을 지점 하나. Place 든 인근역이든 이 세 값만 있으면 된다. */
 export interface MapPoint {
   name: string
   latitude: number
   longitude: number
+}
+
+function isSamePoint(a: MapPoint, b: MapPoint): boolean {
+  return (
+    Math.abs(a.latitude - b.latitude) < SAME_POINT_EPSILON &&
+    Math.abs(a.longitude - b.longitude) < SAME_POINT_EPSILON
+  )
 }
 
 export interface UseDestinationMapOptions {
@@ -41,6 +58,10 @@ export interface UseDestinationMapOptions {
   origin: MapPoint | null
   /** 확정된 도착지. null이면 마커를 감춘다. */
   destination: MapPoint | null
+  /** 출발지 마커 옆에 붙일 짧은 말(예: "출발지"). 없으면 핀만 그린다. */
+  originBadge?: string
+  /** 도착지 마커 옆에 붙일 짧은 말(예: "목적지"). 없으면 핀만 그린다. */
+  destinationBadge?: string
   /** 사용자의 현재 위치(표지판으로 인식한 역). null이면 내 위치 마커를 감춘다. */
   myLocation: { latitude: number; longitude: number } | null
   /**
@@ -58,7 +79,7 @@ export interface UseDestinationMapResult {
 
 /**
  * 컨테이너에 Google 지도를 띄우고 마커 넷을 관리한다.
- *   내 위치(파란 원) · 출발지(파란 점) · 도착지(물방울 핀) · 선택 중인 후보
+ *   내 위치(파란 원) · 출발지(초록 핀) · 도착지(파란 핀) · 선택 중인 후보(주황 핀)
  *
  * 지도 인스턴스는 ref로만 들고 있는다 — state에 넣으면 지도 내부 상태가 바뀔 때마다
  * 리렌더가 돌면서 타일이 다시 그려진다.
@@ -70,6 +91,8 @@ export function useGoogleDestinationMap(
     selected,
     origin,
     destination,
+    originBadge,
+    destinationBadge,
     myLocation,
     onPickPoint,
   }: UseDestinationMapOptions,
@@ -81,6 +104,8 @@ export function useGoogleDestinationMap(
   const myMarkerRef = useRef<google.maps.Marker | null>(null)
   /** 첫 렌더에서 한 번만 내 위치로 맞추기 위한 플래그. */
   const didCenterRef = useRef(false)
+  /** 마지막으로 화면을 맞춰 준 후보의 placeId. 같은 후보로는 다시 안 움직인다. */
+  const focusedPlaceIdRef = useRef<string | null>(null)
   /* 지도 생성은 한 번뿐이라, 최신 onPickPoint 를 ref 로 들고 리스너에서 읽는다. */
   const onPickRef = useRef(onPickPoint)
   useEffect(() => {
@@ -153,6 +178,7 @@ export function useGoogleDestinationMap(
         ref.current = null
       }
       didCenterRef.current = false
+      focusedPlaceIdRef.current = null
       // google.maps.Map 에는 destroy()가 없다. 컨테이너를 비우고 참조만 끊는다.
       mapRef.current = null
       container.replaceChildren()
@@ -218,21 +244,24 @@ export function useGoogleDestinationMap(
       lat: origin.latitude,
       lng: origin.longitude,
     }
+    // 라벨이 아이콘 안에 그려지므로 언어가 바뀌면 아이콘도 다시 만들어야 한다.
+    const icon = buildOriginMarkerIcon(originBadge)
 
     if (originMarkerRef.current) {
       originMarkerRef.current.setPosition(position)
       originMarkerRef.current.setTitle(origin.name)
+      originMarkerRef.current.setIcon(icon)
       originMarkerRef.current.setMap(map)
     } else {
       originMarkerRef.current = new google.maps.Marker({
         position,
         map,
         title: origin.name,
-        icon: buildOriginMarkerIcon(),
+        icon,
         zIndex: 2,
       })
     }
-  }, [isReady, origin])
+  }, [isReady, origin, originBadge])
 
   /* 확정된 도착지 마커 */
   useEffect(() => {
@@ -249,25 +278,34 @@ export function useGoogleDestinationMap(
       lat: destination.latitude,
       lng: destination.longitude,
     }
+    const icon = buildDestinationMarkerIcon(destinationBadge)
 
     if (destinationMarkerRef.current) {
       destinationMarkerRef.current.setPosition(position)
       destinationMarkerRef.current.setTitle(destination.name)
+      destinationMarkerRef.current.setIcon(icon)
       destinationMarkerRef.current.setMap(map)
     } else {
       destinationMarkerRef.current = new google.maps.Marker({
         position,
         map,
         title: destination.name,
-        icon: buildDestinationMarkerIcon(),
+        icon,
         zIndex: 3,
       })
     }
-  }, [isReady, destination])
+  }, [isReady, destination, destinationBadge])
 
   /*
-    선택 중인 후보 마커 — 아직 출발/도착으로 지정하기 전 단계다.
-    고르는 즉시 그 위치로 화면을 맞춘다.
+    선택 중인 후보 마커 — 아직 목적지로 확정하기 전 단계다.
+
+    확정된 목적지와 색이 다르다(주황 vs 파랑). 뒤로가기로 이 화면에 돌아오면
+    지난 목적지가 남아 있는데, 그 상태로 새 장소를 검색하면 두 지점이 동시에
+    보이기 때문이다. 색이 같으면 어느 쪽이 확정된 목적지인지 알 수 없다.
+
+    후보가 확정된 목적지 그 자체이면(= 돌아온 직후, 저장된 목적지를 그대로
+    되살린 상태) 후보 마커를 아예 그리지 않는다. 같은 좌표에 핀 두 개가 겹쳐
+    "마커가 2개"로 보이던 문제가 여기서 난다.
   */
   useEffect(() => {
     // 지도 생성 이펙트가 먼저 돌아야 하므로 isReady를 읽어 순서를 묶는다.
@@ -277,6 +315,7 @@ export function useGoogleDestinationMap(
     if (!selected) {
       selectedMarkerRef.current?.setMap(null)
       selectedMarkerRef.current = null
+      focusedPlaceIdRef.current = null
       return
     }
 
@@ -285,23 +324,34 @@ export function useGoogleDestinationMap(
       lng: selected.longitude,
     }
 
-    if (selectedMarkerRef.current) {
+    if (destination && isSamePoint(selected, destination)) {
+      selectedMarkerRef.current?.setMap(null)
+      selectedMarkerRef.current = null
+    } else if (selectedMarkerRef.current) {
       selectedMarkerRef.current.setPosition(position)
+      selectedMarkerRef.current.setTitle(selected.name)
       selectedMarkerRef.current.setMap(map)
     } else {
       selectedMarkerRef.current = new google.maps.Marker({
         position,
         map,
         title: selected.name,
-        icon: buildDestinationMarkerIcon(),
+        icon: buildCandidateMarkerIcon(),
         zIndex: 4,
       })
     }
 
-    // 이동 후 확대. panTo(부드러운 이동) → setZoom 순서로 붙인다.
-    map.panTo(position)
-    map.setZoom(FOCUS_ZOOM)
-  }, [isReady, selected])
+    /*
+      이동 후 확대. panTo(부드러운 이동) → setZoom 순서로 붙인다.
+      후보가 실제로 바뀐 경우에만 — destination 이 바뀌어 이 이펙트가 다시 돌 때
+      사용자가 둘러보던 화면을 되돌리지 않도록 마지막 대상 placeId 를 기억한다.
+    */
+    if (focusedPlaceIdRef.current !== selected.placeId) {
+      focusedPlaceIdRef.current = selected.placeId
+      map.panTo(position)
+      map.setZoom(FOCUS_ZOOM)
+    }
+  }, [isReady, selected, destination])
 
   // "현재 위치로 이동" 버튼이 부른다. 마지막으로 받은 내 좌표로 지도를 다시 맞춘다.
   const recenterToMyLocation = useCallback(() => {
