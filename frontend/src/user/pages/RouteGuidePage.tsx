@@ -18,6 +18,7 @@ import type { GuideStep } from '@/shared/types/routeGuide'
 import { Button, MobileScreen, useToast } from '@/shared/ui'
 import { toLangCode } from '@/user/features/auth/lib/language'
 import { ArrivalPointCard } from '@/user/features/route-guide/ArrivalPointCard'
+import { ElevatorRideCard } from '@/user/features/route-guide/ElevatorRideCard'
 import { GuideInstructionCard } from '@/user/features/route-guide/GuideInstructionCard'
 import { HelpRequestButton } from '@/user/features/route-guide/HelpRequestButton'
 import { RescanButton } from '@/user/features/route-guide/RescanButton'
@@ -393,9 +394,20 @@ export default function RouteGuidePage() {
                     aria-hidden={index !== activeIndex}
                     className="w-full shrink-0"
                   >
-                    {/* 표지판이 있는 지점과 없는 지점(개찰구·편의점)은 카드가 다르다. */}
+                    {/*
+                      표지판이 있는 지점과 없는 지점(개찰구·편의점)은 카드가
+                      다르다. 엘리베이터를 **타고 가는** 구간만 그중에서 또
+                      갈라진다 — 그 구간은 BE 가 사진을 주지 않고(내리자마자
+                      탈 때와 같은 사진이 두 번 나와서), 보여 줄 것이 오르내림
+                      뿐이라 그림으로 그린다. 엘리베이터 앞까지 걸어가는 구간은
+                      찾아가야 할 실사 사진이 있으므로 그대로 시설 카드다.
+                    */}
                     {guideStep.sign ? (
                       <SignBoardCard sign={guideStep.sign} />
+                    ) : guideStep.elevatorDirection ? (
+                      <ElevatorRideCard
+                        direction={guideStep.elevatorDirection}
+                      />
                     ) : (
                       <ArrivalPointCard
                         arriveType={guideStep.arriveType}

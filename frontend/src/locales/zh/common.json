@@ -429,6 +429,10 @@
     "failedUnknownPoint": "无法确认出发地点\n请重新拍摄指示牌",
     "failedNeedAnswers": "路线所需信息不足\n请重新回答问题",
     "failedNotReady": "正在准备导航数据\n请稍后重试",
+    "elevator": {
+      "down": "前往下层",
+      "up": "前往上层"
+    },
     "point": {
       "signage": "指示牌",
       "elevator": "电梯",
