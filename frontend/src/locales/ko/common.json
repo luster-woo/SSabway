@@ -4,7 +4,7 @@
     "tagline": "외국인 관광객을 위한 지하철 길안내"
   },
   "language": {
-    "select": "Language · 언어 선택",
+    "select": "언어 선택",
     "changed": "언어를 변경했어요"
   },
   "auth": {
