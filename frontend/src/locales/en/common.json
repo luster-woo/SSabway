@@ -4,7 +4,7 @@
     "tagline": "Subway guide for foreign travelers"
   },
   "language": {
-    "select": "Language",
+    "select": "Language Selection",
     "changed": "Language changed"
   },
   "auth": {
@@ -181,6 +181,7 @@
     }
   },
   "signCapture": {
+    "permissionNeeded": "Camera access is required",
     "hint": "Fit the sign inside the frame and take a photo",
     "zoomHint": "Pinch with two fingers to zoom in or out",
     "zoomReset": "Reset zoom",
@@ -237,8 +238,11 @@
     "originSet": "Set as start ✓",
     "destinationSet": "Set as destination ✓",
     "originApplied": "{{name}} set as your starting point",
-    "destinationApplied": "{{name}} set as your destination",
     "needBoth": "Pick both a start and a destination",
+    "marker": {
+      "origin": "Start",
+      "destination": "Destination"
+    },
     "recenter": "Go to my location"
   },
   "location": {
@@ -254,6 +258,8 @@
       "noIndoorGuide": "Indoor guidance isn't available for this route\nChoose another route",
       "title": "Recommended routes",
       "back": "Back",
+      "pathIntro": "This is the subway route to {{destination}}.\nWe'll guide you to {{station}}.",
+      "walkNotice": "Additional travel may be needed after exiting the station!",
       "badge": {
         "fastest": "Fastest",
         "noTransfer": "No transfer",
@@ -267,7 +273,6 @@
       "failed": "Could not load routes\nPlease try again in a moment",
       "empty": "No available route was found\nPlease choose another destination",
       "changeDestination": "Change destination",
-      "started": "Starting the guide to {{station}}",
       "durationMin": "{{m}} min",
       "durationHour": "{{h}} hr {{m}} min",
       "fare": "{{amount}}₩",
@@ -285,21 +290,15 @@
   "userInfo": {
     "title": "Confirm guide details",
     "back": "Back",
-    "origin": "From",
-    "destination": "To",
     "change": "Change",
-    "detail": {
-      "gps": "Based on your location",
-      "manual": "Picked on the map",
-      "finalDestination": "Final destination: {{name}}"
-    },
+    "rescan": "Retake",
     "needRoute": "Please choose a route first\nGuidance starts once your stations are set",
     "pickRoute": "Choose a route",
     "start": "Start route guide",
     "needAnswers": "Please answer all the questions",
     "started": "Starting the guide with your selection",
     "preference": {
-      "label": "Details for your route",
+      "label": "Personalize your route",
       "back": "Previous",
       "reset": "Choose again",
       "progress": "Question {{current}} of {{total}}",
@@ -377,6 +376,19 @@
         "passed": "Covered so far"
       },
       "mapAlt": "Station floor plan and guided route",
+      "facility": {
+        "_heading": "Facilities",
+        "stairs": "Stairs & Escalator",
+        "elevator": "Elevator",
+        "exit": "Exit",
+        "ticketMachine": "Ticket Machine",
+        "gate": "Ticket Gate",
+        "restroom": "Restroom",
+        "ticketOffice": "Ticket Office",
+        "store": "Convenience Store",
+        "atm": "ATM",
+        "waitingRoom": "Waiting Room"
+      },
       "label": {
         "shop": "Shops",
         "smokingArea": "Smoking Area",
@@ -398,7 +410,7 @@
         "daeguStationExit4": "Daegu Stn. Exit 4"
       }
     },
-    "help": "Get help",
+    "help": "Video call",
     "loading": "Loading the route guide…",
     "failed": "Could not load the route guide\nPlease try again in a moment",
     "empty": "No guide steps were found\nPlease photograph a sign again",
@@ -440,11 +452,13 @@
   },
   "arrival": {
     "back": "Back",
-    "title": "You have arrived!",
+    "title": "Guidance complete!",
     "finalDestination": "Final destination: {{name}}",
     "duration": "Travel time",
     "origin": "From",
-    "destination": "To",
+    "destination": "Destination",
+    "alightStation": "Get off at",
+    "transferHint": "When you get off at {{station}}, scan a sign again.\nWe\u2019ll continue guiding you.",
     "noSummary": "We couldn't find this trip\nPlease pick a destination again",
     "goMain": "Back to start"
   },
@@ -459,10 +473,10 @@
     "routeRequired": "Please start the route guide first.\nWe need your origin and destination to connect you.",
     "ready": "Everything is ready.\nStart the call with the button below.",
     "connect": "Start video call",
-    "recordNotice": "The call audio may be recorded",
+    "recordNotice": "Calls are recorded to protect our staff",
     "backToGuide": "Back to route guide",
     "rejected": {
-      "blocked": "Video consultation is unavailable for this account. \nFor more information, please contact a station staff member.",
+      "blocked": "Video calls are unavailable at this station.\nPlease visit the station office.",
       "duplicated": "You already have a consultation request in progress.\nPlease try again in a moment.",
       "noStaff": "No staff member is available at this station right now.\nPlease try again in a moment.",
       "failed": "We couldn't request a consultation.\nPlease try again in a moment."
@@ -471,6 +485,7 @@
   "consultation": {
     "request": "Ask for help",
     "connecting": "Connecting to staff...",
+    "waitingStaff": "Waiting for a staff member…",
     "queuePosition": "{{position}} people ahead of you",
     "unavailable": "No staff available right now",
     "micOnly": "Staff will speak to you. Their camera is off.",
@@ -491,7 +506,7 @@
       "alreadyEnded": "This consultation has already ended",
       "canceled": "The consultation request was canceled",
       "waitingStaff": "Waiting for a staff member…",
-      "queuePosition": "You are number {{position}} in the queue",
+      "queuePosition": "{{position}} people ahead of you",
       "noConsultationId": "We couldn't find your request. Please start from Help again.",
       "connecting": "Connecting…",
       "reconnecting": "Your network is unstable. Reconnecting…",
@@ -527,6 +542,22 @@
   },
   "station": {
     "daegu": "Daegu Station"
+  },
+  "landmark": {
+    "at": "{{station}} F{{floor}}, by {{place}}",
+    "atNoFloor": "{{station}}, by {{place}}",
+    "near": "{{station}} F{{floor}}, near {{place}}",
+    "nearNoFloor": "{{station}}, near {{place}}",
+    "place": {
+      "exit": "Exit {{number}}",
+      "gate": "the ticket gate",
+      "elevator": "the elevator",
+      "store": "the convenience store",
+      "atm": "the ATM",
+      "ticketOffice": "the ticket office",
+      "ticketMachine": "the ticket machine",
+      "toilet": "the restroom"
+    }
   },
   "trip": {
     "originEmpty": "Set start",

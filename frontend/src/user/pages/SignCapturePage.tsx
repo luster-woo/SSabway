@@ -13,10 +13,12 @@ import { CameraErrorNotice } from '@/user/features/sign-capture/CameraErrorNotic
 import { CameraPreview } from '@/user/features/sign-capture/CameraPreview'
 import { CaptureControls } from '@/user/features/sign-capture/CaptureControls'
 import {
+  CAMERA_ERROR,
   CAMERA_STATUS,
   useCameraStream,
 } from '@/user/features/sign-capture/hooks/useCameraStream'
 import { usePinchZoom } from '@/user/features/sign-capture/hooks/usePinchZoom'
+import { ChevronLeftIcon } from '@/user/features/sign-capture/icons'
 import { captureFrame } from '@/user/features/sign-capture/lib/captureFrame'
 import {
   predictSign,
@@ -82,19 +84,17 @@ export default function SignCapturePage() {
   const { showToast } = useToast()
   const { status, errorType, stream, restart } = useCameraStream()
   const setStartPoint = useStationNodeStore((s) => s.setStartPoint)
+  const setStartFloor = useStationNodeStore((s) => s.setStartFloor)
   const setOriginStation = useOriginStationStore((s) => s.setOriginStation)
 
   const videoRef = useRef<HTMLVideoElement>(null)
   const previewRef = useRef<HTMLDivElement>(null)
-  const capturedBlobRef = useRef<Blob | null>(null)
   const [capturedUrl, setCapturedUrl] = useState<string | null>(null)
   const [isFlashing, setIsFlashing] = useState(false)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [isAnalyzeFailed, setIsAnalyzeFailed] = useState(false)
   // 분석 실패 모달에 띄울 설명의 i18n 키. code 로 사유가 갈린다.
-  const [analyzeFailedKey, setAnalyzeFailedKey] = useState(
-    PREDICT_FALLBACK_KEY,
-  )
+  const [analyzeFailedKey, setAnalyzeFailedKey] = useState(PREDICT_FALLBACK_KEY)
   // 인식은 됐지만 확신도가 낮아(confident=false) 그대로 진행하기 위험한 경우
   const [isLowConfidence, setIsLowConfidence] = useState(false)
 
@@ -109,49 +109,66 @@ export default function SignCapturePage() {
     [capturedUrl],
   )
 
+  /*
+    카메라 권한 거부 시 이 화면을 띄우지 않고 이전 화면으로 되돌린다.
+    전체 화면 안내 대신 왔던 화면에서 토스트로 권한이 필요함을 알린다 —
+    권한 거부는 재시도해도 브라우저가 다시 묻지 않는 경우가 많아, 이 화면에
+    머물게 두면 사용자가 할 수 있는 것이 없다.
+  */
+  useEffect(() => {
+    if (status !== CAMERA_STATUS.ERROR) return
+    if (errorType !== CAMERA_ERROR.PERMISSION_DENIED) return
+
+    showToast(t('signCapture.permissionNeeded'), { plain: true })
+    void navigate(returnTo ?? '/', { replace: true })
+  }, [status, errorType, navigate, returnTo, showToast, t])
+
   const setCaptured = (blob: Blob) => {
-    capturedBlobRef.current = blob
     setCapturedUrl((prev) => {
       if (prev) URL.revokeObjectURL(prev)
       return URL.createObjectURL(blob)
     })
   }
 
+  /**
+   * 셔터 하나로 끝낸다 — 찍는 즉시 분석으로 넘어간다.
+   *
+   * 예전에는 촬영 → [AI 분석] 버튼을 따로 눌러야 했는데, 두 동작을 나눌 이유가
+   * 없었다(촬영본을 확인만 하고 분석하지 않을 일이 없다). 실패하면 분석 실패
+   * 모달의 [다시 촬영]이 촬영본을 지우고 카메라로 되돌린다.
+   */
   const shoot = async () => {
     const video = videoRef.current
     if (!video || status !== CAMERA_STATUS.STREAMING || capturedUrl) return
 
     setIsFlashing(true)
     window.setTimeout(() => setIsFlashing(false), 350)
+
+    let blob: Blob
     try {
       // 화면에 보이는 만큼만 잘라 담기 위해 현재 배율을 함께 넘긴다
-      setCaptured(await captureFrame(video, zoom))
+      blob = await captureFrame(video, zoom)
     } catch {
       showToast(t('signCapture.captureFailed'))
+      return
     }
+    setCaptured(blob)
+    await analyze(blob)
   }
 
-  /** 촬영본을 버리고 카메라 프리뷰로 되돌린다 (재촬영·분석 실패 공용) */
+  /** 촬영본을 버리고 카메라 프리뷰로 되돌린다 (분석 실패 모달이 쓴다) */
   const clearCapture = () => {
     if (capturedUrl) URL.revokeObjectURL(capturedUrl)
-    capturedBlobRef.current = null
     setCapturedUrl(null)
   }
 
-  const retake = () => {
-    if (!capturedUrl) {
-      showToast(t('signCapture.needCaptureFirst'))
-      return
-    }
-    clearCapture()
-    showToast(t('signCapture.retaken'))
+  /** 카메라를 못 쓸 때의 업로드 폴백. 고른 사진도 촬영본처럼 바로 분석한다. */
+  const analyzeSelectedImage = (blob: Blob) => {
+    setCaptured(blob)
+    void analyze(blob)
   }
 
-  const analyze = async () => {
-    if (!capturedBlobRef.current) {
-      showToast(t('signCapture.needCaptureFirst'))
-      return
-    }
+  const analyze = async (blob: Blob) => {
     setIsAnalyzing(true)
 
     /*
@@ -169,7 +186,7 @@ export default function SignCapturePage() {
     */
     let prediction: SignPrediction
     try {
-      prediction = await predictSign(capturedBlobRef.current)
+      prediction = await predictSign(blob)
     } catch (error) {
       // 토스트는 금방 사라져 원인을 놓치기 쉽다 — 재촬영을 유도하는
       // 모달로 띄운다 (버튼이 촬영본을 지우고 카메라로 되돌린다).
@@ -202,6 +219,8 @@ export default function SignCapturePage() {
     if (returnTo === null) resetTripSelection()
 
     setStartPoint(prediction.signageId)
+    // 표지판이 준 층. 안내 정보 화면의 출발지 표기("대구역 3F …")에 쓴다.
+    setStartFloor(prediction.floor ?? null)
 
     // 인식한 역을 출발지로 담는다. 좌표는 stationCoords 로 붙인다.
     // (표지판이 역 이름을 못 주는 예외 상황이면 출발지는 기존 값을 유지한다)
@@ -234,18 +253,16 @@ export default function SignCapturePage() {
         type="button"
         onClick={() => void navigate(returnTo ?? '/', { replace: true })}
         aria-label={t('signCapture.back')}
-        className="absolute top-[calc(env(safe-area-inset-top,0px)+0.75rem)] left-4 z-10 flex size-10 items-center justify-center rounded-full bg-black/35 text-2xl text-white"
+        className="absolute top-[calc(env(safe-area-inset-top,0px)+0.75rem)] left-4 z-10 flex size-10 items-center justify-center rounded-full bg-black/35 text-white"
       >
-        ‹
+        <ChevronLeftIcon className="size-5" />
       </button>
 
       {/* 하단 컨트롤 */}
       <div className="absolute inset-x-0 bottom-0 z-10 px-6 pb-[calc(env(safe-area-inset-bottom,0px)+1.5rem)]">
         <CaptureControls
-          hasCapture={capturedUrl !== null}
-          onRetake={retake}
+          disabled={capturedUrl !== null}
           onCapture={() => void shoot()}
-          onAnalyze={() => void analyze()}
         />
       </div>
 
@@ -257,11 +274,17 @@ export default function SignCapturePage() {
         }`}
       />
 
-      {status === CAMERA_STATUS.ERROR && errorType ? (
+      {/*
+        권한 거부는 위 이펙트가 이전 화면으로 돌려보내므로 여기서 그리지 않는다.
+        그 외 오류(장치 없음·사용 중 등)만 재시도·업로드 안내를 띄운다.
+      */}
+      {status === CAMERA_STATUS.ERROR &&
+      errorType &&
+      errorType !== CAMERA_ERROR.PERMISSION_DENIED ? (
         <CameraErrorNotice
           errorType={errorType}
           onRetry={restart}
-          onSelectImage={setCaptured}
+          onSelectImage={analyzeSelectedImage}
         />
       ) : null}
 

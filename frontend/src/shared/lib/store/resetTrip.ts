@@ -1,7 +1,30 @@
 import { useDestinationStore } from '@/shared/lib/store/useDestinationStore'
+import { useElevatorFallbackStore } from '@/shared/lib/store/useElevatorFallbackStore'
 import { useGuideStepStore } from '@/shared/lib/store/useGuideStepStore'
 import { useSelectedRouteStore } from '@/shared/lib/store/useSelectedRouteStore'
 import { useStationNodeStore } from '@/shared/lib/store/useStationNodeStore'
+
+/**
+ * 목적지에 딸린 선택을 비운다 — 목적지 자체는 그대로 둔다.
+ *
+ * 아래 넷은 전부 "그 목적지로 계산한 결과"다. 목적지가 달라지면 의미를 잃는데,
+ * 스토어는 sessionStorage 라 저절로 사라지지 않는다.
+ *
+ *   selectedRoute     고른 지하철 경로
+ *   finalPoint        경로 선택이 정한 역 내 도착 노드(개찰구)
+ *   guideStep         상세 안내에서 보고 있던 단계
+ *   elevatorFallback  "계단을 포함해 다시 찾기" 선택 (그 구간에서만 유효했다)
+ *
+ * 호출부
+ *   DestinationPage   목적지를 **다른 곳으로** 확정할 때
+ *   resetTripSelection  새 여정을 시작할 때 (목적지까지 함께 비운다)
+ */
+export function resetRouteSelection() {
+  useSelectedRouteStore.getState().clearSelectedRoute()
+  useStationNodeStore.getState().setFinalPoint(null)
+  useGuideStepStore.getState().clearGuideStep()
+  useElevatorFallbackStore.getState().clearElevatorFallback()
+}
 
 /**
  * 새 여정을 시작할 때 이전 여정의 선택을 비운다.
@@ -14,9 +37,7 @@ import { useStationNodeStore } from '@/shared/lib/store/useStationNodeStore'
  *
  * 비우는 것
  *   destination    사용자가 고른 목적지
- *   selectedRoute  그 목적지로 계산해 고른 지하철 경로 (목적지가 없으면 무의미)
- *   finalPoint     경로 선택이 정한 역 내 도착 노드 (같은 이유)
- *   guideStep      상세 안내에서 보고 있던 단계 (지난 여정의 진행 상태)
+ *   그리고 resetRouteSelection 이 비우는 넷 (경로·도착 노드·안내 단계·엘리베이터)
  *
  * 비우지 않는 것
  *   startPoint     새 인식 결과로 곧 덮인다
@@ -30,7 +51,5 @@ import { useStationNodeStore } from '@/shared/lib/store/useStationNodeStore'
  */
 export function resetTripSelection() {
   useDestinationStore.getState().clearDestination()
-  useSelectedRouteStore.getState().clearSelectedRoute()
-  useStationNodeStore.getState().setFinalPoint(null)
-  useGuideStepStore.getState().clearGuideStep()
+  resetRouteSelection()
 }

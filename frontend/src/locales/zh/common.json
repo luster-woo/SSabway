@@ -4,7 +4,7 @@
     "tagline": "面向外国游客的地铁向导"
   },
   "language": {
-    "select": "Language · 语言",
+    "select": "语言选择",
     "changed": "已切换语言"
   },
   "auth": {
@@ -181,6 +181,7 @@
     }
   },
   "signCapture": {
+    "permissionNeeded": "需要相机权限",
     "hint": "请将指示牌对准取景框进行拍摄",
     "zoomHint": "可用双指缩放画面",
     "zoomReset": "重置缩放",
@@ -237,8 +238,11 @@
     "originSet": "已设为出发地",
     "destinationSet": "已设为目的地",
     "originApplied": "已将{{name}}设为出发地",
-    "destinationApplied": "已将{{name}}设为目的地",
     "needBoth": "请同时选择出发地和目的地",
+    "marker": {
+      "origin": "出发地",
+      "destination": "目的地"
+    },
     "recenter": "移动到当前位置"
   },
   "location": {
@@ -254,6 +258,8 @@
       "noIndoorGuide": "该路线暂不支持站内引导\n请选择其他路线",
       "title": "推荐路线",
       "back": "返回",
+      "pathIntro": "这是前往{{destination}}的地铁路线。\n我们将引导您到{{station}}。",
+      "walkNotice": "出站后可能还需要另行前往目的地！",
       "badge": {
         "fastest": "最快",
         "noTransfer": "无需换乘",
@@ -267,7 +273,6 @@
       "failed": "无法加载路线\n请稍后再试",
       "empty": "未找到可用路线\n请重新选择目的地",
       "changeDestination": "重新选择目的地",
-      "started": "开始为您导航至{{station}}",
       "durationMin": "{{m}}分钟",
       "durationHour": "{{h}}小时{{m}}分钟",
       "fare": "{{amount}}₩",
@@ -285,21 +290,15 @@
   "userInfo": {
     "title": "确认导航信息",
     "back": "返回",
-    "origin": "出发",
-    "destination": "到达",
     "change": "更改",
-    "detail": {
-      "gps": "基于当前位置",
-      "manual": "在地图上选择",
-      "finalDestination": "最终目的地 {{name}}"
-    },
+    "rescan": "重拍",
     "needRoute": "请先选择路线\n确定出发站和到达站后即可开始导航",
     "pickRoute": "选择路线",
     "start": "开始路线导航",
     "needAnswers": "请回答所有问题",
     "started": "将按所选条件开始导航",
     "preference": {
-      "label": "路线所需信息",
+      "label": "个性化路线设置",
       "back": "上一题",
       "reset": "重新选择",
       "progress": "问题 {{current}} / {{total}}",
@@ -377,6 +376,19 @@
         "passed": "已走过的路线"
       },
       "mapAlt": "车站平面图与导览路线",
+      "facility": {
+        "_heading": "设施指南",
+        "stairs": "楼梯·扶梯",
+        "elevator": "电梯",
+        "exit": "出口",
+        "ticketMachine": "售票机",
+        "gate": "检票口",
+        "restroom": "洗手间",
+        "ticketOffice": "售票处",
+        "store": "便利店",
+        "atm": "ATM",
+        "waitingRoom": "候车室"
+      },
       "label": {
         "shop": "商店",
         "smokingArea": "吸烟区",
@@ -398,7 +410,7 @@
         "daeguStationExit4": "大邱站 4号出口"
       }
     },
-    "help": "请求帮助",
+    "help": "视频咨询",
     "loading": "正在加载路线导航…",
     "failed": "无法加载路线导航\n请稍后再试",
     "empty": "未找到可导航的步骤\n请重新拍摄指示牌",
@@ -440,11 +452,13 @@
   },
   "arrival": {
     "back": "返回",
-    "title": "已到达目的地！",
+    "title": "引导已完成!",
     "finalDestination": "最终目的地 {{name}}",
     "duration": "用时",
     "origin": "出发地",
     "destination": "目的地",
+    "alightStation": "下车站",
+    "transferHint": "在{{station}}下车后，请再次拍摄指示牌。\n我们将继续为您引导。",
     "noSummary": "未找到本次出行信息\n请重新选择目的地",
     "goMain": "返回首页"
   },
@@ -459,10 +473,10 @@
     "routeRequired": "请先开始路线导航。\n我们需要知道出发地和目的地才能为您连接。",
     "ready": "已准备就绪。\n请点击下方按钮开始连接。",
     "connect": "视频通话",
-    "recordNotice": "通话语音可能会被录音",
+    "recordNotice": "为保护工作人员，通话内容将被录音",
     "backToGuide": "返回路线导航",
     "rejected": {
-      "blocked": "该账户无法使用视频咨询服务。\n详情请咨询车站工作人员。",
+      "blocked": "本站目前无法使用视频咨询服务。\n请直接前往车站服务室。",
       "duplicated": "您已有正在进行的咨询请求。\n请稍后再试。",
       "noStaff": "本站当前没有可接通的站务员。\n请稍后再试。",
       "failed": "无法发起咨询。\n请稍后再试。"
@@ -471,6 +485,7 @@
   "consultation": {
     "request": "请求帮助",
     "connecting": "正在连接站务人员...",
+    "waitingStaff": "正在等待工作人员…",
     "queuePosition": "您前面还有{{position}}人",
     "unavailable": "目前没有可接待的站务人员",
     "micOnly": "站务人员将通过语音为您提供帮助，其摄像头已关闭。",
@@ -491,7 +506,7 @@
       "alreadyEnded": "该咨询已结束",
       "canceled": "咨询申请已被取消",
       "waitingStaff": "正在等待工作人员…",
-      "queuePosition": "您的排队号码为 {{position}} 号",
+      "queuePosition": "您前面还有{{position}}人",
       "noConsultationId": "未找到咨询信息，请从帮助页面重新开始。",
       "connecting": "正在连接…",
       "reconnecting": "网络不稳定，正在重新连接…",
@@ -527,6 +542,22 @@
   },
   "station": {
     "daegu": "大邱站"
+  },
+  "landmark": {
+    "at": "{{station}} {{floor}}层 {{place}}前",
+    "atNoFloor": "{{station}} {{place}}前",
+    "near": "{{station}} {{floor}}层 {{place}}附近",
+    "nearNoFloor": "{{station}} {{place}}附近",
+    "place": {
+      "exit": "{{number}}号出口",
+      "gate": "检票口",
+      "elevator": "电梯",
+      "store": "便利店",
+      "atm": "ATM",
+      "ticketOffice": "售票处",
+      "ticketMachine": "自动售票机",
+      "toilet": "洗手间"
+    }
   },
   "trip": {
     "originEmpty": "选择出发地",

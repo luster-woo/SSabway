@@ -72,6 +72,9 @@ export function mapNaviResponse(
       sign: toSign(step.arriveType, step.imageUrl, instruction),
       // BE 응답에 도면 좌표가 없다. GuidePoint 주석 참고.
       point: null,
+      // 표지판이 아닌 지점의 사진(게이트·ATM·매표소·발매기). toSign 이 null 을
+      // 돌려준 구간에서만 ArrivalPointCard 가 이 값을 쓴다.
+      facilityImageUrl: step.arriveType === NAV_NODE_TYPE.SIGNAGE ? null : step.imageUrl,
 
       edgeId: step.edgeId,
       from: step.from,

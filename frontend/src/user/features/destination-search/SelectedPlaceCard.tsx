@@ -6,6 +6,14 @@ import { PinIcon } from '@/user/features/destination-search/icons'
 
 export interface SelectedPlaceCardProps {
   place: Place
+  /**
+   * 이 장소가 이미 목적지로 확정돼 있는지.
+   *
+   * 뒤로가기로 이 화면에 돌아오면 지난번에 고른 목적지가 되살아난다. 그때는
+   * "도착지로 설정"이 아니라 "다음"이 맞다 — 사용자가 새로 정할 것은 없고
+   * 이어서 가기만 하면 된다.
+   */
+  isConfirmed?: boolean
   /** 이 장소를 목적지로 확정하고 경로 선택 화면으로 넘어간다. */
   onConfirm: () => void
 }
@@ -20,6 +28,7 @@ export interface SelectedPlaceCardProps {
  */
 export function SelectedPlaceCard({
   place,
+  isConfirmed = false,
   onConfirm,
 }: SelectedPlaceCardProps) {
   const { t } = useTranslation()
@@ -36,9 +45,13 @@ export function SelectedPlaceCard({
 
         <div className="min-w-0 flex-1">
           <p className="text-ink-muted text-[11.5px] font-semibold tracking-wide uppercase">
-            {t('destination.selected')}
+            {isConfirmed
+              ? t('destination.destinationSet')
+              : t('destination.selected')}
           </p>
-          <p className="text-ink truncate text-[16px] font-bold">{place.name}</p>
+          <p className="text-ink truncate text-[16px] font-bold">
+            {place.name}
+          </p>
           {place.address ? (
             <p className="text-ink-muted truncate text-[12.5px]">
               {place.address}
@@ -49,7 +62,7 @@ export function SelectedPlaceCard({
 
       {/* 목적지만 정하면 바로 다음 화면으로 넘어간다. */}
       <Button size="lg" fullWidth className="mt-3" onClick={onConfirm}>
-        {t('destination.setDestination')}
+        {isConfirmed ? t('destination.next') : t('destination.setDestination')}
       </Button>
     </section>
   )

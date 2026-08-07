@@ -46,6 +46,10 @@ services:
       MAIL_USERNAME: ${MAIL_USERNAME}
       MAIL_PASSWORD: ${MAIL_PASSWORD}
       GMS_API_KEY: ${GMS_API_KEY}
+      # 표지판 사진을 S3 에 새로 올릴 때마다 이 값을 올리고 재기동한다.
+      # 프론트 서비스워커가 사진 URL 을 30일간 캐싱해서, 파일명이 같으면
+      # 새 사진을 올려도 이미 캐시를 가진 사용자에겐 안 바뀐다(navigation.sign-image-version 참고).
+      SIGN_IMAGE_VERSION: ${SIGN_IMAGE_VERSION:-1}
     depends_on:
       mysql: { condition: service_healthy }
     restart: unless-stopped

@@ -1,13 +1,14 @@
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useDestinationStore } from '@/shared/lib/store/useDestinationStore'
-import {
-  ORIGIN_SOURCE,
-  useOriginStationStore,
-} from '@/shared/lib/store/useOriginStationStore'
 import { useSelectedRouteStore } from '@/shared/lib/store/useSelectedRouteStore'
+import {
+  resolveStationNodes,
+  useStationNodeStore,
+} from '@/shared/lib/store/useStationNodeStore'
+import { describeStationPoint } from '@/shared/station-map/pointLandmark'
 import type { GuideInfo } from '@/shared/types/guide'
+import { SUBWAY_LANE_LABEL } from '@/shared/types/route'
 
 export interface UseGuideInfoResult {
   /** 표시할 안내 정보. 경로를 아직 고르지 않았으면 null */
@@ -24,40 +25,63 @@ export interface UseGuideInfoResult {
  * 하는 것이 바로 "그 경로로 가겠는가"이므로, 다른 출처의 값을 보여주면 사용자가
  * 방금 고른 것과 어긋난다.
  *
- * 보조 설명(detail)은 두 지점에서 뜻이 다르다.
- *   출발 — 어떻게 잡았는지(표지판 인식 / 지도에서 직접 선택)
- *   도착 — 사용자가 고른 최종 목적지. 도착역과 이름이 같으면(역 자체를 목적지로
- *          골랐을 때) 중복이라 "지도에서 선택"으로 대체한다.
+ * 두 값 모두 **같은 역 안**의 지점이다 — 역 단위로 끊어 안내하는 방향이라,
+ * 이 화면이 확인시키는 것은 "지금 이 역 안에서 어디부터 어디까지 가는가"다.
+ *   출발 — 표지판으로 인식한 노드
+ *   도착 — 그 역에서 향할 노드(탄 노선의 개찰구)
+ *
+ * 노드는 인식 결과가 없으면 파일럿 기본값으로 메운다(resolveStationNodes) —
+ * 실제 안내 요청(/routes/navi)이 쓰는 값과 같아야 화면과 안내가 어긋나지 않는다.
+ *
+ * 출발 노드 코드(`S3_16`)는 그대로 보여주면 사용자가 읽을 수 없어서, 지도 데이터로
+ * 만든 표기("대구역 3층 6번 출구 앞")로 옮긴다 — describeStationPoint 참고. 층은
+ * 그 매핑이 노드에서 뽑으므로(표지판이 선 층), 여기서 startFloor 를 따로 붙이지
+ * 않는다. 매핑에 없는 코드는 예전처럼 "역 이름 + 코드" 가 그대로 남는다.
  */
 export function useGuideInfo(): UseGuideInfoResult {
   const { t } = useTranslation()
-
   const selectedRoute = useSelectedRouteStore((state) => state.selectedRoute)
-  const originSource = useOriginStationStore((state) => state.originSource)
-  const destination = useDestinationStore((state) => state.destination)
+  const startPoint = useStationNodeStore((state) => state.startPoint)
+  const finalPoint = useStationNodeStore((state) => state.finalPoint)
 
   const info = useMemo<GuideInfo | null>(() => {
     if (!selectedRoute) return null
 
-    const originDetail =
-      originSource === ORIGIN_SOURCE.MANUAL
-        ? t('userInfo.detail.manual')
-        : t('userInfo.detail.gps')
+    const nodes = resolveStationNodes({ startPoint, finalPoint })
+    const stationLabel = selectedRoute.departureStation
+    const stationKor = selectedRoute.departureStationKor
 
-    const finalName = destination?.name ?? null
-    const destinationDetail =
-      finalName && finalName !== selectedRoute.arrivalStation
-        ? t('userInfo.detail.finalDestination', { name: finalName })
-        : t('userInfo.detail.manual')
+    /*
+      출발 — 표지판으로 인식한 노드를 사람이 읽는 위치로 옮긴다.
+      예: "대구역 3층 6번 출구 앞". 문구·층·시설 종류는 전부 describeStationPoint
+      (매핑 + 로케일)가 만든다. 사용자가 처음 고른 언어로 나온다.
+    */
+    const origin = describeStationPoint({
+      nodeId: nodes.startPoint,
+      stationLabel,
+      stationKor,
+      t,
+    })
 
-    return {
-      origin: { name: selectedRoute.departureStation, detail: originDetail },
-      destination: {
-        name: selectedRoute.arrivalStation,
-        detail: destinationDetail,
-      },
-    }
-  }, [selectedRoute, originSource, destination, t])
+    /*
+      도착 — "역 이름 {n}호선 개찰구". 예: "대구역 1호선 개찰구".
+      노선은 사용자가 고른 경로의 첫 구간(오디세이)에서 온다. 노선을 못 얻으면
+      (구버전 응답·비지원 조합) 개찰구 노드를 describeStationPoint 로 옮겨 폴백한다.
+    */
+    const laneLabel = selectedRoute.boardingLane
+      ? SUBWAY_LANE_LABEL[selectedRoute.boardingLane]
+      : null
+    const destination = laneLabel
+      ? `${stationLabel} ${laneLabel} 개찰구`
+      : describeStationPoint({
+          nodeId: nodes.finalPoint,
+          stationLabel,
+          stationKor,
+          t,
+        })
+
+    return { origin, destination }
+  }, [selectedRoute, startPoint, finalPoint, t])
 
   return { info, isRouteMissing: info === null }
 }

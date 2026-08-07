@@ -2,7 +2,9 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
+import { cn } from '@/shared/lib/cn'
 import { useCurrentNodeStore } from '@/shared/lib/store/useCurrentNodeStore'
+import { useElevatorFallbackStore } from '@/shared/lib/store/useElevatorFallbackStore'
 import { useGuideStepStore } from '@/shared/lib/store/useGuideStepStore'
 import { useRoutePreferenceStore } from '@/shared/lib/store/useRoutePreferenceStore'
 import {
@@ -13,7 +15,7 @@ import { useLanguage } from '@/shared/lib/useLanguage'
 import { StationMapOverlay } from '@/shared/station-map/StationMapOverlay'
 import type { NavRouteRequest } from '@/shared/types/navigation'
 import type { GuideStep } from '@/shared/types/routeGuide'
-import { Button, MobileScreen, SectionLabel, useToast } from '@/shared/ui'
+import { Button, MobileScreen, useToast } from '@/shared/ui'
 import { toLangCode } from '@/user/features/auth/lib/language'
 import { ArrivalPointCard } from '@/user/features/route-guide/ArrivalPointCard'
 import { GuideInstructionCard } from '@/user/features/route-guide/GuideInstructionCard'
@@ -30,6 +32,7 @@ import {
   toNavFailure,
 } from '@/user/features/route-guide/lib/naviError'
 import { useRouteGuide } from '@/user/features/route-guide/useRouteGuide'
+import { useStepSwipe } from '@/user/features/route-guide/useStepSwipe'
 
 /** 경로 재탐색을 마치고 돌아올 경로. SignCapturePage가 state로 받는다. */
 const ROUTE_GUIDE_PATH = '/guide'
@@ -64,25 +67,40 @@ export default function RouteGuidePage() {
   const finalPoint = useStationNodeStore((state) => state.finalPoint)
 
   /*
-    "엘리베이터 없이 다시 찾기"를 누르면 켜진다.
+    "엘리베이터 없이 다시 찾기"를 누른 구간.
 
-    저장된 답을 고치지 않고 이 화면에서만 덮어쓴다. 사용자가 엘리베이터를
+    저장된 답을 고치지 않고 이 구간에만 덮어쓴다. 사용자가 엘리베이터를
     원한다는 사실 자체는 바뀌지 않았고(이 역에 계단 없는 길이 없을 뿐),
     답을 덮어쓰면 다른 역에서 다시 안내할 때도 계단을 쓰게 된다.
+
+    ⚠️ 지역 state 로 두면 안 된다. 도움 요청 → 화상 상담을 다녀오면 이 페이지가
+       다시 마운트되면서 값이 false 로 돌아가, 이미 통과한 "엘리베이터 경로가
+       없어요" 안내를 처음부터 다시 만난다. (요청 본문이 queryKey 라 성공했던
+       응답의 캐시와도 어긋난다) 그래서 sessionStorage 스토어에 남긴다.
   */
-  const [ignoreElevator, setIgnoreElevator] = useState(false)
+  const elevatorFallbackPoint = useElevatorFallbackStore(
+    (state) => state.finalPoint,
+  )
+  const setElevatorFallback = useElevatorFallbackStore(
+    (state) => state.setElevatorFallback,
+  )
 
   const request = useMemo<NavRouteRequest | null>(() => {
     if (!answers) return null
 
     const nodes = resolveStationNodes({ startPoint, finalPoint })
 
+    // 그때 그 구간에서 고른 선택만 되살린다 — 다른 역·다른 여정에는 번지지 않는다.
+    const ignoreElevator =
+      elevatorFallbackPoint !== null &&
+      elevatorFallbackPoint === nodes.finalPoint
+
     return buildNaviRequest({
       ...nodes,
       answers: ignoreElevator ? { ...answers, useElevator: false } : answers,
       langCode: toLangCode(language),
     })
-  }, [answers, startPoint, finalPoint, ignoreElevator, language])
+  }, [answers, startPoint, finalPoint, elevatorFallbackPoint, language])
 
   const { data, isPending, isError, error, refetch } = useRouteGuide(request)
 
@@ -171,6 +189,18 @@ export default function RouteGuidePage() {
     setActiveIndex((index) => Math.min(index + 1, steps.length - 1))
   }
 
+  /*
+    표지판 카드를 좌우로 끌어도 단계가 넘어간다. 드래그 중에는 카드가
+    손가락을 따라오고, 놓으면 트랙 transition 이 새 단계(또는 제자리)로
+    미끄러뜨린다. 첫·마지막 단계 밖으로는 저항만 걸리고 넘어가지 않는다.
+  */
+  const swipe = useStepSwipe({
+    onSwipeLeft: goNextStep,
+    onSwipeRight: goPrevStep,
+    canSwipeLeft: activeIndex < steps.length - 1,
+    canSwipeRight: activeIndex > 0,
+  })
+
   /** 마지막 단계에서만 노출. 도착 완료 화면(6-1)으로 넘어간다. */
   const completeArrival = () => {
     void navigate(ARRIVAL_PATH)
@@ -201,7 +231,9 @@ export default function RouteGuidePage() {
 
   /** 엘리베이터 조건을 빼고 다시 찾는다. request 가 바뀌어 자동으로 재조회된다. */
   const retryWithoutElevator = () => {
-    setIgnoreElevator(true)
+    setElevatorFallback(
+      resolveStationNodes({ startPoint, finalPoint }).finalPoint,
+    )
     showToast(t('routeGuide.retryingWithStairs'))
   }
 
@@ -336,20 +368,46 @@ export default function RouteGuidePage() {
         // 배치: 지점(표지판·사진) → 지시문 → 이전/다음 → 위치 보기 → (여백) 도움 요청
         <div className="flex flex-1 flex-col gap-3.5 pt-6 pb-[calc(env(safe-area-inset-bottom,0px)+0.75rem)]">
           <section className="flex flex-col gap-2">
-            <SectionLabel>
-              {step.sign ? t('routeGuide.nextSign') : t('routeGuide.nextPoint')}
-            </SectionLabel>
-
-            {/* 표지판이 있는 지점과 없는 지점(개찰구·편의점)은 카드가 다르다. */}
-            {step.sign ? (
-              <SignBoardCard sign={step.sign} />
-            ) : (
-              <ArrivalPointCard
-                arriveType={step.arriveType}
-                arriveCategory={step.arriveCategory}
-                arrivedFor={step.arrivedFor}
-              />
-            )}
+            {/*
+              모든 단계의 카드를 가로 트랙으로 늘어놓고 보이는 창만 남긴다.
+              트랙 너비는 컨테이너와 같으므로 translateX(-100%) = 카드 한 장이다.
+              드래그 중에는 transition 을 꺼 손가락에 붙고, 놓으면 켜져 미끄러진다.
+            */}
+            <div
+              {...swipe.handlers}
+              className="touch-pan-y overflow-hidden select-none"
+            >
+              <div
+                className={cn(
+                  'flex',
+                  !swipe.isDragging &&
+                    'transition-transform duration-300 ease-out',
+                )}
+                style={{
+                  transform: `translateX(calc(${-activeIndex * 100}% + ${swipe.dragX}px))`,
+                }}
+              >
+                {steps.map((guideStep, index) => (
+                  <div
+                    key={`${index}-${guideStep.from}`}
+                    aria-hidden={index !== activeIndex}
+                    className="w-full shrink-0"
+                  >
+                    {/* 표지판이 있는 지점과 없는 지점(개찰구·편의점)은 카드가 다르다. */}
+                    {guideStep.sign ? (
+                      <SignBoardCard sign={guideStep.sign} />
+                    ) : (
+                      <ArrivalPointCard
+                        arriveType={guideStep.arriveType}
+                        arriveCategory={guideStep.arriveCategory}
+                        arrivedFor={guideStep.arrivedFor}
+                        imageUrl={guideStep.facilityImageUrl}
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
           </section>
 
           <GuideInstructionCard instruction={step.instruction} />

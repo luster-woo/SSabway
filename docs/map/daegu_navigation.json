@@ -1144,7 +1144,7 @@
    "to": "S3_20",
    "bidirectional": true,
    "containsStairs": true,
-   "weight": 1921.7,
+   "weight": 1800.0,
    "arriveSide": {
     "S3_20": "F",
     "S3_11": "B"
@@ -1616,7 +1616,7 @@
    "weight": 282.84,
    "arriveSide": {
     "S1_10": "F",
-    "S1_11": "F"
+    "S1_11": "B"
    },
    "geometry": [
     {
@@ -2836,6 +2836,28 @@
     {
      "x": 1963.8,
      "y": 1663.8
+    },
+    {
+     "x": 2503.8,
+     "y": 1923.8
+    }
+   ]
+  },
+  {
+   "id": "E106",
+   "from": "S3_05",
+   "to": "S3_06",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 181.11,
+   "arriveSide": {
+    "S3_05": "F",
+    "S3_06": "F"
+   },
+   "geometry": [
+    {
+     "x": 2683.8,
+     "y": 1903.8
     },
     {
      "x": 2503.8,

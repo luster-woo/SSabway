@@ -4,7 +4,7 @@
     "tagline": "外国人観光客のための地下鉄案内"
   },
   "language": {
-    "select": "Language · 言語",
+    "select": "言語選択",
     "changed": "言語を変更しました"
   },
   "auth": {
@@ -181,6 +181,7 @@
     }
   },
   "signCapture": {
+    "permissionNeeded": "カメラの許可が必要です",
     "hint": "標識をフレームに合わせて撮影してください",
     "zoomHint": "二本指で拡大・縮小できます",
     "zoomReset": "拡大倍率をリセット",
@@ -237,8 +238,11 @@
     "originSet": "出発地に設定済み",
     "destinationSet": "目的地に設定済み",
     "originApplied": "{{name}}を出発地に設定しました",
-    "destinationApplied": "{{name}}を目的地に設定しました",
     "needBoth": "出発地と目的地を両方選んでください",
+    "marker": {
+      "origin": "出発地",
+      "destination": "目的地"
+    },
     "recenter": "現在地へ移動"
   },
   "location": {
@@ -254,6 +258,8 @@
       "noIndoorGuide": "この経路は屋内案内に対応していません\n別の経路を選んでください",
       "title": "おすすめルート",
       "back": "戻る",
+      "pathIntro": "{{destination}}までの地下鉄ルートです。\n{{station}}までご案内します。",
+      "walkNotice": "駅を出た後、別途移動が必要な場合があります！",
       "badge": {
         "fastest": "最速",
         "noTransfer": "乗換なし",
@@ -267,7 +273,6 @@
       "failed": "ルートを取得できませんでした\nしばらくしてからもう一度お試しください",
       "empty": "利用できるルートが見つかりませんでした\n目的地を選び直してください",
       "changeDestination": "目的地を選び直す",
-      "started": "{{station}}まで案内を開始します",
       "durationMin": "{{m}}分",
       "durationHour": "{{h}}時間{{m}}分",
       "fare": "{{amount}}₩",
@@ -285,21 +290,15 @@
   "userInfo": {
     "title": "案内情報の確認",
     "back": "戻る",
-    "origin": "出発",
-    "destination": "到着",
     "change": "変更",
-    "detail": {
-      "gps": "現在地を基準",
-      "manual": "地図で選択",
-      "finalDestination": "最終目的地 {{name}}"
-    },
+    "rescan": "再撮影",
     "needRoute": "まず経路を選んでください\n出発駅と到着駅が決まると案内を開始できます",
     "pickRoute": "経路を選ぶ",
     "start": "ルート案内を開始",
     "needAnswers": "すべての質問にお答えください",
     "started": "選択した条件で案内を開始します",
     "preference": {
-      "label": "ルートに必要な情報",
+      "label": "ルートのカスタム設定",
       "back": "前の質問",
       "reset": "選び直す",
       "progress": "質問 {{current}} / {{total}}",
@@ -377,6 +376,19 @@
         "passed": "通ってきた経路"
       },
       "mapAlt": "駅構内図と案内ルート",
+      "facility": {
+        "_heading": "施設案内",
+        "stairs": "階段・エスカレーター",
+        "elevator": "エレベーター",
+        "exit": "出口",
+        "ticketMachine": "券売機",
+        "gate": "改札口",
+        "restroom": "トイレ",
+        "ticketOffice": "きっぷうりば",
+        "store": "コンビニ",
+        "atm": "ATM",
+        "waitingRoom": "待合室"
+      },
       "label": {
         "shop": "商店",
         "smokingArea": "喫煙所",
@@ -398,7 +410,7 @@
         "daeguStationExit4": "大邱駅 4番出口"
       }
     },
-    "help": "ヘルプ",
+    "help": "ビデオ相談",
     "loading": "ルート案内を読み込んでいます…",
     "failed": "ルート案内を読み込めませんでした\nしばらくしてからもう一度お試しください",
     "empty": "案内するステップが見つかりませんでした\n案内標識をもう一度撮影してください",
@@ -440,11 +452,13 @@
   },
   "arrival": {
     "back": "戻る",
-    "title": "目的地に到着しました！",
+    "title": "案内が完了しました!",
     "finalDestination": "最終目的地 {{name}}",
     "duration": "所要時間",
     "origin": "出発地",
-    "destination": "到着地",
+    "destination": "目的地",
+    "alightStation": "降車駅",
+    "transferHint": "{{station}}で降りたら、案内標識をもう一度撮影してください。\n続けてご案内します。",
     "noSummary": "今回の移動情報が見つかりませんでした\n目的地をもう一度選んでください",
     "goMain": "最初に戻る"
   },
@@ -459,10 +473,10 @@
     "routeRequired": "先にルート案内を開始してください。\n出発地と目的地がわからないと接続できません。",
     "ready": "接続の準備ができました。\n下のボタンで接続を開始してください。",
     "connect": "ビデオ通話",
-    "recordNotice": "通話音声が録音されることがあります",
+    "recordNotice": "係員保護のため通話内容は録音されます",
     "backToGuide": "ルート案内に戻る",
     "rejected": {
-      "blocked": "このアカウントではビデオ相談をご利用いただけません。詳しくは駅係員までお問い合わせください",
+      "blocked": "この駅ではビデオ相談を利用できません。\n駅事務室に直接お越しください。",
       "duplicated": "すでに進行中の相談リクエストがあります。\nしばらくしてからもう一度お試しください。",
       "noStaff": "現在この駅には対応できる駅員がいません。\nしばらくしてからもう一度お試しください。",
       "failed": "相談をリクエストできませんでした。\nしばらくしてからもう一度お試しください。"
@@ -471,6 +485,7 @@
   "consultation": {
     "request": "ヘルプを依頼する",
     "connecting": "駅員に接続しています...",
+    "waitingStaff": "スタッフを待っています…",
     "queuePosition": "あなたの前に{{position}}人待っています",
     "unavailable": "現在対応できる駅員がいません",
     "micOnly": "駅員が音声で案内します。カメラはオフです。",
@@ -491,7 +506,7 @@
       "alreadyEnded": "この相談はすでに終了しています",
       "canceled": "相談のリクエストがキャンセルされました",
       "waitingStaff": "スタッフを待っています…",
-      "queuePosition": "待ち順は {{position}} 番目です",
+      "queuePosition": "あなたの前に{{position}}人待っています",
       "noConsultationId": "相談情報が見つかりません。ヘルプからやり直してください。",
       "connecting": "接続しています…",
       "reconnecting": "ネットワークが不安定です。再接続しています…",
@@ -527,6 +542,22 @@
   },
   "station": {
     "daegu": "大邱駅"
+  },
+  "landmark": {
+    "at": "{{station}} {{floor}}階 {{place}}前",
+    "atNoFloor": "{{station}} {{place}}前",
+    "near": "{{station}} {{floor}}階 {{place}}付近",
+    "nearNoFloor": "{{station}} {{place}}付近",
+    "place": {
+      "exit": "{{number}}番出口",
+      "gate": "改札口",
+      "elevator": "エレベーター",
+      "store": "コンビニ",
+      "atm": "ATM",
+      "ticketOffice": "きっぷうりば",
+      "ticketMachine": "券売機",
+      "toilet": "トイレ"
+    }
   },
   "trip": {
     "originEmpty": "出発地を選択",

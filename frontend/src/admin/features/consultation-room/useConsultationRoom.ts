@@ -5,6 +5,7 @@ import { useConsultationSessionStore } from '@/shared/lib/store/useConsultationS
 import {
   OV_STATUS,
   useOpenViduSession,
+  type OpenViduFailure,
   type OpenViduStatus,
 } from '@/shared/webrtc/useOpenViduSession'
 import { useRemoteViewportAspect } from '@/shared/webrtc/useViewportAspect'
@@ -13,6 +14,13 @@ import type { StreamManager } from 'openvidu-browser'
 
 export interface UseConsultationRoomResult {
   status: OpenViduStatus
+  /**
+   * FAILED 의 원인. 역무원은 오디오만 발행하므로 장치 실패는 곧 마이크 실패다.
+   *
+   * 화면(AdminConsultationPage)이 이 값으로 상담 취소 여부를 가른다 —
+   * 마이크가 없으면 상담을 진행할 수 없고 대신 받아 줄 역무원도 없다.
+   */
+  failure: OpenViduFailure | null
   /** 사용자(여행객)가 발행한 스트림. 아직 안 들어왔으면 null */
   userStream: StreamManager | null
   /** 세션 복구 중(새로고침 직후) */
@@ -94,6 +102,7 @@ export function useConsultationRoom(
   */
   const {
     status,
+    failure,
     remoteStream,
     session: ovSession,
   } = useOpenViduSession({
@@ -140,6 +149,7 @@ export function useConsultationRoom(
 
   return {
     status,
+    failure,
     userStream: remoteStream,
     isRestoring,
     isRestoreFailed,

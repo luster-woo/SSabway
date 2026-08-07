@@ -98,6 +98,27 @@ const WHEEL_ZOOM_FACTOR = 1.1
 /** 더블탭·더블클릭 한 번의 확대 배율 */
 const DOUBLE_TAP_ZOOM_FACTOR = 1.6
 
+/**
+ * 도면 속 시설 아이콘 범례.
+ *
+ * 도면(daeguMap.ts)은 시설을 "색 있는 둥근 사각형 + 이모지" 로 그린다.
+ * 여기의 emoji·color 는 그 마커와 **같은 값**이라 범례가 지도의 아이콘과
+ * 한눈에 짝지어진다. 도면을 다시 내보내 마커 색·이모지가 바뀌면 이 목록도
+ * 함께 맞춘다. 문구는 로케일의 `routeGuide.stationMap.facility.*` 에 있다.
+ */
+const FACILITY_ICONS = [
+  { key: 'stairs', emoji: '🪜', color: '#7b1fa2' },
+  { key: 'elevator', emoji: '🛗', color: '#00897b' },
+  { key: 'exit', emoji: '🚪', color: '#2e7d32' },
+  { key: 'gate', emoji: '⛩', color: '#d81b60' },
+  { key: 'ticketMachine', emoji: '🎫', color: '#455a64' },
+  { key: 'ticketOffice', emoji: '🎟', color: '#6d4c41' },
+  { key: 'restroom', emoji: '🚻', color: '#1976d2' },
+  { key: 'store', emoji: '🏪', color: '#f57c00' },
+  { key: 'atm', emoji: '🏧', color: '#ef6c00' },
+  { key: 'waitingRoom', emoji: '💺', color: '#0288d1' },
+] as const
+
 function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max)
 }
@@ -589,7 +610,8 @@ export function StationMapOverlay({
         {/* 범례 — 지도가 없으면 설명할 것도 없다. 구분선 색은 헤더 주석 참고 */}
         {status ? null : (
           <div className="pb-safe border-t border-[#cbd5e1] px-4">
-            <ul className="flex flex-wrap items-center gap-x-3.5 gap-y-1.5 py-3">
+            {/* 내 위치·경로선 범례 */}
+            <ul className="flex flex-wrap items-center gap-x-3.5 gap-y-1.5 pt-3">
               {legendItems.map((item) => (
                 <li
                   key={item.key}
@@ -608,6 +630,36 @@ export function StationMapOverlay({
                 </li>
               ))}
             </ul>
+
+            {/*
+              시설 아이콘 범례. 도면에 그려진 모든 시설 마커를 한 번에 설명한다 —
+              아이콘(색 있는 둥근 사각형 + 이모지)은 도면 마커와 같은 모양이라
+              지도 위 아이콘과 곧바로 짝지어 볼 수 있다.
+            */}
+            <div className="mt-2.5 border-t border-line pt-2.5 pb-3">
+              <p className="text-ink-muted mb-2 text-[11px] font-bold">
+                {t('routeGuide.stationMap.facility._heading')}
+              </p>
+              <ul className="grid grid-cols-2 gap-x-3 gap-y-2 min-[380px]:grid-cols-3">
+                {FACILITY_ICONS.map((facility) => (
+                  <li
+                    key={facility.key}
+                    className="text-ink-muted flex items-center gap-1.5 text-[12px]"
+                  >
+                    <span
+                      aria-hidden
+                      className="flex size-[20px] shrink-0 items-center justify-center rounded-md text-[12px] leading-none"
+                      style={{ backgroundColor: facility.color }}
+                    >
+                      {facility.emoji}
+                    </span>
+                    <span className="truncate">
+                      {t(`routeGuide.stationMap.facility.${facility.key}`)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         )}
       </div>

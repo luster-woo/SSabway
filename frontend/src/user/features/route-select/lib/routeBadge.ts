@@ -68,11 +68,12 @@ export function toStationSequence(path: RoutePath): string[] {
 }
 
 /**
- * 카드 부제에 쓸 노선 요약. 예: "대구 1호선 · 대구 2호선"
+ * 카드 부제에 쓸 노선 요약. 예: "대구 1호선 → 대구 2호선"
  *
+ * 화살표는 탑승 순서를 나타낸다 — 환승이 있으면 갈아타는 순서대로 이어진다.
  * 노선명은 ODsay 원문(`laneName`)을 그대로 쓴다. BE enum 의 짧은 라벨
  * ("1"·"2"·"대경")은 응답에 실리지 않는다.
  */
 export function toLaneSummary(path: RoutePath): string {
-  return path.segments.map((segment) => segment.laneName).join(' · ')
+  return path.segments.map((segment) => segment.laneName).join(' → ')
 }
