@@ -24,8 +24,8 @@ export default function ArrivalPage() {
   // 환승이 있으면 하차역에서 표지판을 다시 찍어 이어서 안내받아야 한다.
   const isTransfer = (selectedRoute?.transferCount ?? 0) > 0
 
-  const startNewGuide = () => {
-    void navigate('/scan')
+  const goToMain = () => {
+    void navigate('/')
   }
 
   return (
@@ -41,8 +41,8 @@ export default function ArrivalPage() {
         </button>
       }
       footer={
-        <Button size="lg" fullWidth onClick={startNewGuide}>
-          {t('arrival.newDestination')}
+        <Button size="lg" fullWidth onClick={goToMain}>
+          {t('arrival.goMain')}
         </Button>
       }
     >
