@@ -8,6 +8,7 @@ import com.ssafy.ssabway.domain.navigation.model.NavEdge;
 import com.ssafy.ssabway.domain.navigation.model.NavNode;
 import com.ssafy.ssabway.domain.navigation.model.NavigationGraph;
 import com.ssafy.ssabway.domain.navigation.model.NodeType;
+import com.ssafy.ssabway.domain.navigation.model.PoiCategory;
 import com.ssafy.ssabway.domain.navigation.model.Purpose;
 import com.ssafy.ssabway.domain.navigation.repository.GuideTextRepository;
 import com.ssafy.ssabway.domain.navigation.repository.NavigationGraphRepository;
@@ -22,8 +23,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /*
     경로를 찾아 화면에 필요한 형태로 조립한다.
@@ -49,6 +52,16 @@ public class NavigationService {
      */
     @Value("${navigation.sign-image-base-url}")
     private String signImageBaseUrl;
+
+    /*
+        프론트 서비스워커가 표지판 사진 URL 을 30일 CacheFirst 로 캐싱한다
+        (지하 약전파 구간에서도 사진이 뜨게 하려는 의도). 파일명이 같으면 S3
+        내용만 바꿔도 이미 캐시를 가진 사용자에겐 옛날 사진이 계속 보인다.
+        쿼리스트링에 이 버전을 붙여 두면, 사진을 교체할 때 값만 올려서 배포하는
+        것으로 캐시 키 자체를 바꿔 모든 사용자에게 새 사진을 강제할 수 있다.
+     */
+    @Value("${navigation.sign-image-version}")
+    private String signImageVersion;
 
     public RouteResponse findRoute(RouteRequest request) {
         NavigationGraph graph = graphRepository.graph();
@@ -158,17 +171,38 @@ public class NavigationService {
         return steps;
     }
 
-    /*
-        도착지에서 보이는 표지판 사진.
+    // 사진이 있는 편의시설. 편의점(STORE)·화장실(TOILET)은 대응 사진이 없어 제외한다.
+    private static final Set<PoiCategory> PHOTO_POI_CATEGORIES =
+            EnumSet.of(PoiCategory.ATM, PoiCategory.TICKET_OFFICE, PoiCategory.TICKET_MACHINE);
 
-        표지판이 아니거나(엘리베이터·편의점 등) 어느 면이 보이는지 정해지지 않았으면
-        null 이다. 사진이 없다고 경로를 실패시키지 않는다. 안내 문구와 지도만으로도
-        길은 찾을 수 있다.
+    // 표지판처럼 도착 방향에 따라 다른 면이 찍힌 게 아니라, 시설당 사진이 한 장뿐이다.
+    private static final String FACILITY_PHOTO_SIDE = "F";
+
+    /*
+        도착지에서 보이는 사진.
+
+        표지판은 도착 방향에 따라 보이는 면(F/B)이 갈리므로 엣지의 arriveSide 를
+        따른다. 게이트·ATM·매표소·발매기는 사진이 한 장뿐이라 항상 FACILITY_PHOTO_SIDE
+        를 쓴다. 대응 사진이 없는 지점(엘리베이터·편의점·화장실 등)은 null 이다.
+        사진이 없다고 경로를 실패시키지 않는다. 안내 문구와 지도만으로도 길은 찾을 수 있다.
      */
-    private String buildImageUrl(NavNode arrive, String side) {
-        if (arrive.type() != NodeType.SIGNAGE || side == null) {
+    private String buildImageUrl(NavNode arrive, String signSide) {
+        if (!hasPhoto(arrive)) {
             return null;
         }
-        return signImageBaseUrl + "/" + arrive.id() + "_" + side + ".jpg";
+        String side = arrive.type() == NodeType.SIGNAGE ? signSide : FACILITY_PHOTO_SIDE;
+        if (side == null) {
+            return null;
+        }
+        return signImageBaseUrl + "/" + arrive.id() + "_" + side + ".jpg?v=" + signImageVersion;
+    }
+
+    private boolean hasPhoto(NavNode node) {
+        if (node.type() == NodeType.SIGNAGE || node.type() == NodeType.GATE) {
+            return true;
+        }
+        return node.type() == NodeType.POI
+                && node.category() != null
+                && PHOTO_POI_CATEGORIES.contains(node.category());
     }
 }
