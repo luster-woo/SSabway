@@ -7,18 +7,15 @@ const HEAD_CY = 17
 /**
  * 지점 종류별 색. `stroke` 는 핀 테두리이자 라벨의 글자·테두리 색이다.
  *
- * 셋을 색으로 갈라 놓는 이유: 한 화면에 확정된 출발지·목적지와 "아직 고르는
- * 중인 후보"가 동시에 떠 있을 수 있다. 뒤로가기로 이 화면에 돌아오면 지난번
- * 목적지가 남아 있는데, 그 상태로 새 장소를 검색하면 예전에는 똑같이 생긴
- * 파란 핀이 두 개 찍혀 어느 쪽이 확정된 목적지인지 알 수 없었다.
+ * 목적지 핀은 지도에 언제나 하나만 뜬다 — 검색이나 지도 탭으로 다른 곳을 고르면
+ * 지점을 하나 더 찍는 게 아니라 그 핀이 옮겨 간다. 이 화면에서 사용자가 하는
+ * 일은 "목적지 다시 고르기"이지 "세 번째 지점 추가"가 아니기 때문이다.
  */
 const PIN_COLOR = {
   /** 출발지 — 초록 */
   origin: { fill: '#0f9d58', stroke: '#0b6b3a' },
-  /** 확정된 목적지 — 브랜드 파랑 */
+  /** 목적지 — 브랜드 파랑 */
   destination: { fill: '#018abe', stroke: '#02457a' },
-  /** 아직 확정 전인 후보 — 주황 */
-  candidate: { fill: '#f2960c', stroke: '#a35a00' },
 } as const
 
 /** SVG <text> 안에 들어갈 문자열을 안전하게 이스케이프한다. */
@@ -105,7 +102,7 @@ function buildPinIcon(
 }
 
 /**
- * 확정된 목적지 마커 아이콘 (Google 지도용).
+ * 목적지 마커 아이콘 (Google 지도용).
  *
  * `label`(예: "목적지")을 주면 핀 옆에 붙어, 이 핀이 무엇인지 탭하지 않고도 읽힌다.
  */
@@ -114,7 +111,7 @@ export function buildDestinationMarkerIcon(label?: string): google.maps.Icon {
 }
 
 /**
- * 확정된 출발지 마커 아이콘 (Google 지도용).
+ * 출발지 마커 아이콘 (Google 지도용).
  *
  * 도착지와 같은 물방울 모양에 색만 다르다 — 모양까지 바꾸면 지도 위에서 두
  * 마커가 서로 다른 종류의 정보처럼 읽힌다. 둘은 같은 성격의 지점이고
@@ -122,17 +119,6 @@ export function buildDestinationMarkerIcon(label?: string): google.maps.Icon {
  */
 export function buildOriginMarkerIcon(label?: string): google.maps.Icon {
   return buildPinIcon(PIN_COLOR.origin, label)
-}
-
-/**
- * 아직 확정하지 않은 후보 지점 마커 아이콘 (Google 지도용).
- *
- * 검색 결과에서 고르거나 지도를 탭해 잡힌 지점이다. 확정된 목적지(파랑)와
- * 반드시 색이 달라야 한다 — 이전 목적지가 남아 있는 상태에서 새 장소를
- * 검색하면 둘이 지도 위에 동시에 보이기 때문이다.
- */
-export function buildCandidateMarkerIcon(label?: string): google.maps.Icon {
-  return buildPinIcon(PIN_COLOR.candidate, label)
 }
 
 /** "내 위치" 파란 점 크기(px). */

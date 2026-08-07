@@ -7,6 +7,7 @@ import com.ssafy.ssabway_webrtc.common.response.ApiResponse;
 import com.ssafy.ssabway_webrtc.domain.dto.ConsultationCancelResponse;
 import com.ssafy.ssabway_webrtc.domain.dto.ConsultationStatusResponse;
 import com.ssafy.ssabway_webrtc.domain.service.ConsultationCancelService;
+import com.ssafy.ssabway_webrtc.domain.service.ConsultationStaffCancelService;
 import com.ssafy.ssabway_webrtc.domain.service.ConsultationStatusService;
 import io.openvidu.java.client.OpenViduHttpException;
 import io.openvidu.java.client.OpenViduJavaClientException;
@@ -22,6 +23,7 @@ public class ConsultationController {
     private final ConsultationCancelService consultationCancelService;
     private final ConsultationStatusService consultationStatusService;
     private final ConsultationLeaveService consultationLeaveService;
+    private final ConsultationStaffCancelService consultationStaffCancelService;
 
 
 
@@ -76,6 +78,33 @@ public class ConsultationController {
                     consultationId,
                     requesterUserId
                 )
+        );
+    }
+
+    /**
+     * 역무원이 담당 상담을 취소.
+     *
+     * 마이크 권한을 얻지 못한 역무원은 상담을 진행할 수 없는데, 상담을 요청한
+     * 역에는 역무원 계정이 하나뿐이라 다른 역무원에게 넘길 수도 없습니다.
+     * 그래서 수락 전(WAITING)이든 수락 직후(MATCHED)든 상담을 취소합니다.
+     *
+     * 같은 URL 트리의 다른 API와 달리 STAFF 토큰으로 호출합니다.
+     * SecurityConfig가 이 경로만 USER 전용 규칙에서 빼 두었고,
+     * 담당 역무원 본인인지는 서비스가 staff_id로 다시 검증합니다.
+     */
+    @PostMapping("/{consultationId}/staff-cancel")
+    public ApiResponse<ConsultationCancelResponse> cancelConsultationByStaff(
+        @PathVariable Long consultationId,
+        Authentication authentication
+    ) throws OpenViduJavaClientException, OpenViduHttpException {
+
+        Long staffId = (Long) authentication.getPrincipal();
+
+        return ApiResponse.ok(
+            consultationStaffCancelService.cancelByStaff(
+                consultationId,
+                staffId
+            )
         );
     }
 

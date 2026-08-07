@@ -289,6 +289,26 @@ export function createOpenViduApi(api: AxiosInstance) {
   }
 
   /**
+   * 역무원이 담당 상담을 취소한다. — 관리자 앱 전용(STAFF 토큰)
+   *
+   * **상담방에서** 마이크 발행이 실패했을 때만 부른다(MATCHED 구간).
+   * 이미 수락해 세션까지 만든 뒤라 WAITING 으로 되돌릴 곳이 없고, 이 역의
+   * 상담을 대신 받아 줄 역무원도 없어(역마다 계정 하나) 취소가 유일한 출구다.
+   *
+   * ⚠️ 수락 **전에는 부르지 않는다.** 마이크 거부는 역무원 브라우저 설정
+   *    문제이지 사용자의 의사가 아니라서, 수락 전에 취소해 버리면 차단이
+   *    저장된 역무원이 누를 때마다 그 역의 상담이 줄줄이 취소된다. 그 구간은
+   *    수락을 막는 것으로 처리한다(consultation-receive 의 useMicPermission).
+   *
+   * 서버는 WAITING·MATCHED 를 모두 받고, 이미 취소된 상담이면 멱등 성공이다.
+   */
+  async function cancelConsultationByStaff(
+    consultationId: number,
+  ): Promise<void> {
+    await api.post(endpoints.consultations.staffCancel(consultationId))
+  }
+
+  /**
    * 상담 자막을 보내 요약을 만든다.
    *
    * ⚠️ 상담이 ENDED 인 뒤에 불러야 한다. leave 보다 먼저 도착하면 서버가
@@ -315,6 +335,7 @@ export function createOpenViduApi(api: AxiosInstance) {
     fetchSnapshot,
     cancelConsultation,
     leaveConsultation,
+    cancelConsultationByStaff,
     summarizeConsultation,
   }
 }
