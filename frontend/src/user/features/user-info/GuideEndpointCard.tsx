@@ -24,8 +24,7 @@ export function GuideEndpointCard({
   return (
     <Card className="p-0">
       <EndpointRow
-        kind={t('userInfo.origin')}
-        endpoint={info.origin}
+        label={info.origin}
         icon={<PinIcon className="size-[18px]" />}
         onChange={onChangeOrigin}
         changeLabel={t('userInfo.rescan')}
@@ -36,8 +35,7 @@ export function GuideEndpointCard({
       <div className="border-line ml-[64px] border-t" />
 
       <EndpointRow
-        kind={t('userInfo.destination')}
-        endpoint={info.destination}
+        label={info.destination}
         icon={<FlagIcon className="size-[18px]" />}
         onChange={onChangeDestination}
         changeLabel={t('userInfo.change')}

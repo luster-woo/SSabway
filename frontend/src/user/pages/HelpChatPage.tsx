@@ -219,7 +219,7 @@ export default function HelpChatPage() {
                   {t('helpChat.connect')}
                 </button>
               )}
-              <p className="text-ink-faint text-[11.5px]">
+              <p className="text-ink text-[11.5px] font-semibold">
                 {t('helpChat.recordNotice')}
               </p>
             </div>
@@ -232,23 +232,19 @@ export default function HelpChatPage() {
                   role="alert"
                   className="border-danger/30 bg-danger/5 mx-auto mt-2 flex w-[88%] flex-col items-center gap-2.5 rounded-2xl border-[1.6px] px-5 py-5 text-center"
                 >
-                  <span
+                  <svg
                     aria-hidden
-                    className="bg-danger/10 text-danger flex size-11 items-center justify-center rounded-full"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2.1}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="text-danger size-7"
                   >
-                    <svg
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth={2.1}
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="size-6"
-                    >
-                      <path d="M10.3 4.1 2.9 17a2 2 0 0 0 1.7 3h14.8a2 2 0 0 0 1.7-3L13.7 4.1a2 2 0 0 0-3.4 0Z" />
-                      <path d="M12 9.5v4M12 17h.01" />
-                    </svg>
-                  </span>
+                    <path d="M10.3 4.1 2.9 17a2 2 0 0 0 1.7 3h14.8a2 2 0 0 0 1.7-3L13.7 4.1a2 2 0 0 0-3.4 0Z" />
+                    <path d="M12 9.5v4M12 17h.01" />
+                  </svg>
                   <p className="text-danger text-[14px] leading-relaxed font-bold whitespace-pre-line">
                     {t(rejectedKey)}
                   </p>
