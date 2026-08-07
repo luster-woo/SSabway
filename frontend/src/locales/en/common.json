@@ -527,6 +527,22 @@
   "station": {
     "daegu": "Daegu Station"
   },
+  "landmark": {
+    "at": "{{station}} F{{floor}}, by {{place}}",
+    "atNoFloor": "{{station}}, by {{place}}",
+    "near": "{{station}} F{{floor}}, near {{place}}",
+    "nearNoFloor": "{{station}}, near {{place}}",
+    "place": {
+      "exit": "Exit {{number}}",
+      "gate": "the ticket gate",
+      "elevator": "the elevator",
+      "store": "the convenience store",
+      "atm": "the ATM",
+      "ticketOffice": "the ticket office",
+      "ticketMachine": "the ticket machine",
+      "toilet": "the restroom"
+    }
+  },
   "trip": {
     "originEmpty": "Set start",
     "destinationEmpty": "Set destination"

@@ -527,6 +527,22 @@
   "station": {
     "daegu": "大邱駅"
   },
+  "landmark": {
+    "at": "{{station}} {{floor}}階 {{place}}前",
+    "atNoFloor": "{{station}} {{place}}前",
+    "near": "{{station}} {{floor}}階 {{place}}付近",
+    "nearNoFloor": "{{station}} {{place}}付近",
+    "place": {
+      "exit": "{{number}}番出口",
+      "gate": "改札口",
+      "elevator": "エレベーター",
+      "store": "コンビニ",
+      "atm": "ATM",
+      "ticketOffice": "きっぷうりば",
+      "ticketMachine": "券売機",
+      "toilet": "トイレ"
+    }
+  },
   "trip": {
     "originEmpty": "出発地を選択",
     "destinationEmpty": "目的地を選択"
