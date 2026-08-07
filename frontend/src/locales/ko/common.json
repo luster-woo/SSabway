@@ -460,7 +460,7 @@
     "alightStation": "하차역",
     "transferHint": "{{station}}에 내리면 표지판을 다시 촬영해 주세요.\n이어서 길을 안내해 드릴게요.",
     "noSummary": "이번 이동 정보를 찾지 못했어요\n목적지를 다시 선택해 주세요",
-    "newDestination": "새 목적지 안내 받기"
+    "goMain": "처음으로"
   },
   "helpChat": {
     "back": "뒤로가기",
