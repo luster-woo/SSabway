@@ -1,8 +1,8 @@
 {
   "_source": "docs/map/daegu_navigation.json",
-  "_rule": "SIGNAGE 노드는 좌표상 가장 가까운 비-SIGNAGE 노드를, 그 밖의 노드는 자기 자신을 랜드마크로 삼는다. floor 는 노드 자신의 값이며 \"0\"(지상 레벨)이면 생략한다. near 는 거리 15m 이하 — true 면 \"앞\", false 면 \"근처\" 로 말한다.",
+  "_rule": "SIGNAGE 노드는 좌표상 가장 가까운 비-SIGNAGE 노드를(층 무관 — 출구·개찰구·편의시설이 모두 지상 레벨에만 있어서다), 그 밖의 노드는 자기 자신을 랜드마크로 삼는다. floor 는 노드 자신의 값(사용자가 선 층)이며 \"0\"(지상 레벨)이면 생략한다. near 는 거리 15m 이하 — true 면 \"앞\", false 면 \"근처\" 로 말한다.",
   "_fields": "place 는 로케일의 landmark.place.* 키. number 는 출구 번호(place=exit 일 때만). nearest·distanceM 은 어떻게 뽑혔는지 확인하려고 남긴 근거 값이라 화면에는 쓰지 않는다.",
-  "_editing": "문구가 어색하면 이 파일의 place/number/floor/near 를 손으로 고쳐도 된다. 문구 자체는 로케일 4개(ko/en/ja/zh)의 landmark.* 를 함께 고친다.",
+  "_editing": "이 파일은 scripts/generate-point-landmarks.mjs 가 만든다 — 직접 고치지 말고 스크립트를 다시 돌린다. 문구가 어색하면 로케일 4개(ko/en/ja/zh)의 landmark.* 를 고친다.",
   "station": "대구역",
   "points": {
     "AT0_01": {

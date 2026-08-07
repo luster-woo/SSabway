@@ -25,9 +25,12 @@ export const PILOT_STATION_NODE = {
 interface StationNodeState {
   /** 표지판 인식이 내놓은 출발 노드 id. null 이면 아직 인식하지 않았다. */
   startPoint: string | null
+  /** 표지판 인식이 내놓은 출발 지점의 층(예: "3"). null 이면 아직 인식하지 않았다. */
+  startFloor: string | null
   /** 개찰구 노드 id. null 이면 아직 정해지지 않았다. */
   finalPoint: string | null
   setStartPoint: (nodeId: string | null) => void
+  setStartFloor: (floor: string | null) => void
   setFinalPoint: (nodeId: string | null) => void
   clearStationNodes: () => void
 }
@@ -46,16 +49,20 @@ export const useStationNodeStore = create<StationNodeState>()(
   persist(
     (set) => ({
       startPoint: null,
+      startFloor: null,
       finalPoint: null,
       setStartPoint: (nodeId) => set({ startPoint: nodeId }),
+      setStartFloor: (floor) => set({ startFloor: floor }),
       setFinalPoint: (nodeId) => set({ finalPoint: nodeId }),
-      clearStationNodes: () => set({ startPoint: null, finalPoint: null }),
+      clearStationNodes: () =>
+        set({ startPoint: null, startFloor: null, finalPoint: null }),
     }),
     {
       name: 'ssabway:station-node',
       storage: createJSONStorage(() => sessionStorage),
       partialize: (state) => ({
         startPoint: state.startPoint,
+        startFloor: state.startFloor,
         finalPoint: state.finalPoint,
       }),
     },

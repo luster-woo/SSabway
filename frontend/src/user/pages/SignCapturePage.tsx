@@ -83,6 +83,7 @@ export default function SignCapturePage() {
   const { showToast } = useToast()
   const { status, errorType, stream, restart } = useCameraStream()
   const setStartPoint = useStationNodeStore((s) => s.setStartPoint)
+  const setStartFloor = useStationNodeStore((s) => s.setStartFloor)
   const setOriginStation = useOriginStationStore((s) => s.setOriginStation)
 
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -203,6 +204,8 @@ export default function SignCapturePage() {
     if (returnTo === null) resetTripSelection()
 
     setStartPoint(prediction.signageId)
+    // 표지판이 준 층. 안내 정보 화면의 출발지 표기("대구역 3F …")에 쓴다.
+    setStartFloor(prediction.floor ?? null)
 
     // 인식한 역을 출발지로 담는다. 좌표는 stationCoords 로 붙인다.
     // (표지판이 역 이름을 못 주는 예외 상황이면 출발지는 기존 값을 유지한다)
