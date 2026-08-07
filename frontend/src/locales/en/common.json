@@ -292,6 +292,7 @@
     "back": "Back",
     "change": "Change",
     "rescan": "Retake",
+    "originLocation": "View start location on the station map",
     "needRoute": "Please choose a route first\nGuidance starts once your stations are set",
     "pickRoute": "Choose a route",
     "start": "Start route guide",
@@ -376,6 +377,7 @@
         "passed": "Covered so far"
       },
       "mapAlt": "Station floor plan and guided route",
+      "myLocationLabel": "Current location",
       "facility": {
         "_heading": "Facilities",
         "stairs": "Stairs & Escalator",
