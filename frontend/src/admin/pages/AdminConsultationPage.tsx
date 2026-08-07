@@ -4,7 +4,7 @@ import { useQueryClient } from '@tanstack/react-query'
 
 import { queryKeys } from '@/shared/lib/queryKeys'
 import { useToast } from '@/shared/ui'
-import { OV_STATUS } from '@/shared/webrtc/useOpenViduSession'
+import { OV_FAILURE, OV_STATUS } from '@/shared/webrtc/useOpenViduSession'
 import { BlacklistReasonModal } from '@/admin/features/blacklist/BlacklistReasonModal'
 import { useBlacklist } from '@/admin/features/blacklist/useBlacklist'
 import { ConsultationInfoPanel } from '@/admin/features/consultation-room/ConsultationInfoPanel'
@@ -12,6 +12,7 @@ import { EndConsultationDialog } from '@/admin/features/consultation-room/EndCon
 import { useConsultationDetail } from '@/admin/features/consultation-room/useConsultationDetail'
 import { useConsultationRoom } from '@/admin/features/consultation-room/useConsultationRoom'
 import { useEndConsultation } from '@/admin/features/consultation-room/useEndConsultation'
+import { useStaffCancelConsultation } from '@/admin/features/consultation-room/useStaffCancelConsultation'
 import { UserLocationModal } from '@/admin/features/consultation-room/UserLocationModal'
 import { VideoStage } from '@/admin/features/consultation-room/VideoStage'
 import { AdminShell } from '@/admin/ui/AdminShell'
@@ -44,6 +45,7 @@ export default function AdminConsultationPage() {
   } = useConsultationDetail(isValidId ? consultationId : 0)
   const { registerBlacklist, lastFailureMessage, pendingEmail } = useBlacklist()
   const { endConsultation, isPending: isEndPending } = useEndConsultation()
+  const { cancelConsultation } = useStaffCancelConsultation()
   const room = useConsultationRoom(isValidId ? consultationId : 0)
 
   const [isReasonOpen, setIsReasonOpen] = useState(false)
@@ -99,6 +101,58 @@ export default function AdminConsultationPage() {
     showToast('사용자가 통화를 종료했습니다.')
     void navigate('/admin', { replace: true })
   }, [navigate, queryClient, room.status, showToast])
+
+  /**
+   * 마이크를 쓸 수 없어 발행이 실패하면 상담을 취소하고 목록으로 돌아간다.
+   *
+   * 이 역의 상담을 대신 받아 줄 역무원이 없으므로(역마다 계정 하나) 상담을
+   * 그대로 두면 사용자가 대기에서 영영 풀리지 않는다.
+   *
+   * 정상 경로는 수락 전에 걸러내는 것이다(WaitingPanel 의 마이크 게이트).
+   * 여기까지 오는 것은 그 뒤에 깨진 경우다 — 수락과 입장 사이에 권한이
+   * 회수됐거나, 마이크가 뽑혔거나, 다른 앱이 점유한 경우.
+   *
+   * 장치 문제만 취소한다. 접속 실패·네트워크 같은 OTHER 는 상담을 취소할
+   * 이유가 아니라 그대로 둔다(VideoStage 가 "연결에 실패했습니다"를 띄운다).
+   *
+   * 이 경로에서는 status 가 CONNECTED 를 거치지 않으므로 위쪽 종료 감지
+   * 이펙트(hasConnectedRef)와 겹치지 않는다.
+   */
+  const isCancelRequestedRef = useRef(false)
+
+  useEffect(() => {
+    if (room.status !== OV_STATUS.FAILED) return
+    if (
+      room.failure !== OV_FAILURE.DEVICE_DENIED &&
+      room.failure !== OV_FAILURE.DEVICE_UNAVAILABLE
+    ) {
+      return
+    }
+    // 상태가 유지되는 동안 이펙트가 다시 돌아도 취소는 한 번만 보낸다
+    if (isCancelRequestedRef.current) return
+    isCancelRequestedRef.current = true
+
+    const reason =
+      room.failure === OV_FAILURE.DEVICE_DENIED
+        ? '마이크 권한이 없어'
+        : '마이크를 사용할 수 없어'
+
+    void cancelConsultation(consultationId).then((isCanceled) => {
+      showToast(
+        isCanceled
+          ? `${reason} 상담을 취소했습니다.`
+          : `${reason} 상담을 진행할 수 없습니다. 취소에 실패했으니 다시 시도해 주세요.`,
+      )
+      void navigate('/admin', { replace: true })
+    })
+  }, [
+    cancelConsultation,
+    consultationId,
+    navigate,
+    room.failure,
+    room.status,
+    showToast,
+  ])
 
   // 잘못된 URL 로 들어온 경우. 조회를 시도하지 않고 목록으로 돌린다.
   if (!isValidId) return <Navigate to="/admin" replace />

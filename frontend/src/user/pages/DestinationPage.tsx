@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 
 import { cn } from '@/shared/lib/cn'
 import { localizeStationName } from '@/shared/lib/stationCoords'
+import { resetRouteSelection } from '@/shared/lib/store/resetTrip'
 import { useDestinationStore } from '@/shared/lib/store/useDestinationStore'
 import {
   ORIGIN_SOURCE,
@@ -114,8 +115,8 @@ export default function DestinationPage() {
   /*
     고른 장소가 이미 확정된 목적지인지.
 
-    맞으면 하단 카드는 [도착지로 설정] 대신 [다음]을 보여주고, 지도는 같은
-    자리에 후보 핀을 겹쳐 찍지 않는다(마커가 2개로 보이던 문제).
+    맞으면(= 뒤로가기로 돌아와 지난 목적지가 그대로인 상태) 하단 카드는
+    [도착지로 설정] 대신 [다음]을 보여준다 — 새로 정할 것 없이 이어서 가면 된다.
   */
   const isDestinationConfirmed =
     destination !== null &&
@@ -176,6 +177,20 @@ export default function DestinationPage() {
    */
   const confirmDestination = () => {
     if (!selected) return
+
+    /*
+      목적지를 다른 곳으로 바꾼 경우, 지난 목적지로 계산해 골라 뒀던 경로와
+      역 내 도착 노드·안내 단계를 버린다. 스토어는 sessionStorage 라 저절로
+      사라지지 않아서, 새 목적지로 경로를 다시 고르기 전에 다른 화면으로 새면
+      옛 경로가 지금의 선택인 양 살아남는다.
+
+      같은 목적지를 그대로 확정한 경우(= 뒤로가기로 돌아와 [다음])는 비우지
+      않는다 — 그 경로는 여전히 유효하다.
+    */
+    if (destination?.placeId !== selected.placeId) {
+      resetRouteSelection()
+    }
+
     setDestination(selected)
     // 확정 토스트는 띄우지 않는다 — 경로 선택 화면의 안내 팝업(RouteNoticePopup)과
     // 같은 자리에 겹쳐서, 다음 화면이 곧바로 같은 내용을 알려주는 것으로 충분하다.
@@ -227,7 +242,9 @@ export default function DestinationPage() {
           <TripEndpointBar
             className="border-line bg-surface/95 rounded-2xl border px-3.5 py-2 shadow-sm backdrop-blur"
             originName={originLabel}
-            destinationName={destination?.name ?? null}
+            /* 고르는 중인 장소가 있으면 그쪽을 보여준다 — 지도의 목적지 핀도
+               같이 옮겨 가므로, 위아래가 같은 곳을 가리켜야 한다. */
+            destinationName={selected?.name ?? destination?.name ?? null}
           />
         </div>
 

@@ -51,6 +51,23 @@ public class SecurityConfig {
                     "/internal/v1/openvidu/**"
                 )
                 .permitAll()
+                /*
+                 * 역무원의 상담 취소.
+                 *
+                 * ⚠️ 반드시 아래 USER 전용 규칙보다 먼저 와야 합니다.
+                 *    Spring Security는 먼저 매칭된 규칙만 적용하므로, 순서가
+                 *    바뀌면 /api/v1/consultations/** 규칙이 이 경로까지 삼켜
+                 *    STAFF 토큰이 컨트롤러에 닿기 전에 403으로 막힙니다.
+                 *
+                 * 담당 역무원 일치 여부는 ConsultationStaffCancelService가
+                 * staff_id로 추가 검증합니다.
+                 */
+                .requestMatchers(
+                    HttpMethod.POST,
+                    "/api/v1/consultations/*/staff-cancel"
+                )
+                .hasAuthority("STAFF")
+
                 // 사용자만 상담 요청 가능
                 .requestMatchers(
                     "/api/v1/consultations/**"

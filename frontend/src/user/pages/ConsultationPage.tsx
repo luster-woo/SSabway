@@ -323,6 +323,14 @@ export default function ConsultationPage() {
    * 한 번 연결된 뒤의 DISCONNECTED 만 본다 — 접속 전 IDLE 상태와 구분해야
    * 하고, 사용자가 직접 끊은 경우는 endCall 이 이미 정리하고 이동했으므로
    * 여기까지 오지 않는다.
+   *
+   * 문구는 서버 상태를 한 번 조회해 가른다. 매칭 이후에는 상태 폴링이 꺼져
+   * 있어(useConsultationMatch 의 refetchInterval) 서버가 CANCELED 로 바꿔도
+   * 이 화면은 모르기 때문이다 — 역무원이 마이크 문제로 상담을 취소한 경우가
+   * 그렇고, 그대로 두면 정상 종료로 잘못 안내된다. 폴링을 되살리지 않고
+   * 종료 시점에 1회만 조회한다.
+   *
+   * 화면은 응답을 기다리지 않고 바로 닫는다. 토스트만 잠시 뒤에 뜬다.
    */
   const hasConnectedRef = useRef(false)
   if (call.status === OV_STATUS.CONNECTED) hasConnectedRef.current = true
@@ -339,9 +347,25 @@ export default function ConsultationPage() {
     if (!userEndedRef.current) submitSummaryRef.current()
 
     stop()
-    showToast(t('consultation.video.endedByStaff'))
+
+    /*
+      조회에 실패하면 종료 문구로 떨어진다 — 역무원이 끊는 경우가 정상 흐름이라
+      그쪽이 기본값이고, 취소는 마이크 문제로 드물게 일어난다.
+    */
+    void openviduApi
+      .fetchSnapshot(consultationId)
+      .then((snapshot) =>
+        snapshot.status === CONSULTATION_STATUS.CANCELED
+          ? t('consultation.video.canceled')
+          : t('consultation.video.endedByStaff'),
+      )
+      .catch(() => t('consultation.video.endedByStaff'))
+      .then((message) => {
+        showToast(message)
+      })
+
     void navigate('/guide', { replace: true })
-  }, [call.status, navigate, showToast, stop, t])
+  }, [call.status, consultationId, navigate, showToast, stop, t])
 
   /**
    * 서버가 이미 끝낸 상담이면 화면을 닫는다.
