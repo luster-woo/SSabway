@@ -4,7 +4,7 @@
     "tagline": "Subway guide for foreign travelers"
   },
   "language": {
-    "select": "Language",
+    "select": "Language Selection",
     "changed": "Language changed"
   },
   "auth": {

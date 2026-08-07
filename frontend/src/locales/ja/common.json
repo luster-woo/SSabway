@@ -4,7 +4,7 @@
     "tagline": "外国人観光客のための地下鉄案内"
   },
   "language": {
-    "select": "Language · 言語",
+    "select": "言語選択",
     "changed": "言語を変更しました"
   },
   "auth": {
