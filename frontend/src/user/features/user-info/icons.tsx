@@ -111,3 +111,24 @@ export function WonIcon(props: IconProps) {
     </svg>
   )
 }
+
+/**
+ * 마우스 커서(화살표). "여기를 눌러 보세요" 유도 애니메이션에 쓴다.
+ *
+ * 다른 아이콘과 달리 면으로 채운다 — 선으로만 그리면 커서로 읽히지 않는다.
+ * 흰 면에 어두운 테두리라, 연한 버튼 위에서도 밝은 도면 위에서도 형태가 산다.
+ * 테두리는 currentColor 라 쓰는 쪽에서 색을 정한다.
+ */
+export function CursorArrowIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" {...props}>
+      <path
+        d="M5.5 3.2 18 12.4l-5.3.5 2.9 6.2-2.6 1.2-2.9-6.2-3.6 3.8z"
+        fill="#fff"
+        stroke="currentColor"
+        strokeWidth={1.2}
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
