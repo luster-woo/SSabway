@@ -38,8 +38,9 @@ interface ElevatorFallbackState {
  *
  * ## 비우는 곳
  *
- * - `resetTripSelection` — 새 여정. 도착 노드가 바뀌므로 어차피 적용되지 않지만
- *   남겨 둘 이유가 없다.
+ * - `resetRouteSelection` — 목적지가 바뀔 때. 도착 노드가 달라지므로 어차피
+ *   적용되지 않지만 남겨 둘 이유가 없다.
+ * - `resetTripSelection` — 새 여정. 위를 그대로 포함한다.
  */
 export const useElevatorFallbackStore = create<ElevatorFallbackState>()(
   persist(
