@@ -85,6 +85,24 @@ const consultations = {
    */
   leave: (id: number) => `/consultations/${id}/leave`,
   /**
+   * 역무원 쪽 상담 취소 — ✅ BE 구현됨 (webrtc ConsultationController).
+   *
+   * ⚠️ 이 그룹에서 **유일하게 STAFF 토큰**으로 부르는 API 다. 나머지는 전부
+   *    USER 전용이고, BE SecurityConfig 도 `/api/v1/consultations/**` 를
+   *    hasAuthority("USER") 로 잠근 뒤 이 경로만 STAFF 로 빼 두었다.
+   *    따라서 관리자 앱의 openviduApi(adminApi) 로만 불러야 한다.
+   *
+   * 상담방에서 마이크 발행이 실패했을 때 역무원이 담당 상담을 취소한다.
+   * 수락 전 구간은 여기 오지 않는다 — 그쪽은 수락을 막는 것으로 처리한다
+   * (openvidu.ts 의 cancelConsultationByStaff 주석 참고).
+   *
+   * WAITING·MATCHED 를 CANCELED 로 바꾸고(MATCHED 면 OpenVidu 세션도 닫는다),
+   * 이미 취소된 상담은 멱등 성공. IN_PROGRESS 는 409 로 거절되므로 녹음이
+   * 시작된 뒤에는 기존 종료 경로(openvidu.endConsultation)를 써야 한다.
+   * 담당 역무원 본인인지는 서버가 staff_id 로 검증한다(403).
+   */
+  staffCancel: (id: number) => `/consultations/${id}/staff-cancel`,
+  /**
    * 상담 자막 → GMS 요약. ✅ BE 구현됨 (ssabway ConsultationSummaryService).
    *
    * 상담이 ENDED 여야 받아준다 — leave 가 끝난 뒤에 불러야 한다.
@@ -196,7 +214,12 @@ const admin = {
    * nginx 는 다른 /staffs/** 와 같이 api 로 보내면 된다 (별도 블록 불필요).
    */
   accept: (id: number) => `/staffs/consultations/${id}/accept`,
-  end: (id: number) => `/staffs/consultations/${id}/end`,
+  /*
+    `end: /staffs/consultations/{id}/end` 는 제거했다 — 백엔드에 구현된 적이
+    없고(ssabway ConsultationController 에 accept 까지만 있다) 프론트에서도
+    부르는 곳이 없었다. 역무원 종료는 openvidu.endConsultation, 취소는
+    consultations.staffCancel 이 맡는다.
+  */
   blacklist: {
     list: (page: number) => `/staffs/blacklist?page=${page}`,
     create: '/staffs/blacklist',

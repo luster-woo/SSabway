@@ -11,6 +11,13 @@ export interface WaitingCardProps {
   /** 목록 첫 항목. 다음에 처리할 상담이라 시각적으로 강조한다. */
   isNext?: boolean
   isPending?: boolean
+  /**
+   * 마이크가 차단되어 수락할 수 없다.
+   *
+   * 눌러도 발행이 실패할 것이 이미 확실하므로 버튼을 잠근다. 사유는 목록 위
+   * 안내가 설명한다(WaitingPanel) — 카드마다 반복하면 목록이 읽히지 않는다.
+   */
+  isMicBlocked?: boolean
   onAccept: (consultationId: number) => void
 }
 
@@ -19,6 +26,7 @@ export function WaitingCard({
   consultation,
   isNext = false,
   isPending = false,
+  isMicBlocked = false,
   onAccept,
 }: WaitingCardProps) {
   const { consultationId, email, startPoint, finalPoint, langCode } =
@@ -48,10 +56,10 @@ export function WaitingCard({
       <AdminButton
         variant={isNext ? 'primary' : 'secondary'}
         className="shrink-0 rounded-full px-6"
-        disabled={isPending}
+        disabled={isPending || isMicBlocked}
         onClick={() => onAccept(consultationId)}
       >
-        {isPending ? '연결 중…' : '상담 연결'}
+        {isPending ? '연결 중…' : isMicBlocked ? '마이크 필요' : '상담 연결'}
       </AdminButton>
     </li>
   )
