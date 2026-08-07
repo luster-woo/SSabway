@@ -1,0 +1,512 @@
+{
+  "_source": "docs/map/daegu_navigation.json",
+  "_rule": "SIGNAGE 노드는 좌표상 가장 가까운 비-SIGNAGE 노드를(층 무관 — 출구·개찰구·편의시설이 모두 지상 레벨에만 있어서다), 그 밖의 노드는 자기 자신을 랜드마크로 삼는다. floor 는 노드 자신의 값(사용자가 선 층)이며 \"0\"(지상 레벨)이면 생략한다. near 는 거리 15m 이하 — true 면 \"앞\", false 면 \"근처\" 로 말한다.",
+  "_fields": "place 는 로케일의 landmark.place.* 키. number 는 출구 번호(place=exit 일 때만). nearest·distanceM 은 어떻게 뽑혔는지 확인하려고 남긴 근거 값이라 화면에는 쓰지 않는다.",
+  "_editing": "이 파일은 scripts/generate-point-landmarks.mjs 가 만든다 — 직접 고치지 말고 스크립트를 다시 돌린다. 문구가 어색하면 로케일 4개(ko/en/ja/zh)의 landmark.* 를 고친다.",
+  "station": "대구역",
+  "points": {
+    "AT0_01": {
+      "place": "atm",
+      "near": true,
+      "nearest": "AT0_01",
+      "distanceM": 0
+    },
+    "AT0_02": {
+      "place": "atm",
+      "near": true,
+      "nearest": "AT0_02",
+      "distanceM": 0
+    },
+    "BO0_01": {
+      "place": "ticketMachine",
+      "near": true,
+      "nearest": "BO0_01",
+      "distanceM": 0
+    },
+    "BO0_02": {
+      "place": "ticketMachine",
+      "near": true,
+      "nearest": "BO0_02",
+      "distanceM": 0
+    },
+    "BO0_03": {
+      "place": "ticketMachine",
+      "near": true,
+      "nearest": "BO0_03",
+      "distanceM": 0
+    },
+    "BO0_04": {
+      "place": "ticketMachine",
+      "near": true,
+      "nearest": "BO0_04",
+      "distanceM": 0
+    },
+    "CO0_01": {
+      "place": "store",
+      "near": true,
+      "nearest": "CO0_01",
+      "distanceM": 0
+    },
+    "CO0_02": {
+      "place": "store",
+      "near": true,
+      "nearest": "CO0_02",
+      "distanceM": 0
+    },
+    "EV1_01": {
+      "place": "elevator",
+      "floor": "1",
+      "near": true,
+      "nearest": "EV1_01",
+      "distanceM": 0
+    },
+    "EV1_02": {
+      "place": "elevator",
+      "floor": "1",
+      "near": true,
+      "nearest": "EV1_02",
+      "distanceM": 0
+    },
+    "EV1_03": {
+      "place": "elevator",
+      "floor": "1",
+      "near": true,
+      "nearest": "EV1_03",
+      "distanceM": 0
+    },
+    "EV1_04": {
+      "place": "elevator",
+      "floor": "1",
+      "near": true,
+      "nearest": "EV1_04",
+      "distanceM": 0
+    },
+    "EV1_05": {
+      "place": "elevator",
+      "floor": "1",
+      "near": true,
+      "nearest": "EV1_05",
+      "distanceM": 0
+    },
+    "EV2_01": {
+      "place": "elevator",
+      "floor": "2",
+      "near": true,
+      "nearest": "EV2_01",
+      "distanceM": 0
+    },
+    "EV2_02": {
+      "place": "elevator",
+      "floor": "2",
+      "near": true,
+      "nearest": "EV2_02",
+      "distanceM": 0
+    },
+    "EV2_03": {
+      "place": "elevator",
+      "floor": "2",
+      "near": true,
+      "nearest": "EV2_03",
+      "distanceM": 0
+    },
+    "EV3_01": {
+      "place": "elevator",
+      "floor": "3",
+      "near": true,
+      "nearest": "EV3_01",
+      "distanceM": 0
+    },
+    "EV3_02": {
+      "place": "elevator",
+      "floor": "3",
+      "near": true,
+      "nearest": "EV3_02",
+      "distanceM": 0
+    },
+    "EV3_03": {
+      "place": "elevator",
+      "floor": "3",
+      "near": true,
+      "nearest": "EV3_03",
+      "distanceM": 0
+    },
+    "EX0_01": {
+      "place": "exit",
+      "number": 1,
+      "near": true,
+      "nearest": "EX0_01",
+      "distanceM": 0
+    },
+    "EX0_02": {
+      "place": "exit",
+      "number": 2,
+      "near": true,
+      "nearest": "EX0_02",
+      "distanceM": 0
+    },
+    "EX0_03": {
+      "place": "exit",
+      "number": 3,
+      "near": true,
+      "nearest": "EX0_03",
+      "distanceM": 0
+    },
+    "EX0_04": {
+      "place": "exit",
+      "number": 4,
+      "near": true,
+      "nearest": "EX0_04",
+      "distanceM": 0
+    },
+    "EX0_05": {
+      "place": "exit",
+      "number": 5,
+      "near": true,
+      "nearest": "EX0_05",
+      "distanceM": 0
+    },
+    "EX0_06": {
+      "place": "exit",
+      "number": 6,
+      "near": true,
+      "nearest": "EX0_06",
+      "distanceM": 0
+    },
+    "GA0_01": {
+      "place": "gate",
+      "near": true,
+      "nearest": "GA0_01",
+      "distanceM": 0
+    },
+    "GA0_02": {
+      "place": "gate",
+      "near": true,
+      "nearest": "GA0_02",
+      "distanceM": 0
+    },
+    "GA0_03": {
+      "place": "gate",
+      "near": true,
+      "nearest": "GA0_03",
+      "distanceM": 0
+    },
+    "GA0_04": {
+      "place": "gate",
+      "near": true,
+      "nearest": "GA0_04",
+      "distanceM": 0
+    },
+    "S1_01": {
+      "place": "ticketOffice",
+      "floor": "1",
+      "near": true,
+      "nearest": "TI0_03",
+      "distanceM": 3.3
+    },
+    "S1_02": {
+      "place": "gate",
+      "floor": "1",
+      "near": true,
+      "nearest": "GA0_04",
+      "distanceM": 3.3
+    },
+    "S1_03": {
+      "place": "gate",
+      "floor": "1",
+      "near": true,
+      "nearest": "GA0_04",
+      "distanceM": 10.7
+    },
+    "S1_04": {
+      "place": "elevator",
+      "floor": "1",
+      "near": true,
+      "nearest": "EV1_03",
+      "distanceM": 5.5
+    },
+    "S1_05": {
+      "place": "elevator",
+      "floor": "1",
+      "near": true,
+      "nearest": "EV1_03",
+      "distanceM": 12.1
+    },
+    "S1_06": {
+      "place": "elevator",
+      "floor": "1",
+      "near": false,
+      "nearest": "EV1_03",
+      "distanceM": 27.4
+    },
+    "S1_08": {
+      "place": "elevator",
+      "floor": "1",
+      "near": true,
+      "nearest": "EV1_02",
+      "distanceM": 12.1
+    },
+    "S1_09": {
+      "place": "elevator",
+      "floor": "1",
+      "near": true,
+      "nearest": "EV1_02",
+      "distanceM": 4.9
+    },
+    "S1_10": {
+      "place": "ticketMachine",
+      "floor": "1",
+      "near": true,
+      "nearest": "BO0_03",
+      "distanceM": 3.4
+    },
+    "S1_11": {
+      "place": "gate",
+      "floor": "1",
+      "near": true,
+      "nearest": "GA0_03",
+      "distanceM": 2.8
+    },
+    "S1_12": {
+      "place": "elevator",
+      "floor": "1",
+      "near": true,
+      "nearest": "EV1_04",
+      "distanceM": 8.4
+    },
+    "S2_01": {
+      "place": "exit",
+      "number": 5,
+      "floor": "2",
+      "near": true,
+      "nearest": "EX0_05",
+      "distanceM": 8
+    },
+    "S2_02": {
+      "place": "exit",
+      "number": 5,
+      "floor": "2",
+      "near": true,
+      "nearest": "EX0_05",
+      "distanceM": 8.3
+    },
+    "S2_03": {
+      "place": "elevator",
+      "floor": "2",
+      "near": false,
+      "nearest": "EV1_01",
+      "distanceM": 17.5
+    },
+    "S2_04": {
+      "place": "elevator",
+      "floor": "2",
+      "near": false,
+      "nearest": "EV1_01",
+      "distanceM": 21.3
+    },
+    "S2_05": {
+      "place": "elevator",
+      "floor": "2",
+      "near": false,
+      "nearest": "EV1_01",
+      "distanceM": 28.9
+    },
+    "S2_06": {
+      "place": "atm",
+      "floor": "2",
+      "near": true,
+      "nearest": "AT0_02",
+      "distanceM": 7.9
+    },
+    "S2_07": {
+      "place": "store",
+      "floor": "2",
+      "near": true,
+      "nearest": "CO0_01",
+      "distanceM": 12.4
+    },
+    "S2_08": {
+      "place": "exit",
+      "number": 2,
+      "floor": "2",
+      "near": true,
+      "nearest": "EX0_02",
+      "distanceM": 7.8
+    },
+    "S2_09": {
+      "place": "exit",
+      "number": 3,
+      "floor": "2",
+      "near": true,
+      "nearest": "EX0_03",
+      "distanceM": 8.2
+    },
+    "S2_10": {
+      "place": "atm",
+      "floor": "2",
+      "near": false,
+      "nearest": "AT0_02",
+      "distanceM": 26.1
+    },
+    "S3_01": {
+      "place": "exit",
+      "number": 6,
+      "floor": "3",
+      "near": true,
+      "nearest": "EX0_06",
+      "distanceM": 2.3
+    },
+    "S3_02": {
+      "place": "exit",
+      "number": 6,
+      "floor": "3",
+      "near": true,
+      "nearest": "EX0_06",
+      "distanceM": 10.4
+    },
+    "S3_03": {
+      "place": "elevator",
+      "floor": "3",
+      "near": true,
+      "nearest": "EV3_03",
+      "distanceM": 7.3
+    },
+    "S3_04": {
+      "place": "elevator",
+      "floor": "3",
+      "near": true,
+      "nearest": "EV3_02",
+      "distanceM": 6.9
+    },
+    "S3_05": {
+      "place": "atm",
+      "floor": "3",
+      "near": true,
+      "nearest": "AT0_01",
+      "distanceM": 7.9
+    },
+    "S3_06": {
+      "place": "atm",
+      "floor": "3",
+      "near": true,
+      "nearest": "AT0_01",
+      "distanceM": 4.6
+    },
+    "S3_07": {
+      "place": "ticketMachine",
+      "floor": "3",
+      "near": false,
+      "nearest": "BO0_01",
+      "distanceM": 19
+    },
+    "S3_08": {
+      "place": "ticketMachine",
+      "floor": "3",
+      "near": true,
+      "nearest": "BO0_02",
+      "distanceM": 13.1
+    },
+    "S3_09": {
+      "place": "ticketMachine",
+      "floor": "3",
+      "near": true,
+      "nearest": "BO0_02",
+      "distanceM": 13.6
+    },
+    "S3_10": {
+      "place": "ticketMachine",
+      "floor": "3",
+      "near": false,
+      "nearest": "BO0_02",
+      "distanceM": 21.7
+    },
+    "S3_11": {
+      "place": "ticketMachine",
+      "floor": "3",
+      "near": true,
+      "nearest": "BO0_02",
+      "distanceM": 10.4
+    },
+    "S3_12": {
+      "place": "ticketMachine",
+      "floor": "3",
+      "near": true,
+      "nearest": "BO0_01",
+      "distanceM": 11.9
+    },
+    "S3_13": {
+      "place": "ticketMachine",
+      "floor": "3",
+      "near": true,
+      "nearest": "BO0_02",
+      "distanceM": 10
+    },
+    "S3_14": {
+      "place": "atm",
+      "floor": "3",
+      "near": true,
+      "nearest": "AT0_01",
+      "distanceM": 14.8
+    },
+    "S3_15": {
+      "place": "elevator",
+      "floor": "3",
+      "near": true,
+      "nearest": "EV3_02",
+      "distanceM": 10.9
+    },
+    "S3_16": {
+      "place": "exit",
+      "number": 6,
+      "floor": "3",
+      "near": true,
+      "nearest": "EX0_06",
+      "distanceM": 11.7
+    },
+    "S3_17": {
+      "place": "ticketMachine",
+      "floor": "3",
+      "near": false,
+      "nearest": "BO0_02",
+      "distanceM": 27.9
+    },
+    "S3_18": {
+      "place": "gate",
+      "floor": "3",
+      "near": true,
+      "nearest": "GA0_01",
+      "distanceM": 10.7
+    },
+    "S3_19": {
+      "place": "elevator",
+      "floor": "3",
+      "near": false,
+      "nearest": "EV2_03",
+      "distanceM": 34.5
+    },
+    "S3_20": {
+      "place": "gate",
+      "floor": "3",
+      "near": true,
+      "nearest": "GA0_02",
+      "distanceM": 10.7
+    },
+    "TI0_01": {
+      "place": "ticketOffice",
+      "near": true,
+      "nearest": "TI0_01",
+      "distanceM": 0
+    },
+    "TI0_02": {
+      "place": "ticketOffice",
+      "near": true,
+      "nearest": "TI0_02",
+      "distanceM": 0
+    },
+    "TI0_03": {
+      "place": "ticketOffice",
+      "near": true,
+      "nearest": "TI0_03",
+      "distanceM": 0
+    }
+  }
+}

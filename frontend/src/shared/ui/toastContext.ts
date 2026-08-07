@@ -1,7 +1,12 @@
 import { createContext, useContext } from 'react'
 
+export interface ToastOptions {
+  /** 배경 알약 없이 굵고 크게 표시한다. 밝은 화면에서 강조할 때 쓴다. */
+  plain?: boolean
+}
+
 export interface ToastContextValue {
-  showToast: (message: string) => void
+  showToast: (message: string, options?: ToastOptions) => void
 }
 
 export const ToastContext = createContext<ToastContextValue | null>(null)

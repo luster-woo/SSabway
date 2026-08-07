@@ -181,6 +181,7 @@
     }
   },
   "signCapture": {
+    "permissionNeeded": "Camera access is required",
     "hint": "Fit the sign inside the frame and take a photo",
     "zoomHint": "Pinch with two fingers to zoom in or out",
     "zoomReset": "Reset zoom",
@@ -375,6 +376,19 @@
         "passed": "Covered so far"
       },
       "mapAlt": "Station floor plan and guided route",
+      "facility": {
+        "_heading": "Facilities",
+        "stairs": "Stairs & Escalator",
+        "elevator": "Elevator",
+        "exit": "Exit",
+        "ticketMachine": "Ticket Machine",
+        "gate": "Ticket Gate",
+        "restroom": "Restroom",
+        "ticketOffice": "Ticket Office",
+        "store": "Convenience Store",
+        "atm": "ATM",
+        "waitingRoom": "Waiting Room"
+      },
       "label": {
         "shop": "Shops",
         "smokingArea": "Smoking Area",
@@ -438,11 +452,13 @@
   },
   "arrival": {
     "back": "Back",
-    "title": "You have arrived!",
+    "title": "Guidance complete!",
     "finalDestination": "Final destination: {{name}}",
     "duration": "Travel time",
     "origin": "From",
-    "destination": "To",
+    "destination": "Destination",
+    "alightStation": "Get off at",
+    "transferHint": "When you get off at {{station}}, scan a sign again.\nWe\u2019ll continue guiding you.",
     "noSummary": "We couldn't find this trip\nPlease pick a destination again",
     "newDestination": "Guide me to a new destination"
   },
@@ -526,6 +542,22 @@
   },
   "station": {
     "daegu": "Daegu Station"
+  },
+  "landmark": {
+    "at": "{{station}} F{{floor}}, by {{place}}",
+    "atNoFloor": "{{station}}, by {{place}}",
+    "near": "{{station}} F{{floor}}, near {{place}}",
+    "nearNoFloor": "{{station}}, near {{place}}",
+    "place": {
+      "exit": "Exit {{number}}",
+      "gate": "the ticket gate",
+      "elevator": "the elevator",
+      "store": "the convenience store",
+      "atm": "the ATM",
+      "ticketOffice": "the ticket office",
+      "ticketMachine": "the ticket machine",
+      "toilet": "the restroom"
+    }
   },
   "trip": {
     "originEmpty": "Set start",

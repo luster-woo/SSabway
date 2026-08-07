@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { requestLogout } from '@/shared/api/client'
-import { BanIcon } from '@/shared/ui'
 import { useAdminProfileStore } from '@/admin/features/auth/useAdminProfileStore'
 import { WaitingPanel } from '@/admin/features/consultation-receive/WaitingPanel'
 import { HistoryPanel } from '@/admin/features/dashboard/HistoryPanel'
@@ -65,7 +64,6 @@ export default function AdminMainPage() {
             className="rounded-full"
             onClick={() => setIsRosterOpen(true)}
           >
-            <BanIcon aria-hidden className="size-[15px]" />
             블랙리스트 명단
           </AdminButton>
 

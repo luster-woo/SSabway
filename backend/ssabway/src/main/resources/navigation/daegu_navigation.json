@@ -2842,6 +2842,28 @@
      "y": 1923.8
     }
    ]
+  },
+  {
+   "id": "E106",
+   "from": "S3_05",
+   "to": "S3_06",
+   "bidirectional": true,
+   "containsStairs": false,
+   "weight": 181.11,
+   "arriveSide": {
+    "S3_05": "F",
+    "S3_06": "F"
+   },
+   "geometry": [
+    {
+     "x": 2683.8,
+     "y": 1903.8
+    },
+    {
+     "x": 2503.8,
+     "y": 1923.8
+    }
+   ]
   }
  ]
 }

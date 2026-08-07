@@ -181,6 +181,7 @@
     }
   },
   "signCapture": {
+    "permissionNeeded": "카메라 허용이 필요해요",
     "hint": "표지판을 지정된 프레임에 맞춰서 촬영해 주세요",
     "zoomHint": "두 손가락으로 확대·축소할 수 있어요",
     "zoomReset": "확대 배율 초기화",
@@ -375,6 +376,19 @@
         "passed": "지나온 경로"
       },
       "mapAlt": "역 내 도면과 안내 경로",
+      "facility": {
+        "_heading": "시설 안내",
+        "stairs": "계단·에스컬레이터",
+        "elevator": "엘리베이터",
+        "exit": "출구",
+        "ticketMachine": "승차권 발매기",
+        "gate": "개찰구",
+        "restroom": "화장실",
+        "ticketOffice": "매표소",
+        "store": "편의점",
+        "atm": "ATM",
+        "waitingRoom": "대합실"
+      },
       "label": {
         "shop": "상점",
         "smokingArea": "흡연장",
@@ -438,11 +452,13 @@
   },
   "arrival": {
     "back": "뒤로가기",
-    "title": "목적지에 도착했어요!",
+    "title": "안내를 완료하였습니다!",
     "finalDestination": "최종 목적지 {{name}}",
     "duration": "소요 시간",
     "origin": "출발지",
-    "destination": "도착지",
+    "destination": "목적지",
+    "alightStation": "하차역",
+    "transferHint": "{{station}}에 내리면 표지판을 다시 촬영해 주세요.\n이어서 길을 안내해 드릴게요.",
     "noSummary": "이번 이동 정보를 찾지 못했어요\n목적지를 다시 선택해 주세요",
     "newDestination": "새 목적지 안내 받기"
   },
@@ -526,6 +542,22 @@
   },
   "station": {
     "daegu": "대구역"
+  },
+  "landmark": {
+    "at": "{{station}} {{floor}}층 {{place}} 앞",
+    "atNoFloor": "{{station}} {{place}} 앞",
+    "near": "{{station}} {{floor}}층 {{place}} 근처",
+    "nearNoFloor": "{{station}} {{place}} 근처",
+    "place": {
+      "exit": "{{number}}번 출구",
+      "gate": "개찰구",
+      "elevator": "엘리베이터",
+      "store": "편의점",
+      "atm": "ATM",
+      "ticketOffice": "매표소",
+      "ticketMachine": "발매기",
+      "toilet": "화장실"
+    }
   },
   "trip": {
     "originEmpty": "출발지 선택",
