@@ -33,6 +33,25 @@ interface PointLandmark {
 
 const POINTS: Record<string, PointLandmark | undefined> = landmarkData.points
 
+/**
+ * 화면에 쓸 출구 번호 덮어쓰기 (데이터 번호 → 실제 표지판 번호).
+ *
+ * 데이터의 출구 번호는 노드 id 끝자리에서 나온다(EX0_05→5, EX0_06→6). 그런데
+ * 실제 대구역 표지판에서는 그 출구들이 각각 2번·1번으로 안내돼서, UI 표기만
+ * 실제 번호에 맞춘다 — EX0_06(3층 쪽)=1번, EX0_05(2층 쪽)=2번.
+ *
+ * 같은 번호(1번·2번)가 다른 지점에도 나오는 것은 같은 출구를 여러 층에서
+ * 가리키기 때문이라 겹쳐 보여도 문제가 아니다. 출구 번호는 EX 노드마다 유일해서
+ * (5는 EX0_05, 6은 EX0_06뿐) 번호로 바꿔도 다른 출구를 건드리지 않는다.
+ *
+ * ⚠️ 이건 표기용 보정이다. 원본 데이터(daeguPointLandmarks.json)의 number 는
+ *    그대로 두고(생성기 재실행 시 되돌아가지 않게), 여기서만 갈아 끼운다.
+ */
+const EXIT_NUMBER_OVERRIDE: Record<number, number | undefined> = {
+  5: 2,
+  6: 1,
+}
+
 /** t 함수의 최소 형태. i18next TFunction 의 제네릭에 묶이지 않게 좁혀 받는다. */
 type TranslateFn = (key: string, options?: Record<string, unknown>) => string
 
@@ -67,8 +86,15 @@ export function describeStationPoint({
   const landmark = stationKor === LANDMARK_STATION ? POINTS[nodeId] : undefined
   if (!landmark) return `${stationLabel} ${nodeId}`
 
+  // 출구는 실제 표지판 번호로 갈아 끼운다(EXIT_NUMBER_OVERRIDE). 그 외 시설은
+  // number 를 쓰지 않으므로 landmark.number 를 그대로 넘겨도 무해하다.
+  const displayNumber =
+    landmark.place === 'exit' && landmark.number !== undefined
+      ? (EXIT_NUMBER_OVERRIDE[landmark.number] ?? landmark.number)
+      : landmark.number
+
   const place = t(`landmark.place.${landmark.place}`, {
-    number: landmark.number,
+    number: displayNumber,
   })
 
   // 층이 없는 노드(지상 레벨의 출구·개찰구·편의시설)는 "{역} {장소}" 로 줄인다
