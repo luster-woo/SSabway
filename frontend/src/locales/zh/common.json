@@ -272,7 +272,6 @@
       "failed": "无法加载路线\n请稍后再试",
       "empty": "未找到可用路线\n请重新选择目的地",
       "changeDestination": "重新选择目的地",
-      "started": "开始为您导航至{{station}}",
       "durationMin": "{{m}}分钟",
       "durationHour": "{{h}}小时{{m}}分钟",
       "fare": "{{amount}}₩",
@@ -290,22 +289,15 @@
   "userInfo": {
     "title": "确认导航信息",
     "back": "返回",
-    "origin": "出发",
-    "destination": "到达",
     "change": "更改",
     "rescan": "重拍",
-    "detail": {
-      "gps": "基于当前位置",
-      "manual": "在地图上选择",
-      "finalDestination": "最终目的地 {{name}}"
-    },
     "needRoute": "请先选择路线\n确定出发站和到达站后即可开始导航",
     "pickRoute": "选择路线",
     "start": "开始路线导航",
     "needAnswers": "请回答所有问题",
     "started": "将按所选条件开始导航",
     "preference": {
-      "label": "路线所需信息",
+      "label": "个性化路线设置",
       "back": "上一题",
       "reset": "重新选择",
       "progress": "问题 {{current}} / {{total}}",
@@ -404,7 +396,7 @@
         "daeguStationExit4": "大邱站 4号出口"
       }
     },
-    "help": "请求帮助",
+    "help": "视频咨询",
     "loading": "正在加载路线导航…",
     "failed": "无法加载路线导航\n请稍后再试",
     "empty": "未找到可导航的步骤\n请重新拍摄指示牌",
@@ -465,7 +457,7 @@
     "routeRequired": "请先开始路线导航。\n我们需要知道出发地和目的地才能为您连接。",
     "ready": "已准备就绪。\n请点击下方按钮开始连接。",
     "connect": "视频通话",
-    "recordNotice": "通话语音可能会被录音",
+    "recordNotice": "为保护工作人员，通话内容将被录音",
     "backToGuide": "返回路线导航",
     "rejected": {
       "blocked": "本站目前无法使用视频咨询服务。\n请直接前往车站服务室。",
