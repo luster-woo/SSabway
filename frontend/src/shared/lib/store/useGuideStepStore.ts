@@ -45,7 +45,8 @@ interface GuideStepState {
  *
  * - `RouteGuidePage.rescanRoute` — 재탐색은 "지금 내가 어디인지 다시 잡는다"라
  *   새 경로의 첫 단계가 곧 현재 위치다.
- * - `resetTripSelection` — 새 여정을 시작할 때.
+ * - `resetRouteSelection` — 목적지가 바뀔 때. 지난 목적지의 진행 단계다.
+ * - `resetTripSelection` — 새 여정을 시작할 때. 위를 그대로 포함한다.
  */
 export const useGuideStepStore = create<GuideStepState>()(
   persist(
