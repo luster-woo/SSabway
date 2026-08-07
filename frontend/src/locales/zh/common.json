@@ -446,7 +446,7 @@
     "origin": "出发地",
     "destination": "目的地",
     "noSummary": "未找到本次出行信息\n请重新选择目的地",
-    "newDestination": "导航到新目的地"
+    "goMain": "返回首页"
   },
   "helpChat": {
     "back": "返回",

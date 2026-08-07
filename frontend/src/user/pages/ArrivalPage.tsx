@@ -22,8 +22,8 @@ export default function ArrivalPage() {
   const destination = useDestinationStore((state) => state.destination)
   const summary = toArrivalSummary(selectedRoute, destination)
 
-  const startNewGuide = () => {
-    void navigate('/scan')
+  const goToMain = () => {
+    void navigate('/')
   }
 
   return (
@@ -41,8 +41,8 @@ export default function ArrivalPage() {
         </button>
       }
       footer={
-        <Button size="lg" fullWidth onClick={startNewGuide}>
-          {t('arrival.newDestination')}
+        <Button size="lg" fullWidth onClick={goToMain}>
+          {t('arrival.goMain')}
         </Button>
       }
     >

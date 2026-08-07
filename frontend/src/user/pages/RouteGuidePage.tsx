@@ -334,7 +334,7 @@ export default function RouteGuidePage() {
 
       {step && data ? (
         // 배치: 지점(표지판·사진) → 지시문 → 이전/다음 → 위치 보기 → (여백) 도움 요청
-        <div className="flex flex-1 flex-col gap-3.5 pt-2 pb-[calc(env(safe-area-inset-bottom,0px)+0.75rem)]">
+        <div className="flex flex-1 flex-col gap-3.5 pt-6 pb-[calc(env(safe-area-inset-bottom,0px)+0.75rem)]">
           <section className="flex flex-col gap-2">
             <SectionLabel>
               {step.sign ? t('routeGuide.nextSign') : t('routeGuide.nextPoint')}

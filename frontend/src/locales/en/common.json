@@ -446,7 +446,7 @@
     "origin": "From",
     "destination": "To",
     "noSummary": "We couldn't find this trip\nPlease pick a destination again",
-    "newDestination": "Guide me to a new destination"
+    "goMain": "Back to start"
   },
   "helpChat": {
     "back": "Back",

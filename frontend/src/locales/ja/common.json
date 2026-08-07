@@ -446,7 +446,7 @@
     "origin": "出発地",
     "destination": "到着地",
     "noSummary": "今回の移動情報が見つかりませんでした\n目的地をもう一度選んでください",
-    "newDestination": "新しい目的地の案内を受ける"
+    "goMain": "最初に戻る"
   },
   "helpChat": {
     "back": "戻る",

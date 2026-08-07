@@ -446,7 +446,7 @@
     "origin": "출발지",
     "destination": "도착지",
     "noSummary": "이번 이동 정보를 찾지 못했어요\n목적지를 다시 선택해 주세요",
-    "newDestination": "새 목적지 안내 받기"
+    "goMain": "처음으로"
   },
   "helpChat": {
     "back": "뒤로가기",
