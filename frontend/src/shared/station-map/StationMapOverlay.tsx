@@ -54,8 +54,14 @@ export interface StationMapOverlayProps {
    * 'locationOnly' 는 '내 위치'만 남긴다 — 관리자 [사용자 위치 보기] 는
    * 경로 없이 현재 위치 점 하나만 그리므로(UserLocationModal 참고), 경로선
    * 범례가 있으면 지도에 없는 것을 설명하게 된다.
+   *
+   * 'none' 은 색 범례를 통째로 감춘다 — 지도 안에 '현재 위치' 글자를 붙인
+   * 화면(showMyLocationLabel)은 같은 설명을 두 번 하게 되기 때문이다.
+   * (시설 아이콘 범례는 그대로 남는다)
    */
-  legend?: 'route' | 'locationOnly'
+  legend?: 'route' | 'locationOnly' | 'none'
+  /** 내 위치 점 옆에 '현재 위치' 글자를 붙인다. StationRouteMap 으로 그대로 넘어간다. */
+  showMyLocationLabel?: boolean
   /**
    * 문구를 이 언어로 고정한다. 없으면 앱의 현재 언어를 따른다.
    *
@@ -264,6 +270,7 @@ export function StationMapOverlay({
   currentIndex,
   status,
   legend = 'route',
+  showMyLocationLabel = false,
   lang,
   onClose,
 }: StationMapOverlayProps) {
@@ -481,10 +488,17 @@ export function StationMapOverlay({
     { key: 'passed', color: ROUTE_COLOR.passed, ringed: false },
   ] as const
 
-  const legendItems = [
-    { key: 'myLocation', color: MY_LOCATION_COLOR, ringed: true } as const,
-    ...(legend === 'locationOnly' ? [] : routeLegendItems),
-  ]
+  const legendItems =
+    legend === 'none'
+      ? []
+      : [
+          {
+            key: 'myLocation',
+            color: MY_LOCATION_COLOR,
+            ringed: true,
+          } as const,
+          ...(legend === 'locationOnly' ? [] : routeLegendItems),
+        ]
 
   return (
     <div
@@ -561,6 +575,7 @@ export function StationMapOverlay({
               currentIndex={clampedIndex}
               // 확대해도 마커·선의 화면 크기가 일정하도록 뷰포트에 비례해 역보정한다.
               markerScale={viewport.half / MARKER_REFERENCE_HALF}
+              showMyLocationLabel={showMyLocationLabel}
               // 헤더·범례와 도면 속 장소 명칭의 언어를 같이 맞춘다.
               lang={lang}
             />
@@ -610,33 +625,44 @@ export function StationMapOverlay({
         {/* 범례 — 지도가 없으면 설명할 것도 없다. 구분선 색은 헤더 주석 참고 */}
         {status ? null : (
           <div className="pb-safe border-t border-[#cbd5e1] px-4">
-            {/* 내 위치·경로선 범례 */}
-            <ul className="flex flex-wrap items-center gap-x-3.5 gap-y-1.5 pt-3">
-              {legendItems.map((item) => (
-                <li
-                  key={item.key}
-                  className="text-ink-muted flex items-center gap-1.5 text-[12px] font-semibold"
-                >
-                  <span
-                    aria-hidden
-                    className={
-                      item.ringed
-                        ? 'size-3.5 rounded-full ring-2 ring-white ring-inset'
-                        : 'size-3 rounded-full'
-                    }
-                    style={{ backgroundColor: item.color }}
-                  />
-                  {t(`routeGuide.stationMap.legend.${item.key}`)}
-                </li>
-              ))}
-            </ul>
+            {/* 내 위치·경로선 범례. legend='none' 이면 아예 그리지 않는다. */}
+            {legendItems.length > 0 ? (
+              <ul className="flex flex-wrap items-center gap-x-3.5 gap-y-1.5 pt-3">
+                {legendItems.map((item) => (
+                  <li
+                    key={item.key}
+                    className="text-ink-muted flex items-center gap-1.5 text-[12px] font-semibold"
+                  >
+                    <span
+                      aria-hidden
+                      className={
+                        item.ringed
+                          ? 'size-3.5 rounded-full ring-2 ring-white ring-inset'
+                          : 'size-3 rounded-full'
+                      }
+                      style={{ backgroundColor: item.color }}
+                    />
+                    {t(`routeGuide.stationMap.legend.${item.key}`)}
+                  </li>
+                ))}
+              </ul>
+            ) : null}
 
             {/*
               시설 아이콘 범례. 도면에 그려진 모든 시설 마커를 한 번에 설명한다 —
               아이콘(색 있는 둥근 사각형 + 이모지)은 도면 마커와 같은 모양이라
               지도 위 아이콘과 곧바로 짝지어 볼 수 있다.
+
+              위 색 범례가 없으면 그 사이 구분선도 없앤다 — 설명할 것이 하나뿐인데
+              칸막이만 남으면 빈 영역이 있는 것처럼 보인다.
             */}
-            <div className="mt-2.5 border-t border-line pt-2.5 pb-3">
+            <div
+              className={
+                legendItems.length > 0
+                  ? 'border-line mt-2.5 border-t pt-2.5 pb-3'
+                  : 'pt-3 pb-3'
+              }
+            >
               <p className="text-ink-muted mb-2 text-[11px] font-bold">
                 {t('routeGuide.stationMap.facility._heading')}
               </p>
