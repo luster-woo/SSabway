@@ -98,6 +98,12 @@ export interface GuideStep {
   sign: GuideSign | null
   /** 표지판의 도면 좌표. 미지원이면 null (GuidePoint 주석 참고) */
   point: GuidePoint | null
+  /**
+   * 시설 카드(ArrivalPointCard)에 실을 사진. 게이트·ATM·매표소·발매기처럼
+   * 표지판은 아니지만 실사 사진이 있는 지점만 채워진다. 표지판 사진은
+   * sign.photoUrl 을 쓰므로 여기 중복해 넣지 않는다.
+   */
+  facilityImageUrl: string | null
 
   /*
     아래는 BE 응답 원본 그대로다. 화면이 "무엇에 도착하는 구간인가"로 분기해야
