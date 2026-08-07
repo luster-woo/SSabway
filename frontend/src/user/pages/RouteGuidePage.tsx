@@ -15,7 +15,7 @@ import { useLanguage } from '@/shared/lib/useLanguage'
 import { StationMapOverlay } from '@/shared/station-map/StationMapOverlay'
 import type { NavRouteRequest } from '@/shared/types/navigation'
 import type { GuideStep } from '@/shared/types/routeGuide'
-import { Button, MobileScreen, SectionLabel, useToast } from '@/shared/ui'
+import { Button, MobileScreen, useToast } from '@/shared/ui'
 import { toLangCode } from '@/user/features/auth/lib/language'
 import { ArrivalPointCard } from '@/user/features/route-guide/ArrivalPointCard'
 import { GuideInstructionCard } from '@/user/features/route-guide/GuideInstructionCard'
@@ -366,12 +366,8 @@ export default function RouteGuidePage() {
 
       {step && data ? (
         // 배치: 지점(표지판·사진) → 지시문 → 이전/다음 → 위치 보기 → (여백) 도움 요청
-        <div className="flex flex-1 flex-col gap-3.5 pt-2 pb-[calc(env(safe-area-inset-bottom,0px)+0.75rem)]">
+        <div className="flex flex-1 flex-col gap-3.5 pb-[calc(env(safe-area-inset-bottom,0px)+0.75rem)]">
           <section className="flex flex-col gap-2">
-            <SectionLabel>
-              {step.sign ? t('routeGuide.nextSign') : t('routeGuide.nextPoint')}
-            </SectionLabel>
-
             {/*
               모든 단계의 카드를 가로 트랙으로 늘어놓고 보이는 창만 남긴다.
               트랙 너비는 컨테이너와 같으므로 translateX(-100%) = 카드 한 장이다.

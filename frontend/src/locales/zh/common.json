@@ -438,11 +438,13 @@
   },
   "arrival": {
     "back": "返回",
-    "title": "已到达目的地！",
+    "title": "引导已完成!",
     "finalDestination": "最终目的地 {{name}}",
     "duration": "用时",
     "origin": "出发地",
     "destination": "目的地",
+    "alightStation": "下车站",
+    "transferHint": "在{{station}}下车后，请再次拍摄指示牌。\n我们将继续为您引导。",
     "noSummary": "未找到本次出行信息\n请重新选择目的地",
     "newDestination": "导航到新目的地"
   },
