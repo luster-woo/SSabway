@@ -238,6 +238,10 @@
     "destinationSet": "目的地に設定済み",
     "originApplied": "{{name}}を出発地に設定しました",
     "needBoth": "出発地と目的地を両方選んでください",
+    "marker": {
+      "origin": "出発地",
+      "destination": "目的地"
+    },
     "recenter": "現在地へ移動"
   },
   "location": {

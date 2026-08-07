@@ -238,6 +238,10 @@
     "destinationSet": "Set as destination ✓",
     "originApplied": "{{name}} set as your starting point",
     "needBoth": "Pick both a start and a destination",
+    "marker": {
+      "origin": "Start",
+      "destination": "Destination"
+    },
     "recenter": "Go to my location"
   },
   "location": {
