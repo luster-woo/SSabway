@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 
 import { cn } from '@/shared/lib/cn'
+import { FitScrollText } from '@/user/features/user-info/FitScrollText'
 
 export interface EndpointRowProps {
   /** 한 줄로 보여줄 표기. "대구역 3층 6번 출구 앞" (describeStationPoint) */
@@ -17,6 +18,10 @@ export interface EndpointRowProps {
  *
  * 표기가 길어져도 변경 버튼이 밀려나지 않도록 가운데 영역만 줄어들게 한다.
  * 글자는 아이콘(36px 원)과 세로 가운데를 맞춘다.
+ *
+ * 표기는 언어에 따라(특히 영어) 한 줄을 넘길 만큼 길어질 수 있다. 줄바꿈 없이
+ * FitScrollText 가 먼저 글자를 줄여 맞추고, 그래도 넘치면 가로 마퀴로 흘려
+ * `...` 로 잘리지 않게 한다.
  */
 export function EndpointRow({
   label,
@@ -34,9 +39,11 @@ export function EndpointRow({
         {icon}
       </span>
 
-      <p className="text-ink min-w-0 flex-1 truncate text-[clamp(15px,4.4vw,17px)] font-bold">
-        {label}
-      </p>
+      <FitScrollText
+        text={label}
+        className="min-w-0 flex-1"
+        textClassName="text-ink text-[clamp(15px,4.4vw,17px)] font-bold"
+      />
 
       {onChange ? (
         <button
