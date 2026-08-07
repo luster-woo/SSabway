@@ -14,8 +14,8 @@ export interface WaitingCardProps {
   /**
    * 마이크가 차단되어 수락할 수 없다.
    *
-   * 눌러도 발행이 실패할 것이 이미 확실하므로 버튼을 잠근다. 사유는 목록 위
-   * 안내가 설명한다(WaitingPanel) — 카드마다 반복하면 목록이 읽히지 않는다.
+   * 버튼을 빨간 [마이크 필수] 로 바꿔 지금 눌러야 할 곳에서 바로 알린다.
+   * 잠그지는 않는다 — 누르면 해결 방법을 토스트로 알려 준다(WaitingPanel 참고).
    */
   isMicBlocked?: boolean
   onAccept: (consultationId: number) => void
@@ -54,12 +54,12 @@ export function WaitingCard({
       </div>
 
       <AdminButton
-        variant={isNext ? 'primary' : 'secondary'}
+        variant={isMicBlocked ? 'dangerSoft' : isNext ? 'primary' : 'secondary'}
         className="shrink-0 rounded-full px-6"
-        disabled={isPending || isMicBlocked}
+        disabled={isPending}
         onClick={() => onAccept(consultationId)}
       >
-        {isPending ? '연결 중…' : isMicBlocked ? '마이크 필요' : '상담 연결'}
+        {isPending ? '연결 중…' : isMicBlocked ? '마이크 필수' : '상담 연결'}
       </AdminButton>
     </li>
   )

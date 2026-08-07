@@ -45,13 +45,18 @@ export function WaitingPanel() {
   const setDetail = useConsultationDetailStore((s) => s.setDetail)
 
   /*
-    마이크가 차단되어 있으면 수락 자체를 막는다.
+    마이크가 차단되어 있으면 카드의 [상담 연결] 이 빨간 [마이크 필수] 로 바뀐다.
 
-    차단된 채로 수락하면 상담방에서 발행이 실패해 상담이 MATCHED 로 갇힌다.
-    누르고 나서 알려 주는 것으로는 늦다 — 사용자는 이미 매칭을 기다리고 있고,
-    이 역의 상담을 대신 받아 줄 역무원도 없다. 장치를 열지 않는 권한 조회라
-    (useMicPermission) 팝업 없이 화면에 머무는 내내 감시할 수 있고, 역무원이
-    권한을 허용하는 순간 새로고침 없이 풀린다.
+    차단된 채로 수락하면 상담방에서 발행이 실패해 상담이 MATCHED 로 갇히므로
+    미리 알려야 한다. 예전에는 목록 위에 안내 카드를 띄웠는데, 정작 눌러야 하는
+    버튼에서 멀어 놓치기 쉬웠다 — 버튼 자체가 상태를 말하게 한다.
+
+    버튼을 잠그지는 않는다. useAcceptConsultation 이 서버에 보내기 전에 마이크를
+    확인하고 되돌아오므로(상담은 WAITING 그대로) 눌러도 안전하고, 그때 뜨는
+    토스트가 "브라우저에서 허용해 주세요"라는 해결 방법을 알려 준다.
+
+    장치를 열지 않는 권한 조회라(useMicPermission) 팝업 없이 화면에 머무는 내내
+    감시할 수 있고, 역무원이 권한을 허용하는 순간 새로고침 없이 풀린다.
   */
   const micPermission = useMicPermission()
   const isMicBlocked = micPermission === MIC_PERMISSION.DENIED
@@ -102,25 +107,6 @@ export function WaitingPanel() {
         data ? <Chip tone="danger">{data.page.totalElements}건</Chip> : null
       }
     >
-      {/*
-        차단 안내는 목록보다 위에 둔다 — 대기자가 없을 때도 보여야 역무원이
-        상담이 들어오기 전에 고칠 수 있다.
-      */}
-      {isMicBlocked ? (
-        <div
-          role="alert"
-          className="border-danger/40 bg-danger/5 mb-4 rounded-2xl border px-5 py-4"
-        >
-          <p className="text-danger text-[13.5px] font-bold">
-            마이크가 차단되어 상담을 받을 수 없습니다
-          </p>
-          <p className="text-ink-muted mt-1.5 text-[12.5px] leading-relaxed">
-            주소창의 자물쇠 아이콘에서 마이크를 허용해 주세요. 허용하면 바로
-            상담을 받을 수 있습니다. 대기 중인 상담은 그대로 유지됩니다.
-          </p>
-        </div>
-      ) : null}
-
       {isPending ? (
         <p className="text-ink-muted py-10 text-center text-[13px]">
           불러오는 중…
