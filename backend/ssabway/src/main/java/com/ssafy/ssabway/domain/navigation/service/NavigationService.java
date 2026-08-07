@@ -178,7 +178,7 @@ public class NavigationService {
                     arrive.type(),
                     arrive.category(),
                     resolveText(graph, edge, nextEdge, seed.to(), language),
-                    buildImageUrl(arrive, edge.sideAt(seed.to())),
+                    buildImageUrl(graph, edge, arrive),
                     seed.arrivedFor()));
         }
         return steps;
@@ -194,6 +194,8 @@ public class NavigationService {
         도착(edgeId, to)의 안내 문구를 정한다.
 
         우선순위:
+          0) 엘리베이터를 타는 엣지 자체(양 끝이 다 ELEVATOR)          → 손글씨 문구
+                                                            ("2층으로 내려가세요") 그대로, 각도 계산 안 함
           1) 손글씨 문구에 이미 방향이 있다               → 그대로 사용
           2) 계단·에스컬레이터 포함 엣지                   → 오르는 중이면 방향 생략,
                                                             내려가는 중이면 각도로 방향 포함,
@@ -203,9 +205,19 @@ public class NavigationService {
              (계산 결과가 직진이고 손글씨 문구가 있으면, 그 문구가 이미 맞으므로 그대로 둔다)
      */
     private String resolveText(NavigationGraph graph, NavEdge edge, NavEdge nextEdge, String pivotId, Language language) {
-        String korean = guideTextRepository.find(edge.id(), pivotId, Language.KO);
         String written = guideTextRepository.find(edge.id(), pivotId, language);
 
+        /*
+            지도는 여러 층을 한 평면에 겹쳐 그린 도면이라(RouteFinder 주석 참고),
+            엘리베이터를 타는 엣지의 좌표 기반 각도는 의미가 없다 — 실제로 층을
+            이동하는 구간인데 "몇 m 이동해 왼쪽으로 꺾으세요" 같은 문구가 나가면
+            안 된다. 손글씨 문구("2층으로 내려가세요")를 무조건 그대로 쓴다.
+         */
+        if (graph.isElevatorRide(edge)) {
+            return written;
+        }
+
+        String korean = guideTextRepository.find(edge.id(), pivotId, Language.KO);
         if (hasDirectionWord(korean)) {
             return written;
         }
@@ -268,12 +280,20 @@ public class NavigationService {
         비슷하게 생겨서 구분할 실익이 없다고 판단했다. 대응 사진이 없는 지점
         (화장실 등)은 null 이다. 사진이 없다고 경로를 실패시키지 않는다.
         안내 문구와 지도만으로도 길은 찾을 수 있다.
+
+        ⚠️ 엘리베이터를 "타는" 엣지(양 끝이 다 ELEVATOR)로 도착했을 때는 사진을
+        또 보여주지 않는다. 타기 직전(복도 → 엘리베이터)에 이미 한 번 보여줬는데,
+        내린 직후(엘리베이터 → 반대편 엘리베이터)에도 똑같은 사진이 뜨면 같은
+        사진이 연달아 두 번 나온다. 엘리베이터 진입 시점에만 보여주면 충분하다.
      */
-    private String buildImageUrl(NavNode arrive, String signSide) {
+    private String buildImageUrl(NavigationGraph graph, NavEdge edge, NavNode arrive) {
+        if (graph.isElevatorRide(edge)) {
+            return null;
+        }
         if (!hasPhoto(arrive)) {
             return null;
         }
-        String side = arrive.type() == NodeType.SIGNAGE ? signSide : FACILITY_PHOTO_SIDE;
+        String side = arrive.type() == NodeType.SIGNAGE ? edge.sideAt(arrive.id()) : FACILITY_PHOTO_SIDE;
         if (side == null) {
             return null;
         }
