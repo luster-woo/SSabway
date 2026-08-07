@@ -429,6 +429,10 @@
     "failedUnknownPoint": "出発地点を確認できませんでした\n案内表示をもう一度撮影してください",
     "failedNeedAnswers": "経路に必要な情報が足りません\nもう一度質問にお答えください",
     "failedNotReady": "案内データを準備しています\nしばらくしてからお試しください",
+    "elevator": {
+      "down": "下の階へ移動",
+      "up": "上の階へ移動"
+    },
     "point": {
       "signage": "案内表示",
       "elevator": "エレベーター",

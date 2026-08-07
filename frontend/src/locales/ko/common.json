@@ -429,6 +429,10 @@
     "failedUnknownPoint": "출발 지점을 확인하지 못했어요\n표지판을 다시 찍어 주세요",
     "failedNeedAnswers": "경로에 필요한 정보가 부족해요\n질문에 다시 답해 주세요",
     "failedNotReady": "안내 데이터를 준비하는 중이에요\n잠시 후 다시 시도해 주세요",
+    "elevator": {
+      "down": "아래층으로 이동",
+      "up": "위층으로 이동"
+    },
     "point": {
       "signage": "안내 표지판",
       "elevator": "엘리베이터",

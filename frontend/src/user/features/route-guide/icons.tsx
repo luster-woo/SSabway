@@ -27,6 +27,15 @@ export function ChevronRightIcon(props: IconProps) {
   )
 }
 
+/** 아래쪽 꺾쇠. 엘리베이터 카드에서 진행 방향을 짚는 데 쓴다. */
+export function ChevronDownIcon(props: IconProps) {
+  return (
+    <svg {...BASE} {...props}>
+      <path d="M5 9l7 7 7-7" />
+    </svg>
+  )
+}
+
 /** 표지판 진행 방향 화살표. 위쪽 기준이라 방향에 따라 회전해 쓴다. */
 export function ArrowUpIcon(props: IconProps) {
   return (
