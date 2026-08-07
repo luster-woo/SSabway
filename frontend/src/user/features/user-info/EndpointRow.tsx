@@ -3,7 +3,7 @@ import type { ReactNode } from 'react'
 import { cn } from '@/shared/lib/cn'
 
 export interface EndpointRowProps {
-  /** 한 줄로 보여줄 표기. "{역 이름} {노드 코드}" */
+  /** 한 줄로 보여줄 표기. "대구역 3층 6번 출구 앞" (describeStationPoint) */
   label: string
   icon: ReactNode
   /** 없으면 변경 버튼을 그리지 않는다. */

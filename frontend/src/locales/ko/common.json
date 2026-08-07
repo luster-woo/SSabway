@@ -529,6 +529,22 @@
   "station": {
     "daegu": "대구역"
   },
+  "landmark": {
+    "at": "{{station}} {{floor}}층 {{place}} 앞",
+    "atNoFloor": "{{station}} {{place}} 앞",
+    "near": "{{station}} {{floor}}층 {{place}} 근처",
+    "nearNoFloor": "{{station}} {{place}} 근처",
+    "place": {
+      "exit": "{{number}}번 출구",
+      "gate": "개찰구",
+      "elevator": "엘리베이터",
+      "store": "편의점",
+      "atm": "ATM",
+      "ticketOffice": "매표소",
+      "ticketMachine": "발매기",
+      "toilet": "화장실"
+    }
+  },
   "trip": {
     "originEmpty": "출발지 선택",
     "destinationEmpty": "도착지 선택"
