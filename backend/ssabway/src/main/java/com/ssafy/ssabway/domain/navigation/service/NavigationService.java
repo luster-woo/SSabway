@@ -50,6 +50,16 @@ public class NavigationService {
     @Value("${navigation.sign-image-base-url}")
     private String signImageBaseUrl;
 
+    /*
+        프론트 서비스워커가 표지판 사진 URL 을 30일 CacheFirst 로 캐싱한다
+        (지하 약전파 구간에서도 사진이 뜨게 하려는 의도). 파일명이 같으면 S3
+        내용만 바꿔도 이미 캐시를 가진 사용자에겐 옛날 사진이 계속 보인다.
+        쿼리스트링에 이 버전을 붙여 두면, 사진을 교체할 때 값만 올려서 배포하는
+        것으로 캐시 키 자체를 바꿔 모든 사용자에게 새 사진을 강제할 수 있다.
+     */
+    @Value("${navigation.sign-image-version}")
+    private String signImageVersion;
+
     public RouteResponse findRoute(RouteRequest request) {
         NavigationGraph graph = graphRepository.graph();
         if (graph == null) {
@@ -169,6 +179,6 @@ public class NavigationService {
         if (arrive.type() != NodeType.SIGNAGE || side == null) {
             return null;
         }
-        return signImageBaseUrl + "/" + arrive.id() + "_" + side + ".jpg";
+        return signImageBaseUrl + "/" + arrive.id() + "_" + side + ".jpg?v=" + signImageVersion;
     }
 }

@@ -95,6 +95,13 @@ navigation:
   # 데이터에는 파일명(S3_15_B.jpg)만 두고 주소는 여기에만 둔다.
   # 버킷이나 CDN 이 바뀌어도 노드·엣지 데이터를 고칠 필요가 없다.
   sign-image-base-url: ${SIGN_IMAGE_BASE_URL:https://${aws.s3.bucket}.s3.${aws.region}.amazonaws.com/img}
+  # 프론트 서비스워커가 이 URL 패턴을 CacheFirst 로 30일 캐싱한다(vite.config.ts,
+  # 지하 약전파 구간 대응). 파일명은 그대로 두고 S3 사진만 새로 올리면, URL 이
+  # 똑같아서 이미 캐시를 가진 사용자에게는 옛날 사진이 계속 보인다.
+  # 사진을 교체할 때마다 이 값을 올려 쿼리스트링(?v=N)을 바꾸면, 캐시 키 자체가
+  # 달라져 모든 사용자가 강제로 새로 받는다. 배포(재기동)만 하면 되고 프론트 재빌드는
+  # 필요 없다 — 값이 응답 JSON 에 실려 나가는 URL 문자열에만 반영되기 때문이다.
+  sign-image-version: ${SIGN_IMAGE_VERSION:1}
 
 
 # 표지판 인식 AI 서버 (ai/serve — FastAPI)
