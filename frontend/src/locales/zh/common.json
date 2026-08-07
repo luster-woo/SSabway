@@ -181,6 +181,7 @@
     }
   },
   "signCapture": {
+    "permissionNeeded": "需要相机权限",
     "hint": "请将指示牌对准取景框进行拍摄",
     "zoomHint": "可用双指缩放画面",
     "zoomReset": "重置缩放",

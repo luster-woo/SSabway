@@ -181,6 +181,7 @@
     }
   },
   "signCapture": {
+    "permissionNeeded": "카메라 허용이 필요해요",
     "hint": "표지판을 지정된 프레임에 맞춰서 촬영해 주세요",
     "zoomHint": "두 손가락으로 확대·축소할 수 있어요",
     "zoomReset": "확대 배율 초기화",
