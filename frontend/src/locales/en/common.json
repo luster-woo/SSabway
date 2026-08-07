@@ -272,7 +272,6 @@
       "failed": "Could not load routes\nPlease try again in a moment",
       "empty": "No available route was found\nPlease choose another destination",
       "changeDestination": "Change destination",
-      "started": "Starting the guide to {{station}}",
       "durationMin": "{{m}} min",
       "durationHour": "{{h}} hr {{m}} min",
       "fare": "{{amount}}₩",
@@ -290,22 +289,15 @@
   "userInfo": {
     "title": "Confirm guide details",
     "back": "Back",
-    "origin": "From",
-    "destination": "To",
     "change": "Change",
     "rescan": "Retake",
-    "detail": {
-      "gps": "Based on your location",
-      "manual": "Picked on the map",
-      "finalDestination": "Final destination: {{name}}"
-    },
     "needRoute": "Please choose a route first\nGuidance starts once your stations are set",
     "pickRoute": "Choose a route",
     "start": "Start route guide",
     "needAnswers": "Please answer all the questions",
     "started": "Starting the guide with your selection",
     "preference": {
-      "label": "Details for your route",
+      "label": "Personalize your route",
       "back": "Previous",
       "reset": "Choose again",
       "progress": "Question {{current}} of {{total}}",
@@ -404,7 +396,7 @@
         "daeguStationExit4": "Daegu Stn. Exit 4"
       }
     },
-    "help": "Get help",
+    "help": "Video call",
     "loading": "Loading the route guide…",
     "failed": "Could not load the route guide\nPlease try again in a moment",
     "empty": "No guide steps were found\nPlease photograph a sign again",
@@ -465,7 +457,7 @@
     "routeRequired": "Please start the route guide first.\nWe need your origin and destination to connect you.",
     "ready": "Everything is ready.\nStart the call with the button below.",
     "connect": "Start video call",
-    "recordNotice": "The call audio may be recorded",
+    "recordNotice": "Calls are recorded to protect our staff",
     "backToGuide": "Back to route guide",
     "rejected": {
       "blocked": "Video calls are unavailable at this station.\nPlease visit the station office.",

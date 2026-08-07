@@ -77,15 +77,16 @@ export function RoutePreferenceCard({
   return (
     <Card className="flex min-h-[268px] flex-col gap-4 py-4">
       {/* 되돌아가기와 진행 표시가 한 줄. 점은 버튼 유무와 관계없이 가운데 고정. */}
-      <div className="relative flex h-6 items-center">
+      <div className="relative flex h-8 items-center">
         {canGoBack ? (
+          // 카메라 화면 뒤로가기와 같은 원형 아이콘 버튼. 문구는 aria-label 로 남긴다.
           <button
             type="button"
             onClick={onBack}
-            className="text-ink-muted focus-visible:ring-brand -ml-1 flex items-center gap-0.5 rounded-full px-1 text-[12.5px] font-bold focus-visible:ring-2 focus-visible:outline-none"
+            aria-label={t('userInfo.preference.back')}
+            className="bg-surface-muted text-ink-muted focus-visible:ring-brand -ml-1 flex size-8 items-center justify-center rounded-full transition focus-visible:ring-2 focus-visible:outline-none active:brightness-95"
           >
-            <ChevronLeftIcon className="size-3.5" strokeWidth={2.4} />
-            {t('userInfo.preference.back')}
+            <ChevronLeftIcon className="size-4" strokeWidth={2.4} />
           </button>
         ) : null}
 
