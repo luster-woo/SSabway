@@ -262,10 +262,12 @@ public class NavigationService {
         도착지에서 보이는 사진.
 
         표지판은 도착 방향에 따라 보이는 면(F/B)이 갈리므로 엣지의 arriveSide 를
-        따른다. 게이트·ATM·매표소·발매기·편의점은 사진이 한 장뿐이라 항상
-        FACILITY_PHOTO_SIDE 를 쓴다. 대응 사진이 없는 지점(엘리베이터·화장실 등)은
-        null 이다. 사진이 없다고 경로를 실패시키지 않는다. 안내 문구와 지도만으로도
-        길은 찾을 수 있다.
+        따른다. 게이트·ATM·매표소·발매기·편의점·엘리베이터는 사진이 한 장뿐이라
+        항상 FACILITY_PHOTO_SIDE 를 쓴다. 엘리베이터는 노드마다 실제로 다른 사진이
+        아니라 같은 사진을 11곳 전부에 올려 둔 것이다 — 역 안 엘리베이터가 다
+        비슷하게 생겨서 구분할 실익이 없다고 판단했다. 대응 사진이 없는 지점
+        (화장실 등)은 null 이다. 사진이 없다고 경로를 실패시키지 않는다.
+        안내 문구와 지도만으로도 길은 찾을 수 있다.
      */
     private String buildImageUrl(NavNode arrive, String signSide) {
         if (!hasPhoto(arrive)) {
@@ -279,7 +281,7 @@ public class NavigationService {
     }
 
     private boolean hasPhoto(NavNode node) {
-        if (node.type() == NodeType.SIGNAGE || node.type() == NodeType.GATE) {
+        if (node.type() == NodeType.SIGNAGE || node.type() == NodeType.GATE || node.type() == NodeType.ELEVATOR) {
             return true;
         }
         return node.type() == NodeType.POI
