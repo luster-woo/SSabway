@@ -181,6 +181,7 @@
     }
   },
   "signCapture": {
+    "permissionNeeded": "需要相机权限",
     "hint": "请将指示牌对准取景框进行拍摄",
     "zoomHint": "可用双指缩放画面",
     "zoomReset": "重置缩放",
@@ -375,6 +376,19 @@
         "passed": "已走过的路线"
       },
       "mapAlt": "车站平面图与导览路线",
+      "facility": {
+        "_heading": "设施指南",
+        "stairs": "楼梯·扶梯",
+        "elevator": "电梯",
+        "exit": "出口",
+        "ticketMachine": "售票机",
+        "gate": "检票口",
+        "restroom": "洗手间",
+        "ticketOffice": "售票处",
+        "store": "便利店",
+        "atm": "ATM",
+        "waitingRoom": "候车室"
+      },
       "label": {
         "shop": "商店",
         "smokingArea": "吸烟区",
@@ -438,11 +452,13 @@
   },
   "arrival": {
     "back": "返回",
-    "title": "已到达目的地！",
+    "title": "引导已完成!",
     "finalDestination": "最终目的地 {{name}}",
     "duration": "用时",
     "origin": "出发地",
     "destination": "目的地",
+    "alightStation": "下车站",
+    "transferHint": "在{{station}}下车后，请再次拍摄指示牌。\n我们将继续为您引导。",
     "noSummary": "未找到本次出行信息\n请重新选择目的地",
     "newDestination": "导航到新目的地"
   },
@@ -526,6 +542,22 @@
   },
   "station": {
     "daegu": "大邱站"
+  },
+  "landmark": {
+    "at": "{{station}} {{floor}}层 {{place}}前",
+    "atNoFloor": "{{station}} {{place}}前",
+    "near": "{{station}} {{floor}}层 {{place}}附近",
+    "nearNoFloor": "{{station}} {{place}}附近",
+    "place": {
+      "exit": "{{number}}号出口",
+      "gate": "检票口",
+      "elevator": "电梯",
+      "store": "便利店",
+      "atm": "ATM",
+      "ticketOffice": "售票处",
+      "ticketMachine": "自动售票机",
+      "toilet": "洗手间"
+    }
   },
   "trip": {
     "originEmpty": "选择出发地",

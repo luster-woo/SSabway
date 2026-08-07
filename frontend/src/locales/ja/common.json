@@ -181,6 +181,7 @@
     }
   },
   "signCapture": {
+    "permissionNeeded": "カメラの許可が必要です",
     "hint": "標識をフレームに合わせて撮影してください",
     "zoomHint": "二本指で拡大・縮小できます",
     "zoomReset": "拡大倍率をリセット",
@@ -375,6 +376,19 @@
         "passed": "通ってきた経路"
       },
       "mapAlt": "駅構内図と案内ルート",
+      "facility": {
+        "_heading": "施設案内",
+        "stairs": "階段・エスカレーター",
+        "elevator": "エレベーター",
+        "exit": "出口",
+        "ticketMachine": "券売機",
+        "gate": "改札口",
+        "restroom": "トイレ",
+        "ticketOffice": "きっぷうりば",
+        "store": "コンビニ",
+        "atm": "ATM",
+        "waitingRoom": "待合室"
+      },
       "label": {
         "shop": "商店",
         "smokingArea": "喫煙所",
@@ -438,11 +452,13 @@
   },
   "arrival": {
     "back": "戻る",
-    "title": "目的地に到着しました！",
+    "title": "案内が完了しました!",
     "finalDestination": "最終目的地 {{name}}",
     "duration": "所要時間",
     "origin": "出発地",
-    "destination": "到着地",
+    "destination": "目的地",
+    "alightStation": "降車駅",
+    "transferHint": "{{station}}で降りたら、案内標識をもう一度撮影してください。\n続けてご案内します。",
     "noSummary": "今回の移動情報が見つかりませんでした\n目的地をもう一度選んでください",
     "newDestination": "新しい目的地の案内を受ける"
   },
@@ -526,6 +542,22 @@
   },
   "station": {
     "daegu": "大邱駅"
+  },
+  "landmark": {
+    "at": "{{station}} {{floor}}階 {{place}}前",
+    "atNoFloor": "{{station}} {{place}}前",
+    "near": "{{station}} {{floor}}階 {{place}}付近",
+    "nearNoFloor": "{{station}} {{place}}付近",
+    "place": {
+      "exit": "{{number}}番出口",
+      "gate": "改札口",
+      "elevator": "エレベーター",
+      "store": "コンビニ",
+      "atm": "ATM",
+      "ticketOffice": "きっぷうりば",
+      "ticketMachine": "券売機",
+      "toilet": "トイレ"
+    }
   },
   "trip": {
     "originEmpty": "出発地を選択",

@@ -7,6 +7,13 @@ export type AdminButtonVariant =
   | 'secondary'
   | 'danger'
   | 'dangerOutline'
+  /**
+   * 연한 빨강 — 건수 배지(Chip tone="danger")와 같은 톤.
+   *
+   * 목록 안에서 "지금 누를 수 없다"를 알리되, 꽉 찬 빨강처럼 시선을 독점하지는
+   * 않아야 할 때 쓴다. 같은 화면의 배지와 색을 맞춰 두 표시가 한 뜻으로 읽힌다.
+   */
+  | 'dangerSoft'
   | 'info'
   /** 다크 헤더 위에 올리는 버튼 */
   | 'onDark'
@@ -34,6 +41,7 @@ const VARIANT: Record<AdminButtonVariant, string> = {
   secondary: 'bg-surface text-ink border border-line',
   danger: 'bg-danger text-white shadow-sm',
   dangerOutline: 'bg-surface text-danger border border-danger',
+  dangerSoft: 'bg-danger/10 text-danger',
   info: 'bg-brand-soft text-brand-dark border border-brand',
   onDark: 'bg-transparent text-white border border-white/40',
   onDarkAccent: 'bg-sign-exit text-ink border border-sign-exit shadow-sm',

@@ -1,11 +1,14 @@
 import { useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { useSelectedRouteStore } from '@/shared/lib/store/useSelectedRouteStore'
 import {
   resolveStationNodes,
   useStationNodeStore,
 } from '@/shared/lib/store/useStationNodeStore'
+import { describeStationPoint } from '@/shared/station-map/pointLandmark'
 import type { GuideInfo } from '@/shared/types/guide'
+import { SUBWAY_LANE_LABEL } from '@/shared/types/route'
 
 export interface UseGuideInfoResult {
   /** 표시할 안내 정보. 경로를 아직 고르지 않았으면 null */
@@ -30,10 +33,13 @@ export interface UseGuideInfoResult {
  * 노드는 인식 결과가 없으면 파일럿 기본값으로 메운다(resolveStationNodes) —
  * 실제 안내 요청(/routes/navi)이 쓰는 값과 같아야 화면과 안내가 어긋나지 않는다.
  *
- * 노드 코드는 원문 그대로 보여준다. 사람이 읽을 이름으로 옮기는 매핑은 나중에
- * 붙일 예정이라, 지금은 그 자리에 코드가 그대로 들어간다.
+ * 출발 노드 코드(`S3_16`)는 그대로 보여주면 사용자가 읽을 수 없어서, 지도 데이터로
+ * 만든 표기("대구역 3층 6번 출구 앞")로 옮긴다 — describeStationPoint 참고. 층은
+ * 그 매핑이 노드에서 뽑으므로(표지판이 선 층), 여기서 startFloor 를 따로 붙이지
+ * 않는다. 매핑에 없는 코드는 예전처럼 "역 이름 + 코드" 가 그대로 남는다.
  */
 export function useGuideInfo(): UseGuideInfoResult {
+  const { t } = useTranslation()
   const selectedRoute = useSelectedRouteStore((state) => state.selectedRoute)
   const startPoint = useStationNodeStore((state) => state.startPoint)
   const finalPoint = useStationNodeStore((state) => state.finalPoint)
@@ -42,13 +48,40 @@ export function useGuideInfo(): UseGuideInfoResult {
     if (!selectedRoute) return null
 
     const nodes = resolveStationNodes({ startPoint, finalPoint })
-    const station = selectedRoute.departureStation
+    const stationLabel = selectedRoute.departureStation
+    const stationKor = selectedRoute.departureStationKor
 
-    return {
-      origin: `${station} ${nodes.startPoint}`,
-      destination: `${station} ${nodes.finalPoint}`,
-    }
-  }, [selectedRoute, startPoint, finalPoint])
+    /*
+      출발 — 표지판으로 인식한 노드를 사람이 읽는 위치로 옮긴다.
+      예: "대구역 3층 6번 출구 앞". 문구·층·시설 종류는 전부 describeStationPoint
+      (매핑 + 로케일)가 만든다. 사용자가 처음 고른 언어로 나온다.
+    */
+    const origin = describeStationPoint({
+      nodeId: nodes.startPoint,
+      stationLabel,
+      stationKor,
+      t,
+    })
+
+    /*
+      도착 — "역 이름 {n}호선 개찰구". 예: "대구역 1호선 개찰구".
+      노선은 사용자가 고른 경로의 첫 구간(오디세이)에서 온다. 노선을 못 얻으면
+      (구버전 응답·비지원 조합) 개찰구 노드를 describeStationPoint 로 옮겨 폴백한다.
+    */
+    const laneLabel = selectedRoute.boardingLane
+      ? SUBWAY_LANE_LABEL[selectedRoute.boardingLane]
+      : null
+    const destination = laneLabel
+      ? `${stationLabel} ${laneLabel} 개찰구`
+      : describeStationPoint({
+          nodeId: nodes.finalPoint,
+          stationLabel,
+          stationKor,
+          t,
+        })
+
+    return { origin, destination }
+  }, [selectedRoute, startPoint, finalPoint, t])
 
   return { info, isRouteMissing: info === null }
 }

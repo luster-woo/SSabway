@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 
 import { cn } from '@/shared/lib/cn'
-import { ChevronDownIcon, LogoutIcon, UserIcon } from '@/shared/ui'
+import { LogoutIcon, UserIcon } from '@/shared/ui'
 
 export interface AdminAccountMenuProps {
   /**
@@ -71,26 +71,13 @@ export function AdminAccountMenu({
         aria-label={staffCode ? `계정 메뉴 (${staffCode})` : '계정 메뉴'}
         onClick={() => setIsOpen((prev) => !prev)}
         className={cn(
-          'flex h-10 items-center gap-2 rounded-full border py-1 pr-2.5 pl-1 transition',
+          // 사번·펼침 표시 없이 프로필 원 하나만 둔다. 사번은 메뉴를 열면 보인다.
+          'bg-brand flex size-9 items-center justify-center rounded-full text-white transition',
           'focus-visible:ring-offset-brand-dark focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:outline-none',
-          isOpen
-            ? 'border-white/70 bg-white/15'
-            : 'border-white/30 hover:bg-white/10',
+          isOpen ? 'ring-2 ring-white/70' : 'hover:brightness-110',
         )}
       >
-        <span className="bg-brand flex size-8 shrink-0 items-center justify-center rounded-full text-white">
-          <UserIcon className="size-[18px]" />
-        </span>
-        <span className="text-[13px] font-bold text-white">
-          {staffCode ?? '역무원'}
-        </span>
-        <ChevronDownIcon
-          aria-hidden
-          className={cn(
-            'size-4 text-white/70 transition-transform',
-            isOpen && 'rotate-180',
-          )}
-        />
+        <UserIcon aria-hidden className="size-[19px]" />
       </button>
 
       {isOpen ? (
