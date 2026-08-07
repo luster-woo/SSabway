@@ -52,6 +52,28 @@ const EXIT_NUMBER_OVERRIDE: Record<number, number | undefined> = {
   6: 1,
 }
 
+/**
+ * 노드가 선 층. 매핑에 없거나 층 표기가 없는 노드(지상 레벨)면 null.
+ *
+ * 두 노드의 층을 견줘 "올라가는가 내려가는가"를 정하는 데 쓴다 — BE 응답에는
+ * 층이 없어서(RouteStepResponse) 프론트가 가진 지도 데이터로 알아내야 한다.
+ *
+ * 여기서는 describeStationPoint 와 달리 역을 확인하지 않는다. 다른 역의 id 는
+ * 매핑에 아예 없어 null 이 되고, 부르는 쪽은 층을 모를 때의 처리를 이미 갖고
+ * 있어야 하므로(대구역 외에는 그래프 자체가 없다) 확인이 더 얹을 게 없다.
+ */
+export function getPointFloor(
+  nodeId: string | null | undefined,
+): number | null {
+  if (!nodeId) return null
+
+  const floor = POINTS[nodeId]?.floor
+  if (floor === undefined) return null
+
+  const parsed = Number(floor)
+  return Number.isFinite(parsed) ? parsed : null
+}
+
 /** t 함수의 최소 형태. i18next TFunction 의 제네릭에 묶이지 않게 좁혀 받는다. */
 type TranslateFn = (key: string, options?: Record<string, unknown>) => string
 
