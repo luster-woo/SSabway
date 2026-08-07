@@ -375,6 +375,19 @@
         "passed": "Covered so far"
       },
       "mapAlt": "Station floor plan and guided route",
+      "facility": {
+        "_heading": "Facilities",
+        "stairs": "Stairs & Escalator",
+        "elevator": "Elevator",
+        "exit": "Exit",
+        "ticketMachine": "Ticket Machine",
+        "gate": "Ticket Gate",
+        "restroom": "Restroom",
+        "ticketOffice": "Ticket Office",
+        "store": "Convenience Store",
+        "atm": "ATM",
+        "waitingRoom": "Waiting Room"
+      },
       "label": {
         "shop": "Shops",
         "smokingArea": "Smoking Area",

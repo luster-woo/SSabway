@@ -375,6 +375,19 @@
         "passed": "通ってきた経路"
       },
       "mapAlt": "駅構内図と案内ルート",
+      "facility": {
+        "_heading": "施設案内",
+        "stairs": "階段・エスカレーター",
+        "elevator": "エレベーター",
+        "exit": "出口",
+        "ticketMachine": "券売機",
+        "gate": "改札口",
+        "restroom": "トイレ",
+        "ticketOffice": "きっぷうりば",
+        "store": "コンビニ",
+        "atm": "ATM",
+        "waitingRoom": "待合室"
+      },
       "label": {
         "shop": "商店",
         "smokingArea": "喫煙所",
