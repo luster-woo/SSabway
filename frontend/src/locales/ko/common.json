@@ -4,7 +4,7 @@
     "tagline": "외국인 관광객을 위한 지하철 길안내"
   },
   "language": {
-    "select": "Language · 언어 선택",
+    "select": "언어 선택",
     "changed": "언어를 변경했어요"
   },
   "auth": {
@@ -238,6 +238,10 @@
     "destinationSet": "도착지로 설정됨",
     "originApplied": "{{name}}을(를) 출발지로 설정했어요",
     "needBoth": "출발지와 도착지를 모두 선택해 주세요",
+    "marker": {
+      "origin": "출발지",
+      "destination": "목적지"
+    },
     "recenter": "현재 위치로 이동"
   },
   "location": {

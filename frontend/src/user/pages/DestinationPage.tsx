@@ -46,7 +46,20 @@ export default function DestinationPage() {
   const [keyword, setKeyword] = useState('')
   /** 실제로 검색을 실행한 키워드. 입력값과 분리해야 타이핑마다 호출되지 않는다. */
   const [submittedQuery, setSubmittedQuery] = useState('')
-  const [selected, setSelected] = useState<Place | null>(null)
+  /*
+    고른 장소.
+
+    이미 확정된 목적지가 있으면 그것으로 시작한다. 목적지를 정하고 다음 화면으로
+    넘어갔다가 뒤로가기로 돌아오면 스토어(sessionStorage)에는 목적지가 남아 있는데
+    이 state 만 null 로 되살아나, 하단 카드와 [다음] 버튼이 사라져 있었다.
+    사용자는 이미 고른 목적지를 다시 찍어야 앞으로 갈 수 있었다.
+
+    구독값(destination)이 아니라 getState() 를 쓰는 이유: 이건 "처음 값"일 뿐이다.
+    이후 목적지가 바뀔 때마다 선택을 되돌리면 사용자가 새로 고른 후보가 날아간다.
+  */
+  const [selected, setSelected] = useState<Place | null>(
+    () => useDestinationStore.getState().destination,
+  )
 
   const destination = useDestinationStore((state) => state.destination)
   const setDestination = useDestinationStore((state) => state.setDestination)
@@ -98,11 +111,25 @@ export default function DestinationPage() {
     [originStation, originLabel],
   )
 
+  /*
+    고른 장소가 이미 확정된 목적지인지.
+
+    맞으면 하단 카드는 [도착지로 설정] 대신 [다음]을 보여주고, 지도는 같은
+    자리에 후보 핀을 겹쳐 찍지 않는다(마커가 2개로 보이던 문제).
+  */
+  const isDestinationConfirmed =
+    destination !== null &&
+    selected !== null &&
+    destination.placeId === selected.placeId
+
   const { recenterToMyLocation } = useGoogleDestinationMap(mapContainerRef, {
     isReady: status === SDK_STATUS.READY,
     selected,
     origin: originPoint,
     destination,
+    // 지도 위 핀만 봐도 어느 쪽이 출발지/목적지인지 알 수 있게 이름표를 붙인다.
+    originBadge: t('destination.marker.origin'),
+    destinationBadge: t('destination.marker.destination'),
     myLocation,
     // 지도를 탭하면 그 지점을 검색 결과처럼 후보로 잡는다.
     onPickPoint: setSelected,
@@ -252,7 +279,11 @@ export default function DestinationPage() {
 
       {selected ? (
         <div className="absolute inset-x-0 bottom-0 z-10">
-          <SelectedPlaceCard place={selected} onConfirm={confirmDestination} />
+          <SelectedPlaceCard
+            place={selected}
+            isConfirmed={isDestinationConfirmed}
+            onConfirm={confirmDestination}
+          />
         </div>
       ) : null}
     </MobileViewport>
