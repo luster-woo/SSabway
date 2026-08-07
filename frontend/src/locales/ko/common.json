@@ -375,6 +375,19 @@
         "passed": "지나온 경로"
       },
       "mapAlt": "역 내 도면과 안내 경로",
+      "facility": {
+        "_heading": "시설 안내",
+        "stairs": "계단·에스컬레이터",
+        "elevator": "엘리베이터",
+        "exit": "출구",
+        "ticketMachine": "승차권 발매기",
+        "gate": "개찰구",
+        "restroom": "화장실",
+        "ticketOffice": "매표소",
+        "store": "편의점",
+        "atm": "ATM",
+        "waitingRoom": "대합실"
+      },
       "label": {
         "shop": "상점",
         "smokingArea": "흡연장",

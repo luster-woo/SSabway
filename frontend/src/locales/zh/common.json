@@ -375,6 +375,19 @@
         "passed": "已走过的路线"
       },
       "mapAlt": "车站平面图与导览路线",
+      "facility": {
+        "_heading": "设施指南",
+        "stairs": "楼梯·扶梯",
+        "elevator": "电梯",
+        "exit": "出口",
+        "ticketMachine": "售票机",
+        "gate": "检票口",
+        "restroom": "洗手间",
+        "ticketOffice": "售票处",
+        "store": "便利店",
+        "atm": "ATM",
+        "waitingRoom": "候车室"
+      },
       "label": {
         "shop": "商店",
         "smokingArea": "吸烟区",
