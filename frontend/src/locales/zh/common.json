@@ -4,7 +4,7 @@
     "tagline": "面向外国游客的地铁向导"
   },
   "language": {
-    "select": "Language · 语言",
+    "select": "语言选择",
     "changed": "已切换语言"
   },
   "auth": {
