@@ -18,7 +18,6 @@ import {
 import { toConsultationDetail } from '@/admin/features/consultation-room/useConsultationDetail'
 import { useConsultationDetailStore } from '@/admin/features/consultation-room/useConsultationDetailStore'
 import { AdminButton } from '@/admin/ui/AdminButton'
-import { Chip } from '@/admin/ui/Chip'
 import { Panel } from '@/admin/ui/Panel'
 
 /** 좌측 패널 — 상담 대기 목록 (FR-CALL-003) */
@@ -102,9 +101,8 @@ export function WaitingPanel() {
 
   return (
     <Panel
-      title="상담 대기"
-      titleRight={
-        data ? <Chip tone="danger">{data.page.totalElements}건</Chip> : null
+      title={
+        data ? `상담 대기 ${String(data.page.totalElements)}건` : '상담 대기'
       }
     >
       {isPending ? (
