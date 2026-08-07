@@ -171,9 +171,9 @@ public class NavigationService {
         return steps;
     }
 
-    // 사진이 있는 편의시설. 편의점(STORE)·화장실(TOILET)은 대응 사진이 없어 제외한다.
-    private static final Set<PoiCategory> PHOTO_POI_CATEGORIES =
-            EnumSet.of(PoiCategory.ATM, PoiCategory.TICKET_OFFICE, PoiCategory.TICKET_MACHINE);
+    // 사진이 있는 편의시설. 화장실(TOILET)은 대응 사진이 없어 제외한다.
+    private static final Set<PoiCategory> PHOTO_POI_CATEGORIES = EnumSet.of(
+            PoiCategory.ATM, PoiCategory.TICKET_OFFICE, PoiCategory.TICKET_MACHINE, PoiCategory.STORE);
 
     // 표지판처럼 도착 방향에 따라 다른 면이 찍힌 게 아니라, 시설당 사진이 한 장뿐이다.
     private static final String FACILITY_PHOTO_SIDE = "F";
@@ -182,9 +182,10 @@ public class NavigationService {
         도착지에서 보이는 사진.
 
         표지판은 도착 방향에 따라 보이는 면(F/B)이 갈리므로 엣지의 arriveSide 를
-        따른다. 게이트·ATM·매표소·발매기는 사진이 한 장뿐이라 항상 FACILITY_PHOTO_SIDE
-        를 쓴다. 대응 사진이 없는 지점(엘리베이터·편의점·화장실 등)은 null 이다.
-        사진이 없다고 경로를 실패시키지 않는다. 안내 문구와 지도만으로도 길은 찾을 수 있다.
+        따른다. 게이트·ATM·매표소·발매기·편의점은 사진이 한 장뿐이라 항상
+        FACILITY_PHOTO_SIDE 를 쓴다. 대응 사진이 없는 지점(엘리베이터·화장실 등)은
+        null 이다. 사진이 없다고 경로를 실패시키지 않는다. 안내 문구와 지도만으로도
+        길은 찾을 수 있다.
      */
     private String buildImageUrl(NavNode arrive, String signSide) {
         if (!hasPhoto(arrive)) {
