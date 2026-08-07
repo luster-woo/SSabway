@@ -99,33 +99,49 @@ public class TurnGuideGenerator {
 
     // ── 문구 생성 ──────────────────────────────────────────────────────
 
+    // 5m 이하면 "몇 m"가 체감상 의미가 없어(표지판이 바로 보이는 거리) 거리를 뺀다.
+    private static final int SHORT_DISTANCE_THRESHOLD_M = 5;
+
     /* 표지판 등 일반 구간. 직진이면서 손글씨 문구가 있으면 이 메서드를 타지 않는다 */
     public String plain(Turn turn, int meters, Language language) {
-        return switch (turn) {
-            case STRAIGHT -> switch (language) {
+        if (turn == Turn.STRAIGHT) {
+            return switch (language) {
                 case KO -> meters + "m 직진하세요";
                 case EN -> "Go straight " + meters + " m";
                 case JA -> meters + "m直進してください";
                 case ZH -> "直行" + meters + "米";
             };
+        }
+        return turnPhrase(turn, meters, language);
+    }
+
+    /*
+        "몇 m 이동한 뒤 꺾으세요"는 정확히 어디서 꺾어야 하는지 애매하다는 피드백으로
+        바꿨다. 표지판을 기준점으로 삼아 "표지판에서 꺾으세요"라고 하면 어디서
+        꺾을지 명확해진다. 5m 이하는 표지판이 바로 눈앞이라 거리를 아예 뺀다.
+     */
+    private String turnPhrase(Turn turn, int meters, Language language) {
+        boolean near = meters <= SHORT_DISTANCE_THRESHOLD_M;
+        return switch (turn) {
             case LEFT -> switch (language) {
-                case KO -> meters + "m 이동한 뒤 왼쪽으로 꺾으세요";
-                case EN -> "Walk " + meters + " m, then turn left";
-                case JA -> meters + "m進んだ後、左に曲がってください";
-                case ZH -> "前进" + meters + "米后左转";
+                case KO -> near ? "표지판에서 왼쪽으로 꺾으세요" : meters + "m 이동해 표지판에서 왼쪽으로 꺾으세요";
+                case EN -> near ? "Turn left at the sign" : "Walk " + meters + " m to the sign, then turn left";
+                case JA -> near ? "案内板の位置で左に曲がってください" : meters + "m進んで案内板の位置で左に曲がってください";
+                case ZH -> near ? "在指示牌处左转" : "前进" + meters + "米后在指示牌处左转";
             };
             case RIGHT -> switch (language) {
-                case KO -> meters + "m 이동한 뒤 오른쪽으로 꺾으세요";
-                case EN -> "Walk " + meters + " m, then turn right";
-                case JA -> meters + "m進んだ後、右に曲がってください";
-                case ZH -> "前进" + meters + "米后右转";
+                case KO -> near ? "표지판에서 오른쪽으로 꺾으세요" : meters + "m 이동해 표지판에서 오른쪽으로 꺾으세요";
+                case EN -> near ? "Turn right at the sign" : "Walk " + meters + " m to the sign, then turn right";
+                case JA -> near ? "案内板の位置で右に曲がってください" : meters + "m進んで案内板の位置で右に曲がってください";
+                case ZH -> near ? "在指示牌处右转" : "前进" + meters + "米后在指示牌处右转";
             };
             case UTURN -> switch (language) {
-                case KO -> meters + "m 이동한 뒤 왔던 방향으로 돌아가세요";
-                case EN -> "Walk " + meters + " m, then turn back";
-                case JA -> meters + "m進んだ後、来た方向に戻ってください";
-                case ZH -> "前进" + meters + "米后原路返回";
+                case KO -> near ? "표지판에서 왔던 방향으로 돌아가세요" : meters + "m 이동해 표지판에서 왔던 방향으로 돌아가세요";
+                case EN -> near ? "Turn back at the sign" : "Walk " + meters + " m to the sign, then turn back";
+                case JA -> near ? "案内板の位置で来た方向に戻ってください" : meters + "m進んで案内板の位置で来た方向に戻ってください";
+                case ZH -> near ? "在指示牌处原路返回" : "前进" + meters + "米后在指示牌处原路返回";
             };
+            case STRAIGHT -> throw new IllegalArgumentException("STRAIGHT 는 turnPhrase 를 쓰지 않는다 — plain() 참고");
         };
     }
 
@@ -141,38 +157,21 @@ public class TurnGuideGenerator {
 
     /* 내려가는 계단·에스컬레이터. 방향은 알려준다 */
     public String stairsDown(Turn turn, int meters, Language language) {
+        if (turn == Turn.STRAIGHT) {
+            return switch (language) {
+                case KO -> "계단을 내려가 " + meters + "m 이동하세요";
+                case EN -> "Go down the stairs, walk " + meters + " m";
+                case JA -> "階段を下りて" + meters + "m進んでください";
+                case ZH -> "下楼梯后前进" + meters + "米";
+            };
+        }
         String prefix = switch (language) {
             case KO -> "계단을 내려가 ";
-            case EN -> "Go down the stairs, walk ";
+            case EN -> "Go down the stairs, ";
             case JA -> "階段を下りて";
-            case ZH -> "下楼梯后前进";
+            case ZH -> "下楼梯后";
         };
-        return switch (turn) {
-            case STRAIGHT -> switch (language) {
-                case KO -> prefix + meters + "m 이동하세요";
-                case EN -> prefix + meters + " m";
-                case JA -> prefix + meters + "m進んでください";
-                case ZH -> prefix + meters + "米";
-            };
-            case LEFT -> switch (language) {
-                case KO -> prefix + meters + "m 이동한 뒤 왼쪽으로 꺾으세요";
-                case EN -> prefix + meters + " m, then turn left";
-                case JA -> prefix + meters + "m進んだ後、左に曲がってください";
-                case ZH -> prefix + meters + "米后左转";
-            };
-            case RIGHT -> switch (language) {
-                case KO -> prefix + meters + "m 이동한 뒤 오른쪽으로 꺾으세요";
-                case EN -> prefix + meters + " m, then turn right";
-                case JA -> prefix + meters + "m進んだ後、右に曲がってください";
-                case ZH -> prefix + meters + "米后右转";
-            };
-            case UTURN -> switch (language) {
-                case KO -> prefix + meters + "m 이동한 뒤 왔던 방향으로 돌아가세요";
-                case EN -> prefix + meters + " m, then turn back";
-                case JA -> prefix + meters + "m進んだ後、来た方向に戻ってください";
-                case ZH -> prefix + meters + "米后原路返回";
-            };
-        };
+        return prefix + turnPhrase(turn, meters, language);
     }
 
     /* 계단은 있는데 오르는지 내려가는지 알 수 없음. 방향은 생략, 오르내림도 단정하지 않는다 */
