@@ -438,11 +438,13 @@
   },
   "arrival": {
     "back": "Back",
-    "title": "You have arrived!",
+    "title": "Guidance complete!",
     "finalDestination": "Final destination: {{name}}",
     "duration": "Travel time",
     "origin": "From",
-    "destination": "To",
+    "destination": "Destination",
+    "alightStation": "Get off at",
+    "transferHint": "When you get off at {{station}}, scan a sign again.\nWe\u2019ll continue guiding you.",
     "noSummary": "We couldn't find this trip\nPlease pick a destination again",
     "newDestination": "Guide me to a new destination"
   },

@@ -23,6 +23,10 @@ export function toSelectedRoute(path: RoutePath): SelectedRoute {
     departureStationKor: path.firstStartStationKor,
     arrivalStation: path.lastEndStation,
     arrivalStationKor: path.lastEndStationKor,
+    // 출발역에서 처음 타는 노선. 안내 정보 화면의 목적지 표기에 쓴다.
+    boardingLane: path.segments[0]?.lane ?? null,
+    // 첫 지하철 구간의 하차역. 도착 완료 화면의 "하차역"에 쓴다.
+    alightStation: path.segments[0]?.endStation ?? null,
     /*
       출발역 id 는 첫 구간에만 실린다 (환승 이후 구간은 null).
       경로가 비어 오는 경우까지 방어해 ?? null 로 받는다 — 여기서 던지면

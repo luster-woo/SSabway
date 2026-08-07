@@ -6,6 +6,7 @@ import {
   useStationNodeStore,
 } from '@/shared/lib/store/useStationNodeStore'
 import type { GuideInfo } from '@/shared/types/guide'
+import { SUBWAY_LANE_LABEL } from '@/shared/types/route'
 
 export interface UseGuideInfoResult {
   /** 표시할 안내 정보. 경로를 아직 고르지 않았으면 null */
@@ -33,9 +34,17 @@ export interface UseGuideInfoResult {
  * 노드 코드는 원문 그대로 보여준다. 사람이 읽을 이름으로 옮기는 매핑은 나중에
  * 붙일 예정이라, 지금은 그 자리에 코드가 그대로 들어간다.
  */
+/** 층 값에 F 를 붙인다. 이미 F 로 끝나면 그대로 둔다. 값이 없으면 null. */
+function formatFloor(floor: string | null): string | null {
+  const trimmed = floor?.trim()
+  if (!trimmed) return null
+  return /f$/i.test(trimmed) ? trimmed.toUpperCase() : `${trimmed}F`
+}
+
 export function useGuideInfo(): UseGuideInfoResult {
   const selectedRoute = useSelectedRouteStore((state) => state.selectedRoute)
   const startPoint = useStationNodeStore((state) => state.startPoint)
+  const startFloor = useStationNodeStore((state) => state.startFloor)
   const finalPoint = useStationNodeStore((state) => state.finalPoint)
 
   const info = useMemo<GuideInfo | null>(() => {
@@ -44,11 +53,30 @@ export function useGuideInfo(): UseGuideInfoResult {
     const nodes = resolveStationNodes({ startPoint, finalPoint })
     const station = selectedRoute.departureStation
 
-    return {
-      origin: `${station} ${nodes.startPoint}`,
-      destination: `${station} ${nodes.finalPoint}`,
-    }
-  }, [selectedRoute, startPoint, finalPoint])
+    /*
+      출발 — "역 이름 {층}F {노드 코드}". 예: "대구역 3F S3_16".
+      층은 표지판 인식이 준 값이다. 없으면 층 없이 노드 코드만 붙인다.
+      노드 코드를 사람이 읽는 이름("대합실앞")으로 옮기는 매핑은 나중에 붙는다.
+    */
+    const floorLabel = formatFloor(startFloor)
+    const origin = floorLabel
+      ? `${station} ${floorLabel} ${nodes.startPoint}`
+      : `${station} ${nodes.startPoint}`
+
+    /*
+      도착 — "역 이름 {n}호선 개찰구". 예: "대구역 1호선 개찰구".
+      노선은 사용자가 고른 경로의 첫 구간(오디세이)에서 온다. 노선을 못 얻으면
+      (구버전 응답·비지원 조합) 예전처럼 노드 코드로 폴백한다.
+    */
+    const laneLabel = selectedRoute.boardingLane
+      ? SUBWAY_LANE_LABEL[selectedRoute.boardingLane]
+      : null
+    const destination = laneLabel
+      ? `${station} ${laneLabel} 개찰구`
+      : `${station} ${nodes.finalPoint}`
+
+    return { origin, destination }
+  }, [selectedRoute, startPoint, startFloor, finalPoint])
 
   return { info, isRouteMissing: info === null }
 }
