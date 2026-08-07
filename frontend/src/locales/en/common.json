@@ -181,6 +181,7 @@
     }
   },
   "signCapture": {
+    "permissionNeeded": "Camera access is required",
     "hint": "Fit the sign inside the frame and take a photo",
     "zoomHint": "Pinch with two fingers to zoom in or out",
     "zoomReset": "Reset zoom",

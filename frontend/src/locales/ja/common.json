@@ -181,6 +181,7 @@
     }
   },
   "signCapture": {
+    "permissionNeeded": "カメラの許可が必要です",
     "hint": "標識をフレームに合わせて撮影してください",
     "zoomHint": "二本指で拡大・縮小できます",
     "zoomReset": "拡大倍率をリセット",

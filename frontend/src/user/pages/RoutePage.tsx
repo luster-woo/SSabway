@@ -334,7 +334,7 @@ export default function RoutePage() {
       <RouteNoticePopup
         show={showNotice}
         destinationName={destinationName}
-        stationName={paths[selectedIndex]?.lastEndStation ?? null}
+        stationName={paths[selectedIndex]?.segments[0]?.endStation ?? null}
       />
     </MobileScreen>
   )

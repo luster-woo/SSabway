@@ -13,6 +13,7 @@ import { CameraErrorNotice } from '@/user/features/sign-capture/CameraErrorNotic
 import { CameraPreview } from '@/user/features/sign-capture/CameraPreview'
 import { CaptureControls } from '@/user/features/sign-capture/CaptureControls'
 import {
+  CAMERA_ERROR,
   CAMERA_STATUS,
   useCameraStream,
 } from '@/user/features/sign-capture/hooks/useCameraStream'
@@ -107,6 +108,20 @@ export default function SignCapturePage() {
     },
     [capturedUrl],
   )
+
+  /*
+    카메라 권한 거부 시 이 화면을 띄우지 않고 이전 화면으로 되돌린다.
+    전체 화면 안내 대신 왔던 화면에서 토스트로 권한이 필요함을 알린다 —
+    권한 거부는 재시도해도 브라우저가 다시 묻지 않는 경우가 많아, 이 화면에
+    머물게 두면 사용자가 할 수 있는 것이 없다.
+  */
+  useEffect(() => {
+    if (status !== CAMERA_STATUS.ERROR) return
+    if (errorType !== CAMERA_ERROR.PERMISSION_DENIED) return
+
+    showToast(t('signCapture.permissionNeeded'), { plain: true })
+    void navigate(returnTo ?? '/', { replace: true })
+  }, [status, errorType, navigate, returnTo, showToast, t])
 
   const setCaptured = (blob: Blob) => {
     setCapturedUrl((prev) => {
@@ -259,7 +274,13 @@ export default function SignCapturePage() {
         }`}
       />
 
-      {status === CAMERA_STATUS.ERROR && errorType ? (
+      {/*
+        권한 거부는 위 이펙트가 이전 화면으로 돌려보내므로 여기서 그리지 않는다.
+        그 외 오류(장치 없음·사용 중 등)만 재시도·업로드 안내를 띄운다.
+      */}
+      {status === CAMERA_STATUS.ERROR &&
+      errorType &&
+      errorType !== CAMERA_ERROR.PERMISSION_DENIED ? (
         <CameraErrorNotice
           errorType={errorType}
           onRetry={restart}
