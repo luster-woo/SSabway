@@ -1144,7 +1144,7 @@
    "to": "S3_20",
    "bidirectional": true,
    "containsStairs": true,
-   "weight": 1921.7,
+   "weight": 1800.0,
    "arriveSide": {
     "S3_20": "F",
     "S3_11": "B"
