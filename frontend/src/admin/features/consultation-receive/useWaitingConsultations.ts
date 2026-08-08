@@ -170,6 +170,13 @@ export function useWaitingConsultations(page: number) {
     queryKey: queryKeys.consultation.waiting(page),
     queryFn: () => fetchWaitingConsultations(page),
     refetchInterval: POLL_INTERVAL_MS,
+    /*
+      역무원이 다른 탭·창을 보다 돌아와도 대기 목록이 최신이어야 한다.
+      백그라운드에서도 폴링을 유지하고, 복귀 시 한 번 재조회한다.
+      (전역 기본값 refetchOnWindowFocus:false 를 이 폴링에만 되돌린다)
+    */
+    refetchIntervalInBackground: true,
+    refetchOnWindowFocus: true,
     placeholderData: keepPreviousData,
   })
 }
