@@ -691,15 +691,15 @@
    "to": "S3_07",
    "edgeId": "E018",
    "pattern": "straight",
-   "distanceM": 14,
+   "distanceM": 10,
    "status": "reviewed",
    "text": {
-    "ko": "표지판이 보이는 곳까지 15m 직진하세요",
-    "en": "Go straight 15 m until the sign comes into view.",
-    "ja": "案内板が見えるところまで15m直進してください。",
-    "zh": "直行15米，直到看见指示牌。"
+    "ko": "표지판까지 10m 직진하세요",
+    "en": "Go straight 10 m to the sign.",
+    "ja": "案内板まで10m直進してください。",
+    "zh": "直行10米到达指示牌。"
    },
-   "translatedFrom": "표지판이 보이는 곳까지 15m 직진하세요"
+   "translatedFrom": "표지판까지 10m 직진하세요"
   },
   "E018:S3_08": {
    "from": "S3_07",
