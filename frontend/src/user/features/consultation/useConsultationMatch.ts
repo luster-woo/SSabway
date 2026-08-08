@@ -102,6 +102,18 @@ export function useConsultationMatch(
         ? false
         : POLL_INTERVAL_MS
     },
+    /*
+      탭이 백그라운드여도 폴링을 멈추지 않는다. 모바일에서 대기 중 앱을
+      전환하는 일이 잦은데, 그 사이 매칭이 되면(MATCHED) 화상 화면으로 넘어가야
+      한다. 기본값(false)이면 숨겨진 동안 폴링이 멈춰 매칭을 놓친다.
+    */
+    refetchIntervalInBackground: true,
+    /*
+      OS 가 백그라운드 탭을 아예 얼려 폴링조차 못 돌던 경우, 복귀하는 순간
+      한 번 재조회해 상태를 맞춘다. 전역 기본값은 false 라(QueryProvider)
+      매칭·종료 폴링에만 켠다.
+    */
+    refetchOnWindowFocus: true,
   })
 
   const status = snapshot.data?.status ?? null

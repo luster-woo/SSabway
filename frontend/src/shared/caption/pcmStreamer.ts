@@ -106,6 +106,21 @@ export async function startPcmStreamer(
   // 여기서 또 연결하면 상대 음성이 이중으로 들린다.
   source.connect(tap)
 
+  /*
+    백그라운드 복귀 시 재개.
+
+    모바일 OS 는 탭을 백그라운드로 보내면 AudioContext 를 suspend 하는데,
+    다시 보여도 스스로 재개하지 않는다. 그러면 worklet 의 process 루프가 멈춘
+    채로 남아 자막과 요약 전문이 통화 내내 끊긴다. 화면이 다시 보이는 순간
+    suspended 면 재개한다. (close 된 뒤에는 상태가 'closed' 라 건드리지 않는다)
+  */
+  const onVisibilityChange = () => {
+    if (document.visibilityState === 'visible' && ctx.state === 'suspended') {
+      void ctx.resume()
+    }
+  }
+  document.addEventListener('visibilitychange', onVisibilityChange)
+
   // ctx.sampleRate(보통 48k) 기준으로 모았다가 조각 단위로 변환한다.
   const flushAt = Math.round((ctx.sampleRate * CHUNK_MS) / 1000)
   let pending: Float32Array[] = []
@@ -142,6 +157,7 @@ export async function startPcmStreamer(
 
   return {
     stop() {
+      document.removeEventListener('visibilitychange', onVisibilityChange)
       tap.port.onmessage = null
       source.disconnect()
       tap.disconnect()
