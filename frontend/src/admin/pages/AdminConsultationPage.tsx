@@ -3,6 +3,7 @@ import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 
 import { queryKeys } from '@/shared/lib/queryKeys'
+import { useRunOnRealUnmount } from '@/shared/lib/useRunOnRealUnmount'
 import { useToast } from '@/shared/ui'
 import { OV_FAILURE, OV_STATUS } from '@/shared/webrtc/useOpenViduSession'
 import { BlacklistReasonModal } from '@/admin/features/blacklist/BlacklistReasonModal'
@@ -74,9 +75,18 @@ export default function AdminConsultationPage() {
   const hasConnectedRef = useRef(false)
   if (room.status === OV_STATUS.CONNECTED) hasConnectedRef.current = true
 
+  /**
+   * 이미 명시적 이탈 경로(사용자 종료 감지·종료 버튼·마이크 실패 취소)로
+   * 처리됐는지. 아래 언마운트 정리(useRunOnRealUnmount)가 그 경우를 건너뛰어
+   * 이미 끝난/취소된 상담에 end 를 또 보내지 않게 한다.
+   */
+  const handledRef = useRef(false)
+
   useEffect(() => {
     if (!hasConnectedRef.current) return
     if (room.status !== OV_STATUS.DISCONNECTED) return
+
+    handledRef.current = true
 
     /*
       상담 관련 쿼리를 무효화하고 나간다.
@@ -131,6 +141,7 @@ export default function AdminConsultationPage() {
     // 상태가 유지되는 동안 이펙트가 다시 돌아도 취소는 한 번만 보낸다
     if (isCancelRequestedRef.current) return
     isCancelRequestedRef.current = true
+    handledRef.current = true
 
     const reason =
       room.failure === OV_FAILURE.DEVICE_DENIED
@@ -153,6 +164,25 @@ export default function AdminConsultationPage() {
     room.status,
     showToast,
   ])
+
+  /*
+    역무원이 상담방을 앱 내에서 벗어날 때(하드웨어 back·다른 메뉴 이동) 상담을
+    종료한다. 그대로 두면 상담이 IN_PROGRESS 로 남아 녹음이 계속 돌고, 사용자는
+    상대가 사라진 화면에 갇힌다. 역무원은 역마다 계정 하나라 대신 받아 줄 사람도 없다.
+
+    이미 처리된 경로(handledRef: 사용자 종료·[종료] 버튼·마이크 실패 취소)와
+    한 번도 연결되지 않은 경우(hasConnectedRef)는 건너뛴다. end 는 멱등이라
+    혹시 겹쳐도 안전하지만, 취소(CANCELED)된 상담에까지 보내지 않도록 가른다.
+
+    ⚠️ 새로고침·탭 닫기는 여기서 못 잡는다(useRunOnRealUnmount 주석). 이 화면은
+       새로고침 시 스토어·URL 로 복구되므로 그 경로에 end 를 보내면 안 되고,
+       탭 닫기·강제 종료의 정리는 서버 유예 시간이 맡아야 한다.
+  */
+  useRunOnRealUnmount(() => {
+    if (!hasConnectedRef.current) return
+    if (handledRef.current) return
+    void endConsultation(consultationId)
+  })
 
   // 잘못된 URL 로 들어온 경우. 조회를 시도하지 않고 목록으로 돌린다.
   if (!isValidId) return <Navigate to="/admin" replace />
@@ -179,6 +209,8 @@ export default function AdminConsultationPage() {
       return
     }
 
+    // 명시적 종료로 이미 처리됐다 — 이어질 언마운트가 end 를 또 보내지 않게 한다.
+    handledRef.current = true
     showToast('상담을 종료했습니다.')
     void navigate('/admin', { replace: true })
   }

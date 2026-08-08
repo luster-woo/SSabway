@@ -6,6 +6,7 @@ import { CaptionOverlay } from '@/shared/caption/CaptionOverlay'
 import { useCaptionTranscript } from '@/shared/caption/useCaptionTranscript'
 import { useLiveCaption } from '@/shared/caption/useLiveCaption'
 import { useLanguage } from '@/shared/lib/useLanguage'
+import { useRunOnRealUnmount } from '@/shared/lib/useRunOnRealUnmount'
 import { CONSULTATION_STATUS } from '@/shared/types'
 import { Button, Dialog, useToast } from '@/shared/ui'
 import { OpenViduVideo } from '@/shared/webrtc/OpenViduVideo'
@@ -389,6 +390,31 @@ export default function ConsultationPage() {
     )
     void navigate('/guide', { replace: true })
   }, [closedStatus, navigate, showToast, stop, t])
+
+  /*
+    화면을 떠날 때(앱 내 이동·하드웨어 back) 상담을 서버에서도 정리한다.
+
+    [종료]·권한거부 버튼은 이미 call.leave() 를 부르지만, 사용자가 버튼 대신
+    하드웨어 back 이나 앱 내 이동으로 나가면 그 호출이 빠져 상담이
+    MATCHED/IN_PROGRESS 로 남는다. 그러면 다음 도움 요청이 409 로 막힌다
+    (leaveWithoutCall 주석 참고). 나가는 모든 (앱 내) 경로에서 leave 가
+    나가도록 여기서 보강한다.
+
+    이미 끝난 상담(closedStatus)이나 사용자가 [종료] 로 직접 끊은 경우
+    (userEndedRef)는 건드리지 않는다 — 전자는 정리할 것이 없고, 후자는 endCall
+    이 요약까지 순서를 맞춰 이미 처리했다. (중복 leave 는 멱등이지만 불필요한
+    요청을 아낀다)
+
+    ⚠️ 새로고침·탭 닫기는 여기서 잡지 않는다(useRunOnRealUnmount 주석) —
+       이 화면은 URL 의 consultationId 로 재접속하므로 새로고침에 leave 를
+       보내면 그 복구가 깨진다. 강제 종료의 정리는 서버 유예 시간이 맡아야 한다.
+  */
+  useRunOnRealUnmount(() => {
+    if (!hasConsultationId) return
+    if (closedStatus !== null) return
+    if (userEndedRef.current) return
+    void openviduApi.leaveConsultation(consultationId)
+  })
 
   const endCall = () => {
     /*
