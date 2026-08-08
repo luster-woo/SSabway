@@ -1,5 +1,4 @@
 .env
-deploy/db/dumps/
 # IntelliJ IDEA
 .idea/
 *.iml
