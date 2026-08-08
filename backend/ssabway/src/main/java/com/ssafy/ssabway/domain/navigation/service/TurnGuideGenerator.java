@@ -25,12 +25,13 @@ import java.util.List;
 @Component
 public class TurnGuideGenerator {
 
-    // 34.6°(실제로는 거의 직진으로 느껴짐)와 56.3°(확실한 회전) 사이,
-    // 실사용자 피드백으로 확정한 경계값.
-    private static final double STRAIGHT_THRESHOLD_DEG = 45;
+    // 44.4°(S3_06 실측 — 대각선으로 느껴짐)가 STRAIGHT 로 묻히지 않도록 40으로 확정.
+    private static final double STRAIGHT_THRESHOLD_DEG = 40;
+    // 56.3°는 대각선, 90°는 완전한 회전 — 그 경계로 확정한 값.
+    private static final double DIAGONAL_THRESHOLD_DEG = 75;
     private static final double UTURN_THRESHOLD_DEG = 160;
 
-    public enum Turn { STRAIGHT, LEFT, RIGHT, UTURN }
+    public enum Turn { STRAIGHT, DIAGONAL_LEFT, LEFT, DIAGONAL_RIGHT, RIGHT, UTURN }
 
     /*
         pivot 노드에서 incoming 을 타고 들어와 outgoing 으로 나갈 때 꺾이는 각도.
@@ -47,6 +48,9 @@ public class TurnGuideGenerator {
         }
         if (Math.abs(turn) < STRAIGHT_THRESHOLD_DEG) {
             return Turn.STRAIGHT;
+        }
+        if (Math.abs(turn) < DIAGONAL_THRESHOLD_DEG) {
+            return turn > 0 ? Turn.DIAGONAL_RIGHT : Turn.DIAGONAL_LEFT;
         }
         return turn > 0 ? Turn.RIGHT : Turn.LEFT;
     }
@@ -129,11 +133,23 @@ public class TurnGuideGenerator {
                 case JA -> near ? "案内板の位置で左に曲がってください" : meters + "m進んで案内板の位置で左に曲がってください";
                 case ZH -> near ? "在指示牌处左转" : "前进" + meters + "米后在指示牌处左转";
             };
+            case DIAGONAL_LEFT -> switch (language) {
+                case KO -> near ? "표지판에서 왼쪽 대각선 방향으로 꺾으세요" : meters + "m 이동해 표지판에서 왼쪽 대각선 방향으로 꺾으세요";
+                case EN -> near ? "Turn diagonally left at the sign" : "Walk " + meters + " m to the sign, then turn diagonally left";
+                case JA -> near ? "案内板の位置で斜め左に曲がってください" : meters + "m進んで案内板の位置で斜め左に曲がってください";
+                case ZH -> near ? "在指示牌处斜向左转" : "前进" + meters + "米后在指示牌处斜向左转";
+            };
             case RIGHT -> switch (language) {
                 case KO -> near ? "표지판에서 오른쪽으로 꺾으세요" : meters + "m 이동해 표지판에서 오른쪽으로 꺾으세요";
                 case EN -> near ? "Turn right at the sign" : "Walk " + meters + " m to the sign, then turn right";
                 case JA -> near ? "案内板の位置で右に曲がってください" : meters + "m進んで案内板の位置で右に曲がってください";
                 case ZH -> near ? "在指示牌处右转" : "前进" + meters + "米后在指示牌处右转";
+            };
+            case DIAGONAL_RIGHT -> switch (language) {
+                case KO -> near ? "표지판에서 오른쪽 대각선 방향으로 꺾으세요" : meters + "m 이동해 표지판에서 오른쪽 대각선 방향으로 꺾으세요";
+                case EN -> near ? "Turn diagonally right at the sign" : "Walk " + meters + " m to the sign, then turn diagonally right";
+                case JA -> near ? "案内板の位置で斜め右に曲がってください" : meters + "m進んで案内板の位置で斜め右に曲がってください";
+                case ZH -> near ? "在指示牌处斜向右转" : "前进" + meters + "米后在指示牌处斜向右转";
             };
             case UTURN -> switch (language) {
                 case KO -> near ? "표지판에서 왔던 방향으로 돌아가세요" : meters + "m 이동해 표지판에서 왔던 방향으로 돌아가세요";
