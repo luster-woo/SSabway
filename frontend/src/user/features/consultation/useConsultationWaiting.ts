@@ -67,6 +67,14 @@ export function useConsultationWaiting(
         ? false
         : POLL_INTERVAL_MS
     },
+    /*
+      백그라운드에서도 폴링을 유지하고, 복귀 시 한 번 재조회한다.
+      대기 중 앱을 전환한 사이 매칭돼도 화상 화면으로 넘어가야 하기 때문이다.
+      (useConsultationMatch 와 같은 이유 — 전역 기본값 refetchOnWindowFocus:false
+      를 이 폴링에만 되돌린다)
+    */
+    refetchIntervalInBackground: true,
+    refetchOnWindowFocus: true,
   })
 
   const status = snapshot.data?.status ?? null

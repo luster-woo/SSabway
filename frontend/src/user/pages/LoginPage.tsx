@@ -2,7 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router-dom'
 
-import { AppLogo, Button, MobileScreen, useToast } from '@/shared/ui'
+import { Button, MobileScreen, useToast } from '@/shared/ui'
 import { AuthTextField } from '@/user/features/auth/AuthTextField'
 import { GoogleLoginButton } from '@/user/features/auth/GoogleLoginButton'
 import { readLoginFrom } from '@/user/features/auth/loginFrom'
@@ -105,8 +105,7 @@ export default function LoginPage() {
       }
     >
       <section className="pt-[clamp(8px,2vh,20px)]">
-        <AppLogo size="clamp(52px,15vw,64px)" />
-        <h1 className="text-ink mt-[clamp(16px,3vh,24px)] text-[clamp(24px,7.5vw,30px)] leading-none font-bold">
+        <h1 className="text-ink text-[clamp(24px,7.5vw,30px)] leading-none font-bold">
           {t('auth.login.title')}
         </h1>
         <p className="text-ink-muted mt-3 text-[clamp(13px,3.8vw,14px)]">

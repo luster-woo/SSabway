@@ -38,10 +38,23 @@ export function createWsCaptionTransport(
   let stopped = false
   let retries = 0
 
-  function connect(
-    onEvent: (event: CaptionEvent) => void,
-    onError?: (error: Error) => void,
-  ) {
+  // start() 로 받은 콜백. 재연결(onclose·복귀)에서 다시 connect 할 때 쓴다.
+  let onEventCb: ((event: CaptionEvent) => void) | null = null
+  let onErrorCb: ((error: Error) => void) | undefined
+
+  function isLive(): boolean {
+    return (
+      ws !== null &&
+      (ws.readyState === WebSocket.OPEN ||
+        ws.readyState === WebSocket.CONNECTING)
+    )
+  }
+
+  function connect() {
+    if (onEventCb === null) return
+    const onEvent = onEventCb
+    const onError = onErrorCb
+
     ws = new WebSocket(captionUrl())
     ws.binaryType = 'arraybuffer'
 
@@ -76,6 +89,17 @@ export function createWsCaptionTransport(
 
     ws.onclose = () => {
       if (stopped) return
+
+      /*
+        백그라운드에서 끊긴 것은 재시도 예산에서 뺀다.
+
+        OS 는 숨긴 탭의 WebSocket 을 닫는데, 이것을 MAX_RETRIES 로 세면
+        앱을 잠깐 전환한 것만으로 예산이 소진돼, 복귀해도 자막이 영영 죽는다.
+        숨은 동안은 재연결도 미루고(어차피 스로틀되고 오디오도 suspend 다),
+        복귀 시 onVisibilityChange 가 예산을 되돌려 다시 연결한다.
+      */
+      if (document.hidden) return
+
       if (retries >= MAX_RETRIES) {
         onError?.(new Error('caption socket closed'))
         return
@@ -83,15 +107,32 @@ export function createWsCaptionTransport(
       retries += 1
       // 즉시 재접속하면 서버가 아픈 동안 연타하게 된다. 점점 늦춘다.
       setTimeout(() => {
-        if (!stopped) connect(onEvent, onError)
+        if (!stopped && !isLive()) connect()
       }, 1000 * retries)
     }
+  }
+
+  /*
+    백그라운드에서 돌아오면 재연결한다.
+
+    숨은 동안 소켓이 닫혔어도 위 onclose 가 예산을 쓰지 않고 물러나 있으므로,
+    복귀 시 예산을 0 으로 되돌리고 새로 연결한다. 이미 살아 있으면 둔다.
+  */
+  const onVisibilityChange = () => {
+    if (stopped) return
+    if (document.visibilityState !== 'visible') return
+    if (isLive()) return
+    retries = 0
+    connect()
   }
 
   return {
     start(onEvent, onError) {
       stopped = false
-      connect(onEvent, onError)
+      onEventCb = onEvent
+      onErrorCb = onError
+      document.addEventListener('visibilitychange', onVisibilityChange)
+      connect()
     },
     sendChunk(pcm) {
       // Int16Array 자체가 BufferSource 다. .buffer 를 넘기면 타입이
@@ -100,6 +141,7 @@ export function createWsCaptionTransport(
     },
     stop() {
       stopped = true
+      document.removeEventListener('visibilitychange', onVisibilityChange)
       ws?.close()
       ws = null
     },
