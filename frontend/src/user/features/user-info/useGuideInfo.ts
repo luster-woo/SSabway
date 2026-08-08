@@ -8,7 +8,16 @@ import {
 } from '@/shared/lib/store/useStationNodeStore'
 import { describeStationPoint } from '@/shared/station-map/pointLandmark'
 import type { GuideInfo } from '@/shared/types/guide'
-import { SUBWAY_LANE_LABEL } from '@/shared/types/route'
+import { SUBWAY_LANE, type SubwayLane } from '@/shared/types/route'
+
+/** 노선 → 로케일 키. 목적지("{역} {노선} 개찰구")의 노선 표기를 언어에 맞춘다. */
+const LANE_LABEL_KEY: Record<SubwayLane, string | null> = {
+  [SUBWAY_LANE.DAEGU_LINE_1]: 'route.lane.line1',
+  [SUBWAY_LANE.DAEGU_LINE_2]: 'route.lane.line2',
+  [SUBWAY_LANE.DAEGU_LINE_3]: 'route.lane.line3',
+  [SUBWAY_LANE.DAEGYEONG_LINE]: 'route.lane.daegyeong',
+  [SUBWAY_LANE.UNKNOWN]: null,
+}
 
 export interface UseGuideInfoResult {
   /** 표시할 안내 정보. 경로를 아직 고르지 않았으면 null */
@@ -68,11 +77,14 @@ export function useGuideInfo(): UseGuideInfoResult {
       노선은 사용자가 고른 경로의 첫 구간(오디세이)에서 온다. 노선을 못 얻으면
       (구버전 응답·비지원 조합) 개찰구 노드를 describeStationPoint 로 옮겨 폴백한다.
     */
-    const laneLabel = selectedRoute.boardingLane
-      ? SUBWAY_LANE_LABEL[selectedRoute.boardingLane]
+    const laneKey = selectedRoute.boardingLane
+      ? LANE_LABEL_KEY[selectedRoute.boardingLane]
       : null
-    const destination = laneLabel
-      ? `${stationLabel} ${laneLabel} 개찰구`
+    const destination = laneKey
+      ? t('userInfo.gateDestination', {
+          station: stationLabel,
+          lane: t(laneKey),
+        })
       : describeStationPoint({
           nodeId: nodes.finalPoint,
           stationLabel,

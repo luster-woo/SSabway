@@ -251,6 +251,7 @@
     "selectStation": "手动选择车站"
   },
   "route": {
+    "lane": { "line1": "1号线", "line2": "2号线", "line3": "3号线", "daegyeong": "大庆线" },
     "next": "下一步",
     "prev": "上一步",
     "arrived": "已到达",
@@ -288,6 +289,7 @@
     }
   },
   "userInfo": {
+    "gateDestination": "{{station}} {{lane}} 检票口",
     "title": "确认导航信息",
     "back": "返回",
     "change": "更改",
