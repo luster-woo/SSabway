@@ -251,6 +251,7 @@
     "selectStation": "手动选择车站"
   },
   "route": {
+    "lane": { "line1": "1号线", "line2": "2号线", "line3": "3号线", "daegyeong": "大庆线" },
     "next": "下一步",
     "prev": "上一步",
     "arrived": "已到达",
@@ -267,7 +268,7 @@
       },
       "noTransfer": "无需换乘",
       "transferCount": "换乘{{n}}次",
-      "start": "使用此路线开始导航",
+      "start": "选择路线",
       "notice": "实际用时可能因列车运行情况而变化",
       "loading": "正在查找路线…",
       "failed": "无法加载路线\n请稍后再试",
@@ -288,6 +289,7 @@
     }
   },
   "userInfo": {
+    "gateDestination": "{{station}} {{lane}} 检票口",
     "title": "确认导航信息",
     "back": "返回",
     "change": "更改",

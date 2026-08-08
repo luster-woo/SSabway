@@ -251,6 +251,7 @@
     "selectStation": "역 직접 선택하기"
   },
   "route": {
+    "lane": { "line1": "1호선", "line2": "2호선", "line3": "3호선", "daegyeong": "대경선" },
     "next": "다음",
     "prev": "이전",
     "arrived": "목적지에 도착했어요",
@@ -267,7 +268,7 @@
       },
       "noTransfer": "환승 없음",
       "transferCount": "환승 {{n}}회",
-      "start": "이 경로로 안내 시작",
+      "start": "경로 선택",
       "notice": "열차 운행 상황에 따라 실제 소요 시간은 달라질 수 있어요",
       "loading": "경로를 찾고 있어요…",
       "failed": "경로를 불러오지 못했어요\n잠시 후 다시 시도해 주세요",
@@ -288,6 +289,7 @@
     }
   },
   "userInfo": {
+    "gateDestination": "{{station}} {{lane}} 개찰구",
     "title": "안내 정보 확인",
     "back": "뒤로가기",
     "change": "변경",

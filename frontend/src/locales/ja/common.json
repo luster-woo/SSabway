@@ -251,6 +251,7 @@
     "selectStation": "駅を手動で選択する"
   },
   "route": {
+    "lane": { "line1": "1号線", "line2": "2号線", "line3": "3号線", "daegyeong": "大慶線" },
     "next": "次へ",
     "prev": "戻る",
     "arrived": "到着しました",
@@ -267,7 +268,7 @@
       },
       "noTransfer": "乗換なし",
       "transferCount": "乗換{{n}}回",
-      "start": "このルートで案内を開始",
+      "start": "経路を選択",
       "notice": "運行状況により実際の所要時間は変わることがあります",
       "loading": "ルートを検索しています…",
       "failed": "ルートを取得できませんでした\nしばらくしてからもう一度お試しください",
@@ -288,6 +289,7 @@
     }
   },
   "userInfo": {
+    "gateDestination": "{{station}} {{lane}} 改札口",
     "title": "案内情報の確認",
     "back": "戻る",
     "change": "変更",

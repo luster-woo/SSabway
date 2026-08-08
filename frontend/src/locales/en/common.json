@@ -251,6 +251,7 @@
     "selectStation": "Select station manually"
   },
   "route": {
+    "lane": { "line1": "Line 1", "line2": "Line 2", "line3": "Line 3", "daegyeong": "Daegyeong Line" },
     "next": "Next",
     "prev": "Previous",
     "arrived": "You have arrived",
@@ -267,7 +268,7 @@
       },
       "noTransfer": "No transfer",
       "transferCount": "{{n}} transfer(s)",
-      "start": "Start guide with this route",
+      "start": "Select route",
       "notice": "Actual travel time may vary with train service conditions",
       "loading": "Finding routes…",
       "failed": "Could not load routes\nPlease try again in a moment",
@@ -288,6 +289,7 @@
     }
   },
   "userInfo": {
+    "gateDestination": "{{station}} {{lane}} ticket gate",
     "title": "Confirm guide details",
     "back": "Back",
     "change": "Change",
