@@ -11,6 +11,14 @@
   /* 랜딩(스플래시) 배경 — 시안 색을 그대로 쓴다 */
   --color-landing: #2c468c;
 
+  /*
+   * 로고 도안 색 — 브랜드 로고 원본에서 뽑은 값이다.
+   * UI 팔레트(brand/success)와 미묘하게 다르므로 섞어 쓰지 않는다.
+   * 로고는 어디에 놓이든 같은 색이어야 상표로 읽힌다.
+   */
+  --color-logo-ink: #3a4787;
+  --color-logo-accent: #7eb097;
+
   --color-ink: #0f172a;
   --color-ink-muted: #475569;
   --color-ink-faint: #94a3b8;
@@ -29,23 +37,11 @@
    * 사라질 때는 LandingSplash 의 transition 이 담당한다.
    */
   --animate-landing-mark: landing-mark 720ms cubic-bezier(0.22, 1, 0.36, 1) both;
-  --animate-landing-rise: landing-rise 720ms cubic-bezier(0.22, 1, 0.36, 1) both;
 
   @keyframes landing-mark {
     from {
       opacity: 0;
       transform: scale(0.9) translateY(10px);
-    }
-    to {
-      opacity: 1;
-      transform: none;
-    }
-  }
-
-  @keyframes landing-rise {
-    from {
-      opacity: 0;
-      transform: translateY(14px);
     }
     to {
       opacity: 1;
