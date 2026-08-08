@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom'
 
 import { useAuthStore } from '@/shared/lib/store/useAuthStore'
 import { useHelpChatStore } from '@/shared/lib/store/useHelpChatStore'
+import { useRunOnRealUnmount } from '@/shared/lib/useRunOnRealUnmount'
 import { MobileViewport, useToast } from '@/shared/ui'
 import type { LoginFromState } from '@/user/features/auth/loginFrom'
 import { peopleAheadInQueue } from '@/user/features/consultation/queuePosition'
@@ -42,8 +43,13 @@ const BLOCKED_KEY = 'helpChat.rejected.blocked'
  *      토스트를 띄우고 버튼 상태로 되돌린다.
  *
  * 클릭 여부는 스토어에 있어 로그인을 다녀와도(리마운트) 3) 상태가 유지된다.
- * 이 화면을 벗어나면(뒤로가기·경로 안내로·처음으로) 대기 중이던 상담은 그대로
- * 두고 화면 상태만 리셋한다 — 취소하려면 반드시 [취소] 버튼을 눌러야 한다.
+ *
+ * ⚠️ 대기 중(consultationId 보유)에 이 화면을 앱 내에서 벗어나면(뒤로가기·경로
+ *    안내로·처음으로) 대기 상담을 **자동으로 취소**한다. 그대로 두면 WAITING
+ *    상담이 남아 다음 도움 요청이 409 CONSULTATION_DUPLICATED 로 막히는데,
+ *    이 화면은 대기 상태를 메모리에만 들고 있어 다시 들어와도 그 상담을 이어
+ *    받거나 취소할 수단이 없기 때문이다. (매칭돼 통화로 넘어가는 경우는 예외 —
+ *    아래 useRunOnRealUnmount 참고)
  */
 export default function HelpChatPage() {
   const { t } = useTranslation()
@@ -105,11 +111,29 @@ export default function HelpChatPage() {
     showToast(t('consultation.unavailable'))
   }, [consultationId, showToast, t, waiting.isFailed])
 
-  /** 화면을 떠날 때는 대화를 처음으로 되돌린다. (대기 중인 상담은 그대로 둔다) */
+  /** 화면을 떠날 때는 대화를 처음으로 되돌린다. (대기 중 상담 취소는 언마운트가 맡는다) */
   const leaveTo = (path: string) => {
     resetConversation()
     void navigate(path)
   }
+
+  /*
+    대기 중에 이 화면을 앱 내에서 벗어나면(하드웨어 back·뒤로가기·footer 버튼)
+    남아 있는 WAITING 상담을 취소한다. 안 하면 상담이 서버에 남아 다음
+    도움 요청이 409 로 막히는데, 대기 상태는 메모리에만 있어 재진입해도
+    그 상담을 이어받거나 취소할 방법이 없다(위 헤더 주석).
+
+    매칭돼 통화 화면으로 넘어가는 경우는 취소하면 안 된다 — 그때도 이 화면은
+    언마운트되지만 상담은 살아 통화로 이어져야 한다. waiting.isMatched 로 가른다.
+
+    ⚠️ 새로고침·탭 닫기는 여기서 못 잡는다(useRunOnRealUnmount 주석). 그 경우
+       대기 상담 정리는 서버 유예 시간이 맡아야 한다.
+  */
+  useRunOnRealUnmount(() => {
+    if (consultationId === null) return
+    if (waiting.isMatched) return
+    void cancelConsultation(consultationId)
+  })
 
   const goLogin = () => {
     // 로그인 성공 시 LoginPage 가 이 `from` 으로 돌아온다.
