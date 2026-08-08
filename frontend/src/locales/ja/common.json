@@ -251,6 +251,7 @@
     "selectStation": "駅を手動で選択する"
   },
   "route": {
+    "lane": { "line1": "1号線", "line2": "2号線", "line3": "3号線", "daegyeong": "大慶線" },
     "next": "次へ",
     "prev": "戻る",
     "arrived": "到着しました",
@@ -288,6 +289,7 @@
     }
   },
   "userInfo": {
+    "gateDestination": "{{station}} {{lane}} 改札口",
     "title": "案内情報の確認",
     "back": "戻る",
     "change": "変更",
