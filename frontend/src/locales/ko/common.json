@@ -251,6 +251,7 @@
     "selectStation": "역 직접 선택하기"
   },
   "route": {
+    "lane": { "line1": "1호선", "line2": "2호선", "line3": "3호선", "daegyeong": "대경선" },
     "next": "다음",
     "prev": "이전",
     "arrived": "목적지에 도착했어요",
@@ -288,6 +289,7 @@
     }
   },
   "userInfo": {
+    "gateDestination": "{{station}} {{lane}} 개찰구",
     "title": "안내 정보 확인",
     "back": "뒤로가기",
     "change": "변경",
