@@ -267,7 +267,7 @@
       },
       "noTransfer": "无需换乘",
       "transferCount": "换乘{{n}}次",
-      "start": "使用此路线开始导航",
+      "start": "选择路线",
       "notice": "实际用时可能因列车运行情况而变化",
       "loading": "正在查找路线…",
       "failed": "无法加载路线\n请稍后再试",

@@ -122,7 +122,7 @@ export function RouteOptionCard({
       <Button
         size="lg"
         fullWidth
-        variant={selected ? 'primary' : 'secondary'}
+        variant="primary"
         className="mt-4"
         onClick={(event) => {
           event.stopPropagation()

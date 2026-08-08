@@ -267,7 +267,7 @@
       },
       "noTransfer": "No transfer",
       "transferCount": "{{n}} transfer(s)",
-      "start": "Start guide with this route",
+      "start": "Select route",
       "notice": "Actual travel time may vary with train service conditions",
       "loading": "Finding routes…",
       "failed": "Could not load routes\nPlease try again in a moment",
