@@ -251,6 +251,7 @@
     "selectStation": "Select station manually"
   },
   "route": {
+    "lane": { "line1": "Line 1", "line2": "Line 2", "line3": "Line 3", "daegyeong": "Daegyeong Line" },
     "next": "Next",
     "prev": "Previous",
     "arrived": "You have arrived",
@@ -288,6 +289,7 @@
     }
   },
   "userInfo": {
+    "gateDestination": "{{station}} {{lane}} ticket gate",
     "title": "Confirm guide details",
     "back": "Back",
     "change": "Change",
