@@ -569,7 +569,9 @@
   },
   "trip": {
     "originEmpty": "Set start",
-    "destinationEmpty": "Set destination"
+    "destinationEmpty": "Set destination",
+    "focusOrigin": "Show start on map",
+    "focusDestination": "Show destination on map"
   },
   "install": {
     "title": "Install SSabway",

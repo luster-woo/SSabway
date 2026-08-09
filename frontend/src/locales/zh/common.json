@@ -569,7 +569,9 @@
   },
   "trip": {
     "originEmpty": "选择出发地",
-    "destinationEmpty": "选择目的地"
+    "destinationEmpty": "选择目的地",
+    "focusOrigin": "在地图上查看出发地",
+    "focusDestination": "在地图上查看目的地"
   },
   "install": {
     "title": "安装 SSabway",

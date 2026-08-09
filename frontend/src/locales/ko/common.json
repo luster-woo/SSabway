@@ -569,7 +569,9 @@
   },
   "trip": {
     "originEmpty": "출발지 선택",
-    "destinationEmpty": "도착지 선택"
+    "destinationEmpty": "도착지 선택",
+    "focusOrigin": "지도에서 출발지 보기",
+    "focusDestination": "지도에서 도착지 보기"
   },
   "install": {
     "title": "SSabway 앱으로 설치",
