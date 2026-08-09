@@ -569,7 +569,9 @@
   },
   "trip": {
     "originEmpty": "出発地を選択",
-    "destinationEmpty": "目的地を選択"
+    "destinationEmpty": "目的地を選択",
+    "focusOrigin": "地図で出発地を表示",
+    "focusDestination": "地図で目的地を表示"
   },
   "install": {
     "title": "SSabway をインストール",
