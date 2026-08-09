@@ -123,18 +123,35 @@ export default function DestinationPage() {
     selected !== null &&
     destination.placeId === selected.placeId
 
-  const { recenterToMyLocation } = useGoogleDestinationMap(mapContainerRef, {
-    isReady: status === SDK_STATUS.READY,
-    selected,
-    origin: originPoint,
-    destination,
-    // 지도 위 핀만 봐도 어느 쪽이 출발지/목적지인지 알 수 있게 이름표를 붙인다.
-    originBadge: t('destination.marker.origin'),
-    destinationBadge: t('destination.marker.destination'),
-    myLocation,
-    // 지도를 탭하면 그 지점을 검색 결과처럼 후보로 잡는다.
-    onPickPoint: setSelected,
-  })
+  const { recenterToMyLocation, focusPoint } = useGoogleDestinationMap(
+    mapContainerRef,
+    {
+      isReady: status === SDK_STATUS.READY,
+      selected,
+      origin: originPoint,
+      destination,
+      // 지도 위 핀만 봐도 어느 쪽이 출발지/목적지인지 알 수 있게 이름표를 붙인다.
+      originBadge: t('destination.marker.origin'),
+      destinationBadge: t('destination.marker.destination'),
+      myLocation,
+      // 지도를 탭하면 그 지점을 검색 결과처럼 후보로 잡는다.
+      onPickPoint: setSelected,
+    },
+  )
+
+  /*
+    구간 표시에서 이름을 누르면 그 지점으로 지도를 맞춘다.
+
+    목적지 쪽은 지도 핀과 같은 기준(고르는 중인 후보 우선)을 따라야 한다 —
+    글자와 핀이 다른 곳을 가리키면 눌렀을 때 엉뚱한 자리로 날아간다.
+  */
+  const shownDestination = selected ?? destination
+  const focusOrigin = () => {
+    focusPoint(originStation)
+  }
+  const focusDestination = () => {
+    focusPoint(shownDestination)
+  }
 
   // 결과가 도착하면 첫 번째 후보를 기본 선택한다.
   // 이미 목록에 있는 후보를 골라둔 상태라면 그 선택을 유지한다.
@@ -244,7 +261,9 @@ export default function DestinationPage() {
             originName={originLabel}
             /* 고르는 중인 장소가 있으면 그쪽을 보여준다 — 지도의 목적지 핀도
                같이 옮겨 가므로, 위아래가 같은 곳을 가리켜야 한다. */
-            destinationName={selected?.name ?? destination?.name ?? null}
+            destinationName={shownDestination?.name ?? null}
+            onOriginClick={focusOrigin}
+            onDestinationClick={focusDestination}
           />
         </div>
 

@@ -64,6 +64,14 @@ export interface UseDestinationMapResult {
   mapRef: RefObject<google.maps.Map | null>
   /** 지도를 현재 위치(파란 점)로 다시 맞춘다. 좌표가 없으면 아무것도 안 한다. */
   recenterToMyLocation: () => void
+  /**
+   * 지정한 좌표로 화면을 맞춘다. null 이면 아무것도 안 한다.
+   *
+   * 구간 표시(출발지 → 도착지)에서 한쪽 이름을 눌렀을 때 그 핀을 보여주려고
+   * 쓴다. selected 를 건드리지 않는 이유: 출발지를 보려고 눌렀을 뿐인데 그게
+   * 목적지 후보로 바뀌면 안 된다.
+   */
+  focusPoint: (point: { latitude: number; longitude: number } | null) => void
 }
 
 /**
@@ -323,5 +331,24 @@ export function useGoogleDestinationMap(
     map.setZoom(MY_LOCATION_ZOOM)
   }, [myLocation])
 
-  return { mapRef, recenterToMyLocation }
+  /*
+    임의의 지점으로 화면 맞추기. 후보를 고른 것과 같은 줌(FOCUS_ZOOM)을 써서,
+    출발지를 봤다가 도착지를 보면 두 곳이 같은 배율로 보인다.
+
+    focusedPlaceIdRef 를 비워 둔다: 이 함수로 카메라를 옮기면 화면은 더 이상
+    고른 후보를 보고 있지 않다. 기억을 남겨 두면 이후 후보 쪽 이펙트가 "이미
+    맞춰 준 후보"로 보고 건너뛰어, 목적지로 되돌아가야 할 때 지도가 안 움직인다.
+  */
+  const focusPoint = useCallback(
+    (point: { latitude: number; longitude: number } | null) => {
+      const map = mapRef.current
+      if (!map || !point) return
+      focusedPlaceIdRef.current = null
+      map.panTo({ lat: point.latitude, lng: point.longitude })
+      map.setZoom(FOCUS_ZOOM)
+    },
+    [],
+  )
+
+  return { mapRef, recenterToMyLocation, focusPoint }
 }
