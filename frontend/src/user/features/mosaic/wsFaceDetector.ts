@@ -17,18 +17,58 @@ function detectorUrl(): string {
   return `${scheme}://${window.location.host}/ws/v1/ai/faces`
 }
 
-/** 통화 중 순간 단절 대비. 넘기면 포기한다 — 그동안 파이프라인이 전체 블러로 방어한다 */
-const MAX_RETRIES = 3
+/**
+ * 재연결 백오프 상한(ms).
+ *
+ * 통화가 이어지는 한 절대 포기하지 않는다 — 예전엔 3회(≈6초) 만에 포기했는데,
+ * 20초~1분씩 끊겼다 돌아오는 흔한 경우에 재시도가 이미 소진돼 소켓을 다시 열지
+ * 못했다. 그러면 useFaceMosaic 이 전체 블러(protectAll)에 영영 갇힌다.
+ *
+ * 검출이 죽어 있는 동안은 파이프라인이 전체 블러로 안전하게 방어하므로,
+ * 계속 재시도해도 미가림 영상이 새 나갈 위험은 없다. 백오프만 상한을 둬
+ * 서버·네트워크를 과하게 두드리지 않는다. 소켓이 살아나 결과가 들어오면
+ * useFaceMosaic 이 자동으로 얼굴 모자이크(active)로 복귀한다.
+ */
+const MAX_BACKOFF_MS = 8_000
 
 export function createWsFaceDetector(): FaceDetector {
   let ws: WebSocket | null = null
   let stopped = false
   let retries = 0
+  let reconnectTimer: number | undefined
+  let onResultRef: ((result: FaceFrameResult) => void) | null = null
 
-  function connect(
-    onResult: (result: FaceFrameResult) => void,
-    onError?: (error: Error) => void,
-  ) {
+  function clearReconnectTimer() {
+    if (reconnectTimer !== undefined) {
+      window.clearTimeout(reconnectTimer)
+      reconnectTimer = undefined
+    }
+  }
+
+  /** 백오프를 상한까지 지수로 늘리며 재연결을 예약한다. 이미 예약돼 있으면 무시. */
+  function scheduleReconnect() {
+    if (stopped || reconnectTimer !== undefined) return
+    const delay = Math.min(MAX_BACKOFF_MS, 1000 * 2 ** retries)
+    retries += 1
+    reconnectTimer = window.setTimeout(() => {
+      reconnectTimer = undefined
+      connect()
+    }, delay)
+  }
+
+  function connect() {
+    if (stopped || !onResultRef) return
+    // 이미 살아 있거나 연결 중이면 새로 열지 않는다.
+    // (online 이벤트와 백오프 타이머가 겹쳐 소켓이 둘 생기는 것을 막는다)
+    if (
+      ws &&
+      (ws.readyState === WebSocket.OPEN ||
+        ws.readyState === WebSocket.CONNECTING)
+    ) {
+      return
+    }
+
+    const onResult = onResultRef
     ws = new WebSocket(detectorUrl())
 
     ws.onopen = () => {
@@ -49,29 +89,41 @@ export function createWsFaceDetector(): FaceDetector {
 
     ws.onclose = () => {
       if (stopped) return
-      if (retries >= MAX_RETRIES) {
-        onError?.(new Error('face detector socket closed'))
-        return
-      }
-      retries += 1
-      setTimeout(() => {
-        if (!stopped) connect(onResult, onError)
-      }, 1000 * retries)
+      // 포기하지 않는다. 백오프 상한까지만 늘리고 계속 재시도한다.
+      scheduleReconnect()
     }
   }
 
+  /**
+   * 브라우저가 네트워크 복구를 알리면 백오프를 기다리지 않고 즉시 재연결한다.
+   * 1분 단절이면 백오프가 이미 상한(8초)까지 자라 있어, 이게 없으면 복귀 후
+   * 최대 8초 동안 전체 블러에 머문다. online 즉시 재연결로 그 지연을 없앤다.
+   */
+  function handleOnline() {
+    if (stopped) return
+    clearReconnectTimer()
+    retries = 0
+    connect()
+  }
+
   return {
-    start(onResult, onError) {
+    start(onResult) {
       stopped = false
-      connect(onResult, onError)
+      retries = 0
+      onResultRef = onResult
+      window.addEventListener('online', handleOnline)
+      connect()
     },
     detect(request) {
       if (ws?.readyState === WebSocket.OPEN) ws.send(JSON.stringify(request))
     },
     stop() {
       stopped = true
+      window.removeEventListener('online', handleOnline)
+      clearReconnectTimer()
       ws?.close()
       ws = null
+      onResultRef = null
     },
   }
 }
