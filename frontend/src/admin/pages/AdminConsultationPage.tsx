@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 
+import { resolveAdminUserLangCode } from '@/shared/lib/demoCaptionLang'
 import { queryKeys } from '@/shared/lib/queryKeys'
 import { useRunOnRealUnmount } from '@/shared/lib/useRunOnRealUnmount'
 import { useToast } from '@/shared/ui'
@@ -221,7 +222,7 @@ export default function AdminConsultationPage() {
         <div className="flex min-h-0 min-w-0 flex-1 flex-col">
           <VideoStage
             userStream={room.userStream}
-            userLang={detail?.langCode ?? null}
+            userLang={resolveAdminUserLangCode(detail?.langCode ?? null)}
             status={room.status}
             isRestoring={room.isRestoring}
             isRestoreFailed={room.isRestoreFailed}

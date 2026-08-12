@@ -5,6 +5,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { CaptionOverlay } from '@/shared/caption/CaptionOverlay'
 import { useCaptionTranscript } from '@/shared/caption/useCaptionTranscript'
 import { useLiveCaption } from '@/shared/caption/useLiveCaption'
+import { resolveUserCaptionLang } from '@/shared/lib/demoCaptionLang'
 import { useLanguage } from '@/shared/lib/useLanguage'
 import { useRunOnRealUnmount } from '@/shared/lib/useRunOnRealUnmount'
 import { CONSULTATION_STATUS } from '@/shared/types'
@@ -114,6 +115,12 @@ export default function ConsultationPage() {
     (명세 /ws/v1/ai/translation 이 auto-detect 가 아니라 화자 언어를 요구한다)
   */
   const { language } = useLanguage()
+  /*
+    자막에 쓸 사용자 언어. 평소에는 화면 언어와 같지만, 시연 플래그
+    (DEMO_CAPTION_LANG)가 켜져 있으면 화면 언어와 무관하게 그 언어로 고정된다.
+    화면을 한국어로 두고 영어↔한국어 번역을 보여주기 위한 것이다.
+  */
+  const captionLang = resolveUserCaptionLang(language)
   const staffAudioStream = useRemoteMediaStream(call.staffStream)
 
   /**
@@ -133,7 +140,7 @@ export default function ConsultationPage() {
 
   const caption = useLiveCaption(
     staffAudioStream,
-    { speaker: 'ADMIN', sourceLang: 'ko', targetLang: language },
+    { speaker: 'ADMIN', sourceLang: 'ko', targetLang: captionLang },
     true,
     transcript.addStaffLine,
   )
@@ -151,7 +158,7 @@ export default function ConsultationPage() {
   */
   useLiveCaption(
     stream,
-    { speaker: 'USER', sourceLang: language, targetLang: 'ko' },
+    { speaker: 'USER', sourceLang: captionLang, targetLang: 'ko' },
     isStaffConnected,
     transcript.addUserLine,
   )
