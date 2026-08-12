@@ -3124,12 +3124,12 @@
    "distanceM": 3,
    "status": "reviewed",
    "text": {
-    "ko": "발매기까지 이동하세요",
-    "en": "Head to the ticket machine.",
-    "ja": "券売機まで進んでください。",
-    "zh": "请前往售票机。"
+    "ko": "근처 발매기를 찾아서 승차권을 구매하세요",
+    "en": "Please find the nearest ticket machine and purchase your ticket.",
+    "ja": "お近くの券売機で乗車券をお買い求めください。",
+    "zh": "请到附近的自动售票机购买车票。"
    },
-   "translatedFrom": "발매기까지 이동하세요"
+   "translatedFrom": "근처 발매기를 찾아서 승차권을 구매하세요"
   },
   "E099:S1_10": {
    "from": "BO0_03",
