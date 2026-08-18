@@ -1,9 +1,11 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { requestLogout } from '@/shared/api/client'
 import { useAdminProfileStore } from '@/admin/features/auth/useAdminProfileStore'
 import { WaitingPanel } from '@/admin/features/consultation-receive/WaitingPanel'
 import { HistoryPanel } from '@/admin/features/dashboard/HistoryPanel'
+import { AdminAccountMenu } from '@/admin/ui/AdminAccountMenu'
 import { AdminButton } from '@/admin/ui/AdminButton'
 import { AdminShell } from '@/admin/ui/AdminShell'
 
@@ -17,6 +19,13 @@ export default function AdminMainPage() {
   const navigate = useNavigate()
   const staffCode = useAdminProfileStore((s) => s.staffCode)
   const clearStaffCode = useAdminProfileStore((s) => s.clearStaffCode)
+
+  /*
+    블랙리스트 명단은 민원 기록이 아니라 역무원 계정 단위의 목록이라 헤더에 둔다.
+    여는 버튼만 여기 있고 모달 본체·등록·해제는 HistoryPanel 이 그대로 갖고 있어
+    (사유 수정 모달과 상태를 공유해야 한다) 열림 여부만 이 위로 올렸다.
+  */
+  const [isRosterOpen, setIsRosterOpen] = useState(false)
 
   /**
    * 로그아웃.
@@ -42,25 +51,37 @@ export default function AdminMainPage() {
   return (
     <AdminShell
       headerRight={
-        <div className="flex items-center gap-4">
+        /*
+          헤더에는 업무 진입점 하나(블랙리스트 명단)와 계정 메뉴 하나만 둔다.
+          이전에는 [명단][로그아웃][사번] 셋이 같은 무게로 놓여 있어 어느 것도
+          눈에 띄지 않는다는 지적이 있었다. 사번·로그아웃은 계정 메뉴로 접고,
+          남은 하나만 강조색으로 띄운다.
+        */
+        <div className="flex items-center gap-3">
           <AdminButton
-            variant="onDark"
+            variant="onDarkAccent"
             size="sm"
             className="rounded-full"
-            onClick={() => void signOut()}
+            onClick={() => setIsRosterOpen(true)}
           >
-            로그아웃
+            블랙리스트 명단
           </AdminButton>
 
-          {staffCode ? (
-            <span className="text-[13px] text-white/80">{staffCode}</span>
-          ) : null}
+          <span aria-hidden className="h-6 w-px bg-white/20" />
+
+          <AdminAccountMenu
+            staffCode={staffCode}
+            onSignOut={() => void signOut()}
+          />
         </div>
       }
     >
       <div className="grid min-h-0 flex-1 grid-cols-[minmax(0,4fr)_minmax(0,5fr)] gap-6 p-6">
         <WaitingPanel />
-        <HistoryPanel />
+        <HistoryPanel
+          isRosterOpen={isRosterOpen}
+          onRosterOpenChange={setIsRosterOpen}
+        />
       </div>
     </AdminShell>
   )

@@ -1,7 +1,12 @@
+import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
 import { useRoutePreferenceStore } from '@/shared/lib/store/useRoutePreferenceStore'
+import { useStationNodeStore } from '@/shared/lib/store/useStationNodeStore'
+import { StationMapOverlay } from '@/shared/station-map/StationMapOverlay'
+import { DAEGU_NODES } from '@/shared/station-map/daeguNavigation'
+import type { RouteStepRef } from '@/shared/station-map/routePath'
 import { Button, MobileScreen, SectionLabel, useToast } from '@/shared/ui'
 import { GuideEndpointCard } from '@/user/features/user-info/GuideEndpointCard'
 import { RoutePreferenceCard } from '@/user/features/user-info/RoutePreferenceCard'
@@ -36,6 +41,27 @@ export default function UserInfoPage() {
     void navigate('/scan', { state: { returnTo: USER_INFO_PATH } })
   }
 
+  /*
+    출발 아이콘을 누르면 역 내 위치 지도를 띄운다.
+
+    위치의 근거는 표지판 촬영이 준 노드(startPoint)다. 관리자의 [사용자 위치
+    보기]와 같은 방식으로, 노드 하나를 from === to 인 단계로 감싸 공용
+    오버레이에 넘기면 경로선 없이 내 위치 점만 그려진다 (UserLocationModal 참고).
+
+    노드가 없거나(지도에서 직접 고른 출발지 등) 도면 그래프에 없으면 아이콘을
+    버튼으로 만들지 않는다 — 눌리는데 보여줄 것이 없는 쪽이 더 나쁘다.
+  */
+  const startPoint = useStationNodeStore((state) => state.startPoint)
+  const originNodeId = startPoint && DAEGU_NODES[startPoint] ? startPoint : null
+  const [isOriginMapOpen, setIsOriginMapOpen] = useState(false)
+  const originLocationSteps = useMemo<RouteStepRef[]>(
+    () =>
+      originNodeId
+        ? [{ edgeId: '', from: originNodeId, to: originNodeId }]
+        : [],
+    [originNodeId],
+  )
+
   /** 목적지 설정(지도) 화면으로 보내 도착지를 다시 고른다. */
   const changeDestination = () => {
     void navigate('/destination')
@@ -58,8 +84,17 @@ export default function UserInfoPage() {
   return (
     <MobileScreen
       header={
-        // 뒤로가기는 한 줄 위에 두고, 제목은 그 아래 왼쪽 끝에 맞춘다.
-        <div className="flex flex-col items-start gap-1">
+        /*
+          제목 글자는 그리지 않는다 — 아래 카드가 이미 "어디서 어디로"를 말해
+          주어 같은 말을 반복했다. 다만 자리를 통째로 없애면 뒤로가기 버튼에
+          카드가 바짝 붙어 답답해서, **제목이 차지하던 높이의 절반만** 비워 둔다.
+            21px = 버튼과의 기존 간격 4px + 제목 높이(34px)의 절반 17px
+
+          h1 자체는 sr-only 로 남긴다. 화면에서 지우자고 문서 구조까지 없애면
+          스크린리더에 이 화면의 이름이 사라진다. (sr-only 는 absolute 라
+          레이아웃에는 영향을 주지 않아 위 계산에도 끼지 않는다)
+        */
+        <div className="flex flex-col items-start pb-[21px]">
           <button
             type="button"
             aria-label={t('userInfo.back')}
@@ -69,9 +104,7 @@ export default function UserInfoPage() {
             <ChevronLeftIcon className="size-5" strokeWidth={2} />
           </button>
 
-          <h1 className="text-ink text-[clamp(23px,6.6vw,27px)] leading-tight font-extrabold">
-            {t('userInfo.title')}
-          </h1>
+          <h1 className="sr-only">{t('userInfo.title')}</h1>
         </div>
       }
       footer={
@@ -107,6 +140,9 @@ export default function UserInfoPage() {
             info={info}
             onChangeOrigin={changeOrigin}
             onChangeDestination={changeDestination}
+            onShowOriginLocation={
+              originNodeId ? () => setIsOriginMapOpen(true) : undefined
+            }
           />
 
           <section className="flex flex-col gap-2">
@@ -116,12 +152,27 @@ export default function UserInfoPage() {
               activeIndex={preference.activeIndex}
               stepCount={preference.stepCount}
               canGoBack={preference.canGoBack}
+              recalledAnswers={preference.recalledAnswers}
               onSelect={preference.select}
               onBack={preference.goBack}
               onReset={preference.reset}
             />
           </section>
         </div>
+      ) : null}
+
+      {isOriginMapOpen && originNodeId ? (
+        <StationMapOverlay
+          steps={originLocationSteps}
+          currentIndex={0}
+          /*
+            보여줄 것이 위치 점 하나뿐이라 색 범례를 없애고, 대신 지도 안에서
+            점 옆에 '현재 위치' 글자를 붙인다 — 화면 아래를 보지 않아도 읽힌다.
+          */
+          legend="none"
+          showMyLocationLabel
+          onClose={() => setIsOriginMapOpen(false)}
+        />
       ) : null}
     </MobileScreen>
   )

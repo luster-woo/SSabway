@@ -4,7 +4,7 @@
     "tagline": "외국인 관광객을 위한 지하철 길안내"
   },
   "language": {
-    "select": "Language · 언어 선택",
+    "select": "언어 선택",
     "changed": "언어를 변경했어요"
   },
   "auth": {
@@ -181,6 +181,7 @@
     }
   },
   "signCapture": {
+    "permissionNeeded": "카메라 허용이 필요해요",
     "hint": "표지판을 지정된 프레임에 맞춰서 촬영해 주세요",
     "zoomHint": "두 손가락으로 확대·축소할 수 있어요",
     "zoomReset": "확대 배율 초기화",
@@ -237,8 +238,11 @@
     "originSet": "출발지로 설정됨",
     "destinationSet": "도착지로 설정됨",
     "originApplied": "{{name}}을(를) 출발지로 설정했어요",
-    "destinationApplied": "{{name}}을(를) 도착지로 설정했어요",
     "needBoth": "출발지와 도착지를 모두 선택해 주세요",
+    "marker": {
+      "origin": "출발지",
+      "destination": "목적지"
+    },
     "recenter": "현재 위치로 이동"
   },
   "location": {
@@ -247,6 +251,7 @@
     "selectStation": "역 직접 선택하기"
   },
   "route": {
+    "lane": { "line1": "1호선", "line2": "2호선", "line3": "3호선", "daegyeong": "대경선" },
     "next": "다음",
     "prev": "이전",
     "arrived": "목적지에 도착했어요",
@@ -254,6 +259,8 @@
       "noIndoorGuide": "이 경로는 실내 안내를 제공하지 않아요\n다른 경로를 선택해 주세요",
       "title": "추천 경로",
       "back": "뒤로가기",
+      "pathIntro": "{{destination}}까지 가는 지하철 경로입니다.\n{{station}}까지 안내해 드려요.",
+      "walkNotice": "역에서 나온 뒤에는 별도의 이동이 필요할 수 있습니다!",
       "badge": {
         "fastest": "빠른 길",
         "noTransfer": "환승 없음",
@@ -261,16 +268,15 @@
       },
       "noTransfer": "환승 없음",
       "transferCount": "환승 {{n}}회",
-      "start": "이 경로로 안내 시작",
+      "start": "경로 선택",
       "notice": "열차 운행 상황에 따라 실제 소요 시간은 달라질 수 있어요",
       "loading": "경로를 찾고 있어요…",
       "failed": "경로를 불러오지 못했어요\n잠시 후 다시 시도해 주세요",
       "empty": "이용할 수 있는 경로를 찾지 못했어요\n목적지를 다시 선택해 주세요",
       "changeDestination": "목적지 다시 선택",
-      "started": "{{station}}까지 안내를 시작해요",
       "durationMin": "{{m}}분",
       "durationHour": "{{h}}시간 {{m}}분",
-      "fare": "{{amount}}원",
+      "fare": "{{amount}}₩",
       "needOrigin": "출발지가 아직 정해지지 않았어요\n지도에서 출발지를 선택해 주세요",
       "needDestination": "도착지가 아직 정해지지 않았어요\n지도에서 도착지를 선택해 주세요",
       "pickOnMap": "지도에서 선택하기",
@@ -283,23 +289,19 @@
     }
   },
   "userInfo": {
+    "gateDestination": "{{station}} {{lane}} 개찰구",
     "title": "안내 정보 확인",
     "back": "뒤로가기",
-    "origin": "출발",
-    "destination": "도착",
     "change": "변경",
-    "detail": {
-      "gps": "현재 위치 기준",
-      "manual": "지도에서 선택",
-      "finalDestination": "최종 목적지 {{name}}"
-    },
+    "rescan": "재촬영",
+    "originLocation": "출발 위치를 역 지도에서 보기",
     "needRoute": "먼저 경로를 선택해 주세요\n출발역과 도착역이 정해지면 안내를 시작할 수 있어요",
     "pickRoute": "경로 선택하기",
     "start": "경로 안내 시작",
     "needAnswers": "질문에 모두 답해 주세요",
     "started": "선택하신 조건으로 안내를 시작해요",
     "preference": {
-      "label": "경로에 필요한 정보",
+      "label": "맞춤 경로 설정",
       "back": "이전 질문",
       "reset": "다시 선택하기",
       "progress": "질문 {{current}} / {{total}}",
@@ -375,9 +377,44 @@
         "current": "현재 구간 · 진행 방향",
         "upcoming": "다음 위치 · 남은 경로",
         "passed": "지나온 경로"
+      },
+      "mapAlt": "역 내 도면과 안내 경로",
+      "myLocationLabel": "현재 위치",
+      "facility": {
+        "_heading": "시설 안내",
+        "stairs": "계단·에스컬레이터",
+        "elevator": "엘리베이터",
+        "exit": "출구",
+        "ticketMachine": "승차권 발매기",
+        "gate": "개찰구",
+        "restroom": "화장실",
+        "ticketOffice": "매표소",
+        "store": "편의점",
+        "atm": "ATM",
+        "waitingRoom": "대합실"
+      },
+      "label": {
+        "shop": "상점",
+        "smokingArea": "흡연장",
+        "lotteDepartmentStore": "롯데백화점",
+        "departmentStore": "백화점",
+        "center": "중앙",
+        "parking": "주차장",
+        "meetingRoom": "회의실",
+        "policeStation": "경찰서",
+        "restaurant": "식당",
+        "nursingRoom": "수유실",
+        "daegyeongLineGumi": "대경선 (구미방면)",
+        "daegyeongLineGyeongsan": "대경선 (경산방면)",
+        "platform1": "1번 승강장) 서울 / 대전 / 영주 / 김천 방면",
+        "platform6": "6번 승강장) 부산 / 진주 / 부전 / 신해운대 방면",
+        "daeguStationExit1": "대구역 1번 출구",
+        "daeguStationExit2": "대구역 2번 출구",
+        "daeguStationExit3": "대구역 3번 출구",
+        "daeguStationExit4": "대구역 4번 출구"
       }
     },
-    "help": "도움 요청",
+    "help": "화상 상담",
     "loading": "경로 안내를 불러오는 중이에요…",
     "failed": "경로 안내를 불러오지 못했어요\n잠시 후 다시 시도해 주세요",
     "empty": "안내할 단계를 찾지 못했어요\n표지판을 다시 촬영해 주세요",
@@ -394,6 +431,10 @@
     "failedUnknownPoint": "출발 지점을 확인하지 못했어요\n표지판을 다시 찍어 주세요",
     "failedNeedAnswers": "경로에 필요한 정보가 부족해요\n질문에 다시 답해 주세요",
     "failedNotReady": "안내 데이터를 준비하는 중이에요\n잠시 후 다시 시도해 주세요",
+    "elevator": {
+      "down": "아래층으로 이동",
+      "up": "위층으로 이동"
+    },
     "point": {
       "signage": "안내 표지판",
       "elevator": "엘리베이터",
@@ -419,13 +460,15 @@
   },
   "arrival": {
     "back": "뒤로가기",
-    "title": "목적지에 도착했어요!",
+    "title": "안내를 완료하였습니다!",
     "finalDestination": "최종 목적지 {{name}}",
     "duration": "소요 시간",
     "origin": "출발지",
-    "destination": "도착지",
+    "destination": "목적지",
+    "alightStation": "하차역",
+    "transferHint": "{{station}}에 내리면 표지판을 다시 촬영해 주세요.\n이어서 길을 안내해 드릴게요.",
     "noSummary": "이번 이동 정보를 찾지 못했어요\n목적지를 다시 선택해 주세요",
-    "newDestination": "새 목적지 안내 받기"
+    "goMain": "처음으로"
   },
   "helpChat": {
     "back": "뒤로가기",
@@ -438,10 +481,10 @@
     "routeRequired": "먼저 경로 안내를 시작해 주세요.\n출발지와 목적지를 알아야 연결할 수 있어요.",
     "ready": "연결 준비가 끝났어요.\n아래 버튼으로 연결을 시작하세요.",
     "connect": "화상 연결",
-    "recordNotice": "통화 음성이 녹음될 수 있어요",
+    "recordNotice": "상담원 보호를 위해 통화 내역은 녹음됩니다",
     "backToGuide": "경로 다시 안내",
     "rejected": {
-      "blocked": "화상 상담 이용이 제한된 계정이에요.\n자세한 사항은 역무원에게 문의해 주세요.",
+      "blocked": "현재 역에서는 화상 상담이 불가능합니다.\n역무실을 직접 방문해 주세요.",
       "duplicated": "이미 진행 중인 상담 요청이 있어요.\n잠시 후 다시 시도해 주세요.",
       "noStaff": "지금 이 역에 연결 가능한 역무원이 없어요.\n잠시 후 다시 시도해 주세요.",
       "failed": "상담을 요청하지 못했어요.\n잠시 후 다시 시도해 주세요."
@@ -450,6 +493,7 @@
   "consultation": {
     "request": "도움 요청하기",
     "connecting": "역무원과 연결 중이에요...",
+    "waitingStaff": "역무원을 기다리는 중이에요…",
     "queuePosition": "앞에 {{position}}명 대기 중이에요",
     "unavailable": "지금은 연결 가능한 역무원이 없어요",
     "micOnly": "역무원이 음성으로 안내해요. 카메라는 꺼져 있어요.",
@@ -470,7 +514,7 @@
       "alreadyEnded": "이미 종료된 상담입니다",
       "canceled": "상담 요청이 취소되었습니다",
       "waitingStaff": "역무원을 기다리는 중입니다…",
-      "queuePosition": "대기 순번 {{position}}번입니다",
+      "queuePosition": "앞에 {{position}}명 대기 중입니다",
       "noConsultationId": "상담 정보를 찾을 수 없어요. 도움 요청부터 다시 시작해 주세요.",
       "connecting": "연결하는 중입니다…",
       "reconnecting": "네트워크가 불안정합니다. 다시 연결하는 중입니다…",
@@ -507,9 +551,27 @@
   "station": {
     "daegu": "대구역"
   },
+  "landmark": {
+    "at": "{{station}} {{floor}}층 {{place}} 앞",
+    "atNoFloor": "{{station}} {{place}} 앞",
+    "near": "{{station}} {{floor}}층 {{place}} 근처",
+    "nearNoFloor": "{{station}} {{place}} 근처",
+    "place": {
+      "exit": "{{number}}번 출구",
+      "gate": "개찰구",
+      "elevator": "엘리베이터",
+      "store": "편의점",
+      "atm": "ATM",
+      "ticketOffice": "매표소",
+      "ticketMachine": "발매기",
+      "toilet": "화장실"
+    }
+  },
   "trip": {
     "originEmpty": "출발지 선택",
-    "destinationEmpty": "도착지 선택"
+    "destinationEmpty": "도착지 선택",
+    "focusOrigin": "지도에서 출발지 보기",
+    "focusDestination": "지도에서 도착지 보기"
   },
   "install": {
     "title": "SSabway 앱으로 설치",

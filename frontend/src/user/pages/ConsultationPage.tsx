@@ -5,7 +5,9 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { CaptionOverlay } from '@/shared/caption/CaptionOverlay'
 import { useCaptionTranscript } from '@/shared/caption/useCaptionTranscript'
 import { useLiveCaption } from '@/shared/caption/useLiveCaption'
+import { resolveUserCaptionLang } from '@/shared/lib/demoCaptionLang'
 import { useLanguage } from '@/shared/lib/useLanguage'
+import { useRunOnRealUnmount } from '@/shared/lib/useRunOnRealUnmount'
 import { CONSULTATION_STATUS } from '@/shared/types'
 import { Button, Dialog, useToast } from '@/shared/ui'
 import { OpenViduVideo } from '@/shared/webrtc/OpenViduVideo'
@@ -17,6 +19,7 @@ import { CameraStage } from '@/user/features/consultation/CameraStage'
 import { ConnectedBadge } from '@/user/features/consultation/ConnectedBadge'
 import { toCallMediaErrorKey } from '@/user/features/consultation/callMediaErrorKey'
 import { openviduApi } from '@/user/features/consultation/openviduApi'
+import { peopleAheadInQueue } from '@/user/features/consultation/queuePosition'
 import {
   CALL_MEDIA_STATUS,
   useCallMedia,
@@ -112,6 +115,12 @@ export default function ConsultationPage() {
     (명세 /ws/v1/ai/translation 이 auto-detect 가 아니라 화자 언어를 요구한다)
   */
   const { language } = useLanguage()
+  /*
+    자막에 쓸 사용자 언어. 평소에는 화면 언어와 같지만, 시연 플래그
+    (DEMO_CAPTION_LANG)가 켜져 있으면 화면 언어와 무관하게 그 언어로 고정된다.
+    화면을 한국어로 두고 영어↔한국어 번역을 보여주기 위한 것이다.
+  */
+  const captionLang = resolveUserCaptionLang(language)
   const staffAudioStream = useRemoteMediaStream(call.staffStream)
 
   /**
@@ -131,7 +140,7 @@ export default function ConsultationPage() {
 
   const caption = useLiveCaption(
     staffAudioStream,
-    { speaker: 'ADMIN', sourceLang: 'ko', targetLang: language },
+    { speaker: 'ADMIN', sourceLang: 'ko', targetLang: captionLang },
     true,
     transcript.addStaffLine,
   )
@@ -149,7 +158,7 @@ export default function ConsultationPage() {
   */
   useLiveCaption(
     stream,
-    { speaker: 'USER', sourceLang: language, targetLang: 'ko' },
+    { speaker: 'USER', sourceLang: captionLang, targetLang: 'ko' },
     isStaffConnected,
     transcript.addUserLine,
   )
@@ -194,12 +203,15 @@ export default function ConsultationPage() {
       return t('consultation.video.reconnecting')
     }
     if (call.isWaitingMatch) {
-      // 대기 순번은 상태 API 가 붙어야 값이 들어온다. 없으면 문구만 보여준다.
-      return call.queuePosition === null
+      /*
+        대기 순번은 상태 API 가 붙어야 값이 들어온다. 없으면 문구만 보여준다.
+        값이 있어도 내 앞에 아무도 없으면(맨 앞) 숫자를 빼고 같은 문구를 쓴다 —
+        "앞에 0명"은 안내가 아니다.
+      */
+      const ahead = peopleAheadInQueue(call.queuePosition)
+      return ahead === null || ahead === 0
         ? t('consultation.video.waitingStaff')
-        : t('consultation.video.queuePosition', {
-            position: call.queuePosition,
-          })
+        : t('consultation.video.queuePosition', { position: ahead })
     }
     if (call.status === OV_STATUS.CONNECTING) {
       return t('consultation.video.connecting')
@@ -319,6 +331,14 @@ export default function ConsultationPage() {
    * 한 번 연결된 뒤의 DISCONNECTED 만 본다 — 접속 전 IDLE 상태와 구분해야
    * 하고, 사용자가 직접 끊은 경우는 endCall 이 이미 정리하고 이동했으므로
    * 여기까지 오지 않는다.
+   *
+   * 문구는 서버 상태를 한 번 조회해 가른다. 매칭 이후에는 상태 폴링이 꺼져
+   * 있어(useConsultationMatch 의 refetchInterval) 서버가 CANCELED 로 바꿔도
+   * 이 화면은 모르기 때문이다 — 역무원이 마이크 문제로 상담을 취소한 경우가
+   * 그렇고, 그대로 두면 정상 종료로 잘못 안내된다. 폴링을 되살리지 않고
+   * 종료 시점에 1회만 조회한다.
+   *
+   * 화면은 응답을 기다리지 않고 바로 닫는다. 토스트만 잠시 뒤에 뜬다.
    */
   const hasConnectedRef = useRef(false)
   if (call.status === OV_STATUS.CONNECTED) hasConnectedRef.current = true
@@ -335,9 +355,25 @@ export default function ConsultationPage() {
     if (!userEndedRef.current) submitSummaryRef.current()
 
     stop()
-    showToast(t('consultation.video.endedByStaff'))
+
+    /*
+      조회에 실패하면 종료 문구로 떨어진다 — 역무원이 끊는 경우가 정상 흐름이라
+      그쪽이 기본값이고, 취소는 마이크 문제로 드물게 일어난다.
+    */
+    void openviduApi
+      .fetchSnapshot(consultationId)
+      .then((snapshot) =>
+        snapshot.status === CONSULTATION_STATUS.CANCELED
+          ? t('consultation.video.canceled')
+          : t('consultation.video.endedByStaff'),
+      )
+      .catch(() => t('consultation.video.endedByStaff'))
+      .then((message) => {
+        showToast(message)
+      })
+
     void navigate('/guide', { replace: true })
-  }, [call.status, navigate, showToast, stop, t])
+  }, [call.status, consultationId, navigate, showToast, stop, t])
 
   /**
    * 서버가 이미 끝낸 상담이면 화면을 닫는다.
@@ -361,6 +397,31 @@ export default function ConsultationPage() {
     )
     void navigate('/guide', { replace: true })
   }, [closedStatus, navigate, showToast, stop, t])
+
+  /*
+    화면을 떠날 때(앱 내 이동·하드웨어 back) 상담을 서버에서도 정리한다.
+
+    [종료]·권한거부 버튼은 이미 call.leave() 를 부르지만, 사용자가 버튼 대신
+    하드웨어 back 이나 앱 내 이동으로 나가면 그 호출이 빠져 상담이
+    MATCHED/IN_PROGRESS 로 남는다. 그러면 다음 도움 요청이 409 로 막힌다
+    (leaveWithoutCall 주석 참고). 나가는 모든 (앱 내) 경로에서 leave 가
+    나가도록 여기서 보강한다.
+
+    이미 끝난 상담(closedStatus)이나 사용자가 [종료] 로 직접 끊은 경우
+    (userEndedRef)는 건드리지 않는다 — 전자는 정리할 것이 없고, 후자는 endCall
+    이 요약까지 순서를 맞춰 이미 처리했다. (중복 leave 는 멱등이지만 불필요한
+    요청을 아낀다)
+
+    ⚠️ 새로고침·탭 닫기는 여기서 잡지 않는다(useRunOnRealUnmount 주석) —
+       이 화면은 URL 의 consultationId 로 재접속하므로 새로고침에 leave 를
+       보내면 그 복구가 깨진다. 강제 종료의 정리는 서버 유예 시간이 맡아야 한다.
+  */
+  useRunOnRealUnmount(() => {
+    if (!hasConsultationId) return
+    if (closedStatus !== null) return
+    if (userEndedRef.current) return
+    void openviduApi.leaveConsultation(consultationId)
+  })
 
   const endCall = () => {
     /*

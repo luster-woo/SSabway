@@ -1,7 +1,10 @@
 import type { FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { SearchIcon } from '@/user/features/destination-search/icons'
+import {
+  ChevronLeftIcon,
+  SearchIcon,
+} from '@/user/features/destination-search/icons'
 
 export interface DestinationSearchBarProps {
   value: string
@@ -37,9 +40,9 @@ export function DestinationSearchBar({
         type="button"
         onClick={onBack}
         aria-label={t('destination.back')}
-        className="text-ink-muted flex size-10 shrink-0 items-center justify-center rounded-full text-2xl leading-none"
+        className="text-ink-muted flex size-10 shrink-0 items-center justify-center rounded-full"
       >
-        ‹
+        <ChevronLeftIcon className="size-5" />
       </button>
 
       <input

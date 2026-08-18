@@ -1,11 +1,11 @@
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
-import { useDestinationStore } from '@/shared/lib/store/useDestinationStore'
 import { useSelectedRouteStore } from '@/shared/lib/store/useSelectedRouteStore'
-import { Button, CheckIcon, MobileScreen } from '@/shared/ui'
+import { Button, CheckIcon, ChevronLeftIcon, MobileScreen } from '@/shared/ui'
 import { ArrivalSummaryCard } from '@/user/features/arrival/ArrivalSummaryCard'
 import { toArrivalSummary } from '@/user/features/arrival/lib/toArrivalSummary'
+import { useGuideInfo } from '@/user/features/user-info/useGuideInfo'
 
 /**
  * 6-1. 도착 완료 — 안내가 끝난 뒤 이동을 정리하는 화면.
@@ -19,11 +19,13 @@ export default function ArrivalPage() {
   const navigate = useNavigate()
 
   const selectedRoute = useSelectedRouteStore((state) => state.selectedRoute)
-  const destination = useDestinationStore((state) => state.destination)
-  const summary = toArrivalSummary(selectedRoute, destination)
+  const { info } = useGuideInfo()
+  const summary = toArrivalSummary(selectedRoute, info)
+  // 환승이 있으면 하차역에서 표지판을 다시 찍어 이어서 안내받아야 한다.
+  const isTransfer = (selectedRoute?.transferCount ?? 0) > 0
 
-  const startNewGuide = () => {
-    void navigate('/scan')
+  const goToMain = () => {
+    void navigate('/')
   }
 
   return (
@@ -35,14 +37,12 @@ export default function ArrivalPage() {
           onClick={() => void navigate(-1)}
           className="text-ink -ml-1.5 flex size-8 items-center justify-center rounded-full"
         >
-          <span aria-hidden className="text-2xl">
-            ‹
-          </span>
+          <ChevronLeftIcon className="size-5" />
         </button>
       }
       footer={
-        <Button size="lg" fullWidth onClick={startNewGuide}>
-          {t('arrival.newDestination')}
+        <Button size="lg" fullWidth onClick={goToMain}>
+          {t('arrival.goMain')}
         </Button>
       }
     >
@@ -69,28 +69,29 @@ export default function ArrivalPage() {
               </span>
             </span>
 
-            <div className="flex flex-col gap-1.5">
-              <h1 className="text-ink text-[clamp(20px,6vw,22px)] leading-tight font-extrabold">
-                {t('arrival.title')}
-              </h1>
-              {/*
-                크게는 도착역, 그 아래 작게 사용자가 고른 최종 목적지를 병기한다.
-                역 자체를 목적지로 골랐으면 finalDestination 이 null 이라 한 줄만 남는다.
-              */}
-              <p className="text-ink text-[15px] font-bold">
-                {summary.destinationStation}
-              </p>
-              {summary.finalDestination ? (
-                <p className="text-ink-muted text-[13.5px]">
-                  {t('arrival.finalDestination', {
-                    name: summary.finalDestination,
-                  })}
-                </p>
-              ) : null}
-            </div>
+            <h1 className="text-ink text-[clamp(20px,6vw,22px)] leading-tight font-extrabold">
+              {t('arrival.title')}
+            </h1>
           </div>
 
-          <ArrivalSummaryCard summary={summary} />
+          {/* 카드 묶음을 살짝 내려 제목과 간격을 둔다(mt-3). */}
+          <div className="mt-3">
+            <ArrivalSummaryCard summary={summary} />
+          </div>
+
+          {/*
+            환승 안내 — 하차역에서 내려 표지판을 다시 찍어야 다음 역 안내가
+            이어진다. 카드 아래 남는 공간의 가운데쯤(my-auto)에 볼드로 강조한다.
+            직통(환승 없음)이면 하차역이 곧 목적지라 감춘다.
+          */}
+          {isTransfer ? (
+            <p
+              role="status"
+              className="text-ink-muted my-auto text-center text-[13px] leading-relaxed font-bold whitespace-pre-line"
+            >
+              {t('arrival.transferHint', { station: summary.alightStation })}
+            </p>
+          ) : null}
         </div>
       )}
     </MobileScreen>

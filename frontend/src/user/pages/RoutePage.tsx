@@ -191,7 +191,6 @@ export default function RoutePage() {
       장소명("경북대 북문")이 아니라 도착역("수성알파시티")이어야 한다.
     */
     setSelectedRoute(path)
-    showToast(t('route.select.started', { station: path.lastEndStation }))
     void navigate('/user-info')
   }
 
@@ -224,9 +223,10 @@ export default function RoutePage() {
         </div>
       }
       footer={
-        <p className="text-ink-muted text-center text-[11.5px] leading-relaxed">
-          {t('route.select.notice')}
-        </p>
+        <div className="text-ink-muted flex flex-col gap-0.5 text-center text-[11.5px] leading-relaxed">
+          <p>{t('route.select.walkNotice')}</p>
+          <p>{t('route.select.notice')}</p>
+        </div>
       }
     >
       {!hasEndpoints ? (
@@ -320,6 +320,7 @@ export default function RoutePage() {
           ))}
         </div>
       ) : null}
+
     </MobileScreen>
   )
 }

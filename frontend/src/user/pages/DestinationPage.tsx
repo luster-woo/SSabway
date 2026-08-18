@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 
 import { cn } from '@/shared/lib/cn'
 import { localizeStationName } from '@/shared/lib/stationCoords'
+import { resetRouteSelection } from '@/shared/lib/store/resetTrip'
 import { useDestinationStore } from '@/shared/lib/store/useDestinationStore'
 import {
   ORIGIN_SOURCE,
@@ -46,7 +47,20 @@ export default function DestinationPage() {
   const [keyword, setKeyword] = useState('')
   /** 실제로 검색을 실행한 키워드. 입력값과 분리해야 타이핑마다 호출되지 않는다. */
   const [submittedQuery, setSubmittedQuery] = useState('')
-  const [selected, setSelected] = useState<Place | null>(null)
+  /*
+    고른 장소.
+
+    이미 확정된 목적지가 있으면 그것으로 시작한다. 목적지를 정하고 다음 화면으로
+    넘어갔다가 뒤로가기로 돌아오면 스토어(sessionStorage)에는 목적지가 남아 있는데
+    이 state 만 null 로 되살아나, 하단 카드와 [다음] 버튼이 사라져 있었다.
+    사용자는 이미 고른 목적지를 다시 찍어야 앞으로 갈 수 있었다.
+
+    구독값(destination)이 아니라 getState() 를 쓰는 이유: 이건 "처음 값"일 뿐이다.
+    이후 목적지가 바뀔 때마다 선택을 되돌리면 사용자가 새로 고른 후보가 날아간다.
+  */
+  const [selected, setSelected] = useState<Place | null>(
+    () => useDestinationStore.getState().destination,
+  )
 
   const destination = useDestinationStore((state) => state.destination)
   const setDestination = useDestinationStore((state) => state.setDestination)
@@ -98,15 +112,46 @@ export default function DestinationPage() {
     [originStation, originLabel],
   )
 
-  const { recenterToMyLocation } = useGoogleDestinationMap(mapContainerRef, {
-    isReady: status === SDK_STATUS.READY,
-    selected,
-    origin: originPoint,
-    destination,
-    myLocation,
-    // 지도를 탭하면 그 지점을 검색 결과처럼 후보로 잡는다.
-    onPickPoint: setSelected,
-  })
+  /*
+    고른 장소가 이미 확정된 목적지인지.
+
+    맞으면(= 뒤로가기로 돌아와 지난 목적지가 그대로인 상태) 하단 카드는
+    [도착지로 설정] 대신 [다음]을 보여준다 — 새로 정할 것 없이 이어서 가면 된다.
+  */
+  const isDestinationConfirmed =
+    destination !== null &&
+    selected !== null &&
+    destination.placeId === selected.placeId
+
+  const { recenterToMyLocation, focusPoint } = useGoogleDestinationMap(
+    mapContainerRef,
+    {
+      isReady: status === SDK_STATUS.READY,
+      selected,
+      origin: originPoint,
+      destination,
+      // 지도 위 핀만 봐도 어느 쪽이 출발지/목적지인지 알 수 있게 이름표를 붙인다.
+      originBadge: t('destination.marker.origin'),
+      destinationBadge: t('destination.marker.destination'),
+      myLocation,
+      // 지도를 탭하면 그 지점을 검색 결과처럼 후보로 잡는다.
+      onPickPoint: setSelected,
+    },
+  )
+
+  /*
+    구간 표시에서 이름을 누르면 그 지점으로 지도를 맞춘다.
+
+    목적지 쪽은 지도 핀과 같은 기준(고르는 중인 후보 우선)을 따라야 한다 —
+    글자와 핀이 다른 곳을 가리키면 눌렀을 때 엉뚱한 자리로 날아간다.
+  */
+  const shownDestination = selected ?? destination
+  const focusOrigin = () => {
+    focusPoint(originStation)
+  }
+  const focusDestination = () => {
+    focusPoint(shownDestination)
+  }
 
   // 결과가 도착하면 첫 번째 후보를 기본 선택한다.
   // 이미 목록에 있는 후보를 골라둔 상태라면 그 선택을 유지한다.
@@ -149,8 +194,23 @@ export default function DestinationPage() {
    */
   const confirmDestination = () => {
     if (!selected) return
+
+    /*
+      목적지를 다른 곳으로 바꾼 경우, 지난 목적지로 계산해 골라 뒀던 경로와
+      역 내 도착 노드·안내 단계를 버린다. 스토어는 sessionStorage 라 저절로
+      사라지지 않아서, 새 목적지로 경로를 다시 고르기 전에 다른 화면으로 새면
+      옛 경로가 지금의 선택인 양 살아남는다.
+
+      같은 목적지를 그대로 확정한 경우(= 뒤로가기로 돌아와 [다음])는 비우지
+      않는다 — 그 경로는 여전히 유효하다.
+    */
+    if (destination?.placeId !== selected.placeId) {
+      resetRouteSelection()
+    }
+
     setDestination(selected)
-    showToast(t('destination.destinationApplied', { name: selected.name }))
+    // 확정 토스트는 띄우지 않는다 — 경로 선택 화면의 안내 팝업(RouteNoticePopup)과
+    // 같은 자리에 겹쳐서, 다음 화면이 곧바로 같은 내용을 알려주는 것으로 충분하다.
     void navigate('/route')
   }
 
@@ -199,7 +259,11 @@ export default function DestinationPage() {
           <TripEndpointBar
             className="border-line bg-surface/95 rounded-2xl border px-3.5 py-2 shadow-sm backdrop-blur"
             originName={originLabel}
-            destinationName={destination?.name ?? null}
+            /* 고르는 중인 장소가 있으면 그쪽을 보여준다 — 지도의 목적지 핀도
+               같이 옮겨 가므로, 위아래가 같은 곳을 가리켜야 한다. */
+            destinationName={shownDestination?.name ?? null}
+            onOriginClick={focusOrigin}
+            onDestinationClick={focusDestination}
           />
         </div>
 
@@ -253,6 +317,7 @@ export default function DestinationPage() {
         <div className="absolute inset-x-0 bottom-0 z-10">
           <SelectedPlaceCard
             place={selected}
+            isConfirmed={isDestinationConfirmed}
             onConfirm={confirmDestination}
           />
         </div>

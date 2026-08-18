@@ -4,7 +4,7 @@
     "tagline": "Subway guide for foreign travelers"
   },
   "language": {
-    "select": "Language",
+    "select": "Language Selection",
     "changed": "Language changed"
   },
   "auth": {
@@ -181,6 +181,7 @@
     }
   },
   "signCapture": {
+    "permissionNeeded": "Camera access is required",
     "hint": "Fit the sign inside the frame and take a photo",
     "zoomHint": "Pinch with two fingers to zoom in or out",
     "zoomReset": "Reset zoom",
@@ -237,8 +238,11 @@
     "originSet": "Set as start ✓",
     "destinationSet": "Set as destination ✓",
     "originApplied": "{{name}} set as your starting point",
-    "destinationApplied": "{{name}} set as your destination",
     "needBoth": "Pick both a start and a destination",
+    "marker": {
+      "origin": "Start",
+      "destination": "Destination"
+    },
     "recenter": "Go to my location"
   },
   "location": {
@@ -247,6 +251,7 @@
     "selectStation": "Select station manually"
   },
   "route": {
+    "lane": { "line1": "Line 1", "line2": "Line 2", "line3": "Line 3", "daegyeong": "Daegyeong Line" },
     "next": "Next",
     "prev": "Previous",
     "arrived": "You have arrived",
@@ -254,6 +259,8 @@
       "noIndoorGuide": "Indoor guidance isn't available for this route\nChoose another route",
       "title": "Recommended routes",
       "back": "Back",
+      "pathIntro": "This is the subway route to {{destination}}.\nWe'll guide you to {{station}}.",
+      "walkNotice": "Additional travel may be needed after exiting the station!",
       "badge": {
         "fastest": "Fastest",
         "noTransfer": "No transfer",
@@ -261,16 +268,15 @@
       },
       "noTransfer": "No transfer",
       "transferCount": "{{n}} transfer(s)",
-      "start": "Start guide with this route",
+      "start": "Select route",
       "notice": "Actual travel time may vary with train service conditions",
       "loading": "Finding routes…",
       "failed": "Could not load routes\nPlease try again in a moment",
       "empty": "No available route was found\nPlease choose another destination",
       "changeDestination": "Change destination",
-      "started": "Starting the guide to {{station}}",
       "durationMin": "{{m}} min",
       "durationHour": "{{h}} hr {{m}} min",
-      "fare": "₩{{amount}}",
+      "fare": "{{amount}}₩",
       "needOrigin": "No starting point yet\nPick one on the map",
       "needDestination": "No destination yet\nPick one on the map",
       "pickOnMap": "Pick on the map",
@@ -283,23 +289,19 @@
     }
   },
   "userInfo": {
+    "gateDestination": "{{station}} {{lane}} ticket gate",
     "title": "Confirm guide details",
     "back": "Back",
-    "origin": "From",
-    "destination": "To",
     "change": "Change",
-    "detail": {
-      "gps": "Based on your location",
-      "manual": "Picked on the map",
-      "finalDestination": "Final destination: {{name}}"
-    },
+    "rescan": "Retake",
+    "originLocation": "View start location on the station map",
     "needRoute": "Please choose a route first\nGuidance starts once your stations are set",
     "pickRoute": "Choose a route",
     "start": "Start route guide",
     "needAnswers": "Please answer all the questions",
     "started": "Starting the guide with your selection",
     "preference": {
-      "label": "Details for your route",
+      "label": "Personalize your route",
       "back": "Previous",
       "reset": "Choose again",
       "progress": "Question {{current}} of {{total}}",
@@ -375,9 +377,44 @@
         "current": "Current leg · direction",
         "upcoming": "Next stop · route ahead",
         "passed": "Covered so far"
+      },
+      "mapAlt": "Station floor plan and guided route",
+      "myLocationLabel": "Current location",
+      "facility": {
+        "_heading": "Facilities",
+        "stairs": "Stairs & Escalator",
+        "elevator": "Elevator",
+        "exit": "Exit",
+        "ticketMachine": "Ticket Machine",
+        "gate": "Ticket Gate",
+        "restroom": "Restroom",
+        "ticketOffice": "Ticket Office",
+        "store": "Convenience Store",
+        "atm": "ATM",
+        "waitingRoom": "Waiting Room"
+      },
+      "label": {
+        "shop": "Shops",
+        "smokingArea": "Smoking Area",
+        "lotteDepartmentStore": "Lotte Department Store",
+        "departmentStore": "Department Store",
+        "center": "Central",
+        "parking": "Parking",
+        "meetingRoom": "Meeting Room",
+        "policeStation": "Police",
+        "restaurant": "Restaurant",
+        "nursingRoom": "Nursing Room",
+        "daegyeongLineGumi": "Daegyeong Line (for Gumi)",
+        "daegyeongLineGyeongsan": "Daegyeong Line (for Gyeongsan)",
+        "platform1": "Platform 1) for Seoul / Daejeon / Yeongju / Gimcheon",
+        "platform6": "Platform 6) for Busan / Jinju / Bujeon / Sinhaeundae",
+        "daeguStationExit1": "Daegu Stn. Exit 1",
+        "daeguStationExit2": "Daegu Stn. Exit 2",
+        "daeguStationExit3": "Daegu Stn. Exit 3",
+        "daeguStationExit4": "Daegu Stn. Exit 4"
       }
     },
-    "help": "Get help",
+    "help": "Video call",
     "loading": "Loading the route guide…",
     "failed": "Could not load the route guide\nPlease try again in a moment",
     "empty": "No guide steps were found\nPlease photograph a sign again",
@@ -394,6 +431,10 @@
     "failedUnknownPoint": "Could not identify your starting point\nScan the sign again",
     "failedNeedAnswers": "Some route details are missing\nPlease answer the questions again",
     "failedNotReady": "Guide data is still loading\nPlease try again shortly",
+    "elevator": {
+      "down": "Going down",
+      "up": "Going up"
+    },
     "point": {
       "signage": "Sign",
       "elevator": "Elevator",
@@ -419,13 +460,15 @@
   },
   "arrival": {
     "back": "Back",
-    "title": "You have arrived!",
+    "title": "Guidance complete!",
     "finalDestination": "Final destination: {{name}}",
     "duration": "Travel time",
     "origin": "From",
-    "destination": "To",
+    "destination": "Destination",
+    "alightStation": "Get off at",
+    "transferHint": "When you get off at {{station}}, scan a sign again.\nWe\u2019ll continue guiding you.",
     "noSummary": "We couldn't find this trip\nPlease pick a destination again",
-    "newDestination": "Guide me to a new destination"
+    "goMain": "Back to start"
   },
   "helpChat": {
     "back": "Back",
@@ -438,10 +481,10 @@
     "routeRequired": "Please start the route guide first.\nWe need your origin and destination to connect you.",
     "ready": "Everything is ready.\nStart the call with the button below.",
     "connect": "Start video call",
-    "recordNotice": "The call audio may be recorded",
+    "recordNotice": "Calls are recorded to protect our staff",
     "backToGuide": "Back to route guide",
     "rejected": {
-      "blocked": "Video consultation is unavailable for this account. \nFor more information, please contact a station staff member.",
+      "blocked": "Video calls are unavailable at this station.\nPlease visit the station office.",
       "duplicated": "You already have a consultation request in progress.\nPlease try again in a moment.",
       "noStaff": "No staff member is available at this station right now.\nPlease try again in a moment.",
       "failed": "We couldn't request a consultation.\nPlease try again in a moment."
@@ -450,6 +493,7 @@
   "consultation": {
     "request": "Ask for help",
     "connecting": "Connecting to staff...",
+    "waitingStaff": "Waiting for a staff member…",
     "queuePosition": "{{position}} people ahead of you",
     "unavailable": "No staff available right now",
     "micOnly": "Staff will speak to you. Their camera is off.",
@@ -470,7 +514,7 @@
       "alreadyEnded": "This consultation has already ended",
       "canceled": "The consultation request was canceled",
       "waitingStaff": "Waiting for a staff member…",
-      "queuePosition": "You are number {{position}} in the queue",
+      "queuePosition": "{{position}} people ahead of you",
       "noConsultationId": "We couldn't find your request. Please start from Help again.",
       "connecting": "Connecting…",
       "reconnecting": "Your network is unstable. Reconnecting…",
@@ -507,9 +551,27 @@
   "station": {
     "daegu": "Daegu Station"
   },
+  "landmark": {
+    "at": "{{station}} F{{floor}}, by {{place}}",
+    "atNoFloor": "{{station}}, by {{place}}",
+    "near": "{{station}} F{{floor}}, near {{place}}",
+    "nearNoFloor": "{{station}}, near {{place}}",
+    "place": {
+      "exit": "Exit {{number}}",
+      "gate": "the ticket gate",
+      "elevator": "the elevator",
+      "store": "the convenience store",
+      "atm": "the ATM",
+      "ticketOffice": "the ticket office",
+      "ticketMachine": "the ticket machine",
+      "toilet": "the restroom"
+    }
+  },
   "trip": {
     "originEmpty": "Set start",
-    "destinationEmpty": "Set destination"
+    "destinationEmpty": "Set destination",
+    "focusOrigin": "Show start on map",
+    "focusDestination": "Show destination on map"
   },
   "install": {
     "title": "Install SSabway",

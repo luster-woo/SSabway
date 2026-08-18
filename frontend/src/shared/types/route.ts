@@ -39,6 +39,19 @@ export const SUBWAY_LANE = {
 export type SubwayLane = (typeof SUBWAY_LANE)[keyof typeof SUBWAY_LANE]
 
 /**
+ * 노선 → 사람이 읽는 표기. 안내 정보 화면의 목적지("대구역 1호선 개찰구")에 쓴다.
+ * BE enum 의 label 이 응답에 실리지 않으므로(SubwayLane 주석) 프론트에서 매핑한다.
+ * UNKNOWN 은 표기를 만들지 않는다 — 호출부가 노드 코드로 폴백한다.
+ */
+export const SUBWAY_LANE_LABEL: Record<SubwayLane, string | null> = {
+  [SUBWAY_LANE.DAEGU_LINE_1]: '1호선',
+  [SUBWAY_LANE.DAEGU_LINE_2]: '2호선',
+  [SUBWAY_LANE.DAEGU_LINE_3]: '3호선',
+  [SUBWAY_LANE.DAEGYEONG_LINE]: '대경선',
+  [SUBWAY_LANE.UNKNOWN]: null,
+}
+
+/**
  * 요청 본문. 5개 전부 필수다(BE `RouteSearchRequest` 의 @NotNull).
  * 필드명은 BE record 와 1:1이라 그대로 직렬화해 보낸다.
  *
@@ -169,6 +182,18 @@ export interface SelectedRoute {
   arrivalStation: string
   /** 최종 도착역 — 한국어 표기. 상담 요청의 destination 으로 보낸다 */
   arrivalStationKor: string
+  /**
+   * 출발역에서 처음 타는 노선. 안내 정보 화면의 목적지 표기
+   * ("대구역 1호선 개찰구")에 쓴다. `segments[0].lane` 에서 뽑는다.
+   * 구버전 응답·비지원 조합이면 null 이라 호출부가 노드 코드로 폴백한다.
+   */
+  boardingLane: SubwayLane | null
+  /**
+   * 첫 지하철 구간의 하차역. 도착 완료 화면의 "하차역"에 쓴다(환승이면 환승역,
+   * 직통이면 도착역). `segments[0].endStation` 에서 뽑는다. 없으면 null 이라
+   * 호출부가 최종 도착역으로 폴백한다.
+   */
+  alightStation: string | null
   /**
    * 출발역 DB id. 상담 요청의 stationId 로 보낸다.
    *

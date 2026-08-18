@@ -149,13 +149,13 @@ export default function StartPage() {
         }
       >
         <section className="flex flex-col items-center pt-[clamp(12px,3vh,28px)] text-center">
-          <AppLogo />
-          <h1 className="text-ink mt-[clamp(16px,3vh,26px)] text-[clamp(24px,7.5vw,30px)] leading-none font-bold">
-            {t('app.name')}
-          </h1>
-          <p className="text-ink-muted mt-3 text-[clamp(12px,3.6vw,13px)] leading-5">
-            {t('app.tagline')}
-          </p>
+          {/*
+            시작 페이지는 서비스의 얼굴이라 워드마크(이름이 들어간) 로고를 쓰는
+            유일한 화면이다. 이름이 도안 안에 그려지므로 제목은 화면에서 빼고
+            보조기기용으로만 남긴다. 그러지 않으면 이름이 두 번 읽힌다.
+          */}
+          <AppLogo variant="wordmark" size="clamp(112px,32vw,140px)" />
+          <h1 className="sr-only">{t('app.name')}</h1>
         </section>
 
         <section className="mt-[clamp(20px,4.5vh,38px)]">

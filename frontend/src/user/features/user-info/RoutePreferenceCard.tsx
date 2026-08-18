@@ -1,7 +1,11 @@
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { PREFERENCE_STEP, type PreferenceStep } from '@/shared/types/guide'
+import {
+  PREFERENCE_STEP,
+  type PreferenceStep,
+  type RoutePreference,
+} from '@/shared/types/guide'
 import { Card, SelectableTile } from '@/shared/ui'
 import { PlanResultView } from '@/user/features/user-info/PlanResultView'
 import { StepDots } from '@/user/features/user-info/StepDots'
@@ -38,6 +42,8 @@ export interface RoutePreferenceCardProps {
   activeIndex: number
   stepCount: number
   canGoBack: boolean
+  /** 질문별로 마지막에 고른 답. 되돌아왔을 때 그 선택지를 하이라이트한다. */
+  recalledAnswers: RoutePreference
   onSelect: (choice: PreferenceChoice) => void
   onBack: () => void
   onReset: () => void
@@ -54,24 +60,33 @@ export function RoutePreferenceCard({
   activeIndex,
   stepCount,
   canGoBack,
+  recalledAnswers,
   onSelect,
   onBack,
   onReset,
 }: RoutePreferenceCardProps) {
   const { t } = useTranslation()
 
+  /** 이 선택지가 이전에 고른 답인지. patch 의 필드 값이 기억한 답과 같으면 참. */
+  const isRecalled = (choice: PreferenceChoice) =>
+    Object.entries(choice.patch).every(
+      ([field, value]) =>
+        recalledAnswers[field as keyof RoutePreference] === value,
+    )
+
   return (
     <Card className="flex min-h-[268px] flex-col gap-4 py-4">
       {/* 되돌아가기와 진행 표시가 한 줄. 점은 버튼 유무와 관계없이 가운데 고정. */}
-      <div className="relative flex h-6 items-center">
+      <div className="relative flex h-8 items-center">
         {canGoBack ? (
+          // 카메라 화면 뒤로가기와 같은 원형 아이콘 버튼. 문구는 aria-label 로 남긴다.
           <button
             type="button"
             onClick={onBack}
-            className="text-ink-muted focus-visible:ring-brand -ml-1 flex items-center gap-0.5 rounded-full px-1 text-[12.5px] font-bold focus-visible:ring-2 focus-visible:outline-none"
+            aria-label={t('userInfo.preference.back')}
+            className="bg-surface-muted text-ink-muted focus-visible:ring-brand -ml-1 flex size-8 items-center justify-center rounded-full transition focus-visible:ring-2 focus-visible:outline-none active:brightness-95"
           >
-            <ChevronLeftIcon className="size-3.5" strokeWidth={2.4} />
-            {t('userInfo.preference.back')}
+            <ChevronLeftIcon className="size-4" strokeWidth={2.4} />
           </button>
         ) : null}
 
@@ -120,7 +135,7 @@ export function RoutePreferenceCard({
             {getQuestion(node).choices.map((choice) => (
               <SelectableTile
                 key={choice.labelKey}
-                selected={false}
+                selected={isRecalled(choice)}
                 showCheck={false}
                 label={t(choice.labelKey)}
                 onClick={() => onSelect(choice)}

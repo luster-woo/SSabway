@@ -5,8 +5,10 @@ import { useNavigate } from 'react-router-dom'
 
 import { useAuthStore } from '@/shared/lib/store/useAuthStore'
 import { useHelpChatStore } from '@/shared/lib/store/useHelpChatStore'
+import { useRunOnRealUnmount } from '@/shared/lib/useRunOnRealUnmount'
 import { MobileViewport, useToast } from '@/shared/ui'
 import type { LoginFromState } from '@/user/features/auth/loginFrom'
+import { peopleAheadInQueue } from '@/user/features/consultation/queuePosition'
 import { useConsultationRequest } from '@/user/features/consultation/useConsultationRequest'
 import { useConsultationWaiting } from '@/user/features/consultation/useConsultationWaiting'
 import { BotBubble } from '@/user/features/help-chat/BotBubble'
@@ -14,6 +16,15 @@ import { HelpChatHeader } from '@/user/features/help-chat/HelpChatHeader'
 
 /** 좌우 여백 — MobileScreen의 GUTTER와 같은 값 */
 const GUTTER = 'px-[clamp(16px,5vw,24px)]'
+
+/**
+ * 블랙리스트 거절(403 CONSULTATION_BLOCKED)의 문구 키.
+ *
+ * 이 사유만 봇 말풍선이 아니라 **가운데 경고 박스**로 그린다 — 다른 거절
+ * (중복 요청·역무원 없음)은 "잠시 후 다시"로 이어지는 대화의 일부지만,
+ * 차단은 여기서 할 수 있는 것이 없다는 최종 안내라 무게가 달라야 한다.
+ */
+const BLOCKED_KEY = 'helpChat.rejected.blocked'
 
 /**
  * 7. 도움 요청(SSabway 도우미) — 경로 안내 중 도움 요청을 누르면 오는 화면.
@@ -32,8 +43,13 @@ const GUTTER = 'px-[clamp(16px,5vw,24px)]'
  *      토스트를 띄우고 버튼 상태로 되돌린다.
  *
  * 클릭 여부는 스토어에 있어 로그인을 다녀와도(리마운트) 3) 상태가 유지된다.
- * 이 화면을 벗어나면(뒤로가기·경로 안내로·처음으로) 대기 중이던 상담은 그대로
- * 두고 화면 상태만 리셋한다 — 취소하려면 반드시 [취소] 버튼을 눌러야 한다.
+ *
+ * ⚠️ 대기 중(consultationId 보유)에 이 화면을 앱 내에서 벗어나면(뒤로가기·경로
+ *    안내로·처음으로) 대기 상담을 **자동으로 취소**한다. 그대로 두면 WAITING
+ *    상담이 남아 다음 도움 요청이 409 CONSULTATION_DUPLICATED 로 막히는데,
+ *    이 화면은 대기 상태를 메모리에만 들고 있어 다시 들어와도 그 상담을 이어
+ *    받거나 취소할 수단이 없기 때문이다. (매칭돼 통화로 넘어가는 경우는 예외 —
+ *    아래 useRunOnRealUnmount 참고)
  */
 export default function HelpChatPage() {
   const { t } = useTranslation()
@@ -69,6 +85,8 @@ export default function HelpChatPage() {
   const isWaiting = isPending || consultationId !== null
 
   const waiting = useConsultationWaiting(consultationId)
+  /* 서버 순번은 자기 자신을 포함한다 — 화면에는 내 앞 인원만 보여준다. */
+  const waitingAhead = peopleAheadInQueue(waiting.queuePosition)
 
   // 매칭되면 화상 화면으로. 토큰은 그 화면이 카메라 권한을 얻은 뒤 따로 받는다.
   useEffect(() => {
@@ -93,16 +111,36 @@ export default function HelpChatPage() {
     showToast(t('consultation.unavailable'))
   }, [consultationId, showToast, t, waiting.isFailed])
 
-  /** 화면을 떠날 때는 대화를 처음으로 되돌린다. (대기 중인 상담은 그대로 둔다) */
+  /** 화면을 떠날 때는 대화를 처음으로 되돌린다. (대기 중 상담 취소는 언마운트가 맡는다) */
   const leaveTo = (path: string) => {
     resetConversation()
     void navigate(path)
   }
 
+  /*
+    대기 중에 이 화면을 앱 내에서 벗어나면(하드웨어 back·뒤로가기·footer 버튼)
+    남아 있는 WAITING 상담을 취소한다. 안 하면 상담이 서버에 남아 다음
+    도움 요청이 409 로 막히는데, 대기 상태는 메모리에만 있어 재진입해도
+    그 상담을 이어받거나 취소할 방법이 없다(위 헤더 주석).
+
+    매칭돼 통화 화면으로 넘어가는 경우는 취소하면 안 된다 — 그때도 이 화면은
+    언마운트되지만 상담은 살아 통화로 이어져야 한다. waiting.isMatched 로 가른다.
+
+    ⚠️ 새로고침·탭 닫기는 여기서 못 잡는다(useRunOnRealUnmount 주석). 그 경우
+       대기 상담 정리는 서버 유예 시간이 맡아야 한다.
+  */
+  useRunOnRealUnmount(() => {
+    if (consultationId === null) return
+    if (waiting.isMatched) return
+    void cancelConsultation(consultationId)
+  })
+
   const goLogin = () => {
     // 로그인 성공 시 LoginPage 가 이 `from` 으로 돌아온다.
     // (히스토리로 되돌리면 안 되는 이유는 features/auth/loginFrom 주석 참고)
-    void navigate('/login', { state: { from: '/help' } satisfies LoginFromState })
+    void navigate('/login', {
+      state: { from: '/help' } satisfies LoginFromState,
+    })
   }
 
   /** 상담을 요청하고 이 화면에서 대기 상태로 전환한다. (페이지 이동 없음) */
@@ -122,7 +160,9 @@ export default function HelpChatPage() {
     <MobileViewport className="bg-surface-soft flex flex-col">
       <HelpChatHeader onBack={() => void navigate(-1)} />
 
-      <main className={`${GUTTER} flex flex-1 flex-col gap-4 overflow-y-auto py-5`}>
+      <main
+        className={`${GUTTER} flex flex-1 flex-col gap-4 overflow-y-auto py-5`}
+      >
         <BotBubble>{t('helpChat.greeting')}</BotBubble>
 
         {/* 사용자 쪽 선택지. 누르고 나면 보낸 말풍선처럼 남는다. */}
@@ -134,7 +174,7 @@ export default function HelpChatPage() {
           <button
             type="button"
             onClick={requestConnection}
-            className="bg-brand-gradient focus-visible:ring-brand self-end rounded-full px-7 py-3 text-[14px] font-bold text-white shadow-sm transition active:brightness-95 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+            className="bg-brand-gradient focus-visible:ring-brand self-end rounded-full px-7 py-3 text-[14px] font-bold text-white shadow-sm transition focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none active:brightness-95"
           >
             {t('helpChat.connectStaff')}
           </button>
@@ -146,7 +186,7 @@ export default function HelpChatPage() {
             <button
               type="button"
               onClick={goLogin}
-              className="border-brand bg-surface text-brand-dark focus-visible:ring-brand mx-auto mt-1 h-[52px] w-[82%] rounded-full border-[1.6px] text-[14.5px] font-bold transition active:brightness-95 focus-visible:ring-2 focus-visible:outline-none"
+              className="border-brand bg-surface text-brand-dark focus-visible:ring-brand mx-auto mt-1 h-[52px] w-[82%] rounded-full border-[1.6px] text-[14.5px] font-bold transition focus-visible:ring-2 focus-visible:outline-none active:brightness-95"
             >
               {t('helpChat.loginAndConnect')}
             </button>
@@ -177,16 +217,18 @@ export default function HelpChatPage() {
                       aria-hidden
                       className="border-line border-t-brand size-5 animate-spin rounded-full border-[3px]"
                     />
-                    {waiting.queuePosition !== null
-                      ? t('consultation.queuePosition', {
-                          position: waiting.queuePosition,
-                        })
-                      : t('consultation.connecting')}
+                    {waitingAhead === null
+                      ? t('consultation.connecting')
+                      : waitingAhead === 0
+                        ? t('consultation.waitingStaff')
+                        : t('consultation.queuePosition', {
+                            position: waitingAhead,
+                          })}
                   </div>
                   <button
                     type="button"
                     onClick={() => void cancelWaiting()}
-                    className="border-line bg-surface text-ink focus-visible:ring-brand h-11 w-[82%] rounded-2xl border text-[13px] transition active:brightness-95 focus-visible:ring-2 focus-visible:outline-none"
+                    className="border-line bg-surface text-ink focus-visible:ring-brand h-11 w-[82%] rounded-2xl border text-[13px] transition focus-visible:ring-2 focus-visible:outline-none active:brightness-95"
                   >
                     {t('common.cancel')}
                   </button>
@@ -196,20 +238,44 @@ export default function HelpChatPage() {
                   type="button"
                   disabled={isPending}
                   onClick={() => void startVideoCall()}
-                  className="bg-brand-gradient focus-visible:ring-brand h-[52px] w-[82%] rounded-2xl text-[15px] font-bold text-white shadow-sm transition active:brightness-95 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:opacity-60"
+                  className="bg-brand-gradient focus-visible:ring-brand h-[52px] w-[82%] rounded-2xl text-[15px] font-bold text-white shadow-sm transition focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none active:brightness-95 disabled:opacity-60"
                 >
                   {t('helpChat.connect')}
                 </button>
               )}
-              <p className="text-ink-faint text-[11.5px]">
+              <p className="text-ink text-[11.5px] font-semibold">
                 {t('helpChat.recordNotice')}
               </p>
             </div>
 
-            {/* 요청이 거절되면 사유를 봇 코멘트로 남긴다
-                (블랙리스트·중복 요청·역무원 없음 등) */}
+            {/* 요청이 거절되면 사유를 알린다. 블랙리스트 차단은 가운데 경고
+                박스(BLOCKED_KEY 주석 참고), 그 밖(중복·역무원 없음)은 봇 코멘트. */}
             {isRejected && rejectedKey ? (
-              <BotBubble>{t(rejectedKey)}</BotBubble>
+              rejectedKey === BLOCKED_KEY ? (
+                <div
+                  role="alert"
+                  className="border-danger/30 bg-danger/5 mx-auto mt-2 flex w-[88%] flex-col items-center gap-2.5 rounded-2xl border-[1.6px] px-5 py-5 text-center"
+                >
+                  <svg
+                    aria-hidden
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2.1}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="text-danger size-7"
+                  >
+                    <path d="M10.3 4.1 2.9 17a2 2 0 0 0 1.7 3h14.8a2 2 0 0 0 1.7-3L13.7 4.1a2 2 0 0 0-3.4 0Z" />
+                    <path d="M12 9.5v4M12 17h.01" />
+                  </svg>
+                  <p className="text-danger text-[14px] leading-relaxed font-bold whitespace-pre-line">
+                    {t(rejectedKey)}
+                  </p>
+                </div>
+              ) : (
+                <BotBubble>{t(rejectedKey)}</BotBubble>
+              )
             ) : null}
           </>
         ) : null}
@@ -221,14 +287,14 @@ export default function HelpChatPage() {
         <button
           type="button"
           onClick={() => leaveTo('/guide')}
-          className="border-line bg-surface text-ink focus-visible:ring-brand h-11 flex-1 rounded-2xl border text-[13px] transition active:brightness-95 focus-visible:ring-2 focus-visible:outline-none"
+          className="border-line bg-surface text-ink focus-visible:ring-brand h-11 flex-1 rounded-2xl border text-[13px] transition focus-visible:ring-2 focus-visible:outline-none active:brightness-95"
         >
           {t('helpChat.backToGuide')}
         </button>
         <button
           type="button"
           onClick={() => leaveTo('/')}
-          className="border-line bg-surface text-ink focus-visible:ring-brand h-11 flex-1 rounded-2xl border text-[13px] transition active:brightness-95 focus-visible:ring-2 focus-visible:outline-none"
+          className="border-line bg-surface text-ink focus-visible:ring-brand h-11 flex-1 rounded-2xl border text-[13px] transition focus-visible:ring-2 focus-visible:outline-none active:brightness-95"
         >
           {t('common.goHome')}
         </button>

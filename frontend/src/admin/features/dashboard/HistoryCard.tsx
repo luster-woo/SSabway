@@ -62,8 +62,8 @@ export function HistoryCard({
         <p className="text-ink-muted mt-1.5 truncate text-[13px]">
           {userEmail}
         </p>
-        <p className="text-ink-muted mt-2 text-[13px]">
-          AI 요약  {summary ?? '요약 없음'}
+        <p className="text-ink-muted mt-2 text-left text-[13px]">
+          {summary ?? '요약 없음'}
         </p>
       </div>
 

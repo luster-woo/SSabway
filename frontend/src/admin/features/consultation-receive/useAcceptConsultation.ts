@@ -4,12 +4,20 @@ import { useQueryClient } from '@tanstack/react-query'
 
 import { queryKeys } from '@/shared/lib/queryKeys'
 import { useConsultationSessionStore } from '@/shared/lib/store/useConsultationSessionStore'
+import {
+  checkMicPermission,
+  MIC_CHECK,
+} from '@/admin/features/consultation-receive/micPermission'
 import { openviduApi } from '@/admin/lib/openviduApi'
 
 /** 상담 수락 실패 사유. 화면이 분기해야 하는 경우만 구분한다. */
 export const ACCEPT_FAILURE = {
   /** 409 ALREADY_ACCEPTED — 다른 역무원이 먼저 수락 */
   ALREADY_ACCEPTED: 'ALREADY_ACCEPTED',
+  /** 마이크 권한이 차단되어 수락하지 않았다 */
+  MIC_DENIED: 'MIC_DENIED',
+  /** 마이크 장치를 쓸 수 없어 수락하지 않았다 */
+  MIC_UNAVAILABLE: 'MIC_UNAVAILABLE',
   UNKNOWN: 'UNKNOWN',
 } as const
 
@@ -36,6 +44,20 @@ export interface UseAcceptConsultationResult {
  * 409 CONSULTATION_ALREADY_ACCEPTED 를 받는다.
  *
  * 실패해도 대기 목록 쿼리를 무효화한다. 이미 없어진 항목이 화면에 남으면 안 된다.
+ *
+ * 수락에 앞서 마이크부터 확인한다 — 마이크 없이 수락하면 상담방에서 발행이
+ * 실패하고, 그 상담은 대신 받아 줄 역무원이 없어(역마다 계정 하나) MATCHED 로
+ * 갇힌다. 그래서 마이크를 못 쓰면 수락 자체를 하지 않는다.
+ *
+ * ⚠️ 상담을 **취소하지는 않는다.** 마이크 거부는 역무원 브라우저 설정 문제이지
+ *    사용자의 의사가 아니다. 여기서 취소해 버리면 차단이 저장된 역무원이
+ *    [수락] 을 누를 때마다 그 역의 상담이 줄줄이 취소되고(CANCELED 는 재요청을
+ *    막지 않아 사용자가 다시 요청해도 똑같이 취소된다), 사용자는 이유도 모른 채
+ *    거절만 당한다. 상담은 WAITING 으로 두어 순번을 지키고, 역무원이 권한을
+ *    고치면 그대로 이어서 수락하면 된다.
+ *
+ *    상담방 안에서 발행이 실패하는 경우는 다르다 — 이미 MATCHED 라 되돌릴 곳이
+ *    없어 그쪽만 취소한다(useStaffCancelConsultation).
  */
 export function useAcceptConsultation(): UseAcceptConsultationResult {
   const queryClient = useQueryClient()
@@ -47,6 +69,22 @@ export function useAcceptConsultation(): UseAcceptConsultationResult {
       setPendingId(consultationId)
 
       try {
+        /*
+          권한 팝업이 떠 있는 동안에도 pendingId 가 유지되어 해당 카드의
+          [수락] 버튼은 잠겨 있다 — 역무원이 팝업을 두고 다시 누르지 못한다.
+        */
+        const mic = await checkMicPermission()
+
+        if (mic !== MIC_CHECK.OK) {
+          /*
+            서버에 아무것도 보내지 않고 돌아간다. 상담은 WAITING 그대로라
+            대기 목록에 남고, 역무원이 마이크를 고치면 다시 누르면 된다.
+          */
+          return mic === MIC_CHECK.DENIED
+            ? ACCEPT_FAILURE.MIC_DENIED
+            : ACCEPT_FAILURE.MIC_UNAVAILABLE
+        }
+
         const session = await openviduApi.openSession(consultationId)
 
         startSession(session)

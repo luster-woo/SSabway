@@ -85,6 +85,24 @@ const consultations = {
    */
   leave: (id: number) => `/consultations/${id}/leave`,
   /**
+   * 역무원 쪽 상담 취소 — ✅ BE 구현됨 (webrtc ConsultationController).
+   *
+   * ⚠️ 이 그룹에서 **유일하게 STAFF 토큰**으로 부르는 API 다. 나머지는 전부
+   *    USER 전용이고, BE SecurityConfig 도 `/api/v1/consultations/**` 를
+   *    hasAuthority("USER") 로 잠근 뒤 이 경로만 STAFF 로 빼 두었다.
+   *    따라서 관리자 앱의 openviduApi(adminApi) 로만 불러야 한다.
+   *
+   * 상담방에서 마이크 발행이 실패했을 때 역무원이 담당 상담을 취소한다.
+   * 수락 전 구간은 여기 오지 않는다 — 그쪽은 수락을 막는 것으로 처리한다
+   * (openvidu.ts 의 cancelConsultationByStaff 주석 참고).
+   *
+   * WAITING·MATCHED 를 CANCELED 로 바꾸고(MATCHED 면 OpenVidu 세션도 닫는다),
+   * 이미 취소된 상담은 멱등 성공. IN_PROGRESS 는 409 로 거절되므로 녹음이
+   * 시작된 뒤에는 기존 종료 경로(openvidu.endConsultation)를 써야 한다.
+   * 담당 역무원 본인인지는 서버가 staff_id 로 검증한다(403).
+   */
+  staffCancel: (id: number) => `/consultations/${id}/staff-cancel`,
+  /**
    * 상담 자막 → GMS 요약. ✅ BE 구현됨 (ssabway ConsultationSummaryService).
    *
    * 상담이 ENDED 여야 받아준다 — leave 가 끝난 뒤에 불러야 한다.
@@ -121,6 +139,27 @@ const openvidu = {
     `/openvidu/sessions/${encodeURIComponent(sessionId)}/end`,
 } as const
 
+/**
+ * 민원 기록 조회(GET /staffs/history)의 쿼리 파라미터.
+ *
+ * email·from·to 는 백엔드에서 @RequestParam(required = false) 라 전부 선택이며,
+ * 서로 독립이다 — 기간만, 이메일만, 둘 다 어느 조합이든 된다.
+ *   email : 정확 일치, 대소문자 무관
+ *   from  : yyyy-MM-dd. 그 날 00:00 부터
+ *   to    : yyyy-MM-dd. 그 날 전체를 포함(경계 포함)
+ *
+ * ⚠️ 날짜를 Date 가 아니라 문자열로 받는다. Date 를 toISOString 으로 넘기면
+ *    UTC 로 밀려 KST 자정 근처에서 하루가 어긋난다. 백엔드는 LocalDate 라
+ *    화면에서 고른 그 날짜가 그대로 가야 한다. (historyFilter.ts 의 toDateParam)
+ */
+export interface HistoryQueryParams {
+  /** 1부터. 검색 조건이 바뀌면 화면이 1 로 되돌린다. */
+  page: number
+  email?: string | null
+  from?: string | null
+  to?: string | null
+}
+
 /** 관리자 */
 const admin = {
   login: '/staffs/login',
@@ -129,8 +168,19 @@ const admin = {
   /**
    * 민원 기록 목록. ✅ BE 개발완료 (ConsultationController GET /staffs/history).
    * useConsultationHistory 의 매핑 함수 주석 참고. 페이지는 1부터, 6건씩.
+   *
+   * page 를 뺀 셋은 전부 선택이다 (8/6 BE 추가 — @RequestParam(required = false)).
+   * 검색 조건 없이 부르면 예전과 똑같이 전체 목록이 온다.
    */
-  history: (page: number) => `/staffs/history?page=${page}`,
+  history: (params: HistoryQueryParams) => {
+    const query = new URLSearchParams({ page: String(params.page) })
+    // 빈 문자열을 그대로 실으면 백엔드가 "빈 값과 정확히 일치"로 읽어 0건이 된다.
+    // 값이 없는 조건은 파라미터 자체를 빼야 한다.
+    if (params.email) query.set('email', params.email)
+    if (params.from) query.set('from', params.from)
+    if (params.to) query.set('to', params.to)
+    return `/staffs/history?${query.toString()}`
+  },
   /**
    * 원본 상담 내역(녹취) 조회. ✅ BE 개발완료 (ConsultationController.getDetail).
    *
@@ -164,7 +214,12 @@ const admin = {
    * nginx 는 다른 /staffs/** 와 같이 api 로 보내면 된다 (별도 블록 불필요).
    */
   accept: (id: number) => `/staffs/consultations/${id}/accept`,
-  end: (id: number) => `/staffs/consultations/${id}/end`,
+  /*
+    `end: /staffs/consultations/{id}/end` 는 제거했다 — 백엔드에 구현된 적이
+    없고(ssabway ConsultationController 에 accept 까지만 있다) 프론트에서도
+    부르는 곳이 없었다. 역무원 종료는 openvidu.endConsultation, 취소는
+    consultations.staffCancel 이 맡는다.
+  */
   blacklist: {
     list: (page: number) => `/staffs/blacklist?page=${page}`,
     create: '/staffs/blacklist',

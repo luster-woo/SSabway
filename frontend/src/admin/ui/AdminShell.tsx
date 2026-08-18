@@ -36,7 +36,11 @@ export function AdminShell({
         )}
       >
         <header className="bg-brand-dark flex h-16 shrink-0 items-center gap-3 px-6">
-          <AppLogo size="30px" />
+          {/*
+            남색 헤더 위라 도안을 반전한다. 선이 가는 도안이라 30px 에서는
+            뭉개져서, 64px 헤더가 허용하는 선에서 조금 키웠다.
+          */}
+          <AppLogo size="36px" tone="inverse" />
           <span className="text-[15px] font-bold text-white">
             SSabway Admin
           </span>
