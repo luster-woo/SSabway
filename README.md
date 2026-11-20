@@ -94,8 +94,8 @@ frontend/src
 
 <table>
 <tr>
-<td width="50%" valign="top"><a href="assets/admin-consult.png"><img src="assets/thumb-admin-consult.png" width="420" alt="관리자 화상 상담"></a><br><sub><b>화상 상담</b> — 얼굴 자동 모자이크 · 실시간 번역 자막 · 상담 정보 조회 · 블랙리스트 등록</sub></td>
-<td width="50%" valign="top"><a href="assets/admin-dashboard.png"><img src="assets/thumb-admin-dashboard.png" width="420" alt="관리자 대시보드"></a><br><sub><b>상담 대기열 · 민원 기록</b> — 기간·이메일 검색 · 원본 기록 조회 · 블랙리스트 관리</sub></td>
+<td width="50%" valign="top"><a href="assets/admin-consult.png"><img src="assets/%EC%98%AC%EB%A6%B4%EC%82%AC%EC%A7%84_SSabway/thumb-admin-consult.png" width="420" alt="관리자 화상 상담"></a><br><sub><b>화상 상담</b> — 얼굴 자동 모자이크 · 실시간 번역 자막 · 상담 정보 조회 · 블랙리스트 등록</sub></td>
+<td width="50%" valign="top"><a href="assets/admin-dashboard.png"><img src="assets/%EC%98%AC%EB%A6%B4%EC%82%AC%EC%A7%84_SSabway/thumb-admin-dashboard.png" width="420" alt="관리자 대시보드"></a><br><sub><b>상담 대기열 · 민원 기록</b> — 기간·이메일 검색 · 원본 기록 조회 · 블랙리스트 관리</sub></td>
 </tr>
 </table>
 
